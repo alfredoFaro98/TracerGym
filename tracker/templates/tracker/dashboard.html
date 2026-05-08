@@ -1,0 +1,144 @@
+{% extends 'tracker/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Workout Tracker{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 26px; flex-wrap: wrap; gap: 15px;">
+        <div>
+            <h1 style="font-size: 21px; font-weight: 700; color: #f0f0f3; letter-spacing: -0.4px; margin-bottom: 3px;">
+                Bentornato, <span style="color: #f0883e;">{{ user.username }}</span>
+            </h1>
+            <p style="font-size: 12.5px; color: #484860; font-weight: 400;">
+                Ecco il riepilogo dei tuoi allenamenti.
+            </p>
+        </div>
+        <a href="{% url 'create_session' %}" class="btn-primary-gradient" style="display: flex; align-items: center; gap: 7px; padding: 9px 16px; font-size: 13px;">
+            Nuovo allenamento
+        </a>
+    </div>
+
+    <!-- Heatmap -->
+    <div class="tracer-card" style="padding: 22px 24px; margin-bottom: 20px;">
+        <div style="font-size: 11px; font-weight: 700; color: #3a3a52; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;">
+            Attività Annuale
+        </div>
+        <div id="cal-heatmap" style="display: flex; justify-content: center; width: 100%; overflow-x: auto;"></div>
+    </div>
+
+    <!-- Sessions List -->
+    <div class="tracer-card" style="overflow: hidden;">
+        <div style="padding: 14px 18px; border-bottom: 1px solid #16162a; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 11px; font-weight: 700; color: #3a3a52; text-transform: uppercase; letter-spacing: 1px;">
+                Storico Allenamenti
+            </div>
+            <span style="font-size: 11px; color: #303048; font-family: 'JetBrains Mono', monospace;">
+                {{ sessions.count }} sessioni
+            </span>
+        </div>
+        <div style="padding: 10px; display: flex; flex-direction: column; gap: 5px; max-height: 440px; overflow-y: auto;">
+            {% for session in sessions %}
+            <!-- Singola Card -->
+            <div style="padding: 14px 18px; border-radius: 8px; border: 1px solid #1c1c2c; background: transparent; transition: all .15s; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <!-- Date box -->
+                    <div style="width: 44px; height: 44px; border-radius: 8px; background: #141420; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <span style="font-size: 9px; font-weight: 700; color: #5a5a78; text-transform: uppercase; margin-bottom: -1px;">{{ session.data|date:"M" }}</span>
+                        <span style="font-size: 16px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ session.data|date:"d" }}</span>
+                    </div>
+                    <div>
+                        <div style="font-size: 14px; font-weight: 600; color: #e0e0f0; margin-bottom: 2px;">{{ session.data|date:"l d F" }}</div>
+                        <div style="font-size: 11.5px; color: #585872;">{{ session.sets.count }} serie totali</div>
+                        {% if session.note %}
+                        <div style="font-size: 11px; color: #787890; font-style: italic; margin-top: 4px;">"{{ session.note }}"</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px; margin-left: auto;">
+                    <a href="{% url 'session_detail' session.id %}" style="padding: 6px 12px; font-size: 12px; font-weight: 600; color: #f0f0f3; background: #1c1c2c; border-radius: 6px; transition: background .12s;">
+                        Vedi Dettagli
+                    </a>
+                    <form action="{% url 'delete_session' session.id %}" method="post" onsubmit="return confirm('Sei sicuro?');">
+                        {% csrf_token %}
+                        <button type="submit" style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; background: rgba(248,81,73,.07); border: 1px solid rgba(248,81,73,.14); border-radius: 6px; color: #f85149; font-size: 12px; transition: all .12s; font-weight: bold;">
+                            X
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <div style="padding: 36px; text-align: center; color: #2c2c42; font-size: 13px;">
+                Nessun allenamento. Inizia subito!
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Scripts for Cal-Heatmap v3 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cal-heatmap/3.6.2/cal-heatmap.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cal-heatmap/3.6.2/cal-heatmap.css">
+
+<style>
+    /* Personalizzazioni dark per cal-heatmap */
+    .ch-domain-text { fill: #a0a6af; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; }
+    .ch-subdomain-bg { fill: #1c1c2c; }
+    .graph-rect { stroke: #0d0d14; stroke-width: 2px; rx: 2; ry: 2;}
+    .q1 { fill: #00ff41 !important; opacity: 0.25;}
+    .q2 { fill: #00ff41 !important; opacity: 0.50;}
+    .q3 { fill: #00ff41 !important; opacity: 0.75;}
+    .q4 { fill: #00ff41 !important; opacity: 0.90;}
+    .q5 { fill: #00ff41 !important; opacity: 1;}
+    .hover_cursor:hover { stroke: #ffffff; stroke-width: 1px; }
+
+    /* Fix Tooltip (Modale) Tagliato */
+    .ch-tooltip {
+        position: absolute;
+        z-index: 99999 !important;
+        background: #1c1c2c !important;
+        color: #f0f0f3 !important;
+        border: 1px solid #202030 !important;
+        border-radius: 6px !important;
+        padding: 8px 12px !important;
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-size: 12px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+        pointer-events: none;
+    }
+    .ch-tooltip::after { border-top-color: #1c1c2c !important; }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var rawData = {{ heatmap_data_json|safe }};
+        var data = {};
+        rawData.forEach(function(item) {
+            data[item.date] = item.value;
+        });
+
+        var cal = new CalHeatMap();
+        // Imposta la data di inizio al 1° Gennaio dell'anno corrente per visualizzare l'intero anno solare
+        var startDate = new Date(new Date().getFullYear(), 0, 1);
+
+        cal.init({
+            itemSelector: "#cal-heatmap",
+            domain: "month",
+            subDomain: "x_day",
+            data: data,
+            start: startDate,
+            cellSize: 13,
+            cellPadding: 3,
+            domainGutter: 10,
+            range: 12,
+            tooltip: true,
+            displayLegend: false, 
+            itemName: ["allenamento", "allenamenti"],
+            domainLabelFormat: "%b",
+            label: { position: "top", align: "left", offset: { x: 0, y: 0 } }
+        });
+    });
+</script>
+{% endblock %}

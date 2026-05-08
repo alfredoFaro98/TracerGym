@@ -1,0 +1,44 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Login - Tracer Workout{% endblock %}
+
+{% block content %}
+<div style="flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; height: 100vh;">
+    <!-- Sfondo radiale -->
+    <div style="position: absolute; width: 700px; height: 700px; background: radial-gradient(circle, rgba(240,136,62,.055) 0%, transparent 65%); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none;"></div>
+    
+    <div class="page-enter responsive-card-width" style="width: 360px; background: #0d0d14; border: 1px solid #1e1e2c; border-radius: 14px; padding: 32px; z-index: 1;">
+        
+        <!-- Logo -->
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 26px;">
+            <div style="width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg, #f0883e, #c85c1a); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #fff;">T</div>
+            <div>
+                <div style="font-size: 16px; font-weight: 700; color: #f0f0f3;">Tracer</div>
+                <div style="font-size: 9.5px; color: #404052; font-weight: 600; letter-spacing: 1px;">WORKOUT TRACKER</div>
+            </div>
+        </div>
+
+        <!-- Mode tabs -->
+        <div style="display: flex; gap: 4px; padding: 4px; background: #09090f; border: 1px solid #17171f; border-radius: 8px; margin-bottom: 22px;">
+            <div style="flex: 1; padding: 7px; border-radius: 5px; text-align: center; background: #1c1c2c; color: #f0f0f3; font-size: 13px; font-weight: 600;">Accedi</div>
+            <a href="{% url 'register' %}" style="flex: 1; padding: 7px; border-radius: 5px; text-align: center; background: transparent; color: #484860; font-size: 13px;">Registrati</a>
+        </div>
+
+        <!-- Form -->
+        <form method="post" style="display: flex; flex-direction: column; gap: 11px;">
+            {% csrf_token %}
+            
+            <input type="text" name="username" class="tracer-input" placeholder="Username" required autofocus>
+            <input type="password" name="password" class="tracer-input" placeholder="Password" required>
+            
+            {% if form.errors %}
+            <div style="font-size: 11.5px; color: #f85149; padding: 8px 10px; background: rgba(248,81,73,.07); border-radius: 6px; border: 1px solid rgba(248,81,73,.14);">
+                Credenziali non valide. Riprova.
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn-primary-gradient" style="padding: 11px; margin-top: 3px; font-size: 14px;">Entra</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

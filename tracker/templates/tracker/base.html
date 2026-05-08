@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Workout Tracker{% endblock %}</title>
+    <!-- Rimuoviamo Bootstrap per usare solo il design Tracer -->
+    <link rel="stylesheet" href="{% static 'tracker/style.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Sostituisce la vecchia navbar con il layout a flessibile: Sidebar + Main Content -->
+    <div id="root" class="app-layout">
+        {% if user.is_authenticated %}
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Logo -->
+            <div class="logo-container" style="display: flex; align-items: center; gap: 10px; margin-bottom: 40px; padding: 0 8px;">
+                <div>
+                    <div style="font-size: 15px; font-weight: 700; color: #f0f0f3;">Tracer</div>
+                    <div style="font-size: 9px; color: #404052; font-weight: 600; letter-spacing: 1px;">WORKOUT TRACKER</div>
+                </div>
+            </div>
+
+            <!-- Menu -->
+            <div class="menu-container" style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+                <a href="{% url 'dashboard' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; background: #1c1c2c; font-size: 13px; font-weight: 500; transition: all .15s;">
+                    <span class="menu-text">Dashboard</span>
+                </a>
+                <a href="{% url 'create_session' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #787890; font-size: 13px; font-weight: 500; transition: all .15s;">
+                    <span class="menu-text">Nuovo Allenamento</span>
+                </a>
+                {% if user.is_superuser %}
+                <a href="/admin/" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #787890; font-size: 13px; font-weight: 500; transition: all .15s;">
+                    <span class="menu-text">Amministrazione</span>
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- User Info / Logout -->
+            <div class="user-info-container" style="border-top: 1px solid #14141f; padding-top: 20px; margin-top: auto;">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 30px; height: 30px; border-radius: 8px; background: #1c1c2c; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #a0a0c0;">
+                            {{ user.username|make_list|first|upper }}
+                        </div>
+                        <div>
+                            <div style="font-size: 12.5px; font-weight: 600; color: #e0e0f0;">{{ user.username }}</div>
+                            <div style="font-size: 10.5px; color: #505068;">Atleta</div>
+                        </div>
+                    </div>
+                    <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" title="Logout" style="background: transparent; border: none; color: #484860; cursor: pointer; transition: color .15s; font-size: 12px; font-weight: 500;">
+                            Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</body>
+</html>
