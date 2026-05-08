@@ -90,6 +90,7 @@ function AuthPage({ onLogin }) {
     <div style={{
       flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
       background: '#080809', position: 'relative', overflow: 'hidden',
+      padding: '16px',
     }}>
       <div style={{
         position: 'absolute', width: '700px', height: '700px',
@@ -97,7 +98,7 @@ function AuthPage({ onLogin }) {
         top: '50%', left: '50%', transform: 'translate(-50%,-50%)', pointerEvents: 'none',
       }} />
       <div className="page-enter" style={{
-        width: '360px', background: '#0d0d14',
+        width: '100%', maxWidth: '360px', background: '#0d0d14',
         border: '1px solid #1e1e2c', borderRadius: '14px', padding: '32px',
       }}>
         {/* Logo */}
@@ -168,11 +169,12 @@ function AuthPage({ onLogin }) {
 
 // ─── DashboardPage ────────────────────────────────────────────────────────────
 function DashboardPage({ sessions, user, navigate, onDelete, onView }) {
+  const isMobile = useMobile();
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Buongiorno' : hour < 18 ? 'Buon pomeriggio' : 'Buonasera';
 
   return (
-    <div className="page-enter" style={{ flex: 1, overflow: 'auto', padding: '28px 32px' }}>
+    <div className="page-enter" style={{ flex: 1, overflow: 'auto', padding: isMobile ? '16px 14px 80px' : '28px 32px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '26px' }}>
         <div>
           <h1 style={{ fontSize: '21px', fontWeight: 700, color: '#f0f0f3', letterSpacing: '-0.4px', marginBottom: '3px' }}>
@@ -190,7 +192,7 @@ function DashboardPage({ sessions, user, navigate, onDelete, onView }) {
           color: '#fff', fontSize: '13px',
           fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, cursor: 'pointer',
         }}>
-          <PlusIcon size={13} /> Nuovo allenamento
+          <PlusIcon size={13} />{!isMobile && ' Nuovo allenamento'}
         </button>
       </div>
 
@@ -218,7 +220,7 @@ function DashboardPage({ sessions, user, navigate, onDelete, onView }) {
             {sessions.length} sessioni
           </span>
         </div>
-        <div style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '5px', maxHeight: '440px', overflow: 'auto' }}>
+        <div style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '5px', maxHeight: isMobile ? 'none' : '440px', overflow: isMobile ? 'visible' : 'auto' }}>
           {sessions.length === 0
             ? <div style={{ padding: '36px', textAlign: 'center', color: '#2c2c42', fontSize: '13px' }}>Nessun allenamento. Inizia subito!</div>
             : sessions.map(s => <WorkoutCard key={s.id} session={s} onView={onView} onDelete={onDelete} />)
@@ -231,6 +233,7 @@ function DashboardPage({ sessions, user, navigate, onDelete, onView }) {
 
 // ─── NewSessionPage ───────────────────────────────────────────────────────────
 function NewSessionPage({ navigate, onCreate }) {
+  const isMobile = useMobile();
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -245,8 +248,8 @@ function NewSessionPage({ navigate, onCreate }) {
   const quickNotes = ['Focus forza', 'Volume day', 'Deload', 'Buone sensazioni'];
 
   return (
-    <div className="page-enter" style={{ flex: 1, display: 'flex', padding: '28px 32px' }}>
-      <div style={{ width: '460px' }}>
+    <div className="page-enter" style={{ flex: 1, display: 'flex', padding: isMobile ? '16px 14px 80px' : '28px 32px' }}>
+      <div style={{ width: isMobile ? '100%' : '460px' }}>
         <button onClick={() => navigate('dashboard')} style={{
           display: 'flex', alignItems: 'center', gap: '6px',
           padding: '6px 10px', marginBottom: '22px',
@@ -341,6 +344,7 @@ function SetRow({ set, index, onDelete }) {
 }
 
 function SessionDetailPage({ session, exercises, navigate, onAddSet, onDeleteSet }) {
+  const isMobile = useMobile();
   const [exInput, setExInput]     = useState('');
   const [reps, setReps]           = useState('');
   const [weight, setWeight]       = useState('');
@@ -388,7 +392,7 @@ function SessionDetailPage({ session, exercises, navigate, onAddSet, onDeleteSet
   });
 
   return (
-    <div className="page-enter" style={{ flex: 1, overflow: 'auto', padding: '28px 32px' }}>
+    <div className="page-enter" style={{ flex: 1, overflow: 'auto', padding: isMobile ? '14px 14px 80px' : '28px 32px' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '24px', flexWrap: 'wrap' }}>
         <button onClick={() => navigate('dashboard')} style={{
@@ -412,12 +416,12 @@ function SessionDetailPage({ session, exercises, navigate, onAddSet, onDeleteSet
       </div>
 
       {/* Two columns */}
-      <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: '18px', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '340px 1fr', gap: '18px', alignItems: 'start' }}>
 
         {/* Form */}
         <div style={{
           background: '#0d0d14', border: '1px solid #191926',
-          borderRadius: '12px', position: 'sticky', top: '0', overflow: 'visible',
+          borderRadius: '12px', position: isMobile ? 'static' : 'sticky', top: '0', overflow: 'visible',
         }}>
           <div style={{ padding: '13px 16px', borderBottom: '1px solid #16162a' }}>
             <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#3a3a52', textTransform: 'uppercase', letterSpacing: '1px' }}>Aggiungi Serie</div>
@@ -562,6 +566,7 @@ function SessionDetailPage({ session, exercises, navigate, onAddSet, onDeleteSet
 
 // ─── AdminPage ────────────────────────────────────────────────────────────────
 function AdminPage({ sessions, exercises }) {
+  const isMobile = useMobile();
   const [tab, setTab] = useState('overview');
   const totalSets = sessions.reduce((n, s) => n + s.sets.length, 0);
   const usage = useMemo(() => {
@@ -577,7 +582,7 @@ function AdminPage({ sessions, exercises }) {
   ];
 
   return (
-    <div className="page-enter" style={{ flex: 1, overflow: 'auto', padding: '28px 32px' }}>
+    <div className="page-enter" style={{ flex: 1, overflow: 'auto', padding: isMobile ? '16px 14px 80px' : '28px 32px' }}>
       <div style={{ marginBottom: '22px' }}>
         <h1 style={{ fontSize: '21px', fontWeight: 700, color: '#f0f0f3', letterSpacing: '-0.4px', marginBottom: '3px' }}>Pannello Admin</h1>
         <p style={{ fontSize: '12.5px', color: '#484860' }}>Gestione utenti, esercizi e statistiche globali</p>
@@ -599,7 +604,7 @@ function AdminPage({ sessions, exercises }) {
 
       {tab === 'overview' && (
         <div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '13px', marginBottom: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${isMobile ? 2 : 4},1fr)`, gap: '13px', marginBottom: '20px' }}>
             {[
               { v: fakeUsers.length,              l: 'Utenti Totali',      s: '+2 questo mese' },
               { v: sessions.length,               l: 'Sessioni Totali',    s: 'tutti gli utenti' },
@@ -640,7 +645,8 @@ function AdminPage({ sessions, exercises }) {
       {tab === 'utenti' && (
         <div style={{ background: '#0d0d14', border: '1px solid #191926', borderRadius: '10px', overflow: 'hidden' }}>
           <div style={{ padding: '13px 18px', borderBottom: '1px solid #16162a', fontSize: '10.5px', fontWeight: 700, color: '#3a3a52', textTransform: 'uppercase', letterSpacing: '1px' }}>Utenti Registrati</div>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', minWidth: '480px', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#09090f' }}>
                 {['Username', 'Ruolo', 'Sessioni', 'Ultima attività'].map(h => (
@@ -677,6 +683,7 @@ function AdminPage({ sessions, exercises }) {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
@@ -686,7 +693,7 @@ function AdminPage({ sessions, exercises }) {
             <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#3a3a52', textTransform: 'uppercase', letterSpacing: '1px' }}>Catalogo Esercizi</div>
             <span style={{ fontSize: '10.5px', color: '#2c2c44', fontFamily: "'JetBrains Mono', monospace" }}>{exercises.length} totali</span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2,1fr)' }}>
             {exercises.map((ex, i) => (
               <div key={ex.name} style={{
                 padding: '11px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -754,6 +761,7 @@ function App() {
           {page === 'admin' && <AdminPage sessions={sessions} exercises={exercises} />}
         </div>
       </main>
+      <BottomNav currentPage={page} navigate={navigate} onLogout={() => { setUser(null); setPage('dashboard'); }} />
     </div>
   );
 }

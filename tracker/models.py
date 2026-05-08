@@ -39,6 +39,7 @@ class WorkoutSet(models.Model):
     # Singola serie di un esercizio all'interno di una sessione
     session = models.ForeignKey(WorkoutSession, on_delete=models.CASCADE, related_name='sets')
     exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE)
+    order = models.PositiveIntegerField(default=0)
     reps = models.PositiveIntegerField()
     weight = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     rest_time = models.PositiveIntegerField(null=True, blank=True, help_text="Recupero in secondi")

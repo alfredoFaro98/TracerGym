@@ -16,6 +16,7 @@ body {
   background: #080809;
   color: #f0f0f3;
   -webkit-font-smoothing: antialiased;
+  color-scheme: dark;
 }
 
 #root { 
@@ -53,6 +54,8 @@ input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 input[type=number] { -moz-appearance: textfield; }
 
+/* Make calendar icon visible in dark mode via color-scheme (applied globally and to inputs) */
+
 /* Stili Comuni (Bottoni e Pannelli) */
 .btn-primary-gradient {
   background: linear-gradient(135deg, #f0883e, #c85c1a);
@@ -76,6 +79,7 @@ input[type=number] { -moz-appearance: textfield; }
   color: #f0f0f3;
   font-size: 13px; 
   transition: border-color .15s;
+  color-scheme: dark;
 }
 
 .tracer-input:focus {
@@ -107,6 +111,10 @@ input[type=number] { -moz-appearance: textfield; }
 a { text-decoration: none; }
 
 /* -- Responsive Layout Classes -- */
+.mobile-only {
+  display: none !important;
+}
+
 .app-layout {
   display: flex;
   height: 100vh;
@@ -143,6 +151,13 @@ a { text-decoration: none; }
 
 /* Mobile Media Queries */
 @media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+  .mobile-only {
+    display: grid !important;
+  }
+
   .app-layout {
     flex-direction: column;
   }

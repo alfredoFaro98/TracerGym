@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Workout Tracker{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="{% static 'tracker/favicon.svg' %}">
     <!-- Rimuoviamo Bootstrap per usare solo il design Tracer -->
     <link rel="stylesheet" href="{% static 'tracker/style.css' %}">
     {% block extra_head %}{% endblock %}
@@ -16,12 +17,12 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <!-- Logo -->
-            <div class="logo-container" style="display: flex; align-items: center; gap: 10px; margin-bottom: 40px; padding: 0 8px;">
+            <a href="{% url 'dashboard' %}" class="logo-container" style="display: flex; align-items: center; gap: 10px; margin-bottom: 40px; padding: 0 8px; text-decoration: none; cursor: pointer;">
                 <div>
                     <div style="font-size: 15px; font-weight: 700; color: #f0f0f3;">Tracer</div>
                     <div style="font-size: 9px; color: #404052; font-weight: 600; letter-spacing: 1px;">WORKOUT TRACKER</div>
                 </div>
-            </div>
+            </a>
 
             <!-- Menu -->
             <div class="menu-container" style="display: flex; flex-direction: column; gap: 6px; flex: 1;">

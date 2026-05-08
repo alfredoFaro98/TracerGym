@@ -50,12 +50,7 @@
                 <!-- Esercizio -->
                 <div>
                     <label style="display: block; font-size: 10px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Esercizio</label>
-                    <input type="text" list="exercise-list" id="exercise_name" name="exercise_name" class="tracer-input" placeholder="Cerca o inserisci nuovo…" required>
-                    <datalist id="exercise-list">
-                        {% for exercise in exercises %}
-                            <option value="{{ exercise.nome }}">
-                        {% endfor %}
-                    </datalist>
+                    <input type="text" id="exercise_name" name="exercise_name" class="tracer-input" placeholder="Cerca o inserisci nuovo…" required autocomplete="off">
                 </div>
 
                 <!-- Reps + Weight + N.Serie -->
@@ -116,25 +111,31 @@
                 </div>
 
                 {% for group in exercise_groups %}
-                <div style="border-bottom: 1px solid #0e0e1e;">
+                <div class="exercise-group" data-exercise-id="{{ group.exercise.id }}" style="border-bottom: 1px solid #0e0e1e;">
                     <!-- Riga esercizio (cliccabile) -->
-                    <div onclick="toggleGroup(this.dataset.n)" data-n="{{ forloop.counter }}" style="padding: 13px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background .12s; user-select: none;" onmouseover="this.style.background='#0f0f1c'" onmouseout="this.style.background='transparent'">
-                        <div style="flex: 1;">
-                            <div style="font-size: 13px; font-weight: 600; color: #e8e8f8;">{{ group.exercise.nome }}</div>
-                            {% if group.exercise.tags.all %}
-                            <div style="display: flex; gap: 4px; margin-top: 3px; flex-wrap: wrap;">
-                                {% for tag in group.exercise.tags.all %}
-                                    <span class="badge-tag badge-tag-default">{{ tag.nome }}</span>
-                                {% endfor %}
+                    <div style="padding: 13px 16px; display: flex; align-items: center; gap: 12px; transition: background .12s;" onmouseover="this.style.background='#0f0f1c'" onmouseout="this.style.background='transparent'">
+                        <span class="drag-handle" title="Trascina per ordinare" style="cursor: grab; color: #2a2a3e; font-size: 15px; line-height: 1; flex-shrink: 0; padding: 0 2px; user-select: none;">⠿</span>
+                        <div onclick="toggleGroup(this.dataset.n)" data-n="{{ forloop.counter }}" style="flex: 1; display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none;">
+                            <div style="flex: 1;">
+                                <div style="font-size: 13px; font-weight: 600; color: #e8e8f8;">{{ group.exercise.nome }}</div>
+                                {% if group.exercise.tags.all %}
+                                <div style="display: flex; gap: 4px; margin-top: 3px; flex-wrap: wrap;">
+                                    {% for tag in group.exercise.tags.all %}
+                                        <span class="badge-tag badge-tag-default">{{ tag.nome }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
                             </div>
-                            {% endif %}
+                            <span style="padding: 3px 9px; background: rgba(240,136,62,.07); border: 1px solid rgba(240,136,62,.14); border-radius: 5px; font-size: 11px; color: #f0883e; font-weight: 600; font-family: 'JetBrains Mono', monospace; white-space: nowrap;">{{ group.count }} serie</span>
                         </div>
-                        <span style="padding: 3px 9px; background: rgba(240,136,62,.07); border: 1px solid rgba(240,136,62,.14); border-radius: 5px; font-size: 11px; color: #f0883e; font-weight: 600; font-family: 'JetBrains Mono', monospace; white-space: nowrap;">{{ group.count }} serie</span>
-                        <span id="arrow-{{ forloop.counter }}" style="font-size: 9px; color: #2e2e46; transition: transform .2s;">▼</span>
+                        <form action="{% url 'delete_exercise_sets' session.id group.exercise.id %}" method="post" onsubmit="return confirm('Eliminare tutte le serie di {{ group.exercise.nome }}?');">
+                            {% csrf_token %}
+                            <button type="submit" style="width: 26px; height: 26px; background: rgba(248,81,73,.07); border: 1px solid rgba(248,81,73,.14); border-radius: 6px; color: #f85149; font-size: 11px; cursor: pointer; flex-shrink: 0;">🗑</button>
+                        </form>
                     </div>
 
                     <!-- Serie espandibili -->
-                    <div id="group-{{ forloop.counter }}" data-exercise-id="{{ group.exercise.id }}" style="display: none; flex-direction: column; gap: 4px; padding: 0 12px 12px;">
+                    <div id="group-{{ forloop.counter }}" data-ex-id="{{ group.exercise.id }}" style="display: none; flex-direction: column; gap: 4px; padding: 0 12px 12px;">
                         {% for set in group.sets %}
                         <div>
                             <div id="row-{{ set.id }}" style="padding: 9px 12px; border-radius: 7px; background: #0a0a12; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
@@ -167,7 +168,7 @@
                                     {% csrf_token %}
                                     <div>
                                         <label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Esercizio</label>
-                                        <input type="text" list="exercise-list" name="exercise_name" value="{{ set.exercise.nome }}" class="tracer-input" style="width: 150px;">
+                                        <input type="text" name="exercise_name" value="{{ set.exercise.nome }}" class="tracer-input" style="width: 150px;" autocomplete="off">
                                     </div>
                                     <div>
                                         <label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Reps</label>
@@ -209,6 +210,35 @@
 </div>
 
 <style>
+#ex-dropdown {
+    position: fixed;
+    z-index: 9999;
+    background: #0d0d1a;
+    border: 1px solid #1c1c2c;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+    max-height: 220px;
+    overflow-y: auto;
+    box-shadow: 0 8px 24px rgba(0,0,0,.5);
+}
+#ex-dropdown .ex-item {
+    padding: 9px 14px;
+    font-size: 12.5px;
+    color: #8080a0;
+    cursor: pointer;
+    transition: background .08s, color .08s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#ex-dropdown .ex-item:hover,
+#ex-dropdown .ex-item.ex-active {
+    background: #141428;
+    color: #f0f0f3;
+}
+.exercise-group { transition: opacity .15s; }
+.exercise-group.dnd-over { outline: 1px solid rgba(240,136,62,.35); border-radius: 4px; }
+.drag-handle:hover { color: #5a5a78 !important; }
 .mpill-label input[type="checkbox"] { display: none; }
 .mpill-label span {
     display: inline-block;
@@ -277,10 +307,8 @@ function toggleEditRow(id) {
 }
 function toggleGroup(n) {
     var content = document.getElementById('group-' + n);
-    var arrow = document.getElementById('arrow-' + n);
     var visible = content.style.display === 'flex';
     content.style.display = visible ? 'none' : 'flex';
-    if (arrow) arrow.style.transform = visible ? '' : 'rotate(180deg)';
 }
 function toggleAllGroups(btn) {
     var count = parseInt(btn.dataset.count);
@@ -289,25 +317,166 @@ function toggleAllGroups(btn) {
         if (document.getElementById('group-' + i).style.display === 'flex') { anyOpen = true; break; }
     }
     for (var i = 1; i <= count; i++) {
-        var content = document.getElementById('group-' + i);
-        var arrow = document.getElementById('arrow-' + i);
-        content.style.display = anyOpen ? 'none' : 'flex';
-        if (arrow) arrow.style.transform = anyOpen ? '' : 'rotate(180deg)';
+        document.getElementById('group-' + i).style.display = anyOpen ? 'none' : 'flex';
     }
     btn.textContent = anyOpen ? 'Espandi tutto' : 'Comprimi tutto';
 }
 document.addEventListener('DOMContentLoaded', function() {
     var openId = new URLSearchParams(window.location.search).get('open');
     if (!openId) return;
-    document.querySelectorAll('[data-exercise-id]').forEach(function(el) {
-        if (el.dataset.exerciseId === openId) {
-            el.style.display = 'flex';
-            var n = el.id.replace('group-', '');
-            var arrow = document.getElementById('arrow-' + n);
-            if (arrow) arrow.style.transform = 'rotate(180deg)';
-        }
+    document.querySelectorAll('[data-ex-id]').forEach(function(el) {
+        if (el.dataset.exId === openId) el.style.display = 'flex';
     });
 });
+// --- Autocomplete esercizi ---
+(function() {
+    var SUGGESTIONS_URL = '{% url "exercise_suggestions" %}';
+    var dropdown = document.createElement('div');
+    dropdown.id = 'ex-dropdown';
+    dropdown.style.display = 'none';
+    document.body.appendChild(dropdown);
+
+    var activeInput = null;
+    var items = [];
+    var activeIdx = -1;
+    var fetchTimer = null;
+
+    function attach(input) {
+        input.addEventListener('input', function() {
+            activeInput = input;
+            activeIdx = -1;
+            clearTimeout(fetchTimer);
+            var q = input.value.trim();
+            if (!q) { hide(); return; }
+            fetchTimer = setTimeout(function() { fetchSuggestions(q); }, 150);
+        });
+        input.addEventListener('keydown', onKeydown);
+        input.addEventListener('focus', function() {
+            activeInput = input;
+            var q = input.value.trim();
+            if (q && items.length) { position(input); dropdown.style.display = 'block'; }
+        });
+        input.addEventListener('blur', function() {
+            setTimeout(hide, 150);
+        });
+    }
+
+    function fetchSuggestions(q) {
+        fetch(SUGGESTIONS_URL + '?q=' + encodeURIComponent(q))
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                items = data.results;
+                render();
+            });
+    }
+
+    function render() {
+        if (!items.length || !activeInput) { hide(); return; }
+        dropdown.innerHTML = '';
+        items.forEach(function(nome, i) {
+            var el = document.createElement('div');
+            el.className = 'ex-item';
+            el.textContent = nome;
+            el.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                activeInput.value = nome;
+                hide();
+            });
+            dropdown.appendChild(el);
+        });
+        position(activeInput);
+        dropdown.style.display = 'block';
+    }
+
+    function position(input) {
+        var r = input.getBoundingClientRect();
+        dropdown.style.top  = (r.bottom + window.scrollY) + 'px';
+        dropdown.style.left = (r.left + window.scrollX) + 'px';
+        dropdown.style.width = r.width + 'px';
+    }
+
+    function hide() { dropdown.style.display = 'none'; activeIdx = -1; }
+
+    function onKeydown(e) {
+        if (dropdown.style.display === 'none') return;
+        var els = dropdown.querySelectorAll('.ex-item');
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            activeIdx = Math.min(activeIdx + 1, els.length - 1);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            activeIdx = Math.max(activeIdx - 1, -1);
+        } else if (e.key === 'Enter' && activeIdx >= 0) {
+            e.preventDefault();
+            activeInput.value = items[activeIdx];
+            hide();
+            return;
+        } else if (e.key === 'Escape') {
+            hide(); return;
+        } else { return; }
+        els.forEach(function(el, i) { el.classList.toggle('ex-active', i === activeIdx); });
+        if (activeIdx >= 0) els[activeIdx].scrollIntoView({ block: 'nearest' });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('input[name="exercise_name"]').forEach(attach);
+    });
+})();
+
+// --- Drag & Drop ---
+(function() {
+    var dragEl = null;
+    function getGroups() { return Array.from(document.querySelectorAll('.exercise-group')); }
+
+    function attach(el) {
+        el.setAttribute('draggable', 'true');
+        el.addEventListener('dragstart', function(e) {
+            dragEl = el;
+            setTimeout(function() { el.style.opacity = '0.4'; }, 0);
+            e.dataTransfer.effectAllowed = 'move';
+        });
+        el.addEventListener('dragend', function() {
+            el.style.opacity = '1';
+            getGroups().forEach(function(g) { g.classList.remove('dnd-over'); });
+            saveExerciseOrder();
+        });
+        el.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        });
+        el.addEventListener('dragenter', function() {
+            if (dragEl !== el) {
+                getGroups().forEach(function(g) { g.classList.remove('dnd-over'); });
+                el.classList.add('dnd-over');
+            }
+        });
+        el.addEventListener('drop', function(e) {
+            e.preventDefault();
+            if (dragEl && dragEl !== el) {
+                var parent = el.parentNode;
+                var all = getGroups();
+                var fromIdx = all.indexOf(dragEl);
+                var toIdx = all.indexOf(el);
+                parent.insertBefore(dragEl, fromIdx < toIdx ? el.nextElementSibling : el);
+            }
+            el.classList.remove('dnd-over');
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        getGroups().forEach(attach);
+    });
+
+    function saveExerciseOrder() {
+        var ids = getGroups().map(function(g) { return parseInt(g.dataset.exerciseId); });
+        fetch('{% url "reorder_exercises" session.id %}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+            body: JSON.stringify({ exercise_ids: ids })
+        });
+    }
+})();
+
 function toggleDateEdit() {
     var form = document.getElementById('date-form');
     var shown = form.style.display === 'flex';

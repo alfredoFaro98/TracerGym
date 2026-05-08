@@ -1,6 +1,16 @@
 /* workout-components.jsx — shared icons, sidebar, heatmap, cards */
 const { useState, useEffect, useMemo } = React;
 
+function useMobile() {
+  const [m, setM] = useState(() => window.innerWidth <= 640);
+  useEffect(() => {
+    const h = () => setM(window.innerWidth <= 640);
+    window.addEventListener('resize', h);
+    return () => window.removeEventListener('resize', h);
+  }, []);
+  return m;
+}
+
 // ─── Icons ────────────────────────────────────────────────────────────────────
 const DashIcon = () => (
   <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
@@ -80,13 +90,13 @@ function Sidebar({ currentPage, navigate, user, onLogout }) {
     { id: 'admin',       label: 'Pannello Admin',   icon: <ShieldIcon /> },
   ];
   return (
-    <aside style={{
+    <aside className="tracer-sidebar" style={{
       width: '220px', minWidth: '220px', height: '100vh',
       background: '#0c0c0f', borderRight: '1px solid #1c1c26',
       display: 'flex', flexDirection: 'column', position: 'sticky', top: 0,
     }}>
       {/* Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '22px 18px 18px', borderBottom: '1px solid #17171f' }}>
+      <div onClick={() => navigate('dashboard')} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '22px 18px 18px', borderBottom: '1px solid #17171f', cursor: 'pointer' }}>
         <div style={{
           width: '28px', height: '28px', borderRadius: '7px',
           background: 'linear-gradient(135deg, #f0883e, #c85c1a)',
@@ -158,6 +168,7 @@ function Sidebar({ currentPage, navigate, user, onLogout }) {
 // ─── Heatmap ──────────────────────────────────────────────────────────────────
 function Heatmap({ sessions }) {
   const [animate, setAnimate] = useState(false);
+  const [tooltip, setTooltip] = useState(null); // { text, x, y, above }
   useEffect(() => { const t = setTimeout(() => setAnimate(true), 60); return () => clearTimeout(t); }, []);
 
   const activityMap = useMemo(() => {
@@ -250,7 +261,17 @@ function Heatmap({ sessions }) {
               <div key={wi} style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                 {week.map((day, di) => (
                   <div key={di}
-                    title={day.count > 0 ? `${day.key}: ${day.count} serie` : day.key}
+                    onMouseEnter={e => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const above = di <= 2;
+                      setTooltip({
+                        text: day.count > 0 ? `${day.date.toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' })}: ${day.count} serie` : day.date.toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' }),
+                        x: rect.left + rect.width / 2,
+                        y: above ? rect.bottom + 6 : rect.top - 6,
+                        above,
+                      });
+                    }}
+                    onMouseLeave={() => setTooltip(null)}
                     style={{
                       width: '12px', height: '12px', borderRadius: '2.5px',
                       background: day.future ? 'transparent' : heat[day.level],
@@ -274,12 +295,34 @@ function Heatmap({ sessions }) {
           <span style={{ fontSize: '9.5px', color: '#2e2e42' }}>Di più</span>
         </div>
       </div>
+
+      {/* Custom tooltip */}
+      {tooltip && (
+        <div style={{
+          position: 'fixed',
+          left: tooltip.x,
+          top: tooltip.above ? tooltip.y : 'auto',
+          bottom: tooltip.above ? 'auto' : `calc(100vh - ${tooltip.y}px)`,
+          transform: 'translateX(-50%)',
+          background: '#1c1c2e',
+          border: '1px solid #2e2e48',
+          borderRadius: '6px',
+          padding: '5px 9px',
+          fontSize: '11px',
+          color: '#c8c8e0',
+          whiteSpace: 'nowrap',
+          pointerEvents: 'none',
+          zIndex: 9999,
+          boxShadow: '0 4px 16px rgba(0,0,0,.5)',
+        }}>{tooltip.text}</div>
+      )}
     </div>
   );
 }
 
 // ─── WorkoutCard ──────────────────────────────────────────────────────────────
 function WorkoutCard({ session, onView, onDelete }) {
+  const isMobile = useMobile();
   const [hov, setHov] = useState(false);
   const [del, setDel] = useState(false);
   const date = session.date instanceof Date ? session.date : new Date(session.date);
@@ -329,7 +372,7 @@ function WorkoutCard({ session, onView, onDelete }) {
       }}>{session.sets.length} serie</div>
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: '5px', opacity: hov ? 1 : 0, transition: 'opacity .13s', flexShrink: 0 }}>
+      <div style={{ display: 'flex', gap: '5px', opacity: isMobile || hov ? 1 : 0, transition: 'opacity .13s', flexShrink: 0 }}>
         <button onClick={e => { e.stopPropagation(); onView(session); }} style={{
           width: '26px', height: '26px', borderRadius: '6px',
           border: '1px solid #23233a', background: '#181828', color: '#666680',
@@ -341,14 +384,57 @@ function WorkoutCard({ session, onView, onDelete }) {
           color: '#f85149', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
         }}><TrashIcon /></button>
       </div>
-      <div style={{ color: '#262638', opacity: hov ? 0 : 1, transition: 'opacity .13s', flexShrink: 0 }}><ChevronRightIcon /></div>
+      {!isMobile && <div style={{ color: '#262638', opacity: hov ? 0 : 1, transition: 'opacity .13s', flexShrink: 0 }}><ChevronRightIcon /></div>}
     </div>
+  );
+}
+
+// ─── BottomNav ────────────────────────────────────────────────────────────────
+function BottomNav({ currentPage, navigate, onLogout }) {
+  const nav = [
+    { id: 'dashboard',   label: 'Home',   icon: <DashIcon /> },
+    { id: 'new-session', label: 'Allena', icon: <PlusIcon /> },
+    { id: 'admin',       label: 'Admin',  icon: <ShieldIcon /> },
+  ];
+  return (
+    <nav className="tracer-bottom-nav" style={{
+      position: 'fixed', bottom: 0, left: 0, right: 0, height: '60px',
+      background: '#0c0c0f', borderTop: '1px solid #1c1c26',
+      paddingBottom: 'env(safe-area-inset-bottom)', zIndex: 100,
+    }}>
+      {nav.map(item => {
+        const active = currentPage === item.id || (currentPage === 'session-detail' && item.id === 'dashboard');
+        return (
+          <button key={item.id} onClick={() => navigate(item.id)} style={{
+            flex: 1, height: '100%', display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center', gap: '3px',
+            border: 'none', background: 'transparent',
+            color: active ? '#f0883e' : '#454560',
+            fontSize: '9.5px', fontFamily: "'Space Grotesk', sans-serif",
+            fontWeight: active ? 600 : 500, cursor: 'pointer',
+          }}>
+            {item.icon}
+            {item.label}
+          </button>
+        );
+      })}
+      <button onClick={onLogout} style={{
+        flex: 1, height: '100%', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', gap: '3px',
+        border: 'none', background: 'transparent',
+        color: '#454560', fontSize: '9.5px', fontFamily: "'Space Grotesk', sans-serif",
+        fontWeight: 500, cursor: 'pointer',
+      }}>
+        <LogoutIcon />
+        Esci
+      </button>
+    </nav>
   );
 }
 
 // Export all
 Object.assign(window, {
-  Sidebar, Heatmap, WorkoutCard, Badge,
+  Sidebar, BottomNav, Heatmap, WorkoutCard, Badge, useMobile,
   DashIcon, PlusIcon, ShieldIcon, LogoutIcon, TrashIcon,
   ChevronRightIcon, BackIcon,
 });

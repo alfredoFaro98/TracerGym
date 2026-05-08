@@ -15,8 +15,8 @@
                 Ecco il riepilogo dei tuoi allenamenti.
             </p>
         </div>
-        <a href="{% url 'create_session' %}" class="btn-primary-gradient" style="display: flex; align-items: center; gap: 7px; padding: 9px 16px; font-size: 13px;">
-            Nuovo allenamento
+        <a href="{% url 'create_session' %}" class="btn-primary-gradient" style="display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; font-size: 18px; font-weight: bold; border-radius: 8px;">
+            +
         </a>
     </div>
 
@@ -25,45 +25,80 @@
         <div style="font-size: 11px; font-weight: 700; color: #3a3a52; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;">
             Attività Annuale
         </div>
-        <div id="cal-heatmap" style="display: flex; justify-content: center; width: 100%; overflow-x: auto;"></div>
+        <!-- Desktop Heatmap -->
+        <div id="cal-heatmap" class="desktop-only" style="display: flex; justify-content: center; width: 100%; overflow: visible;"></div>
+
+        <!-- Mobile Stats -->
+        <div class="mobile-only" style="grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div style="background: #141420; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 700; color: #39d353;">{{ total_sessions_count }}</div>
+                <div style="font-size: 10px; color: #787890; text-transform: uppercase;">Allenamenti Totali</div>
+            </div>
+            <div style="background: #141420; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 700; color: #f0883e;">{{ this_month_sessions }}</div>
+                <div style="font-size: 10px; color: #787890; text-transform: uppercase;">Questo Mese</div>
+            </div>
+            <div style="background: #141420; padding: 16px; border-radius: 8px; text-align: center; grid-column: span 2;">
+                <div style="font-size: 24px; font-weight: 700; color: #5865f2;">{{ total_sets }}</div>
+                <div style="font-size: 10px; color: #787890; text-transform: uppercase;">Serie Completate in Totale</div>
+            </div>
+        </div>
     </div>
 
     <!-- Sessions List -->
     <div class="tracer-card" style="overflow: hidden;">
-        <div style="padding: 14px 18px; border-bottom: 1px solid #16162a; display: flex; justify-content: space-between; align-items: center;">
+        <div style="padding: 14px 18px; border-bottom: 1px solid #16162a; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
             <div style="font-size: 11px; font-weight: 700; color: #3a3a52; text-transform: uppercase; letter-spacing: 1px;">
                 Storico Allenamenti
             </div>
-            <span style="font-size: 11px; color: #303048; font-family: 'JetBrains Mono', monospace;">
-                {{ sessions.count }} sessioni
+            <form method="get" style="display: flex; gap: 8px; align-items: center; flex: 1; justify-content: flex-end; flex-wrap: wrap;">
+                <input type="month" name="month" value="{{ request.GET.month }}" class="tracer-input" style="padding: 6px 10px; width: 130px; font-size: 12px; height: 30px; border-radius: 6px;">
+                <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Cerca esercizio o note..." class="tracer-input" style="padding: 6px 10px; width: 100%; max-width: 170px; font-size: 12px; height: 30px; border-radius: 6px;">
+                <button type="submit" class="btn-primary-gradient" style="padding: 0 12px; height: 30px; font-size: 11px;">Filtra</button>
+                {% if request.GET.q or request.GET.month %}
+                <a href="{% url 'dashboard' %}" style="display: flex; align-items: center; padding: 0 10px; height: 30px; border: 1px solid #1c1c2c; border-radius: 6px; color: #787890; font-size: 11px; text-decoration: none;">Reset</a>
+                {% endif %}
+            </form>
+            <span style="font-size: 11px; color: #303048; font-family: 'JetBrains Mono', monospace; min-width: max-content;">
+                {{ total_sessions_count }} sessioni
             </span>
         </div>
         <div style="padding: 10px; display: flex; flex-direction: column; gap: 5px; max-height: 440px; overflow-y: auto;">
             {% for session in sessions %}
-            <!-- Singola Card -->
-            <div style="padding: 14px 18px; border-radius: 8px; border: 1px solid #1c1c2c; background: transparent; transition: all .15s; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                <div style="display: flex; align-items: center; gap: 14px;">
-                    <!-- Date box -->
-                    <div style="width: 44px; height: 44px; border-radius: 8px; background: #141420; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <span style="font-size: 9px; font-weight: 700; color: #5a5a78; text-transform: uppercase; margin-bottom: -1px;">{{ session.data|date:"M" }}</span>
-                        <span style="font-size: 16px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ session.data|date:"d" }}</span>
+            <!-- Singola Card Cliccabile -->
+            <div style="position: relative; border-radius: 8px; border: 1px solid #1c1c2c; background: transparent; transition: all .15s;" onmouseover="this.style.background='#12121c'; this.style.borderColor='#2a2a3c';" onmouseout="this.style.background='transparent'; this.style.borderColor='#1c1c2c';">
+                <a href="{% url 'session_detail' session.id %}" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding: 14px 18px; color: inherit; text-decoration: none;">
+                    <div style="display: flex; align-items: center; gap: 14px; flex: 1;">
+                        <!-- Date box -->
+                        <div style="width: 44px; height: 44px; border-radius: 8px; background: #141420; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <span style="font-size: 9px; font-weight: 700; color: #5a5a78; text-transform: uppercase; margin-bottom: -1px;">{{ session.data|date:"M" }}</span>
+                            <span style="font-size: 16px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ session.data|date:"d" }}</span>
+                        </div>
+                        <div>
+                            <div style="font-size: 14px; font-weight: 600; color: #e0e0f0; margin-bottom: 4px;">{{ session.data|date:"l d F" }}</div>
+                            <div style="display: flex; gap: 4px; flex-wrap: wrap; align-items: center;">
+                                <span style="font-size: 10px; font-weight: 700; color: #787890; margin-right: 4px;">{{ session.sets.count }} serie &middot;</span>
+                                {% regroup session.sets.all by exercise as exercise_list %}
+                                {% for group in exercise_list|slice:":3" %}
+                                    <span class="badge-tag badge-tag-default">{{ group.grouper.nome }}</span>
+                                {% endfor %}
+                                {% if exercise_list|length > 3 %}
+                                    <span class="badge-tag badge-tag-default">+{{ exercise_list|length|add:"-3" }}</span>
+                                {% endif %}
+                            </div>
+                            {% if session.note %}
+                            <div style="font-size: 11px; color: #787890; font-style: italic; margin-top: 4px;">"{{ session.note }}"</div>
+                            {% endif %}
+                        </div>
                     </div>
-                    <div>
-                        <div style="font-size: 14px; font-weight: 600; color: #e0e0f0; margin-bottom: 2px;">{{ session.data|date:"l d F" }}</div>
-                        <div style="font-size: 11.5px; color: #585872;">{{ session.sets.count }} serie totali</div>
-                        {% if session.note %}
-                        <div style="font-size: 11px; color: #787890; font-style: italic; margin-top: 4px;">"{{ session.note }}"</div>
-                        {% endif %}
-                    </div>
-                </div>
-                <div style="display: flex; gap: 8px; margin-left: auto;">
-                    <a href="{% url 'session_detail' session.id %}" style="padding: 6px 12px; font-size: 12px; font-weight: 600; color: #f0f0f3; background: #1c1c2c; border-radius: 6px; transition: background .12s;">
-                        Vedi Dettagli
-                    </a>
+                </a>
+                
+                <!-- Tasto Elimina Assoluto -->
+                <div style="position: absolute; right: 18px; top: 50%; transform: translateY(-50%); z-index: 2;">
                     <form action="{% url 'delete_session' session.id %}" method="post" onsubmit="return confirm('Sei sicuro?');">
                         {% csrf_token %}
-                        <button type="submit" style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; background: rgba(248,81,73,.07); border: 1px solid rgba(248,81,73,.14); border-radius: 6px; color: #f85149; font-size: 12px; transition: all .12s; font-weight: bold;">
-                            X
+                        <button type="submit" style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; background: rgba(248,81,73,.07); border: 1px solid rgba(248,81,73,.14); border-radius: 6px; color: #f85149; transition: all .12s; cursor: pointer;" title="Elimina">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                         </button>
                     </form>
                 </div>
@@ -73,6 +108,21 @@
                 Nessun allenamento. Inizia subito!
             </div>
             {% endfor %}
+            
+            <!-- Paginazione -->
+            {% if sessions.has_other_pages %}
+            <div style="display: flex; justify-content: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #16162a;">
+                {% if sessions.has_previous %}
+                    <a href="?page={{ sessions.previous_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #a0a0c0; border-radius: 5px; font-size: 12px; font-weight: 600;">Precedente</a>
+                {% endif %}
+                
+                <span style="font-size: 12px; color: #787890; align-self: center;">Pagina {{ sessions.number }} di {{ sessions.paginator.num_pages }}</span>
+                
+                {% if sessions.has_next %}
+                    <a href="?page={{ sessions.next_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #a0a0c0; border-radius: 5px; font-size: 12px; font-weight: 600;">Successiva</a>
+                {% endif %}
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
