@@ -59,6 +59,16 @@ const BackIcon = () => (
   </svg>
 );
 
+const DumbbellIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+    <rect x="2"  y="20" width="10" height="24" rx="3" fill="white" opacity=".95"/>
+    <rect x="12" y="25" width="6"  height="14" rx="2" fill="white" opacity=".85"/>
+    <rect x="18" y="28" width="28" height="8"  rx="2" fill="white" opacity=".75"/>
+    <rect x="46" y="25" width="6"  height="14" rx="2" fill="white" opacity=".85"/>
+    <rect x="52" y="20" width="10" height="24" rx="3" fill="white" opacity=".95"/>
+  </svg>
+);
+
 // ─── Badge ────────────────────────────────────────────────────────────────────
 function Badge({ label }) {
   const palette = {
@@ -101,8 +111,7 @@ function Sidebar({ currentPage, navigate, user, onLogout }) {
           width: '28px', height: '28px', borderRadius: '7px',
           background: 'linear-gradient(135deg, #f0883e, #c85c1a)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '13px', fontWeight: 800, color: '#fff',
-        }}>T</div>
+        }}><DumbbellIcon size={18} /></div>
         <div>
           <div style={{ fontSize: '14px', fontWeight: 700, color: '#f0f0f3', letterSpacing: '-0.3px' }}>Tracer</div>
           <div style={{ fontSize: '9.5px', color: '#444456', fontWeight: 600, letterSpacing: '1px' }}>WORKOUT</div>
@@ -436,5 +445,5 @@ function BottomNav({ currentPage, navigate, onLogout }) {
 Object.assign(window, {
   Sidebar, BottomNav, Heatmap, WorkoutCard, Badge, useMobile,
   DashIcon, PlusIcon, ShieldIcon, LogoutIcon, TrashIcon,
-  ChevronRightIcon, BackIcon,
+  ChevronRightIcon, BackIcon, DumbbellIcon,
 });

@@ -72,7 +72,6 @@ const inputBase = {
 
 // ─── AuthPage ─────────────────────────────────────────────────────────────────
 function AuthPage({ onLogin }) {
-  const [mode, setMode]       = useState('login');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError]     = useState('');
@@ -102,34 +101,16 @@ function AuthPage({ onLogin }) {
         border: '1px solid #1e1e2c', borderRadius: '14px', padding: '32px',
       }}>
         {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '26px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '28px' }}>
           <div style={{
             width: '34px', height: '34px', borderRadius: '9px',
             background: 'linear-gradient(135deg, #f0883e, #c85c1a)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '16px', fontWeight: 800, color: '#fff',
-          }}>T</div>
+          }}><DumbbellIcon size={22} /></div>
           <div>
             <div style={{ fontSize: '16px', fontWeight: 700, color: '#f0f0f3' }}>Tracer</div>
             <div style={{ fontSize: '9.5px', color: '#404052', fontWeight: 600, letterSpacing: '1px' }}>WORKOUT TRACKER</div>
           </div>
-        </div>
-
-        {/* Mode tabs */}
-        <div style={{
-          display: 'flex', gap: '4px', padding: '4px',
-          background: '#09090f', border: '1px solid #17171f',
-          borderRadius: '8px', marginBottom: '22px',
-        }}>
-          {['login', 'register'].map(m => (
-            <button key={m} onClick={() => { setMode(m); setError(''); }} style={{
-              flex: 1, padding: '7px', borderRadius: '5px', border: 'none',
-              background: mode === m ? '#1c1c2c' : 'transparent',
-              color: mode === m ? '#f0f0f3' : '#484860',
-              fontSize: '13px', fontFamily: "'Space Grotesk', sans-serif",
-              fontWeight: mode === m ? 600 : 400, cursor: 'pointer', transition: 'all .13s',
-            }}>{m === 'login' ? 'Accedi' : 'Registrati'}</button>
-          ))}
         </div>
 
         {/* Form */}
@@ -156,7 +137,7 @@ function AuthPage({ onLogin }) {
             color: loading ? '#484860' : '#fff',
             fontSize: '14px', fontFamily: "'Space Grotesk', sans-serif",
             fontWeight: 600, cursor: loading ? 'default' : 'pointer', transition: 'all .15s',
-          }}>{loading ? 'Accesso…' : (mode === 'login' ? 'Entra' : 'Crea account')}</button>
+          }}>{loading ? 'Accesso…' : 'Entra'}</button>
         </form>
 
         <div style={{ marginTop: '16px', textAlign: 'center', fontSize: '11px', color: '#2c2c42' }}>
