@@ -17,6 +17,8 @@ from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, User
 
 @login_required
 def dashboard(request):
+    WorkoutSession.objects.filter(utente=request.user, sets__isnull=True).delete()
+
     # Recupera tutte le sessioni dell'utente loggato con prefetch per ottimizzare le query
     sessions_query = WorkoutSession.objects.filter(utente=request.user).prefetch_related('sets__exercise').order_by('-data', '-id')
     
@@ -80,7 +82,7 @@ def dashboard(request):
 
 @login_required
 def create_session(request):
-    # Crea la sessione immediatamente appena si clicca il link e reindirizza ai dettagli
+    WorkoutSession.objects.filter(utente=request.user, sets__isnull=True).delete()
     session = WorkoutSession.objects.create(utente=request.user)
     return redirect('session_detail', session_id=session.id)
 
@@ -434,6 +436,24 @@ def delete_exercise_admin(request, exercise_id):
         exercise.delete()
     tag = request.POST.get('tag', '')
     return redirect(f"{reverse('exercises_list')}{'?tag=' + tag if tag else ''}")
+
+
+@login_required
+def export_exercises_json(request):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+    exercises = Exercise.objects.prefetch_related('tags').order_by('nome')
+    data = [
+        {
+            'nome': ex.nome,
+            'tipologia': ex.tipologia or '',
+            'tags': [t.nome for t in ex.tags.all()],
+        }
+        for ex in exercises
+    ]
+    response = JsonResponse(data, safe=False, json_dumps_params={'ensure_ascii': False, 'indent': 2})
+    response['Content-Disposition'] = f'attachment; filename="esercizi_{timezone.now().strftime("%Y%m%d")}.json"'
+    return response
 
 
 @login_required

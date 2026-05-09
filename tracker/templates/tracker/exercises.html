@@ -26,7 +26,13 @@
             <h1 style="font-size: 21px; font-weight: 700; color: #f0f0f3; letter-spacing: -0.4px; margin-bottom: 3px;">Catalogo Esercizi</h1>
             <p style="font-size: 12px; color: #484860;">{{ total_count }} esercizi nel database</p>
         </div>
-        <button onclick="var f=document.getElementById('add-form'); f.style.display=f.style.display==='none'?'block':'none';" class="btn-primary-gradient" style="height: 34px; padding: 0 16px; font-size: 12px; font-weight: 600;">+ Aggiungi Esercizio</button>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <a href="{% url 'export_exercises_json' %}" style="height: 34px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 1px solid #1c1c2c; border-radius: 8px; color: #787890; font-size: 12px; font-weight: 600; text-decoration: none; transition: all .12s;" onmouseover="this.style.borderColor='#3a3a5a';this.style.color='#f0f0f3'" onmouseout="this.style.borderColor='#1c1c2c';this.style.color='#787890'">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                Esporta JSON
+            </a>
+            <button onclick="var f=document.getElementById('add-form'); f.style.display=f.style.display==='none'?'block':'none';" class="btn-primary-gradient" style="height: 34px; padding: 0 16px; font-size: 12px; font-weight: 600;">+ Aggiungi Esercizio</button>
+        </div>
     </div>
 
     <!-- Error -->

@@ -25,6 +25,7 @@ urlpatterns = [
     path('exercises/<int:exercise_id>/edit/', views.edit_exercise_admin, name='edit_exercise_admin'),
     path('exercises/<int:exercise_id>/delete/', views.delete_exercise_admin, name='delete_exercise_admin'),
     path('exercises/suggestions/', views.exercise_suggestions, name='exercise_suggestions'),
+    path('exercises/export/', views.export_exercises_json, name='export_exercises_json'),
     path('session/<int:session_id>/export/', views.export_session, name='export_session'),
     path('export/', views.export_sessions, name='export_sessions'),
     path('import/', views.import_sessions, name='import_sessions'),
