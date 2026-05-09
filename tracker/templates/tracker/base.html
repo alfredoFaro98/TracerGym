@@ -8,6 +8,11 @@
     <link rel="icon" type="image/svg+xml" href="{% static 'tracker/favicon.svg' %}">
     <!-- Rimuoviamo Bootstrap per usare solo il design Tracer -->
     <link rel="stylesheet" href="{% static 'tracker/style.css' %}">
+    
+    <!-- Driver.js per la Guida Wizard -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.js.iife.js"></script>
+    
     {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -37,6 +42,10 @@
                     <span class="menu-text">Amministrazione</span>
                 </a>
                 {% endif %}
+                
+                <button id="tour-menu-btn" onclick="if(typeof startTour !== 'undefined') startTour(); else window.location.href='{% url 'dashboard' %}?tour=1';" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #787890; font-size: 13px; font-weight: 500; transition: all .15s; background: transparent; border: none; width: 100%; text-align: left; cursor: pointer; font-family: inherit;" onmouseover="this.style.background='#1c1c2c'; this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent'; this.style.color='#787890'">
+                    <span class="menu-text">Guida</span>
+                </button>
             </div>
 
             <!-- User Info / Logout -->

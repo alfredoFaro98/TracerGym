@@ -36,33 +36,42 @@ def dashboard(request):
             models.Q(sets__exercise__nome__icontains=q)
         ).distinct()
         
-    # Filtro per mese
+    # Filtro per anno (nuovo)
+    year_str = request.GET.get('year')
+    if year_str and year_str.isdigit():
+        year_int = int(year_str)
+    else:
+        year_int = timezone.now().year
+    # Applica filtro anno sia a sessions_query che a all_sessions
+    sessions_query = sessions_query.filter(data__year=year_int)
+    
+    # Filtro per mese (mantieni filtraggio)
     month_filter = request.GET.get('month', '')
     if month_filter:
         try:
-            year, month = month_filter.split('-')
-            sessions_query = sessions_query.filter(data__year=year, data__month=month)
+            year_part, month = month_filter.split('-')
+            sessions_query = sessions_query.filter(data__year=year_part, data__month=month)
         except ValueError:
             pass
-    
+
     # Paginazione: 15 sessioni per pagina
     paginator = Paginator(sessions_query, 15)
     page_number = request.GET.get('page')
     sessions = paginator.get_page(page_number)
-    
-    # Prepara dati per heatmap (su tutte le sessioni)
-    all_sessions = WorkoutSession.objects.filter(utente=request.user)
+
+    # Prepara dati per heatmap (su tutte le sessioni filtrate per anno)
+    all_sessions = WorkoutSession.objects.filter(utente=request.user, data__year=year_int)
     date_counts = {}
     for s in all_sessions:
         d_str = s.data.strftime('%Y-%m-%d')
         date_counts[d_str] = date_counts.get(d_str, 0) + 1
-        
+
     heatmap_data = []
     for d_str, count in date_counts.items():
         dt = datetime.strptime(d_str, '%Y-%m-%d')
         timestamp = int(time.mktime(dt.timetuple()))
         heatmap_data.append({'date': timestamp, 'value': count})
-        
+
     # Statistiche per schermi piccoli
     total_sets = WorkoutSet.objects.filter(session__utente=request.user).count()
     now = timezone.now()
@@ -73,7 +82,8 @@ def dashboard(request):
         'total_sessions_count': all_sessions.count(),
         'total_sets': total_sets,
         'this_month_sessions': this_month_sessions,
-        'heatmap_data_json': json.dumps(heatmap_data)
+        'heatmap_data_json': json.dumps(heatmap_data),
+        'selected_year': year_int,
     })
 
 @login_required

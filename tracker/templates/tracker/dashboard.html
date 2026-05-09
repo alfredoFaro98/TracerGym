@@ -22,25 +22,38 @@
 
     <!-- Heatmap -->
     <div class="tracer-card" style="padding: 22px 24px; margin-bottom: 20px;">
-        <div style="font-size: 11px; font-weight: 700; color: #3a3a52; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;">
-            Attività Annuale
+        <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 16px;">
+            <button type="button" class="arrow-btn" onclick="changeYear(-1)" style="background:none;border:none;color:#f0f0f3;font-size:18px;cursor:pointer;">&#8592;</button>
+            <span style="font-size: 22px; font-weight: 700; color: #f0f0f3; letter-spacing: 3px;">{{ selected_year }}</span>
+            <button type="button" class="arrow-btn" onclick="changeYear(1)" style="background:none;border:none;color:#f0f0f3;font-size:18px;cursor:pointer;">&#8594;</button>
         </div>
         <!-- Desktop Heatmap -->
         <div id="cal-heatmap" class="desktop-only" style="display: flex; justify-content: center; width: 100%; overflow: visible;"></div>
 
-        <!-- Mobile Stats -->
-        <div class="mobile-only" style="grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div style="background: #141420; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 700; color: #39d353;">{{ total_sessions_count }}</div>
-                <div style="font-size: 10px; color: #787890; text-transform: uppercase;">Allenamenti Totali</div>
+        <!-- Mobile: Mini Heatmap + Metriche -->
+        <div class="mobile-only">
+            <!-- Navigazione mese -->
+            <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 10px;">
+                <button type="button" onclick="mobileCalPrev()" style="background:none;border:none;color:#f0f0f3;font-size:16px;cursor:pointer;padding:4px 10px;">&#8592;</button>
+                <span id="mobile-month-label" style="font-size: 11px; font-weight: 700; color: #3a3a52; text-transform: uppercase; letter-spacing: 1px; min-width: 80px; text-align: center;"></span>
+                <button type="button" onclick="mobileCalNext()" style="background:none;border:none;color:#f0f0f3;font-size:16px;cursor:pointer;padding:4px 10px;">&#8594;</button>
             </div>
-            <div style="background: #141420; padding: 16px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 700; color: #f0883e;">{{ this_month_sessions }}</div>
-                <div style="font-size: 10px; color: #787890; text-transform: uppercase;">Questo Mese</div>
-            </div>
-            <div style="background: #141420; padding: 16px; border-radius: 8px; text-align: center; grid-column: span 2;">
-                <div style="font-size: 24px; font-weight: 700; color: #5865f2;">{{ total_sets }}</div>
-                <div style="font-size: 10px; color: #787890; text-transform: uppercase;">Serie Completate in Totale</div>
+            <!-- Mini heatmap mensile -->
+            <div id="mobile-cal-heatmap" style="display: flex; justify-content: center; overflow: visible;"></div>
+            <!-- Metriche monocolore in riga -->
+            <div style="display: flex; gap: 8px; margin-top: 14px;">
+                <div style="flex: 1; background: #141420; padding: 12px 8px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 20px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ total_sessions_count }}</div>
+                    <div style="font-size: 9px; color: #787890; text-transform: uppercase; margin-top: 3px;">Totali</div>
+                </div>
+                <div style="flex: 1; background: #141420; padding: 12px 8px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 20px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ this_month_sessions }}</div>
+                    <div style="font-size: 9px; color: #787890; text-transform: uppercase; margin-top: 3px;">Mese</div>
+                </div>
+                <div style="flex: 1; background: #141420; padding: 12px 8px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 20px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ total_sets }}</div>
+                    <div style="font-size: 9px; color: #787890; text-transform: uppercase; margin-top: 3px;">Serie</div>
+                </div>
             </div>
         </div>
     </div>
@@ -52,6 +65,7 @@
                 Storico Allenamenti
             </div>
             <form method="get" style="display: flex; gap: 8px; align-items: center; flex: 1; justify-content: flex-end; flex-wrap: wrap;">
+                <input type="number" name="year" min="2000" max="2100" value="{{ selected_year }}" class="tracer-input" style="padding: 6px 10px; width: 100px; font-size: 12px; height: 30px; border-radius: 6px;">
                 <input type="month" name="month" value="{{ request.GET.month }}" class="tracer-input" style="padding: 6px 10px; width: 130px; font-size: 12px; height: 30px; border-radius: 6px;">
                 <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Cerca esercizio o note..." class="tracer-input" style="padding: 6px 10px; width: 100%; max-width: 170px; font-size: 12px; height: 30px; border-radius: 6px;">
                 <button type="submit" class="btn-primary-gradient" style="padding: 0 12px; height: 30px; font-size: 11px;">Filtra</button>
@@ -162,7 +176,14 @@
 </style>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+        function changeYear(delta) {
+            var currentYear = parseInt('{{ selected_year }}');
+            var newYear = currentYear + delta;
+            var url = new URL(window.location);
+            url.searchParams.set('year', newYear);
+            window.location = url;
+        }
+
         var rawData = {{ heatmap_data_json|safe }};
         var data = {};
         rawData.forEach(function(item) {
@@ -171,7 +192,7 @@
 
         var cal = new CalHeatMap();
         // Imposta la data di inizio al 1° Gennaio dell'anno corrente per visualizzare l'intero anno solare
-        var startDate = new Date(new Date().getFullYear(), 0, 1);
+        var startDate = new Date({{ selected_year }}, 0, 1);
 
         cal.init({
             itemSelector: "#cal-heatmap",
@@ -184,11 +205,56 @@
             domainGutter: 10,
             range: 12,
             tooltip: true,
-            displayLegend: false, 
+            displayLegend: false,
             itemName: ["allenamento", "allenamenti"],
             domainLabelFormat: "%b",
             label: { position: "top", align: "left", offset: { x: 0, y: 0 } }
         });
-    });
+
+        // Mobile heatmap (solo 1 mese, navigabile)
+        var mobileMonthNames = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+        var mobileCalStart = new Date();
+        mobileCalStart.setDate(1);
+        var mobileCal = null;
+
+        function updateMobileLabel() {
+            var el = document.getElementById('mobile-month-label');
+            if (el) {
+                el.textContent = mobileMonthNames[mobileCalStart.getMonth()] + ' ' + mobileCalStart.getFullYear();
+            }
+        }
+
+        function mobileCalPrev() {
+            mobileCalStart = new Date(mobileCalStart.getFullYear(), mobileCalStart.getMonth() - 1, 1);
+            updateMobileLabel();
+            if (mobileCal) mobileCal.previous(1);
+        }
+
+        function mobileCalNext() {
+            mobileCalStart = new Date(mobileCalStart.getFullYear(), mobileCalStart.getMonth() + 1, 1);
+            updateMobileLabel();
+            if (mobileCal) mobileCal.next(1);
+        }
+
+        if (window.innerWidth <= 768) {
+            mobileCal = new CalHeatMap();
+            mobileCal.init({
+                itemSelector: "#mobile-cal-heatmap",
+                domain: "month",
+                subDomain: "x_day",
+                data: data,
+                start: mobileCalStart,
+                cellSize: 12,
+                cellPadding: 2,
+                domainGutter: 0,
+                range: 1,
+                tooltip: true,
+                displayLegend: false,
+                itemName: ["allenamento", "allenamenti"],
+                domainLabelFormat: "",
+                label: { position: "top", height: 0, offset: { x: 0, y: 0 } }
+            });
+        }
+        updateMobileLabel();
 </script>
 {% endblock %}
