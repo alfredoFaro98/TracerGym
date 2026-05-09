@@ -16,6 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.shortcuts import render
+
+def handler401(request, exception=None):
+    return render(request, '401.html', status=401)
+
+def handler403(request, exception=None):
+    return render(request, '403.html', status=403)
+
+def handler404(request, exception=None):
+    return render(request, '404.html', status=404)
+
+def handler500(request):
+    return render(request, '500.html', status=500)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
