@@ -1,0 +1,239 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Esercizi - Tracer{% endblock %}
+
+{% block extra_head %}
+<style>
+    .tipo-bilanciere { background: rgba(88,101,242,.15); color: #8b97f5; border: 1px solid rgba(88,101,242,.25); }
+    .tipo-manubrio   { background: rgba(240,136,62,.12);  color: #f0a06e; border: 1px solid rgba(240,136,62,.25); }
+    .tipo-cavi       { background: rgba(57,211,83,.10);   color: #5dd67a; border: 1px solid rgba(57,211,83,.22); }
+    .tipo-macchine   { background: rgba(160,106,255,.12); color: #c084fc; border: 1px solid rgba(160,106,255,.25); }
+    .tipo-corpo      { background: rgba(20,200,190,.10);  color: #2dd4bf; border: 1px solid rgba(20,200,190,.22); }
+    .tipo-default    { background: rgba(120,120,144,.10); color: #9090a8; border: 1px solid rgba(120,120,144,.2); }
+
+    #edit-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.6); align-items: center; justify-content: center; }
+    #edit-modal.open { display: flex; }
+    #edit-modal-box { background: #12121e; border: 1px solid #1c1c2c; border-radius: 12px; padding: 24px; width: 100%; max-width: 480px; margin: 16px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h1 style="font-size: 21px; font-weight: 700; color: #f0f0f3; letter-spacing: -0.4px; margin-bottom: 3px;">Catalogo Esercizi</h1>
+            <p style="font-size: 12px; color: #484860;">{{ total_count }} esercizi nel database</p>
+        </div>
+        <button onclick="var f=document.getElementById('add-form'); f.style.display=f.style.display==='none'?'block':'none';" class="btn-primary-gradient" style="height: 34px; padding: 0 16px; font-size: 12px; font-weight: 600;">+ Aggiungi Esercizio</button>
+    </div>
+
+    <!-- Error -->
+    {% if error %}
+    <div style="background: rgba(248,81,73,.08); border: 1px solid rgba(248,81,73,.2); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 12px; color: #f85149;">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- Add Form -->
+    <div id="add-form" style="display: none; margin-bottom: 20px;">
+        <div class="tracer-card" style="padding: 20px 24px;">
+            <div style="font-size: 11px; font-weight: 700; color: #3a3a52; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;">Nuovo Esercizio</div>
+            <form method="post" action="{% url 'add_exercise' %}" style="display: flex; flex-direction: column; gap: 14px;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;">
+                    <div style="flex: 1; min-width: 180px;">
+                        <label style="display: block; font-size: 10px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Nome</label>
+                        <input type="text" name="nome" class="tracer-input" placeholder="Es. Curl con bilanciere" required style="width: 100%;">
+                    </div>
+                    <div style="flex: 1; min-width: 180px;">
+                        <label style="display: block; font-size: 10px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Tipologia</label>
+                        <input type="text" name="tipologia" class="tracer-input" placeholder="Es. Esercizio con bilanciere" style="width: 100%;">
+                    </div>
+                    <button type="submit" class="btn-primary-gradient" style="height: 36px; padding: 0 20px; font-size: 12px; flex-shrink: 0;">Aggiungi</button>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 10px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 8px;">Gruppo Muscolare</label>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        {% for tag in tags %}
+                        <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 5px 10px; border: 1px solid #1c1c2c; border-radius: 6px; transition: border-color .12s;" onmouseover="this.style.borderColor='#3a3a5a'" onmouseout="this.style.borderColor='#1c1c2c'">
+                            <input type="checkbox" name="tags" value="{{ tag.id }}" style="accent-color: #5865f2;">
+                            <span style="font-size: 11px; color: #a0a0c0;">{{ tag.nome }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Legenda -->
+    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; align-items: center;">
+        <span style="font-size: 10px; color: #3a3a52; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-right: 4px;">Legenda:</span>
+        <span style="font-size: 10px; padding: 2px 8px; border-radius: 4px;" class="tipo-bilanciere">Bilanciere</span>
+        <span style="font-size: 10px; padding: 2px 8px; border-radius: 4px;" class="tipo-manubrio">Manubrio</span>
+        <span style="font-size: 10px; padding: 2px 8px; border-radius: 4px;" class="tipo-cavi">Cavi</span>
+        <span style="font-size: 10px; padding: 2px 8px; border-radius: 4px;" class="tipo-macchine">Macchine</span>
+        <span style="font-size: 10px; padding: 2px 8px; border-radius: 4px;" class="tipo-corpo">Corpo libero</span>
+    </div>
+
+    <!-- Filter Tabs + Search -->
+    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px;">
+        <div style="display: flex; gap: 6px; flex-wrap: wrap; flex: 1;">
+            <a href="{% url 'exercises_list' %}" style="padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; text-decoration: none; transition: all .12s; {% if not selected_tag %}background:#5865f2;color:#fff;{% else %}background:#1c1c2c;color:#787890;{% endif %}">Tutti</a>
+            {% for tag in tags %}
+            <a href="?tag={{ tag.nome }}" style="padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; text-decoration: none; transition: all .12s; {% if selected_tag == tag.nome %}background:#5865f2;color:#fff;{% else %}background:#1c1c2c;color:#787890;{% endif %}">{{ tag.nome }}</a>
+            {% endfor %}
+        </div>
+        <input id="search-input" type="text" placeholder="Cerca esercizio…" class="tracer-input" style="width: 200px; height: 30px; padding: 0 10px; font-size: 12px; border-radius: 20px; flex-shrink: 0;" oninput="filterExercises(this.value)">
+    </div>
+
+    <!-- Esercizi -->
+    {% if selected_tag %}
+
+    <div class="tracer-card" style="overflow: hidden;">
+        <div style="padding: 12px 18px; border-bottom: 1px solid #16162a; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; font-weight: 700; color: #3a3a52; text-transform: uppercase; letter-spacing: 1px;">{{ selected_tag }}</span>
+            <span style="font-size: 10px; color: #303048; font-family: 'JetBrains Mono', monospace;">{{ exercises|length }} esercizi</span>
+        </div>
+        {% for exercise in exercises %}
+        <div class="ex-row" data-name="{{ exercise.nome|lower }}" style="display: flex; align-items: center; justify-content: space-between; padding: 9px 18px; border-bottom: 1px solid #0d0d14; transition: background .1s;" onmouseover="this.style.background='#12121c'" onmouseout="this.style.background='transparent'">
+            <div style="flex: 1; min-width: 0;">
+                <span style="font-size: 13px; color: #e0e0f0;">{{ exercise.nome }}</span>
+                {% if exercise.tipologia %}
+                <span style="font-size: 10px; padding: 2px 7px; border-radius: 4px; margin-left: 8px;" class="{% if 'bilanciere' in exercise.tipologia|lower %}tipo-bilanciere{% elif 'manubrio' in exercise.tipologia|lower %}tipo-manubrio{% elif 'cavi' in exercise.tipologia|lower %}tipo-cavi{% elif 'macchine' in exercise.tipologia|lower %}tipo-macchine{% elif 'corpo' in exercise.tipologia|lower %}tipo-corpo{% else %}tipo-default{% endif %}">{{ exercise.tipologia }}</span>
+                {% endif %}
+            </div>
+            <div style="display: flex; gap: 5px; flex-shrink: 0; margin-left: 12px;">
+                <button type="button" onclick="openEdit({{ exercise.id }}, '{{ exercise.nome|escapejs }}', '{{ exercise.tipologia|escapejs }}', '{{ selected_tag }}')" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(88,101,242,.07); border: 1px solid rgba(88,101,242,.2); border-radius: 5px; color: #8b97f5; cursor: pointer;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <form method="post" action="{% url 'delete_exercise_admin' exercise.id %}" onsubmit="return confirm('Elimina {{ exercise.nome|escapejs }}?');" style="margin: 0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="tag" value="{{ selected_tag }}">
+                    <button type="submit" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(248,81,73,.07); border: 1px solid rgba(248,81,73,.14); border-radius: 5px; color: #f85149; cursor: pointer;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <div style="padding: 30px; text-align: center; color: #2c2c42; font-size: 13px;">Nessun esercizio in questo gruppo.</div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+
+    <div id="groups-container" style="display: flex; flex-direction: column; gap: 16px;">
+        {% for group in tag_groups %}
+        <div class="group-card tracer-card" style="overflow: hidden;">
+            <div class="group-header" style="padding: 12px 18px; border-bottom: 1px solid #16162a; display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-size: 11px; font-weight: 700; color: #3a3a52; text-transform: uppercase; letter-spacing: 1px;">{% if group.tag %}{{ group.tag.nome }}{% else %}Senza gruppo{% endif %}</span>
+                <span style="font-size: 10px; color: #303048; font-family: 'JetBrains Mono', monospace;">{{ group.exercises|length }}</span>
+            </div>
+            {% for exercise in group.exercises %}
+            <div class="ex-row" data-name="{{ exercise.nome|lower }}" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 18px; border-bottom: 1px solid #0a0a12; transition: background .1s;" onmouseover="this.style.background='#12121c'" onmouseout="this.style.background='transparent'">
+                <div style="flex: 1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0;">
+                    <span style="font-size: 12.5px; color: #c0c0d8;">{{ exercise.nome }}</span>
+                    {% if exercise.tipologia %}
+                    <span style="font-size: 10px; padding: 1px 7px; border-radius: 4px;" class="{% if 'bilanciere' in exercise.tipologia|lower %}tipo-bilanciere{% elif 'manubrio' in exercise.tipologia|lower %}tipo-manubrio{% elif 'cavi' in exercise.tipologia|lower %}tipo-cavi{% elif 'macchine' in exercise.tipologia|lower %}tipo-macchine{% elif 'corpo' in exercise.tipologia|lower %}tipo-corpo{% else %}tipo-default{% endif %}">{{ exercise.tipologia }}</span>
+                    {% endif %}
+                </div>
+                <div style="display: flex; gap: 5px; flex-shrink: 0; margin-left: 10px;">
+                    <button type="button" onclick="openEdit({{ exercise.id }}, '{{ exercise.nome|escapejs }}', '{{ exercise.tipologia|escapejs }}', '')" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: rgba(88,101,242,.07); border: 1px solid rgba(88,101,242,.2); border-radius: 5px; color: #8b97f5; cursor: pointer;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </button>
+                    <form method="post" action="{% url 'delete_exercise_admin' exercise.id %}" onsubmit="return confirm('Elimina {{ exercise.nome|escapejs }}?');" style="margin: 0;">
+                        {% csrf_token %}
+                        <button type="submit" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: transparent; border: 1px solid transparent; border-radius: 5px; color: #3a3a5a; cursor: pointer; transition: all .12s;" onmouseover="this.style.background='rgba(248,81,73,.07)';this.style.borderColor='rgba(248,81,73,.2)';this.style.color='#f85149'" onmouseout="this.style.background='transparent';this.style.borderColor='transparent';this.style.color='#3a3a5a'">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+
+    {% endif %}
+
+</div>
+
+<!-- Edit Modal -->
+<div id="edit-modal" onclick="if(event.target===this) closeEdit();">
+    <div id="edit-modal-box">
+        <div style="font-size: 11px; font-weight: 700; color: #3a3a52; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 18px;">Modifica Esercizio</div>
+        <form id="edit-form" method="post" action="" style="display: flex; flex-direction: column; gap: 14px;">
+            {% csrf_token %}
+            <input type="hidden" name="tag" id="edit-tag">
+            <div>
+                <label style="display: block; font-size: 10px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Nome</label>
+                <input type="text" name="nome" id="edit-nome" class="tracer-input" required style="width: 100%;">
+            </div>
+            <div>
+                <label style="display: block; font-size: 10px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Tipologia</label>
+                <input type="text" name="tipologia" id="edit-tipologia" class="tracer-input" style="width: 100%;">
+            </div>
+            <div>
+                <label style="display: block; font-size: 10px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 8px;">Gruppo Muscolare</label>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;" id="edit-tags">
+                    {% for tag in tags %}
+                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 5px 10px; border: 1px solid #1c1c2c; border-radius: 6px;">
+                        <input type="checkbox" name="tags" value="{{ tag.id }}" data-tag-id="{{ tag.id }}" style="accent-color: #5865f2;">
+                        <span style="font-size: 11px; color: #a0a0c0;">{{ tag.nome }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
+                <button type="button" onclick="closeEdit()" style="padding: 0 16px; height: 34px; background: transparent; border: 1px solid #1c1c2c; border-radius: 7px; color: #787890; font-size: 12px; cursor: pointer;">Annulla</button>
+                <button type="submit" class="btn-primary-gradient" style="padding: 0 20px; height: 34px; font-size: 12px; font-weight: 600;">Salva</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    var exerciseTagMap = {
+        {% for group in tag_groups %}{% for ex in group.exercises %}{{ ex.id }}:[{% for t in ex.tags.all %}{{ t.id }},{% endfor %}],{% endfor %}{% endfor %}
+        {% if exercises %}{% for ex in exercises %}{{ ex.id }}:[{% for t in ex.tags.all %}{{ t.id }},{% endfor %}],{% endfor %}{% endif %}
+    };
+
+    var editUrlTpl = '{% url "edit_exercise_admin" 0 %}'.replace('/0/', '/__ID__/');
+
+    function openEdit(id, nome, tipologia, tag) {
+        document.getElementById('edit-form').action = editUrlTpl.replace('__ID__', id);
+        document.getElementById('edit-nome').value = nome;
+        document.getElementById('edit-tipologia').value = tipologia;
+        document.getElementById('edit-tag').value = tag;
+        var activeTags = exerciseTagMap[id] || [];
+        document.querySelectorAll('#edit-tags input[type=checkbox]').forEach(function(cb) {
+            cb.checked = activeTags.indexOf(parseInt(cb.dataset.tagId)) !== -1;
+        });
+        document.getElementById('edit-modal').classList.add('open');
+    }
+
+    function closeEdit() {
+        document.getElementById('edit-modal').classList.remove('open');
+    }
+
+    function filterExercises(query) {
+        var q = query.toLowerCase().trim();
+        var rows = document.querySelectorAll('.ex-row');
+        rows.forEach(function(row) {
+            var match = !q || row.dataset.name.indexOf(q) !== -1;
+            row.style.display = match ? '' : 'none';
+        });
+        // Nascondi le group-card se tutti i figli sono nascosti
+        document.querySelectorAll('.group-card').forEach(function(card) {
+            var visible = card.querySelectorAll('.ex-row:not([style*="display: none"])').length;
+            card.style.display = visible ? '' : 'none';
+        });
+    }
+
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeEdit(); });
+</script>
+{% endblock %}

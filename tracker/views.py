@@ -11,17 +11,8 @@ from itertools import groupby
 import time
 from datetime import datetime
 from django.utils import timezone
-from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup
+from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag
 
-def _parse_custom_muscles(raw):
-    """Splits a comma-separated string of muscle names, gets or creates each, returns list of IDs."""
-    ids = []
-    for name in raw.split(','):
-        name = name.strip()
-        if name:
-            obj, _ = MuscleGroup.objects.get_or_create(nome__iexact=name, defaults={'nome': name})
-            ids.append(obj.id)
-    return ids
 
 @login_required
 def dashboard(request):
@@ -94,37 +85,42 @@ def create_session(request):
 
 @login_required
 def session_detail(request, session_id):
-    # Recupera la sessione assicurandosi che appartenga all'utente loggato
     session = get_object_or_404(WorkoutSession, id=session_id, utente=request.user)
-    exercises = Exercise.objects.all()
-    muscle_groups = MuscleGroup.objects.all()
 
     if request.method == 'POST':
-        exercise_name = request.POST.get('exercise_name')
+        exercise_name = (request.POST.get('exercise_name') or '').strip()
         reps = request.POST.get('reps')
         weight = request.POST.get('weight') or None
         rest_time = request.POST.get('rest_time') or None
-        selected_muscles = request.POST.getlist('muscles')
-        selected_muscles += _parse_custom_muscles(request.POST.get('muscles_custom', ''))
-
         num_sets = int(request.POST.get('num_sets') or 1)
-        exercise, _ = Exercise.objects.get_or_create(nome=exercise_name.strip())
+
+        exercise = Exercise.objects.filter(nome__iexact=exercise_name).first()
+        if not exercise:
+            all_sets = list(session.sets.select_related('exercise').order_by('order', 'id'))
+            exercise_groups = []
+            for _, grp in groupby(all_sets, key=lambda s: s.exercise_id):
+                grp_list = list(grp)
+                exercise_groups.append({'exercise': grp_list[0].exercise, 'sets': grp_list, 'count': len(grp_list)})
+            return render(request, 'tracker/session_detail.html', {
+                'session': session,
+                'exercise_groups': exercise_groups,
+                'error_exercise': f'"{exercise_name}" non è nella lista degli esercizi. Seleziona un esercizio dalla lista.',
+            })
+
         base_order = session.sets.count()
         for i in range(max(1, min(num_sets, 20))):
-            s = WorkoutSet.objects.create(
+            WorkoutSet.objects.create(
                 order=base_order + i,
                 session=session,
                 exercise=exercise,
                 reps=reps,
                 weight=weight,
-                rest_time=rest_time
+                rest_time=rest_time,
             )
-            if selected_muscles:
-                s.muscles.set(selected_muscles)
         url = reverse('session_detail', kwargs={'session_id': session.id})
         return redirect(f'{url}?open={exercise.id}')
 
-    all_sets = list(session.sets.select_related('exercise').prefetch_related('muscles').order_by('order', 'id'))
+    all_sets = list(session.sets.select_related('exercise').order_by('order', 'id'))
     exercise_groups = []
     for _, grp in groupby(all_sets, key=lambda s: s.exercise_id):
         grp_list = list(grp)
@@ -136,9 +132,7 @@ def session_detail(request, session_id):
 
     return render(request, 'tracker/session_detail.html', {
         'session': session,
-        'exercises': exercises,
         'exercise_groups': exercise_groups,
-        'muscle_groups': muscle_groups,
     })
 
 def register(request):
@@ -188,15 +182,13 @@ def edit_set(request, set_id):
         weight = request.POST.get('weight') or None
         rest_time = request.POST.get('rest_time') or None
         if exercise_name:
-            exercise, _ = Exercise.objects.get_or_create(nome=exercise_name)
-            workout_set.exercise = exercise
+            exercise = Exercise.objects.filter(nome__iexact=exercise_name).first()
+            if exercise:
+                workout_set.exercise = exercise
         workout_set.reps = reps
         workout_set.weight = weight
         workout_set.rest_time = rest_time
         workout_set.save()
-        muscles = request.POST.getlist('muscles')
-        muscles += _parse_custom_muscles(request.POST.get('muscles_custom', ''))
-        workout_set.muscles.set(muscles)
     url = reverse('session_detail', kwargs={'session_id': workout_set.session.id})
     return redirect(f'{url}?open={workout_set.exercise_id}')
 
@@ -257,10 +249,208 @@ def reorder_exercises(request, session_id):
     return JsonResponse({'ok': True})
 
 @login_required
+def export_sessions(request):
+    sessions = WorkoutSession.objects.filter(
+        utente=request.user
+    ).prefetch_related('sets__exercise').order_by('data')
+
+    data = []
+    for session in sessions:
+        sets = []
+        for s in session.sets.all().order_by('order', 'id'):
+            sets.append({
+                'exercise': s.exercise.nome,
+                'reps': s.reps,
+                'weight': float(s.weight) if s.weight is not None else None,
+                'rest_time': s.rest_time,
+                'order': s.order,
+            })
+        data.append({
+            'data': session.data.strftime('%Y-%m-%d'),
+            'note': session.note or '',
+            'sets': sets,
+        })
+
+    response = JsonResponse(data, safe=False, json_dumps_params={'ensure_ascii': False, 'indent': 2})
+    filename = f"workout_backup_{timezone.now().strftime('%Y%m%d')}.json"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+
+@login_required
+def import_sessions(request):
+    if request.method == 'POST':
+        backup_file = request.FILES.get('backup_file')
+        if not backup_file:
+            return render(request, 'tracker/import.html', {'error': 'Nessun file selezionato.'})
+
+        try:
+            data = json.loads(backup_file.read().decode('utf-8'))
+            if not isinstance(data, list):
+                raise ValueError
+        except (json.JSONDecodeError, UnicodeDecodeError, ValueError):
+            return render(request, 'tracker/import.html', {
+                'error': 'File non valido. Usa un backup JSON esportato da questa app.'
+            })
+
+        imported = 0
+        skipped = 0
+        for item in data:
+            try:
+                date = datetime.strptime(item['data'], '%Y-%m-%d').date()
+                note = item.get('note') or None
+                session = WorkoutSession.objects.create(
+                    utente=request.user, data=date, note=note,
+                )
+                for i, s in enumerate(item.get('sets', [])):
+                    exercise_name = (s.get('exercise') or '').strip()
+                    if not exercise_name:
+                        continue
+                    exercise = Exercise.objects.filter(nome__iexact=exercise_name).first()
+                    if not exercise:
+                        exercise = Exercise.objects.create(nome=exercise_name)
+                    WorkoutSet.objects.create(
+                        session=session,
+                        exercise=exercise,
+                        reps=int(s.get('reps') or 0),
+                        weight=s.get('weight'),
+                        rest_time=s.get('rest_time'),
+                        order=s.get('order', i),
+                    )
+                imported += 1
+            except Exception:
+                skipped += 1
+
+        return render(request, 'tracker/import.html', {
+            'success': f'{imported} sessioni importate con successo.',
+            'skipped': skipped or None,
+        })
+
+    return render(request, 'tracker/import.html', {})
+
+
+@login_required
+def export_session(request, session_id):
+    session = get_object_or_404(WorkoutSession, id=session_id, utente=request.user)
+    sets = []
+    for s in session.sets.all().order_by('order', 'id'):
+        sets.append({
+            'exercise': s.exercise.nome,
+            'reps': s.reps,
+            'weight': float(s.weight) if s.weight is not None else None,
+            'rest_time': s.rest_time,
+            'order': s.order,
+        })
+    data = [{'data': session.data.strftime('%Y-%m-%d'), 'note': session.note or '', 'sets': sets}]
+    response = JsonResponse(data, safe=False, json_dumps_params={'ensure_ascii': False, 'indent': 2})
+    response['Content-Disposition'] = f'attachment; filename="sessione_{session.data.strftime("%Y%m%d")}.json"'
+    return response
+
+
+@login_required
+def exercises_list(request):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+
+    tags = Tag.objects.all().order_by('nome')
+    selected_tag = request.GET.get('tag', '')
+    error = request.GET.get('error', '')
+    total_count = Exercise.objects.count()
+
+    if selected_tag:
+        exercises = Exercise.objects.filter(tags__nome=selected_tag).prefetch_related('tags').order_by('nome')
+        tag_groups = None
+    else:
+        exercises = None
+        tag_groups = []
+        for tag in tags:
+            tag_exercises = list(Exercise.objects.filter(tags=tag).prefetch_related('tags').order_by('nome'))
+            if tag_exercises:
+                tag_groups.append({'tag': tag, 'exercises': tag_exercises})
+        untagged = list(Exercise.objects.filter(tags__isnull=True).order_by('nome'))
+        if untagged:
+            tag_groups.append({'tag': None, 'exercises': untagged})
+
+    return render(request, 'tracker/exercises.html', {
+        'tags': tags,
+        'exercises': exercises,
+        'tag_groups': tag_groups,
+        'selected_tag': selected_tag,
+        'error': error,
+        'total_count': total_count,
+    })
+
+
+@login_required
+def add_exercise(request):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+    if request.method == 'POST':
+        nome = request.POST.get('nome', '').strip()
+        tipologia = request.POST.get('tipologia', '').strip()
+        tag_ids = request.POST.getlist('tags')
+        if nome:
+            exercise, _ = Exercise.objects.get_or_create(nome=nome)
+            if tipologia:
+                exercise.tipologia = tipologia
+                exercise.save()
+            if tag_ids:
+                exercise.tags.set(tag_ids)
+    next_url = request.POST.get('next', reverse('exercises_list'))
+    return redirect(next_url)
+
+
+@login_required
+def edit_exercise_admin(request, exercise_id):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+    exercise = get_object_or_404(Exercise, id=exercise_id)
+    if request.method == 'POST':
+        nome = request.POST.get('nome', '').strip()
+        tipologia = request.POST.get('tipologia', '').strip()
+        tag_ids = request.POST.getlist('tags')
+        if nome:
+            exercise.nome = nome
+        exercise.tipologia = tipologia
+        exercise.save()
+        exercise.tags.set(tag_ids)
+    tag = request.POST.get('tag', '')
+    return redirect(f"{reverse('exercises_list')}{'?tag=' + tag if tag else ''}")
+
+
+@login_required
+def delete_exercise_admin(request, exercise_id):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+    exercise = get_object_or_404(Exercise, id=exercise_id)
+    if request.method == 'POST':
+        sets_count = WorkoutSet.objects.filter(exercise=exercise).count()
+        if sets_count > 0:
+            from urllib.parse import urlencode
+            msg = f'"{exercise.nome}" è usato in {sets_count} serie e non può essere eliminato.'
+            return redirect(f"{reverse('exercises_list')}?{urlencode({'error': msg, 'tag': request.POST.get('tag', '')})}")
+        exercise.delete()
+    tag = request.POST.get('tag', '')
+    return redirect(f"{reverse('exercises_list')}{'?tag=' + tag if tag else ''}")
+
+
+@login_required
 def exercise_suggestions(request):
+    from django.db.models import Case, When, IntegerField
     q = request.GET.get('q', '').strip()
-    qs = Exercise.objects.filter(workoutset__session__utente=request.user).distinct()
+    user_ids = set(Exercise.objects.filter(
+        workoutset__session__utente=request.user
+    ).values_list('id', flat=True))
+
+    qs = Exercise.objects.all()
     if q:
         qs = qs.filter(nome__icontains=q)
-    results = list(qs.order_by('nome').values_list('nome', flat=True)[:12])
+    qs = qs.annotate(
+        priority=Case(
+            When(id__in=user_ids, then=0),
+            default=1,
+            output_field=IntegerField(),
+        )
+    ).order_by('priority', 'nome')[:20]
+    results = list(qs.values_list('nome', flat=True))
     return JsonResponse({'results': results})

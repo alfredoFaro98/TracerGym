@@ -20,5 +20,12 @@ urlpatterns = [
     path('session/<int:session_id>/edit-date/', views.edit_session_date, name='edit_session_date'),
     path('session/<int:session_id>/delete-exercise/<int:exercise_id>/', views.delete_exercise_sets, name='delete_exercise_sets'),
     path('session/<int:session_id>/reorder/', views.reorder_exercises, name='reorder_exercises'),
+    path('exercises/', views.exercises_list, name='exercises_list'),
+    path('exercises/add/', views.add_exercise, name='add_exercise'),
+    path('exercises/<int:exercise_id>/edit/', views.edit_exercise_admin, name='edit_exercise_admin'),
+    path('exercises/<int:exercise_id>/delete/', views.delete_exercise_admin, name='delete_exercise_admin'),
     path('exercises/suggestions/', views.exercise_suggestions, name='exercise_suggestions'),
+    path('session/<int:session_id>/export/', views.export_session, name='export_session'),
+    path('export/', views.export_sessions, name='export_sessions'),
+    path('import/', views.import_sessions, name='import_sessions'),
 ]
