@@ -1,0 +1,137 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}{{ target_user.username }} - Workout Tracker{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/cal-heatmap@4.2.4/dist/cal-heatmap.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cal-heatmap@4.2.4/dist/cal-heatmap.css">
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+    <!-- Back -->
+    <a href="{% url 'user_list' %}" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #484862; text-decoration: none; margin-bottom: 20px; transition: color .12s;" onmouseover="this.style.color='#8080a0'" onmouseout="this.style.color='#484862'">
+        ← Atleti
+    </a>
+
+    <!-- Header profilo -->
+    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 28px; flex-wrap: wrap;">
+        <div style="width: 52px; height: 52px; border-radius: 14px; background: #1c1c2c; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; color: #a0a0c0; flex-shrink: 0;">
+            {{ target_user.username|make_list|first|upper }}
+        </div>
+        <div style="flex: 1;">
+            <h1 style="font-size: 19px; font-weight: 700; color: #f0f0f3; margin: 0 0 3px;">{{ target_user.username }}</h1>
+            <div style="font-size: 11.5px; color: #404058;">Membro dal {{ target_user.date_joined|date:"d M Y" }}</div>
+        </div>
+
+        {% if is_own %}
+        <form action="{% url 'toggle_profile_visibility' %}" method="post">
+            {% csrf_token %}
+            {% if profile.is_public %}
+            <button type="submit" style="padding: 7px 14px; background: rgba(96,160,96,.07); border: 1px solid rgba(96,160,96,.25); border-radius: 8px; color: #60a060; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .12s;" onmouseover="this.style.background='rgba(96,160,96,.14)'" onmouseout="this.style.background='rgba(96,160,96,.07)'">
+                Profilo Pubblico — Rendi Privato
+            </button>
+            {% else %}
+            <button type="submit" style="padding: 7px 14px; background: rgba(96,96,200,.07); border: 1px solid rgba(96,96,200,.25); border-radius: 8px; color: #7878c0; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .12s;" onmouseover="this.style.background='rgba(96,96,200,.14)'" onmouseout="this.style.background='rgba(96,96,200,.07)'">
+                Profilo Privato — Rendi Pubblico
+            </button>
+            {% endif %}
+        </form>
+        {% endif %}
+    </div>
+
+    {% if private %}
+    <!-- Profilo privato -->
+    <div style="background: #0d0d14; border: 1px dashed #1c1c2e; border-radius: 12px; padding: 52px 24px; text-align: center;">
+        <div style="font-size: 26px; margin-bottom: 10px; opacity: .4;">🔒</div>
+        <div style="font-size: 14px; color: #2c2c44; font-weight: 500;">Questo profilo è privato</div>
+    </div>
+
+    {% else %}
+
+    <!-- Stats -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 24px;">
+        <div class="tracer-card" style="padding: 16px; text-align: center;">
+            <div style="font-size: 22px; font-weight: 700; color: #f0883e; font-family: 'JetBrains Mono', monospace;">{{ total_sessions }}</div>
+            <div style="font-size: 10.5px; color: #404058; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Sessioni</div>
+        </div>
+        <div class="tracer-card" style="padding: 16px; text-align: center;">
+            <div style="font-size: 22px; font-weight: 700; color: #a070e0; font-family: 'JetBrains Mono', monospace;">{{ total_sets }}</div>
+            <div style="font-size: 10.5px; color: #404058; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Serie totali</div>
+        </div>
+    </div>
+
+    <!-- Top esercizi -->
+    {% if top_exercises %}
+    <div class="tracer-card" style="margin-bottom: 20px; overflow: hidden;">
+        <div style="padding: 12px 16px; border-bottom: 1px solid #16162a;">
+            <div style="font-size: 10.5px; font-weight: 700; color: #3a3a52; text-transform: uppercase; letter-spacing: 1px;">Esercizi preferiti</div>
+        </div>
+        {% for ex in top_exercises %}
+        <div style="padding: 10px 16px; border-bottom: 1px solid #0e0e1e; display: flex; align-items: center; justify-content: space-between;">
+            <div style="font-size: 12.5px; color: #c0c0d8;">{{ ex.nome }}</div>
+            <span style="font-size: 11px; font-weight: 700; color: #f0883e; font-family: 'JetBrains Mono', monospace;">{{ ex.count }} serie</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Heatmap -->
+    <div class="tracer-card" style="padding: 16px; margin-bottom: 20px; overflow-x: auto;">
+        <div style="font-size: 10.5px; font-weight: 700; color: #3a3a52; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;">Attività</div>
+        <div id="profile-heatmap"></div>
+    </div>
+
+    <!-- Sessioni recenti -->
+    {% if sessions %}
+    <div class="tracer-card" style="overflow: hidden;">
+        <div style="padding: 12px 16px; border-bottom: 1px solid #16162a; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 10.5px; font-weight: 700; color: #3a3a52; text-transform: uppercase; letter-spacing: 1px;">Sessioni recenti</div>
+            {% if total_sessions > 20 %}
+            <div style="font-size: 11px; color: #34344e;">Mostrando le ultime 20</div>
+            {% endif %}
+        </div>
+        {% for session in sessions %}
+        <a href="{% url 'session_view' target_user.username session.id %}" style="display: block; padding: 13px 16px; border-bottom: 1px solid #0e0e1e; text-decoration: none; transition: background .12s;" onmouseover="this.style.background='#0f0f1c'" onmouseout="this.style.background='transparent'">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                <div style="font-size: 12.5px; font-weight: 600; color: #e0e0f0;">{{ session.data|date:"d M Y" }}</div>
+                <span style="padding: 2px 9px; background: rgba(240,136,62,.07); border: 1px solid rgba(240,136,62,.14); border-radius: 5px; font-size: 11px; color: #f0883e; font-weight: 600; font-family: 'JetBrains Mono', monospace;">{{ session.sets.count }} serie</span>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                {% for s in session.sets.all %}
+                {% if forloop.counter <= 6 %}
+                <span style="padding: 2px 8px; border-radius: 20px; font-size: 10.5px; background: #111120; border: 1px solid #1c1c2c; color: #6060a0;">{{ s.exercise.nome }}</span>
+                {% endif %}
+                {% endfor %}
+                {% if session.sets.count > 6 %}
+                <span style="padding: 2px 8px; border-radius: 20px; font-size: 10.5px; background: #111120; border: 1px solid #1c1c2c; color: #404058;">+{{ session.sets.count|add:"-6" }} altre</span>
+                {% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% endif %}
+</div>
+
+{% if not private %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var data = {{ heatmap_data_json|safe }};
+    var cal = new CalHeatmap();
+    cal.paint({
+        data: { source: data, x: 'date', y: 'value', groupY: 'sum' },
+        date: { start: new Date(new Date().getFullYear(), 0, 1) },
+        range: 12,
+        scale: { color: { type: 'linear', range: ['#1a1a2e', '#f0883e'], domain: [0, 3] } },
+        domain: { type: 'month', gutter: 4, label: { text: 'MMM', textAlign: 'start', position: 'top' } },
+        subDomain: { type: 'day', radius: 2, width: 11, height: 11, gutter: 2 },
+        itemSelector: '#profile-heatmap',
+        theme: 'dark',
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

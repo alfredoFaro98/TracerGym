@@ -28,4 +28,8 @@ urlpatterns = [
     path('session/<int:session_id>/export/', views.export_session, name='export_session'),
     path('export/', views.export_sessions, name='export_sessions'),
     path('import/', views.import_sessions, name='import_sessions'),
+    path('users/', views.user_list, name='user_list'),
+    path('users/<str:username>/', views.user_profile, name='user_profile'),
+    path('users/<str:username>/session/<int:session_id>/', views.session_view, name='session_view'),
+    path('profile/toggle-visibility/', views.toggle_profile_visibility, name='toggle_profile_visibility'),
 ]

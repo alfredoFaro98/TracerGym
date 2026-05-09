@@ -36,6 +36,13 @@ class WorkoutSession(models.Model):
     class Meta:
         ordering = ['-data'] # Ordina dalla più recente alla più vecchia
 
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    is_public = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Profilo di {self.user.username}"
+
 class WorkoutSet(models.Model):
     # Singola serie di un esercizio all'interno di una sessione
     session = models.ForeignKey(WorkoutSession, on_delete=models.CASCADE, related_name='sets')

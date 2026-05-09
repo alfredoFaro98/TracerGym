@@ -1,0 +1,89 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Sessione di {{ target_user.username }} - Workout Tracker{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+    <!-- Back -->
+    <a href="{% url 'user_profile' target_user.username %}" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #484862; text-decoration: none; margin-bottom: 20px; transition: color .12s;" onmouseover="this.style.color='#8080a0'" onmouseout="this.style.color='#484862'">
+        ← {{ target_user.username }}
+    </a>
+
+    <!-- Header -->
+    <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 24px; flex-wrap: wrap;">
+        <div>
+            <h1 style="font-size: 17px; font-weight: 700; color: #f0f0f3; letter-spacing: -0.3px; margin: 0 0 3px;">
+                {{ session.data|date:"l d F Y" }}
+            </h1>
+            <div style="font-size: 11.5px; color: #404058;">Sessione di <span style="color: #8080a0; font-weight: 600;">{{ target_user.username }}</span></div>
+        </div>
+        <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+            <div style="padding: 6px 12px; background: rgba(240,136,62,.07); border: 1px solid rgba(240,136,62,.14); border-radius: 7px; font-size: 13px; color: #f0883e; font-weight: 600; font-family: 'JetBrains Mono', monospace;">
+                {{ session.sets.count }} serie
+            </div>
+            <span style="padding: 4px 10px; background: rgba(96,96,200,.07); border: 1px solid rgba(96,96,200,.18); border-radius: 6px; font-size: 11px; color: #7878c0; font-weight: 600;">Solo lettura</span>
+        </div>
+    </div>
+
+    {% if exercise_groups %}
+    <div class="tracer-card" style="overflow: hidden;">
+        <div style="padding: 13px 16px; border-bottom: 1px solid #16162a; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 10.5px; font-weight: 700; color: #3a3a52; text-transform: uppercase; letter-spacing: 1px;">Esercizi</div>
+            <div style="font-size: 11px; color: #34344e; font-family: 'JetBrains Mono', monospace;">{{ exercise_groups|length }} esercizi · {{ session.sets.count }} serie</div>
+        </div>
+
+        {% for group in exercise_groups %}
+        <div style="border-bottom: 1px solid #0e0e1e;">
+            <!-- Riga esercizio -->
+            <div onclick="toggleGroup({{ forloop.counter }})" style="padding: 13px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='#0f0f1c'" onmouseout="this.style.background='transparent'">
+                <div style="flex: 1;">
+                    <div style="font-size: 13px; font-weight: 600; color: #e8e8f8;">{{ group.exercise.nome }}</div>
+                    {% if group.exercise.tags.all %}
+                    <div style="display: flex; gap: 4px; margin-top: 3px; flex-wrap: wrap;">
+                        {% for tag in group.exercise.tags.all %}
+                        <span class="badge-tag badge-tag-default">{{ tag.nome }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <span style="padding: 3px 9px; background: rgba(240,136,62,.07); border: 1px solid rgba(240,136,62,.14); border-radius: 5px; font-size: 11px; color: #f0883e; font-weight: 600; font-family: 'JetBrains Mono', monospace; white-space: nowrap;">{{ group.count }} serie</span>
+                <span id="chevron-{{ forloop.counter }}" style="font-size: 10px; color: #34344e; transition: transform .15s;">▼</span>
+            </div>
+
+            <!-- Serie espandibili -->
+            <div id="group-{{ forloop.counter }}" style="display: none; flex-direction: column; gap: 4px; padding: 0 12px 12px;">
+                {% for set in group.sets %}
+                <div style="padding: 9px 12px; border-radius: 7px; background: #0a0a12; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <span style="font-size: 10px; font-weight: 700; color: #2e2e46; font-family: 'JetBrains Mono', monospace; min-width: 20px;">#{{ forloop.counter }}</span>
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #f0f0f3;">{{ set.reps }}<span style="font-size: 10px; font-weight: 400; color: #484862; margin-left: 2px;">reps</span></span>
+                    {% if set.weight %}
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #c0c0d8;">× {{ set.weight }}<span style="font-size: 10px; color: #38384e;"> kg</span></span>
+                    {% endif %}
+                    {% if set.rest_time %}
+                    <span style="font-size: 11px; color: #404058; font-family: 'JetBrains Mono', monospace;">{{ set.rest_time }}s</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div style="background: #0d0d14; border: 1px dashed #1c1c2e; border-radius: 12px; padding: 52px 24px; text-align: center;">
+        <div style="font-size: 13.5px; color: #2c2c44; font-weight: 500;">Nessuna serie registrata in questa sessione</div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function toggleGroup(n) {
+    var content = document.getElementById('group-' + n);
+    var chevron = document.getElementById('chevron-' + n);
+    var visible = content.style.display === 'flex';
+    content.style.display = visible ? 'none' : 'flex';
+    chevron.style.transform = visible ? '' : 'rotate(180deg)';
+}
+</script>
+{% endblock %}

@@ -11,7 +11,8 @@ from itertools import groupby
 import time
 from datetime import datetime
 from django.utils import timezone
-from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag
+from django.contrib.auth.models import User
+from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile
 
 
 @login_required
@@ -140,6 +141,7 @@ def register(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
+            UserProfile.objects.create(user=user)
             login(request, user)
             return redirect('dashboard')
     else:
@@ -454,3 +456,103 @@ def exercise_suggestions(request):
     ).order_by('priority', 'nome')[:20]
     results = list(qs.values_list('nome', flat=True))
     return JsonResponse({'results': results})
+
+
+@login_required
+def user_list(request):
+    if request.user.is_superuser:
+        profiles = UserProfile.objects.select_related('user').order_by('user__username')
+    else:
+        profiles = UserProfile.objects.filter(is_public=True).select_related('user').order_by('user__username')
+
+    users_data = []
+    for profile in profiles:
+        session_count = WorkoutSession.objects.filter(utente=profile.user).count()
+        users_data.append({
+            'user': profile.user,
+            'is_public': profile.is_public,
+            'session_count': session_count,
+        })
+
+    return render(request, 'tracker/user_list.html', {'users_data': users_data})
+
+
+@login_required
+def user_profile(request, username):
+    target_user = get_object_or_404(User, username=username)
+    profile, _ = UserProfile.objects.get_or_create(user=target_user)
+
+    is_own = request.user == target_user
+    can_view = is_own or request.user.is_superuser or profile.is_public
+    if not can_view:
+        return render(request, 'tracker/user_profile.html', {
+            'target_user': target_user,
+            'private': True,
+        })
+
+    sessions = WorkoutSession.objects.filter(utente=target_user).prefetch_related('sets__exercise').order_by('-data', '-id')
+    total_sets = WorkoutSet.objects.filter(session__utente=target_user).count()
+
+    top_exercises = (
+        Exercise.objects.filter(workoutset__session__utente=target_user)
+        .annotate(count=models.Count('workoutset'))
+        .order_by('-count')[:5]
+    )
+
+    date_counts = {}
+    for s in sessions:
+        d_str = s.data.strftime('%Y-%m-%d')
+        date_counts[d_str] = date_counts.get(d_str, 0) + 1
+    heatmap_data = []
+    for d_str, count in date_counts.items():
+        dt = datetime.strptime(d_str, '%Y-%m-%d')
+        heatmap_data.append({'date': int(time.mktime(dt.timetuple())), 'value': count})
+
+    return render(request, 'tracker/user_profile.html', {
+        'target_user': target_user,
+        'profile': profile,
+        'is_own': is_own,
+        'private': False,
+        'sessions': sessions[:20],
+        'total_sessions': sessions.count(),
+        'total_sets': total_sets,
+        'top_exercises': top_exercises,
+        'heatmap_data_json': json.dumps(heatmap_data),
+    })
+
+
+@login_required
+def session_view(request, username, session_id):
+    target_user = get_object_or_404(User, username=username)
+    profile, _ = UserProfile.objects.get_or_create(user=target_user)
+
+    is_own = request.user == target_user
+    can_view = is_own or request.user.is_superuser or profile.is_public
+    if not can_view:
+        return redirect('user_profile', username=username)
+
+    session = get_object_or_404(WorkoutSession, id=session_id, utente=target_user)
+    all_sets = list(session.sets.select_related('exercise').prefetch_related('muscles').order_by('order', 'id'))
+    exercise_groups = []
+    for _, grp in groupby(all_sets, key=lambda s: s.exercise_id):
+        grp_list = list(grp)
+        exercise_groups.append({
+            'exercise': grp_list[0].exercise,
+            'sets': grp_list,
+            'count': len(grp_list),
+        })
+
+    return render(request, 'tracker/session_view.html', {
+        'target_user': target_user,
+        'session': session,
+        'exercise_groups': exercise_groups,
+    })
+
+
+@login_required
+def toggle_profile_visibility(request):
+    if request.method == 'POST':
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        profile.is_public = not profile.is_public
+        profile.save()
+    return redirect('user_profile', username=request.user.username)
