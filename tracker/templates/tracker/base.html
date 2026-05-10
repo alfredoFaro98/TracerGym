@@ -40,14 +40,15 @@
                 <a href="{% url 'user_list' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #787890; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='#1c1c2c';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#787890'">
                     <span class="menu-text">Atleti</span>
                 </a>
+                <a href="{% url 'body_map' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #787890; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='#1c1c2c';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#787890'">
+                    <span class="menu-text">Mappa Muscolare</span>
+                </a>
+
                 <a href="{% url 'user_profile' user.username %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #787890; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='#1c1c2c';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#787890'">
                     <span class="menu-text">Il mio profilo</span>
                 </a>
                 {% if user.is_superuser %}
                 <div style="font-size: 9px; font-weight: 700; color: #2a2a3e; text-transform: uppercase; letter-spacing: 1.2px; padding: 8px 14px 2px;">Admin</div>
-                <a href="{% url 'exercises_list' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #787890; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='#1c1c2c';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#787890'">
-                    <span class="menu-text">Esercizi</span>
-                </a>
                 <a href="/admin/" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #787890; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='#1c1c2c';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#787890'">
                     <span class="menu-text">Django Admin</span>
                 </a>

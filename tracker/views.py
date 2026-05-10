@@ -71,6 +71,16 @@ def dashboard(request):
     now = timezone.now()
     this_month_sessions = all_sessions.filter(data__year=now.year, data__month=now.month).count()
 
+    exercises_qs = Exercise.objects.prefetch_related('tags').order_by('nome')
+    exercises_data = []
+    for ex in exercises_qs:
+        exercises_data.append({
+            'id': ex.id,
+            'nome': ex.nome,
+            'tipologia': ex.tipologia or '',
+            'tags': [t.nome.lower() for t in ex.tags.all()],
+        })
+    
     return render(request, 'tracker/dashboard.html', {
         'sessions': sessions,
         'total_sessions_count': all_sessions.count(),
@@ -78,6 +88,7 @@ def dashboard(request):
         'this_month_sessions': this_month_sessions,
         'heatmap_data_json': json.dumps(heatmap_data),
         'selected_year': year_int,
+        'exercises_json': json.dumps(exercises_data),
     })
 
 @login_required
@@ -353,9 +364,6 @@ def export_session(request, session_id):
 
 @login_required
 def exercises_list(request):
-    if not request.user.is_superuser:
-        return redirect('dashboard')
-
     tags = Tag.objects.all().order_by('nome')
     selected_tag = request.GET.get('tag', '')
     error = request.GET.get('error', '')
@@ -576,3 +584,20 @@ def toggle_profile_visibility(request):
         profile.is_public = not profile.is_public
         profile.save()
     return redirect('user_profile', username=request.user.username)
+
+
+@login_required
+def body_map(request):
+    exercises_qs = Exercise.objects.prefetch_related('tags').order_by('nome')
+    exercises_data = [
+        {
+            'id': ex.id,
+            'nome': ex.nome,
+            'tipologia': ex.tipologia or '',
+            'tags': [t.nome.lower() for t in ex.tags.all()],
+        }
+        for ex in exercises_qs
+    ]
+    return render(request, 'tracker/body_map.html', {
+        'exercises_json': json.dumps(exercises_data),
+    })

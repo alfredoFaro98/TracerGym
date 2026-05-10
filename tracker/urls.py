@@ -21,6 +21,7 @@ urlpatterns = [
     path('session/<int:session_id>/delete-exercise/<int:exercise_id>/', views.delete_exercise_sets, name='delete_exercise_sets'),
     path('session/<int:session_id>/reorder/', views.reorder_exercises, name='reorder_exercises'),
     path('exercises/', views.exercises_list, name='exercises_list'),
+
     path('exercises/add/', views.add_exercise, name='add_exercise'),
     path('exercises/<int:exercise_id>/edit/', views.edit_exercise_admin, name='edit_exercise_admin'),
     path('exercises/<int:exercise_id>/delete/', views.delete_exercise_admin, name='delete_exercise_admin'),
@@ -33,4 +34,5 @@ urlpatterns = [
     path('users/<str:username>/', views.user_profile, name='user_profile'),
     path('users/<str:username>/session/<int:session_id>/', views.session_view, name='session_view'),
     path('profile/toggle-visibility/', views.toggle_profile_visibility, name='toggle_profile_visibility'),
+    path('body-map/', views.body_map, name='body_map'),
 ]

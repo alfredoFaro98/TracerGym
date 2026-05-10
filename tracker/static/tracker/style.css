@@ -171,6 +171,12 @@ a { text-decoration: none; }
     padding: 10px 16px;
     align-items: center;
     order: 2; /* Sposta in basso come Bottom Bar */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sidebar::-webkit-scrollbar {
+    display: none;
   }
 
   .sidebar .logo-container, .sidebar .user-info-container {
@@ -179,20 +185,16 @@ a { text-decoration: none; }
 
   .sidebar .menu-container {
     flex-direction: row !important;
-    justify-content: space-around;
-    width: 100%;
-    gap: 5px;
+    justify-content: flex-start;
+    width: max-content;
+    gap: 8px;
   }
 
-  .sidebar .menu-container a {
-    flex: 1;
+  .sidebar .menu-container a, .sidebar .menu-container button {
+    flex: 0 0 auto;
     justify-content: center;
-    padding: 10px;
-    font-size: 0; /* Nasconde il testo */
-  }
-
-  .sidebar .menu-container a::before {
-    font-size: 20px; /* Mostra solo l'icona più grande */
+    padding: 10px 14px;
+    white-space: nowrap;
   }
 
   .main-content {
