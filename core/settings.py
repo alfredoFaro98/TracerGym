@@ -78,18 +78,30 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tracker',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+import os
+if 'PYTHONANYWHERE_DOMAIN' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'tuo_username$default', # Il nome esatto su PA
+            'USER': 'tuo_username',         # Il tuo utente su PA
+            'PASSWORD': 'password_del_db_di_pythonanywhere',
+            'HOST': 'tuo_username.mysql.pythonanywhere-services.com',
+            'PORT': '3306',
+        }
     }
-}
-
+else:
+    # Altrimenti, siamo sul tuo PC locale!
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'tracker',              # Il tuo db locale
+            'USER': 'root',
+            'PASSWORD': 'prova',
+            'HOST': '127.0.0.1',
+            'PORT': '3306',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
