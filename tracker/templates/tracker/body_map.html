@@ -406,6 +406,80 @@
     display: flex;
     flex-direction: column;
 }
+
+/* ── Mobile ── */
+@media (max-width: 700px) {
+    /* SVG fisso in alto, pannello info scorre sotto */
+    .main {
+        flex-direction: column;
+        height: 100% !important;
+        overflow: hidden !important;
+        align-items: stretch;
+    }
+
+    /* Contenitore fisso: view-wrap rimane absolute al suo interno */
+    .body-map-wrap {
+        width: 100%;
+        height: 58vh;
+        flex-shrink: 0;
+        padding: 0;
+        position: relative;
+    }
+
+    /* Spazio sopra la testa: sposta il flex verso il basso */
+    .view-wrap {
+        padding-top: 20px;
+        align-items: flex-start !important;
+        justify-content: center;
+    }
+
+    /* SVG più piccolo così i piedi non raggiungono il toggle */
+    .view-wrap svg {
+        height: min(44vh, 330px);
+        margin: 0 auto;
+    }
+
+    /* Toggle sotto i piedi */
+    .view-toggle {
+        bottom: 10px;
+    }
+
+    /* Separatore orizzontale */
+    .panel-divider {
+        width: 100%;
+        height: 1px;
+        margin: 0;
+        flex-shrink: 0;
+    }
+
+    /* Il pannello prende lo spazio rimasto e scorre internamente */
+    .info-panel {
+        width: 100%;
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 20px 20px 32px;
+    }
+
+    .muscle-name-it {
+        font-size: 26px;
+    }
+
+    .header {
+        padding: 14px 16px;
+    }
+
+    .hint-label::before {
+        content: "Tocca un muscolo per esplorarne la funzione e gli esercizi.";
+        display: block;
+    }
+    .hint-label {
+        font-size: 0;
+    }
+    .hint-label::before {
+        font-size: 14px;
+    }
+}
 </style>
 {% endblock %}
 

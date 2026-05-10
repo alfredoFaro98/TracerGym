@@ -46,6 +46,8 @@ LOGOUT_REDIRECT_URL = 'login'
 
 MAINTENANCE_MODE = False
 
+SESSION_COOKIE_AGE = 1800  # 30 minuti
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'tracker.middleware.MaintenanceModeMiddleware',
