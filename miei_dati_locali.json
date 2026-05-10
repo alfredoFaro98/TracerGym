@@ -1,0 +1,3870 @@
+[
+{
+    "model": "auth.user",
+    "fields": {
+        "password": "pbkdf2_sha256$1000000$D3giCe6QgUC6QHLtowBDx3$fAuWLJdE0SJuFcXhP4LpxV7MSwo22m2ydGf0hOpJNeE=",
+        "last_login": "2026-05-10T15:47:17.031Z",
+        "is_superuser": true,
+        "username": "admin",
+        "first_name": "",
+        "last_name": "",
+        "email": "admin@example.com",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2026-05-08T16:57:19.198Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auth.user",
+    "fields": {
+        "password": "pbkdf2_sha256$1000000$yKtW3pURdT0rzIVazEzjMI$BKd/JOXiZ9YhM8CM+wfrq3AZkwWITmetuEOVcW3etKQ=",
+        "last_login": "2026-05-08T19:08:11.051Z",
+        "is_superuser": false,
+        "username": "testuser",
+        "first_name": "",
+        "last_name": "",
+        "email": "",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2026-05-08T19:08:10.024Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auth.user",
+    "fields": {
+        "password": "pbkdf2_sha256$1000000$3HB0fJ3oYJCaxsHtFL0oFD$4LMGvL/L5DpyrKGtnVCjilG34I1QxEWSwjJBDb02iNQ=",
+        "last_login": "2026-05-09T20:48:53.664Z",
+        "is_superuser": false,
+        "username": "stefano",
+        "first_name": "",
+        "last_name": "",
+        "email": "",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2026-05-09T20:44:10.706Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "tracker.musclegroup",
+    "pk": 1,
+    "fields": {
+        "nome": "Petto"
+    }
+},
+{
+    "model": "tracker.musclegroup",
+    "pk": 2,
+    "fields": {
+        "nome": "Dorso"
+    }
+},
+{
+    "model": "tracker.musclegroup",
+    "pk": 3,
+    "fields": {
+        "nome": "Spalle"
+    }
+},
+{
+    "model": "tracker.musclegroup",
+    "pk": 4,
+    "fields": {
+        "nome": "Bicipiti"
+    }
+},
+{
+    "model": "tracker.musclegroup",
+    "pk": 5,
+    "fields": {
+        "nome": "Tricipiti"
+    }
+},
+{
+    "model": "tracker.musclegroup",
+    "pk": 6,
+    "fields": {
+        "nome": "Quadricipiti"
+    }
+},
+{
+    "model": "tracker.musclegroup",
+    "pk": 7,
+    "fields": {
+        "nome": "Femorali"
+    }
+},
+{
+    "model": "tracker.musclegroup",
+    "pk": 8,
+    "fields": {
+        "nome": "Glutei"
+    }
+},
+{
+    "model": "tracker.musclegroup",
+    "pk": 9,
+    "fields": {
+        "nome": "Addome"
+    }
+},
+{
+    "model": "tracker.musclegroup",
+    "pk": 10,
+    "fields": {
+        "nome": "Polpacci"
+    }
+},
+{
+    "model": "tracker.musclegroup",
+    "pk": 11,
+    "fields": {
+        "nome": "Trapezio"
+    }
+},
+{
+    "model": "tracker.musclegroup",
+    "pk": 12,
+    "fields": {
+        "nome": "Lombari"
+    }
+},
+{
+    "model": "tracker.musclegroup",
+    "pk": 13,
+    "fields": {
+        "nome": "Avambracci"
+    }
+},
+{
+    "model": "tracker.tag",
+    "pk": 7,
+    "fields": {
+        "nome": "Cardio"
+    }
+},
+{
+    "model": "tracker.tag",
+    "pk": 9,
+    "fields": {
+        "nome": "Petto"
+    }
+},
+{
+    "model": "tracker.tag",
+    "pk": 10,
+    "fields": {
+        "nome": "Bicipiti"
+    }
+},
+{
+    "model": "tracker.tag",
+    "pk": 11,
+    "fields": {
+        "nome": "Tricipiti"
+    }
+},
+{
+    "model": "tracker.tag",
+    "pk": 12,
+    "fields": {
+        "nome": "Polpacci"
+    }
+},
+{
+    "model": "tracker.tag",
+    "pk": 13,
+    "fields": {
+        "nome": "Quadricipiti"
+    }
+},
+{
+    "model": "tracker.tag",
+    "pk": 14,
+    "fields": {
+        "nome": "Addominali"
+    }
+},
+{
+    "model": "tracker.tag",
+    "pk": 15,
+    "fields": {
+        "nome": "Obliqui"
+    }
+},
+{
+    "model": "tracker.tag",
+    "pk": 16,
+    "fields": {
+        "nome": "Deltoide Anteriore e Laterale"
+    }
+},
+{
+    "model": "tracker.tag",
+    "pk": 17,
+    "fields": {
+        "nome": "Trapezi"
+    }
+},
+{
+    "model": "tracker.tag",
+    "pk": 18,
+    "fields": {
+        "nome": "Deltoide Posteriore"
+    }
+},
+{
+    "model": "tracker.tag",
+    "pk": 19,
+    "fields": {
+        "nome": "Romboidi"
+    }
+},
+{
+    "model": "tracker.tag",
+    "pk": 20,
+    "fields": {
+        "nome": "Gran Dorsale"
+    }
+},
+{
+    "model": "tracker.tag",
+    "pk": 21,
+    "fields": {
+        "nome": "Lombari"
+    }
+},
+{
+    "model": "tracker.tag",
+    "pk": 22,
+    "fields": {
+        "nome": "Glutei"
+    }
+},
+{
+    "model": "tracker.tag",
+    "pk": 23,
+    "fields": {
+        "nome": "Ischio-Crurali"
+    }
+},
+{
+    "model": "tracker.tag",
+    "pk": 24,
+    "fields": {
+        "nome": "Altro"
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 1,
+    "fields": {
+        "nome": "Panca Piana",
+        "tipologia": "",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 2,
+    "fields": {
+        "nome": "Croci ai cavi",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 3,
+    "fields": {
+        "nome": "Trazioni alla sbarra",
+        "tipologia": "Corpo Libero",
+        "tags": [
+            20
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 4,
+    "fields": {
+        "nome": "Rematore con bilanciere",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            19
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 5,
+    "fields": {
+        "nome": "Squat",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            13,
+            22
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 6,
+    "fields": {
+        "nome": "Affondi",
+        "tipologia": "",
+        "tags": [
+            13
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 7,
+    "fields": {
+        "nome": "Leg Press",
+        "tipologia": "",
+        "tags": [
+            13
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 8,
+    "fields": {
+        "nome": "Lento Avanti",
+        "tipologia": "",
+        "tags": [
+            16
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 9,
+    "fields": {
+        "nome": "Alzate Laterali",
+        "tipologia": "",
+        "tags": [
+            16
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 10,
+    "fields": {
+        "nome": "Curl con bilanciere",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 11,
+    "fields": {
+        "nome": "Pushdown tricipiti",
+        "tipologia": "",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 12,
+    "fields": {
+        "nome": "Crunch",
+        "tipologia": "Esercizio a corpo libero",
+        "tags": [
+            14
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 13,
+    "fields": {
+        "nome": "Plank",
+        "tipologia": "Esercizio a corpo libero",
+        "tags": [
+            14
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 14,
+    "fields": {
+        "nome": "Tapis Roulant",
+        "tipologia": "Cardio",
+        "tags": [
+            7
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 15,
+    "fields": {
+        "nome": "Lat machine presa larga prona",
+        "tipologia": "",
+        "tags": [
+            20
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 16,
+    "fields": {
+        "nome": "Pull down barra cavo",
+        "tipologia": "",
+        "tags": [
+            17,
+            20
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 17,
+    "fields": {
+        "nome": "Iliac Pull down cavo singolo maniglia su panca",
+        "tipologia": "",
+        "tags": [
+            20
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 18,
+    "fields": {
+        "nome": "T bar row machine",
+        "tipologia": "",
+        "tags": [
+            17,
+            19,
+            20
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 19,
+    "fields": {
+        "nome": "Pulley presa larga prona",
+        "tipologia": "",
+        "tags": [
+            19
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 20,
+    "fields": {
+        "nome": "Curl manubri su panca inclinata 45",
+        "tipologia": "",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 21,
+    "fields": {
+        "nome": "Curl manubri su panca inclinata 60",
+        "tipologia": "",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 22,
+    "fields": {
+        "nome": "Hammer Curl manubri al cavo",
+        "tipologia": "",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 23,
+    "fields": {
+        "nome": "Bayesian Curl braccio singolo",
+        "tipologia": "",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 25,
+    "fields": {
+        "nome": "Rope Face Pull",
+        "tipologia": "",
+        "tags": [
+            18
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 26,
+    "fields": {
+        "nome": "Panca inclinata Bilancere",
+        "tipologia": "",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 27,
+    "fields": {
+        "nome": "Chest Press",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 28,
+    "fields": {
+        "nome": "Pectoral Machine - Pec Fly",
+        "tipologia": "",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 29,
+    "fields": {
+        "nome": "Push down barra ai cavi",
+        "tipologia": "",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 30,
+    "fields": {
+        "nome": "Pull down corda in ginocchio",
+        "tipologia": "",
+        "tags": [
+            20
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 31,
+    "fields": {
+        "nome": "Push down one hand - reverse grip",
+        "tipologia": "",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 32,
+    "fields": {
+        "nome": "Alzate Laterali con manubri",
+        "tipologia": "",
+        "tags": [
+            16
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 33,
+    "fields": {
+        "nome": "Alzate posteriori",
+        "tipologia": "",
+        "tags": [
+            18
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 34,
+    "fields": {
+        "nome": "Military press con bilancere",
+        "tipologia": "",
+        "tags": [
+            16
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 35,
+    "fields": {
+        "nome": "Abdominal Crunch Machine",
+        "tipologia": "",
+        "tags": [
+            14
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 36,
+    "fields": {
+        "nome": "Military Press",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            16
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 37,
+    "fields": {
+        "nome": "Alzate laterali",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            16
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 38,
+    "fields": {
+        "nome": "Lento Avanti con bilanciere",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            16
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 39,
+    "fields": {
+        "nome": "Lento Avanti con manubri",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            16
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 40,
+    "fields": {
+        "nome": "Alzate laterali ai cavi",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            16
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 41,
+    "fields": {
+        "nome": "Shoulder press",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            16
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 42,
+    "fields": {
+        "nome": "Lento Dietro con bilanciere",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            16
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 43,
+    "fields": {
+        "nome": "Alzate frontali",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            16
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 44,
+    "fields": {
+        "nome": "Alzate frontali ai cavi",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            16
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 45,
+    "fields": {
+        "nome": "Alzate frontali con bilanciere",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            16
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 46,
+    "fields": {
+        "nome": "Crossover ai cavi inverso",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            18
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 47,
+    "fields": {
+        "nome": "Alzate a 90 gradi",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            18
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 48,
+    "fields": {
+        "nome": "Alzate a 90 gradi ai cavi",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            18
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 49,
+    "fields": {
+        "nome": "Rematore verticale con bilanciere",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            17
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 50,
+    "fields": {
+        "nome": "Rematore verticale con manubri",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            17
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 51,
+    "fields": {
+        "nome": "Shrug con bilanciere",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            17
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 52,
+    "fields": {
+        "nome": "Shrug con manubri",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            17
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 53,
+    "fields": {
+        "nome": "Shrug al multipower",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            17
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 54,
+    "fields": {
+        "nome": "Alzate frontali con manubrio da seduto",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            16
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 55,
+    "fields": {
+        "nome": "Alzate laterali con manubrio da seduto",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            16
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 56,
+    "fields": {
+        "nome": "Panca piana presa inversa",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 57,
+    "fields": {
+        "nome": "Arnold press",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            16
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 58,
+    "fields": {
+        "nome": "Alzate frontali con corda",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            16
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 59,
+    "fields": {
+        "nome": "Stacchi da terra",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            21
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 60,
+    "fields": {
+        "nome": "Trazioni alla sbarra (chin up)",
+        "tipologia": "Esercizio a corpo libero",
+        "tags": [
+            20
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 61,
+    "fields": {
+        "nome": "Rematore con manubrio",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            19
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 62,
+    "fields": {
+        "nome": "Rematore ai cavi (unilaterale o bilaterale)",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            19
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 63,
+    "fields": {
+        "nome": "Pulldown alla lat machine",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            20
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 64,
+    "fields": {
+        "nome": "Pulldown alla lat machine presa inversa",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            20
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 65,
+    "fields": {
+        "nome": "Pulldown alla lat machine con triangolo",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            20
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 66,
+    "fields": {
+        "nome": "Pulldown alla lat machine con trazibar",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            20
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 67,
+    "fields": {
+        "nome": "Pullover con manubrio",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            20
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 68,
+    "fields": {
+        "nome": "Pullover ai cavi",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            20
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 69,
+    "fields": {
+        "nome": "Lateral Pulley (orizzontale o inclinato)",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            19
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 70,
+    "fields": {
+        "nome": "Lateral Pulley (orizzontale o inclinato) presa larga",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            19
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 71,
+    "fields": {
+        "nome": "Lateral Pulley (orizzontale o inclinato) con trazybar",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            19
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 72,
+    "fields": {
+        "nome": "Lateral Pulley con maniglia unilaterale",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            19
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 73,
+    "fields": {
+        "nome": "Lat machine con maniglia",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            20
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 74,
+    "fields": {
+        "nome": "Iperestensioni alla panca romana",
+        "tipologia": "Esercizi a corpo libero",
+        "tags": [
+            21
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 75,
+    "fields": {
+        "nome": "Rematore su panca inclinata con manubrio",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            19
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 76,
+    "fields": {
+        "nome": "Rematore su panca inclinata con bilanciere",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            19
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 77,
+    "fields": {
+        "nome": "Trazioni alla sbarra presa inversa (chin up)",
+        "tipologia": "Esercizio a corpo libero",
+        "tags": [
+            20
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 78,
+    "fields": {
+        "nome": "Rematore con bilanciere presa inversa",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            19
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 79,
+    "fields": {
+        "nome": "Rematore al multipower",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            19
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 80,
+    "fields": {
+        "nome": "Goodmorning con bilanciere",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            21
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 81,
+    "fields": {
+        "nome": "Dorsy Machine",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            20
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 82,
+    "fields": {
+        "nome": "Nautilus Machine",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            20
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 83,
+    "fields": {
+        "nome": "Pressa 45 gradi",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            13
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 84,
+    "fields": {
+        "nome": "Pressa Orizzontale",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            13
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 85,
+    "fields": {
+        "nome": "Pressa Verticale",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            13
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 86,
+    "fields": {
+        "nome": "Leg Extension",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            13
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 87,
+    "fields": {
+        "nome": "Leg Curl",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            23
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 88,
+    "fields": {
+        "nome": "Stacchi da terra gambe tese",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            22,
+            23
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 89,
+    "fields": {
+        "nome": "Stacchi da terra gambe tese con manubri",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            22,
+            23
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 90,
+    "fields": {
+        "nome": "Standing leg curl",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            23
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 91,
+    "fields": {
+        "nome": "Sitting leg curl",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            23
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 92,
+    "fields": {
+        "nome": "Affondi frontali (con manubri)",
+        "tipologia": "Esercizio a corpo libero o con manubri",
+        "tags": [
+            13
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 93,
+    "fields": {
+        "nome": "Affondi laterali (con manubri)",
+        "tipologia": "Esercizio a corpo libero o con manubri",
+        "tags": [
+            13
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 94,
+    "fields": {
+        "nome": "Affondi rumeni (al multipower)",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            13
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 95,
+    "fields": {
+        "nome": "Squat Bulgaro",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            22
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 96,
+    "fields": {
+        "nome": "Front Squat",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            13
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 97,
+    "fields": {
+        "nome": "Hack Squat",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            13,
+            22
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 98,
+    "fields": {
+        "nome": "Slanci posteriori della gamba",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            22
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 99,
+    "fields": {
+        "nome": "Gluteus Machine",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            22
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 100,
+    "fields": {
+        "nome": "Adductor Machine",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            22
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 101,
+    "fields": {
+        "nome": "Abductor Machine",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            22
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 102,
+    "fields": {
+        "nome": "Ponte per glutei",
+        "tipologia": "Esercizio a corpo libero",
+        "tags": [
+            22
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 103,
+    "fields": {
+        "nome": "Slanci laterali della gamba",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            22
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 104,
+    "fields": {
+        "nome": "Calf raises in piedi",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            12
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 105,
+    "fields": {
+        "nome": "Calf raises seduto",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            12
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 106,
+    "fields": {
+        "nome": "Calf raises alla leg press",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            12
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 107,
+    "fields": {
+        "nome": "Calf raises alla multipower",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            12
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 108,
+    "fields": {
+        "nome": "Squat al multipower",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            13,
+            22
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 109,
+    "fields": {
+        "nome": "Hack Squat con bilanciere",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            13,
+            22
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 110,
+    "fields": {
+        "nome": "Affondi frontali con bilanciere",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            13
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 111,
+    "fields": {
+        "nome": "Affondi laterali con bilanciere",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            13
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 112,
+    "fields": {
+        "nome": "Jefferson squat",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            13,
+            23
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 113,
+    "fields": {
+        "nome": "Stacchi da terra con trap bar",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            22,
+            23
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 114,
+    "fields": {
+        "nome": "Sissy Squat",
+        "tipologia": "Esercizio a corpo libero o con manubri",
+        "tags": [
+            22
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 115,
+    "fields": {
+        "nome": "Sumo Squat",
+        "tipologia": "Esercizio a corpo libero o con manubri",
+        "tags": [
+            13,
+            22
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 116,
+    "fields": {
+        "nome": "Distensioni con bilanciere su panca inclinata",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 117,
+    "fields": {
+        "nome": "Distensioni con bilanciere su panca piana",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 118,
+    "fields": {
+        "nome": "Distensioni con bilanciere su panca reclinata",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 119,
+    "fields": {
+        "nome": "Distensioni con manubri su panca inclinata",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 120,
+    "fields": {
+        "nome": "Distensioni con manubri su panca piana",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 121,
+    "fields": {
+        "nome": "Distensioni con manubri su panca reclinata",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 122,
+    "fields": {
+        "nome": "Dip alle parallele per i pettorali",
+        "tipologia": "Esercizio a corpo libero",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 123,
+    "fields": {
+        "nome": "Chest Press Incline",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 124,
+    "fields": {
+        "nome": "Pectoral Machine",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 125,
+    "fields": {
+        "nome": "Croci con manubri su panca inclinata",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 126,
+    "fields": {
+        "nome": "Croci con manubri su panca piana",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 127,
+    "fields": {
+        "nome": "Croci con manubri su panca reclinata",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 128,
+    "fields": {
+        "nome": "Croci con manubri around the world",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 129,
+    "fields": {
+        "nome": "Piegamenti sulle braccia",
+        "tipologia": "Esercizio a corpo libero",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 130,
+    "fields": {
+        "nome": "Croci ai cavi su panca piana",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 131,
+    "fields": {
+        "nome": "Croci ai cavi su panca inclinata",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 132,
+    "fields": {
+        "nome": "Distensioni su panca inclinata alla smith machine",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 133,
+    "fields": {
+        "nome": "Distensioni su panca piana alla smith machine",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 134,
+    "fields": {
+        "nome": "Distensioni su panca reclinata alla smith machine",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 135,
+    "fields": {
+        "nome": "Croci ai cavi dal basso",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 136,
+    "fields": {
+        "nome": "Chest press per il petto basso",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            9
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 137,
+    "fields": {
+        "nome": "Curl con manubri",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 138,
+    "fields": {
+        "nome": "Curl a martello",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 139,
+    "fields": {
+        "nome": "Curl con bilanciere alla panca Scott",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 140,
+    "fields": {
+        "nome": "Curl con manubri alla panca Scott",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 141,
+    "fields": {
+        "nome": "Curl con manubri su panca inclinata",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 142,
+    "fields": {
+        "nome": "Bicipiti alla macchina (arm curl)",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 143,
+    "fields": {
+        "nome": "Spider curl con bilanciere",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 144,
+    "fields": {
+        "nome": "Spider curl con manubrio",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 145,
+    "fields": {
+        "nome": "Curl ai cavi unilaterali e bilaterali",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 146,
+    "fields": {
+        "nome": "Curl con bilanciere presa inversa",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 147,
+    "fields": {
+        "nome": "Curl di concentrazione con manubrio",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 148,
+    "fields": {
+        "nome": "Curl di concentrazione ai cavi",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 149,
+    "fields": {
+        "nome": "Curl con corda",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 150,
+    "fields": {
+        "nome": "Curl a martello frontali",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 151,
+    "fields": {
+        "nome": "Curl ai cavi da sdraiato",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 152,
+    "fields": {
+        "nome": "Curl ai cavi sopra la testa",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 153,
+    "fields": {
+        "nome": "Curl con bilanciere alla panca Scott presa inversa",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            10
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 154,
+    "fields": {
+        "nome": "French Press (o skull crusher)",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 155,
+    "fields": {
+        "nome": "French Press con manubri",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 156,
+    "fields": {
+        "nome": "Pushdown ai cavi",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 157,
+    "fields": {
+        "nome": "Pushdown ai cavi con corda",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 158,
+    "fields": {
+        "nome": "Estensioni con corda sopra la testa",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 159,
+    "fields": {
+        "nome": "Estensioni con manubrio sopra la testa",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 160,
+    "fields": {
+        "nome": "Dip alle parallele per i tricipiti",
+        "tipologia": "Esercizio a corpo libero",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 161,
+    "fields": {
+        "nome": "Dip tra panche per i tricipiti",
+        "tipologia": "Esercizio a corpo libero",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 162,
+    "fields": {
+        "nome": "Spinte inverse ai cavi (unilaterali o bilaterali)",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 163,
+    "fields": {
+        "nome": "Panca presa stretta",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 164,
+    "fields": {
+        "nome": "Panca presa stretta al multipower",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 165,
+    "fields": {
+        "nome": "Flessioni presa stretta per i tricipiti",
+        "tipologia": "Esercizio a corpo libero",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 166,
+    "fields": {
+        "nome": "Estensioni sopra la testa ai cavi da seduto",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 167,
+    "fields": {
+        "nome": "French press su panca inclinata",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 168,
+    "fields": {
+        "nome": "French press verticale",
+        "tipologia": "Esercizio con bilanciere",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 169,
+    "fields": {
+        "nome": "Macchina per i dip",
+        "tipologia": "Esercizio alle macchine",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 170,
+    "fields": {
+        "nome": "Estensioni con manubrio busto flesso",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 171,
+    "fields": {
+        "nome": "Press per i tricipiti sopra la testa con manubrio",
+        "tipologia": "Esercizio con manubrio",
+        "tags": [
+            11
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 172,
+    "fields": {
+        "nome": "Sit-up",
+        "tipologia": "Esercizio a corpo libero",
+        "tags": [
+            14
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 173,
+    "fields": {
+        "nome": "Leg raise",
+        "tipologia": "Esercizio a corpo libero",
+        "tags": [
+            14
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 174,
+    "fields": {
+        "nome": "Leg raise alle parallele",
+        "tipologia": "Esercizio a corpo libero",
+        "tags": [
+            14
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 175,
+    "fields": {
+        "nome": "Russian twist",
+        "tipologia": "Esercizio a corpo libero",
+        "tags": [
+            15
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 176,
+    "fields": {
+        "nome": "Cable crunch ai cavi",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            14
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 177,
+    "fields": {
+        "nome": "Ab wheel",
+        "tipologia": "Esercizio a corpo libero",
+        "tags": [
+            14
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 178,
+    "fields": {
+        "nome": "Crunch inverso",
+        "tipologia": "Esercizio a corpo libero",
+        "tags": [
+            14
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 179,
+    "fields": {
+        "nome": "Crunch obliquo",
+        "tipologia": "Esercizio a corpo libero",
+        "tags": [
+            15
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 180,
+    "fields": {
+        "nome": "Hollow hold",
+        "tipologia": "Esercizio a corpo libero",
+        "tags": [
+            14
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 181,
+    "fields": {
+        "nome": "Dragon flag",
+        "tipologia": "Esercizio a corpo libero",
+        "tags": [
+            14
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 182,
+    "fields": {
+        "nome": "Cyclette",
+        "tipologia": "Cardio",
+        "tags": [
+            7
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 183,
+    "fields": {
+        "nome": "Ellittica",
+        "tipologia": "Cardio",
+        "tags": [
+            7
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 184,
+    "fields": {
+        "nome": "Vogatore",
+        "tipologia": "Cardio",
+        "tags": [
+            7
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 185,
+    "fields": {
+        "nome": "Salto con la corda",
+        "tipologia": "Cardio",
+        "tags": [
+            7
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 186,
+    "fields": {
+        "nome": "Corsa",
+        "tipologia": "Cardio",
+        "tags": [
+            7
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 187,
+    "fields": {
+        "nome": "Camminata veloce",
+        "tipologia": "Cardio",
+        "tags": [
+            7
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 188,
+    "fields": {
+        "nome": "HIIT",
+        "tipologia": "Cardio",
+        "tags": [
+            7
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 189,
+    "fields": {
+        "nome": "Nuoto",
+        "tipologia": "Cardio",
+        "tags": [
+            7
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 190,
+    "fields": {
+        "nome": "RDL con manubri",
+        "tipologia": "Manubri",
+        "tags": [
+            23
+        ]
+    }
+},
+{
+    "model": "tracker.exercise",
+    "pk": 191,
+    "fields": {
+        "nome": "Cable front raise con corda",
+        "tipologia": "Esercizio ai cavi",
+        "tags": [
+            16
+        ]
+    }
+},
+{
+    "model": "tracker.workoutsession",
+    "pk": 5,
+    "fields": {
+        "utente": [
+            "admin"
+        ],
+        "data": "2026-05-08",
+        "note": null
+    }
+},
+{
+    "model": "tracker.workoutsession",
+    "pk": 6,
+    "fields": {
+        "utente": [
+            "admin"
+        ],
+        "data": "2026-05-07",
+        "note": null
+    }
+},
+{
+    "model": "tracker.workoutsession",
+    "pk": 17,
+    "fields": {
+        "utente": [
+            "stefano"
+        ],
+        "data": "2026-05-09",
+        "note": null
+    }
+},
+{
+    "model": "tracker.workoutsession",
+    "pk": 23,
+    "fields": {
+        "utente": [
+            "admin"
+        ],
+        "data": "2026-05-06",
+        "note": null
+    }
+},
+{
+    "model": "tracker.workoutsession",
+    "pk": 33,
+    "fields": {
+        "utente": [
+            "admin"
+        ],
+        "data": "2026-05-11",
+        "note": null
+    }
+},
+{
+    "model": "tracker.userprofile",
+    "pk": 1,
+    "fields": {
+        "user": [
+            "stefano"
+        ],
+        "is_public": true
+    }
+},
+{
+    "model": "tracker.userprofile",
+    "pk": 2,
+    "fields": {
+        "user": [
+            "admin"
+        ],
+        "is_public": true
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 3,
+    "fields": {
+        "session": 5,
+        "exercise": 15,
+        "order": 0,
+        "reps": 10,
+        "weight": "75.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 5,
+    "fields": {
+        "session": 5,
+        "exercise": 15,
+        "order": 1,
+        "reps": 10,
+        "weight": "75.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 6,
+    "fields": {
+        "session": 5,
+        "exercise": 15,
+        "order": 2,
+        "reps": 10,
+        "weight": "70.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 7,
+    "fields": {
+        "session": 5,
+        "exercise": 16,
+        "order": 3,
+        "reps": 10,
+        "weight": "20.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 8,
+    "fields": {
+        "session": 5,
+        "exercise": 16,
+        "order": 4,
+        "reps": 10,
+        "weight": "22.50",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 9,
+    "fields": {
+        "session": 5,
+        "exercise": 16,
+        "order": 5,
+        "reps": 10,
+        "weight": "22.50",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 10,
+    "fields": {
+        "session": 5,
+        "exercise": 17,
+        "order": 6,
+        "reps": 10,
+        "weight": "22.50",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 11,
+    "fields": {
+        "session": 5,
+        "exercise": 17,
+        "order": 7,
+        "reps": 10,
+        "weight": "22.50",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 12,
+    "fields": {
+        "session": 5,
+        "exercise": 17,
+        "order": 8,
+        "reps": 10,
+        "weight": "22.50",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 13,
+    "fields": {
+        "session": 5,
+        "exercise": 18,
+        "order": 9,
+        "reps": 10,
+        "weight": "30.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 14,
+    "fields": {
+        "session": 5,
+        "exercise": 18,
+        "order": 10,
+        "reps": 10,
+        "weight": "30.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 15,
+    "fields": {
+        "session": 5,
+        "exercise": 18,
+        "order": 11,
+        "reps": 10,
+        "weight": "30.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 16,
+    "fields": {
+        "session": 5,
+        "exercise": 19,
+        "order": 12,
+        "reps": 10,
+        "weight": "35.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 17,
+    "fields": {
+        "session": 5,
+        "exercise": 19,
+        "order": 13,
+        "reps": 10,
+        "weight": "35.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 18,
+    "fields": {
+        "session": 5,
+        "exercise": 19,
+        "order": 14,
+        "reps": 10,
+        "weight": "35.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 29,
+    "fields": {
+        "session": 5,
+        "exercise": 21,
+        "order": 15,
+        "reps": 10,
+        "weight": "12.50",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 30,
+    "fields": {
+        "session": 5,
+        "exercise": 21,
+        "order": 16,
+        "reps": 10,
+        "weight": "12.50",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 31,
+    "fields": {
+        "session": 5,
+        "exercise": 21,
+        "order": 17,
+        "reps": 10,
+        "weight": "12.50",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 32,
+    "fields": {
+        "session": 5,
+        "exercise": 22,
+        "order": 18,
+        "reps": 10,
+        "weight": "20.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 33,
+    "fields": {
+        "session": 5,
+        "exercise": 22,
+        "order": 19,
+        "reps": 10,
+        "weight": "20.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 34,
+    "fields": {
+        "session": 5,
+        "exercise": 23,
+        "order": 20,
+        "reps": 10,
+        "weight": "10.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 35,
+    "fields": {
+        "session": 5,
+        "exercise": 23,
+        "order": 21,
+        "reps": 10,
+        "weight": "10.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 36,
+    "fields": {
+        "session": 5,
+        "exercise": 25,
+        "order": 27,
+        "reps": 10,
+        "weight": "15.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 37,
+    "fields": {
+        "session": 5,
+        "exercise": 25,
+        "order": 26,
+        "reps": 10,
+        "weight": "15.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 38,
+    "fields": {
+        "session": 5,
+        "exercise": 25,
+        "order": 25,
+        "reps": 10,
+        "weight": "12.50",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 39,
+    "fields": {
+        "session": 6,
+        "exercise": 26,
+        "order": 0,
+        "reps": 10,
+        "weight": "17.50",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 40,
+    "fields": {
+        "session": 6,
+        "exercise": 26,
+        "order": 1,
+        "reps": 10,
+        "weight": "17.50",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 41,
+    "fields": {
+        "session": 6,
+        "exercise": 26,
+        "order": 2,
+        "reps": 10,
+        "weight": "17.50",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 42,
+    "fields": {
+        "session": 6,
+        "exercise": 27,
+        "order": 4,
+        "reps": 8,
+        "weight": "60.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 43,
+    "fields": {
+        "session": 6,
+        "exercise": 27,
+        "order": 5,
+        "reps": 10,
+        "weight": "55.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 44,
+    "fields": {
+        "session": 6,
+        "exercise": 27,
+        "order": 3,
+        "reps": 10,
+        "weight": "55.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 46,
+    "fields": {
+        "session": 6,
+        "exercise": 28,
+        "order": 6,
+        "reps": 10,
+        "weight": "40.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 47,
+    "fields": {
+        "session": 6,
+        "exercise": 28,
+        "order": 7,
+        "reps": 10,
+        "weight": "40.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 48,
+    "fields": {
+        "session": 6,
+        "exercise": 28,
+        "order": 8,
+        "reps": 10,
+        "weight": "40.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 49,
+    "fields": {
+        "session": 6,
+        "exercise": 29,
+        "order": 9,
+        "reps": 10,
+        "weight": "25.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 50,
+    "fields": {
+        "session": 6,
+        "exercise": 29,
+        "order": 10,
+        "reps": 10,
+        "weight": "25.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 51,
+    "fields": {
+        "session": 6,
+        "exercise": 29,
+        "order": 11,
+        "reps": 10,
+        "weight": "25.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 52,
+    "fields": {
+        "session": 6,
+        "exercise": 30,
+        "order": 12,
+        "reps": 10,
+        "weight": "12.50",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 53,
+    "fields": {
+        "session": 6,
+        "exercise": 30,
+        "order": 13,
+        "reps": 10,
+        "weight": "12.50",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 54,
+    "fields": {
+        "session": 6,
+        "exercise": 30,
+        "order": 14,
+        "reps": 10,
+        "weight": "12.50",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 55,
+    "fields": {
+        "session": 6,
+        "exercise": 31,
+        "order": 15,
+        "reps": 10,
+        "weight": "7.50",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 56,
+    "fields": {
+        "session": 6,
+        "exercise": 31,
+        "order": 16,
+        "reps": 10,
+        "weight": "7.50",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 57,
+    "fields": {
+        "session": 6,
+        "exercise": 31,
+        "order": 17,
+        "reps": 10,
+        "weight": "7.50",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 58,
+    "fields": {
+        "session": 6,
+        "exercise": 32,
+        "order": 18,
+        "reps": 10,
+        "weight": "10.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 59,
+    "fields": {
+        "session": 6,
+        "exercise": 32,
+        "order": 19,
+        "reps": 10,
+        "weight": "10.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 60,
+    "fields": {
+        "session": 6,
+        "exercise": 32,
+        "order": 20,
+        "reps": 10,
+        "weight": "10.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 61,
+    "fields": {
+        "session": 6,
+        "exercise": 33,
+        "order": 21,
+        "reps": 10,
+        "weight": "6.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 62,
+    "fields": {
+        "session": 6,
+        "exercise": 33,
+        "order": 22,
+        "reps": 10,
+        "weight": "6.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 63,
+    "fields": {
+        "session": 6,
+        "exercise": 33,
+        "order": 23,
+        "reps": 10,
+        "weight": "6.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 64,
+    "fields": {
+        "session": 6,
+        "exercise": 34,
+        "order": 24,
+        "reps": 8,
+        "weight": "10.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 65,
+    "fields": {
+        "session": 6,
+        "exercise": 34,
+        "order": 25,
+        "reps": 8,
+        "weight": "10.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 66,
+    "fields": {
+        "session": 6,
+        "exercise": 34,
+        "order": 26,
+        "reps": 6,
+        "weight": "15.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 67,
+    "fields": {
+        "session": 6,
+        "exercise": 35,
+        "order": 27,
+        "reps": 10,
+        "weight": "30.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 68,
+    "fields": {
+        "session": 6,
+        "exercise": 35,
+        "order": 28,
+        "reps": 10,
+        "weight": "30.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 69,
+    "fields": {
+        "session": 23,
+        "exercise": 85,
+        "order": 0,
+        "reps": 10,
+        "weight": "80.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 70,
+    "fields": {
+        "session": 23,
+        "exercise": 85,
+        "order": 1,
+        "reps": 10,
+        "weight": "80.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 71,
+    "fields": {
+        "session": 23,
+        "exercise": 85,
+        "order": 2,
+        "reps": 10,
+        "weight": "80.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 72,
+    "fields": {
+        "session": 23,
+        "exercise": 85,
+        "order": 3,
+        "reps": 10,
+        "weight": "80.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 73,
+    "fields": {
+        "session": 23,
+        "exercise": 100,
+        "order": 4,
+        "reps": 10,
+        "weight": "25.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 74,
+    "fields": {
+        "session": 23,
+        "exercise": 100,
+        "order": 5,
+        "reps": 10,
+        "weight": "25.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 75,
+    "fields": {
+        "session": 23,
+        "exercise": 100,
+        "order": 6,
+        "reps": 10,
+        "weight": "25.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 76,
+    "fields": {
+        "session": 23,
+        "exercise": 101,
+        "order": 7,
+        "reps": 10,
+        "weight": "50.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 77,
+    "fields": {
+        "session": 23,
+        "exercise": 101,
+        "order": 8,
+        "reps": 10,
+        "weight": "50.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 78,
+    "fields": {
+        "session": 23,
+        "exercise": 101,
+        "order": 9,
+        "reps": 10,
+        "weight": "50.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 79,
+    "fields": {
+        "session": 23,
+        "exercise": 86,
+        "order": 10,
+        "reps": 8,
+        "weight": "55.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 80,
+    "fields": {
+        "session": 23,
+        "exercise": 86,
+        "order": 11,
+        "reps": 8,
+        "weight": "55.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 81,
+    "fields": {
+        "session": 23,
+        "exercise": 86,
+        "order": 12,
+        "reps": 8,
+        "weight": "55.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 82,
+    "fields": {
+        "session": 23,
+        "exercise": 87,
+        "order": 13,
+        "reps": 10,
+        "weight": "35.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 83,
+    "fields": {
+        "session": 23,
+        "exercise": 87,
+        "order": 14,
+        "reps": 10,
+        "weight": "35.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 84,
+    "fields": {
+        "session": 23,
+        "exercise": 87,
+        "order": 15,
+        "reps": 10,
+        "weight": "35.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 85,
+    "fields": {
+        "session": 23,
+        "exercise": 190,
+        "order": 16,
+        "reps": 10,
+        "weight": "14.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 86,
+    "fields": {
+        "session": 23,
+        "exercise": 190,
+        "order": 17,
+        "reps": 10,
+        "weight": "14.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 87,
+    "fields": {
+        "session": 23,
+        "exercise": 107,
+        "order": 18,
+        "reps": 10,
+        "weight": "60.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 88,
+    "fields": {
+        "session": 23,
+        "exercise": 107,
+        "order": 19,
+        "reps": 10,
+        "weight": "60.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 89,
+    "fields": {
+        "session": 23,
+        "exercise": 107,
+        "order": 20,
+        "reps": 10,
+        "weight": "60.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 90,
+    "fields": {
+        "session": 33,
+        "exercise": 26,
+        "order": 0,
+        "reps": 10,
+        "weight": "17.50",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 91,
+    "fields": {
+        "session": 33,
+        "exercise": 26,
+        "order": 1,
+        "reps": 10,
+        "weight": "17.50",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 92,
+    "fields": {
+        "session": 33,
+        "exercise": 26,
+        "order": 2,
+        "reps": 10,
+        "weight": "17.50",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 93,
+    "fields": {
+        "session": 33,
+        "exercise": 27,
+        "order": 3,
+        "reps": 8,
+        "weight": "60.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 94,
+    "fields": {
+        "session": 33,
+        "exercise": 27,
+        "order": 4,
+        "reps": 10,
+        "weight": "55.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 95,
+    "fields": {
+        "session": 33,
+        "exercise": 27,
+        "order": 5,
+        "reps": 10,
+        "weight": "55.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 96,
+    "fields": {
+        "session": 33,
+        "exercise": 28,
+        "order": 6,
+        "reps": 10,
+        "weight": "40.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 97,
+    "fields": {
+        "session": 33,
+        "exercise": 28,
+        "order": 7,
+        "reps": 10,
+        "weight": "40.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 98,
+    "fields": {
+        "session": 33,
+        "exercise": 28,
+        "order": 8,
+        "reps": 10,
+        "weight": "40.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 99,
+    "fields": {
+        "session": 33,
+        "exercise": 29,
+        "order": 9,
+        "reps": 10,
+        "weight": "25.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 100,
+    "fields": {
+        "session": 33,
+        "exercise": 29,
+        "order": 10,
+        "reps": 10,
+        "weight": "25.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 101,
+    "fields": {
+        "session": 33,
+        "exercise": 29,
+        "order": 11,
+        "reps": 10,
+        "weight": "25.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 102,
+    "fields": {
+        "session": 33,
+        "exercise": 30,
+        "order": 12,
+        "reps": 10,
+        "weight": "12.50",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 103,
+    "fields": {
+        "session": 33,
+        "exercise": 30,
+        "order": 13,
+        "reps": 10,
+        "weight": "12.50",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 104,
+    "fields": {
+        "session": 33,
+        "exercise": 30,
+        "order": 14,
+        "reps": 10,
+        "weight": "12.50",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 105,
+    "fields": {
+        "session": 33,
+        "exercise": 31,
+        "order": 15,
+        "reps": 10,
+        "weight": "7.50",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 106,
+    "fields": {
+        "session": 33,
+        "exercise": 31,
+        "order": 16,
+        "reps": 10,
+        "weight": "7.50",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 107,
+    "fields": {
+        "session": 33,
+        "exercise": 31,
+        "order": 17,
+        "reps": 10,
+        "weight": "7.50",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 108,
+    "fields": {
+        "session": 33,
+        "exercise": 32,
+        "order": 21,
+        "reps": 10,
+        "weight": "10.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 109,
+    "fields": {
+        "session": 33,
+        "exercise": 32,
+        "order": 22,
+        "reps": 10,
+        "weight": "10.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 110,
+    "fields": {
+        "session": 33,
+        "exercise": 32,
+        "order": 23,
+        "reps": 10,
+        "weight": "10.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 111,
+    "fields": {
+        "session": 33,
+        "exercise": 33,
+        "order": 24,
+        "reps": 10,
+        "weight": "6.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 112,
+    "fields": {
+        "session": 33,
+        "exercise": 33,
+        "order": 25,
+        "reps": 10,
+        "weight": "6.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 113,
+    "fields": {
+        "session": 33,
+        "exercise": 33,
+        "order": 26,
+        "reps": 10,
+        "weight": "6.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 114,
+    "fields": {
+        "session": 33,
+        "exercise": 34,
+        "order": 32,
+        "reps": 8,
+        "weight": "10.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 115,
+    "fields": {
+        "session": 33,
+        "exercise": 34,
+        "order": 33,
+        "reps": 8,
+        "weight": "10.00",
+        "rest_time": 90,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 116,
+    "fields": {
+        "session": 33,
+        "exercise": 34,
+        "order": 34,
+        "reps": 6,
+        "weight": "15.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 117,
+    "fields": {
+        "session": 33,
+        "exercise": 35,
+        "order": 27,
+        "reps": 10,
+        "weight": "30.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 118,
+    "fields": {
+        "session": 33,
+        "exercise": 35,
+        "order": 28,
+        "reps": 10,
+        "weight": "30.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 119,
+    "fields": {
+        "session": 33,
+        "exercise": 178,
+        "order": 29,
+        "reps": 10,
+        "weight": "0.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 120,
+    "fields": {
+        "session": 33,
+        "exercise": 178,
+        "order": 30,
+        "reps": 10,
+        "weight": "0.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 121,
+    "fields": {
+        "session": 33,
+        "exercise": 178,
+        "order": 31,
+        "reps": 10,
+        "weight": "0.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 122,
+    "fields": {
+        "session": 33,
+        "exercise": 191,
+        "order": 18,
+        "reps": 10,
+        "weight": "10.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 123,
+    "fields": {
+        "session": 33,
+        "exercise": 191,
+        "order": 19,
+        "reps": 10,
+        "weight": "10.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+},
+{
+    "model": "tracker.workoutset",
+    "pk": 124,
+    "fields": {
+        "session": 33,
+        "exercise": 191,
+        "order": 20,
+        "reps": 10,
+        "weight": "10.00",
+        "rest_time": 60,
+        "muscles": []
+    }
+}
+]
