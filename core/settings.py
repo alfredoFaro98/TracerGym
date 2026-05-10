@@ -83,10 +83,10 @@ if 'PYTHONANYWHERE_DOMAIN' in os.environ:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'tuo_username$default', # Il nome esatto su PA
-            'USER': 'tuo_username',         # Il tuo utente su PA
-            'PASSWORD': 'password_del_db_di_pythonanywhere',
-            'HOST': 'tuo_username.mysql.pythonanywhere-services.com',
+            'NAME': 'alfredoFaro98$default', # Il nome esatto su PA
+            'USER': 'alfredoFaro98',         # Il tuo utente su PA
+            'PASSWORD': 'provoletta',
+            'HOST': 'alfredoFaro98.mysql.pythonanywhere-services.com',
             'PORT': '3306',
         }
     }
