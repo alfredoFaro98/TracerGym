@@ -33,6 +33,7 @@ urlpatterns = [
     path('users/', views.user_list, name='user_list'),
     path('users/<str:username>/', views.user_profile, name='user_profile'),
     path('users/<str:username>/session/<int:session_id>/', views.session_view, name='session_view'),
+    path('users/<str:username>/session/<int:session_id>/import/', views.import_session_from_user, name='import_session_from_user'),
     path('profile/toggle-visibility/', views.toggle_profile_visibility, name='toggle_profile_visibility'),
     path('body-map/', views.body_map, name='body_map'),
 ]

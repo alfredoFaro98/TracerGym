@@ -574,7 +574,43 @@ def session_view(request, username, session_id):
         'target_user': target_user,
         'session': session,
         'exercise_groups': exercise_groups,
+        'is_own': is_own,
     })
+
+
+@login_required
+def import_session_from_user(request, username, session_id):
+    if request.method != 'POST':
+        return redirect('session_view', username=username, session_id=session_id)
+
+    target_user = get_object_or_404(User, username=username)
+
+    if request.user == target_user:
+        return redirect('session_view', username=username, session_id=session_id)
+
+    profile, _ = UserProfile.objects.get_or_create(user=target_user)
+    can_view = request.user.is_superuser or profile.is_public
+    if not can_view:
+        return redirect('user_profile', username=username)
+
+    original = get_object_or_404(WorkoutSession, id=session_id, utente=target_user)
+
+    new_session = WorkoutSession.objects.create(
+        utente=request.user,
+        data=original.data,
+        note=original.note,
+    )
+    for s in original.sets.all().order_by('order', 'id'):
+        WorkoutSet.objects.create(
+            session=new_session,
+            exercise=s.exercise,
+            reps=s.reps,
+            weight=s.weight,
+            rest_time=s.rest_time,
+            order=s.order,
+        )
+
+    return redirect('session_detail', session_id=new_session.id)
 
 
 @login_required
