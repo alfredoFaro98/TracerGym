@@ -505,5 +505,8 @@ function exportPDF() {
         el.style.display = 'none';
     });
 }
+if (new URLSearchParams(window.location.search).get('pdf') === '1') {
+    document.addEventListener('DOMContentLoaded', exportPDF);
+}
 </script>
 {% endblock %}

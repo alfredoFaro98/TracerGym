@@ -465,6 +465,28 @@ def export_exercises_json(request):
 
 
 @login_required
+def exercise_weight_history(request):
+    exercise_name = request.GET.get('exercise', '').strip()
+    if not exercise_name:
+        return JsonResponse({'points': []})
+    exercise = Exercise.objects.filter(nome__iexact=exercise_name).first()
+    if not exercise:
+        return JsonResponse({'points': []})
+    rows = (
+        WorkoutSet.objects
+        .filter(session__utente=request.user, exercise=exercise, weight__isnull=False)
+        .values('session__data')
+        .annotate(max_weight=models.Max('weight'))
+        .order_by('session__data')
+    )
+    points = [
+        {'date': r['session__data'].strftime('%Y-%m-%d'), 'weight': float(r['max_weight'])}
+        for r in rows
+    ]
+    return JsonResponse({'points': points, 'exercise': exercise.nome})
+
+
+@login_required
 def exercise_suggestions(request):
     from django.db.models import Case, When, IntegerField
     q = request.GET.get('q', '').strip()
@@ -595,17 +617,29 @@ def import_session_from_user(request, username, session_id):
 
     original = get_object_or_404(WorkoutSession, id=session_id, utente=target_user)
 
+    try:
+        load_pct = float(request.POST.get('load_pct', 0))
+        load_pct = max(-90.0, min(200.0, load_pct))
+    except (ValueError, TypeError):
+        load_pct = 0.0
+
     new_session = WorkoutSession.objects.create(
         utente=request.user,
         data=original.data,
         note=original.note,
     )
     for s in original.sets.all().order_by('order', 'id'):
+        if s.weight is not None and load_pct != 0.0:
+            adjusted = float(s.weight) * (1 + load_pct / 100)
+            adjusted = round(adjusted * 2) / 2  # arrotonda al mezzo kg più vicino
+            new_weight = max(0.0, adjusted)
+        else:
+            new_weight = s.weight
         WorkoutSet.objects.create(
             session=new_session,
             exercise=s.exercise,
             reps=s.reps,
-            weight=s.weight,
+            weight=new_weight,
             rest_time=s.rest_time,
             order=s.order,
         )

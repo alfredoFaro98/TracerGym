@@ -24,10 +24,18 @@
             </div>
             <span style="padding: 4px 10px; background: rgba(96,96,200,.07); border: 1px solid rgba(96,96,200,.18); border-radius: 6px; font-size: 11px; color: #7878c0; font-weight: 600;">Solo lettura</span>
             {% if not is_own %}
-            <form action="{% url 'import_session_from_user' target_user.username session.id %}" method="post" style="margin: 0;">
+            <form action="{% url 'import_session_from_user' target_user.username session.id %}" method="post" style="margin: 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                 {% csrf_token %}
-                <button type="submit" style="padding: 5px 13px; background: rgba(64,160,96,.08); border: 1px solid rgba(64,160,96,.25); border-radius: 6px; font-size: 12px; color: #50c878; font-weight: 600; cursor: pointer; transition: all .12s;" onmouseover="this.style.background='rgba(64,160,96,.18)'" onmouseout="this.style.background='rgba(64,160,96,.08)'">
-                    + Importa nella mia lista
+                <div style="display: flex; align-items: center; gap: 0; background: #0d0d18; border: 1px solid #1c1c30; border-radius: 6px; overflow: hidden;">
+                    <span style="padding: 0 8px; font-size: 10.5px; color: #404060; white-space: nowrap; border-right: 1px solid #1c1c30; line-height: 28px;">Carico</span>
+                    <input id="load-pct-input" type="number" name="load_pct" value="0" min="-90" max="200" step="5"
+                        style="width: 52px; padding: 0 6px; height: 28px; background: transparent; border: none; color: #c0c0e0; font-size: 13px; font-family: 'JetBrains Mono', monospace; font-weight: 600; text-align: center; outline: none;"
+                        oninput="updateLoadLabel(this.value)">
+                    <span style="padding: 0 8px; font-size: 11px; color: #404060; border-left: 1px solid #1c1c30; line-height: 28px;">%</span>
+                </div>
+                <span id="load-pct-label" style="font-size: 10.5px; color: #404060; min-width: 60px;"></span>
+                <button type="submit" style="padding: 5px 13px; height: 30px; background: rgba(64,160,96,.08); border: 1px solid rgba(64,160,96,.25); border-radius: 6px; font-size: 12px; color: #50c878; font-weight: 600; cursor: pointer; transition: all .12s;" onmouseover="this.style.background='rgba(64,160,96,.18)'" onmouseout="this.style.background='rgba(64,160,96,.08)'">
+                    + Importa
                 </button>
             </form>
             {% endif %}
@@ -92,6 +100,14 @@ function toggleGroup(n) {
     var visible = content.style.display === 'flex';
     content.style.display = visible ? 'none' : 'flex';
     chevron.style.transform = visible ? '' : 'rotate(180deg)';
+}
+function updateLoadLabel(val) {
+    var label = document.getElementById('load-pct-label');
+    if (!label) return;
+    var n = parseFloat(val);
+    if (isNaN(n) || n === 0) { label.textContent = ''; label.style.color = '#404060'; return; }
+    if (n > 0) { label.textContent = '+' + n + '% carico'; label.style.color = '#f0883e'; }
+    else       { label.textContent = n + '% carico';  label.style.color = '#7878c0'; }
 }
 </script>
 {% endblock %}
