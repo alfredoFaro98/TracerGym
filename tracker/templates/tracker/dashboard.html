@@ -62,25 +62,6 @@
         </div>
     </div>
 
-    <!-- Andamento Peso -->
-    <div class="tracer-card" style="overflow: visible; margin-bottom: 20px;">
-        <div style="padding: 14px 18px; border-bottom: 1px solid #16162a; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-            <div style="font-size: 11px; font-weight: 700; color: #3a3a52; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap;">Andamento Peso</div>
-            <div style="position: relative; flex: 1; max-width: 260px;">
-                <input type="text" id="wc-input" placeholder="Cerca esercizio…"
-                       class="tracer-input" style="padding: 5px 10px; height: 30px; font-size: 12px; width: 100%; border-radius: 6px;" autocomplete="off">
-                <div id="wc-dropdown" style="display:none; position:absolute; top:calc(100% + 3px); left:0; right:0; background:#13131e; border:1px solid #1c1c2c; border-radius:6px; z-index:200; max-height:180px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,.5);"></div>
-            </div>
-        </div>
-        <div id="wc-body" style="padding: 28px 20px; display: flex; align-items: center; justify-content: center; min-height: 120px;">
-            <span id="wc-placeholder" style="font-size: 12px; color: #2c2c42;">Seleziona un esercizio per vedere l'andamento del peso</span>
-            <div id="wc-nodata" style="display:none; font-size: 12px; color: #2c2c42;">Nessun dato di peso registrato per questo esercizio</div>
-            <div style="width:100%; display:none;" id="wc-chart-wrap">
-                <canvas id="wc-canvas"></canvas>
-            </div>
-        </div>
-    </div>
-
     <!-- Sessions List -->
     <div class="tracer-card" style="overflow: hidden;">
         <div style="padding: 14px 18px; border-bottom: 1px solid #16162a; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
@@ -176,6 +157,25 @@
                 {% endif %}
             </div>
             {% endif %}
+        </div>
+    </div>
+
+    <!-- Andamento Peso -->
+    <div class="tracer-card" style="overflow: visible; margin-top: 20px;">
+        <div style="padding: 14px 18px; border-bottom: 1px solid #16162a; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <div style="font-size: 11px; font-weight: 700; color: #3a3a52; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap;">Andamento Peso</div>
+            <div style="position: relative; flex: 1; max-width: 260px;">
+                <input type="text" id="wc-input" placeholder="Cerca esercizio…"
+                       class="tracer-input" style="padding: 5px 10px; height: 30px; font-size: 12px; width: 100%; border-radius: 6px;" autocomplete="off">
+                <div id="wc-dropdown" style="display:none; position:absolute; top:calc(100% + 3px); left:0; right:0; background:#13131e; border:1px solid #1c1c2c; border-radius:6px; z-index:200; max-height:180px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,.5);"></div>
+            </div>
+        </div>
+        <div id="wc-body" style="padding: 16px 20px; display: flex; align-items: center; justify-content: center; min-height: 80px;">
+            <span id="wc-placeholder" style="font-size: 12px; color: #2c2c42;">Seleziona un esercizio per vedere l'andamento del peso</span>
+            <div id="wc-nodata" style="display:none; font-size: 12px; color: #2c2c42;">Nessun dato di peso registrato per questo esercizio</div>
+            <div style="width:100%; display:none;" id="wc-chart-wrap">
+                <canvas id="wc-canvas" style="max-height: 160px;"></canvas>
+            </div>
         </div>
     </div>
 </div>
