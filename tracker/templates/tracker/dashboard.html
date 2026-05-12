@@ -28,7 +28,7 @@
             <button type="button" class="arrow-btn" onclick="changeYear(1)" style="background:none;border:none;color:#f0f0f3;font-size:18px;cursor:pointer;">&#8594;</button>
         </div>
         <!-- Desktop Heatmap -->
-        <div class="desktop-only" style="display: flex; justify-content: center; width: 100%;">
+        <div class="desktop-only heatmap-scroll-wrap">
             <div id="cal-heatmap" style="overflow: visible; position: relative;"></div>
         </div>
 
@@ -212,6 +212,21 @@
         pointer-events: none;
     }
     .ch-tooltip::after { border-top-color: #1c1c2c !important; }
+
+    .heatmap-scroll-wrap {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: visible;
+        display: flex;
+        justify-content: center;
+    }
+    /* su schermi medi allinea a sinistra così lo scroll parte dall'inizio */
+    @media (max-width: 1300px) {
+        .heatmap-scroll-wrap { justify-content: flex-start; }
+    }
+    .heatmap-scroll-wrap::-webkit-scrollbar { height: 4px; }
+    .heatmap-scroll-wrap::-webkit-scrollbar-track { background: transparent; }
+    .heatmap-scroll-wrap::-webkit-scrollbar-thumb { background: #1c1c2c; border-radius: 2px; }
 
     @media (max-width: 768px) {
         .filter-form { flex-wrap: nowrap !important; width: 100%; }
