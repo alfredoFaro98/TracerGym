@@ -56,11 +56,15 @@
                     <input type="text" id="exercise_name" name="exercise_name" class="tracer-input" placeholder="Cerca esercizio dalla lista…" required autocomplete="off" data-valid="false">
                 </div>
 
-                <!-- Reps + Weight + N.Serie -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr 80px; gap: 9px;">
+                <!-- Reps + Durata + Weight + N.Serie -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 80px; gap: 9px;">
                     <div>
                         <label style="display: block; font-size: 10px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Ripetizioni</label>
-                        <input type="number" name="reps" class="tracer-input" placeholder="10" min="1" required>
+                        <input type="number" name="reps" class="tracer-input" placeholder="10" min="1">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 10px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Durata (s)</label>
+                        <input type="number" name="durata" class="tracer-input" placeholder="Opc." min="1">
                     </div>
                     <div>
                         <label style="display: block; font-size: 10px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Peso (kg)</label>
@@ -140,7 +144,13 @@
                             <div id="row-{{ set.id }}" style="padding: 9px 12px; border-radius: 7px; background: #0a0a12; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                                 <span style="font-size: 10px; font-weight: 700; color: #2e2e46; font-family: 'JetBrains Mono', monospace; min-width: 20px;">#{{ forloop.counter }}</span>
                                 {% if set.avviamento %}<span style="font-size: 9px; font-weight: 700; color: #6a9fd8; background: rgba(106,159,216,.12); border: 1px solid rgba(106,159,216,.25); border-radius: 4px; padding: 1px 5px; letter-spacing: .4px;">AVV</span>{% endif %}
+                                {% if set.durata and set.reps %}
+                                <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #f0f0f3;">{{ set.reps }}<span style="font-size: 10px; font-weight: 400; color: #484862; margin-left: 2px;">×</span> {{ set.durata }}<span style="font-size: 10px; font-weight: 400; color: #484862; margin-left: 1px;">s</span></span>
+                                {% elif set.durata %}
+                                <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #f0f0f3;">{{ set.durata }}<span style="font-size: 10px; font-weight: 400; color: #484862; margin-left: 2px;">s</span></span>
+                                {% else %}
                                 <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #f0f0f3;">{{ set.reps }}<span style="font-size: 10px; font-weight: 400; color: #484862; margin-left: 2px;">reps</span></span>
+                                {% endif %}
                                 {% if set.weight %}
                                 <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #c0c0d8;">× {{ set.weight }}<span style="font-size: 10px; color: #38384e;"> kg</span>{% if set.per_lato %}<span style="font-size: 10px; color: #f0883e; margin-left: 4px; font-weight: 700;">/ lato</span>{% endif %}</span>
                                 {% endif %}
@@ -169,7 +179,11 @@
                                     </div>
                                     <div>
                                         <label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Reps</label>
-                                        <input type="number" name="reps" value="{{ set.reps }}" class="tracer-input" style="width: 65px;" min="1">
+                                        <input type="number" name="reps" value="{{ set.reps|default:'' }}" class="tracer-input" style="width: 65px;" min="1">
+                                    </div>
+                                    <div>
+                                        <label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Durata (s)</label>
+                                        <input type="number" name="durata" value="{{ set.durata|default:'' }}" class="tracer-input" style="width: 75px;" min="1">
                                     </div>
                                     <div>
                                         <label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Peso (kg)</label>
@@ -269,7 +283,7 @@
             <thead>
                 <tr style="background: #f4f4f4;">
                     <th style="padding: 5px 10px; text-align: left; border: 1px solid #ddd;">#</th>
-                    <th style="padding: 5px 10px; text-align: left; border: 1px solid #ddd;">Reps</th>
+                    <th style="padding: 5px 10px; text-align: left; border: 1px solid #ddd;">Reps / Durata</th>
                     <th style="padding: 5px 10px; text-align: left; border: 1px solid #ddd;">Peso (kg)</th>
                     <th style="padding: 5px 10px; text-align: left; border: 1px solid #ddd;">Recupero (s)</th>
                 </tr>
@@ -278,7 +292,7 @@
                 {% for set in group.sets %}
                 <tr style="border: 1px solid #ddd;">
                     <td style="padding: 5px 10px; border: 1px solid #ddd; color: #999;">{{ forloop.counter }}</td>
-                    <td style="padding: 5px 10px; border: 1px solid #ddd; font-weight: 700;">{{ set.reps }}</td>
+                    <td style="padding: 5px 10px; border: 1px solid #ddd; font-weight: 700;">{% if set.durata and set.reps %}{{ set.reps }} × {{ set.durata }}s{% elif set.durata %}{{ set.durata }}s{% else %}{{ set.reps }}{% endif %}</td>
                     <td style="padding: 5px 10px; border: 1px solid #ddd;">{% if set.avviamento %}<span style="font-size: 9px; color: #6a9fd8; font-weight: 700; margin-right: 4px;">AVV</span>{% endif %}{{ set.weight|default:"-" }}{% if set.per_lato %} <span style="font-size: 10px; color: #888;">(per lato)</span>{% endif %}</td>
                     <td style="padding: 5px 10px; border: 1px solid #ddd;">{{ set.rest_time|default:"-" }}</td>
                 </tr>
