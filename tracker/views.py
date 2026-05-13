@@ -12,7 +12,7 @@ import time
 from datetime import datetime
 from django.utils import timezone
 from django.contrib.auth.models import User
-from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile
+from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage
 
 
 @login_required
@@ -386,16 +386,16 @@ def exercises_list(request):
     total_count = Exercise.objects.count()
 
     if selected_tag:
-        exercises = Exercise.objects.filter(tags__nome=selected_tag).prefetch_related('tags').order_by('nome')
+        exercises = Exercise.objects.filter(tags__nome=selected_tag).prefetch_related('tags', 'images').order_by('nome')
         tag_groups = None
     else:
         exercises = None
         tag_groups = []
         for tag in tags:
-            tag_exercises = list(Exercise.objects.filter(tags=tag).prefetch_related('tags').order_by('nome'))
+            tag_exercises = list(Exercise.objects.filter(tags=tag).prefetch_related('tags', 'images').order_by('nome'))
             if tag_exercises:
                 tag_groups.append({'tag': tag, 'exercises': tag_exercises})
-        untagged = list(Exercise.objects.filter(tags__isnull=True).order_by('nome'))
+        untagged = list(Exercise.objects.filter(tags__isnull=True).prefetch_related('tags', 'images').order_by('nome'))
         if untagged:
             tag_groups.append({'tag': None, 'exercises': untagged})
 
@@ -444,6 +444,30 @@ def edit_exercise_admin(request, exercise_id):
         exercise.tags.set(tag_ids)
     tag = request.POST.get('tag', '')
     return redirect(f"{reverse('exercises_list')}{'?tag=' + tag if tag else ''}")
+
+
+@login_required
+def add_exercise_image(request, exercise_id):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+    exercise = get_object_or_404(Exercise, id=exercise_id)
+    if request.method == 'POST' and request.FILES.get('immagine'):
+        img = request.FILES['immagine']
+        ordine = exercise.images.count()
+        ExerciseImage.objects.create(exercise=exercise, immagine=img, ordine=ordine)
+    return redirect(request.POST.get('next', reverse('exercises_list')))
+
+
+@login_required
+def delete_exercise_image(request, image_id):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+    img = get_object_or_404(ExerciseImage, id=image_id)
+    next_url = request.POST.get('next', reverse('exercises_list'))
+    if request.method == 'POST':
+        img.immagine.delete(save=False)
+        img.delete()
+    return redirect(next_url)
 
 
 @login_required

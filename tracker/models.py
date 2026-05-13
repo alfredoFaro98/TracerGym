@@ -57,3 +57,14 @@ class WorkoutSet(models.Model):
 
     def __str__(self):
         return f"{self.exercise.nome} - {self.reps} reps"
+
+class ExerciseImage(models.Model):
+    exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE, related_name='images')
+    immagine = models.ImageField(upload_to='exercises/')
+    ordine = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['ordine', 'id']
+
+    def __str__(self):
+        return f"Immagine {self.id} - {self.exercise.nome}"

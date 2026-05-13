@@ -11,9 +11,19 @@
     .tipo-corpo      { background: rgba(20,200,190,.10);  color: #2dd4bf; border: 1px solid rgba(20,200,190,.22); }
     .tipo-default    { background: rgba(120,120,144,.10); color: #9090a8; border: 1px solid rgba(120,120,144,.2); }
 
+    .ex-name-btn { cursor: pointer; }
+    .ex-name-btn:hover { color: #fff !important; }
+
     #edit-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.6); align-items: center; justify-content: center; }
     #edit-modal.open { display: flex; }
     #edit-modal-box { background: #12121e; border: 1px solid #1c1c2c; border-radius: 12px; padding: 24px; width: 100%; max-width: 480px; margin: 16px; }
+
+    #ex-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.75); align-items: center; justify-content: center; }
+    #ex-modal.open { display: flex; }
+    #ex-modal-box { background: #12121e; border: 1px solid #1c1c2c; border-radius: 12px; padding: 24px; width: 100%; max-width: 580px; margin: 16px; max-height: 90vh; overflow-y: auto; }
+
+    .filter-tab { padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; text-decoration: none; transition: all .12s; background: #1c1c2c; color: #787890; }
+    .filter-tab.active { background: #5865f2; color: #fff; }
 </style>
 {% endblock %}
 
@@ -90,9 +100,9 @@
     <!-- Filter Tabs + Search -->
     <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px;">
         <div style="display: flex; gap: 6px; flex-wrap: wrap; flex: 1;">
-            <a href="{% url 'exercises_list' %}" style="padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; text-decoration: none; transition: all .12s; {% if not selected_tag %}background:#5865f2;color:#fff;{% else %}background:#1c1c2c;color:#787890;{% endif %}">Tutti</a>
+            <a href="{% url 'exercises_list' %}" class="filter-tab{% if not selected_tag %} active{% endif %}">Tutti</a>
             {% for tag in tags %}
-            <a href="?tag={{ tag.nome }}" style="padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; text-decoration: none; transition: all .12s; {% if selected_tag == tag.nome %}background:#5865f2;color:#fff;{% else %}background:#1c1c2c;color:#787890;{% endif %}">{{ tag.nome }}</a>
+            <a href="?tag={{ tag.nome }}" class="filter-tab{% if selected_tag == tag.nome %} active{% endif %}">{{ tag.nome }}</a>
             {% endfor %}
         </div>
         <input id="search-input" type="text" placeholder="Cerca esercizio…" class="tracer-input" style="width: 200px; height: 30px; padding: 0 10px; font-size: 12px; border-radius: 20px; flex-shrink: 0;" oninput="filterExercises(this.value)">
@@ -108,18 +118,18 @@
         </div>
         {% for exercise in exercises %}
         <div class="ex-row" data-name="{{ exercise.nome|lower }}" style="display: flex; align-items: center; justify-content: space-between; padding: 9px 18px; border-bottom: 1px solid #0d0d14; transition: background .1s;" onmouseover="this.style.background='#12121c'" onmouseout="this.style.background='transparent'">
-            <div style="flex: 1; min-width: 0;">
-                <span style="font-size: 13px; color: #e0e0f0;">{{ exercise.nome }}</span>
+            <div class="ex-name-btn" data-ex-id="{{ exercise.id }}" style="flex: 1; min-width: 0;">
+                <span style="font-size: 13px; color: #e0e0f0; transition: color .1s;">{{ exercise.nome }}</span>
                 {% if exercise.tipologia %}
                 <span style="font-size: 10px; padding: 2px 7px; border-radius: 4px; margin-left: 8px;" class="{% if 'bilanciere' in exercise.tipologia|lower %}tipo-bilanciere{% elif 'manubrio' in exercise.tipologia|lower %}tipo-manubrio{% elif 'cavi' in exercise.tipologia|lower %}tipo-cavi{% elif 'macchine' in exercise.tipologia|lower %}tipo-macchine{% elif 'corpo' in exercise.tipologia|lower %}tipo-corpo{% else %}tipo-default{% endif %}">{{ exercise.tipologia }}</span>
                 {% endif %}
             </div>
             {% if user.is_superuser %}
             <div style="display: flex; gap: 5px; flex-shrink: 0; margin-left: 12px;">
-                <button type="button" onclick="openEdit({{ exercise.id }}, '{{ exercise.nome|escapejs }}', '{{ exercise.tipologia|escapejs }}', '{{ selected_tag }}')" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(88,101,242,.07); border: 1px solid rgba(88,101,242,.2); border-radius: 5px; color: #8b97f5; cursor: pointer;">
+                <button type="button" data-edit-btn data-ex-id="{{ exercise.id }}" data-ex-nome="{{ exercise.nome }}" data-ex-tipologia="{{ exercise.tipologia }}" data-ex-tag="{{ selected_tag }}" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(88,101,242,.07); border: 1px solid rgba(88,101,242,.2); border-radius: 5px; color: #8b97f5; cursor: pointer;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </button>
-                <form method="post" action="{% url 'delete_exercise_admin' exercise.id %}" onsubmit="return confirm('Elimina {{ exercise.nome|escapejs }}?');" style="margin: 0;">
+                <form method="post" action="{% url 'delete_exercise_admin' exercise.id %}" data-confirm-nome="{{ exercise.nome }}" style="margin: 0;">
                     {% csrf_token %}
                     <input type="hidden" name="tag" value="{{ selected_tag }}">
                     <button type="submit" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(248,81,73,.07); border: 1px solid rgba(248,81,73,.14); border-radius: 5px; color: #f85149; cursor: pointer;">
@@ -145,18 +155,18 @@
             </div>
             {% for exercise in group.exercises %}
             <div class="ex-row" data-name="{{ exercise.nome|lower }}" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 18px; border-bottom: 1px solid #0a0a12; transition: background .1s;" onmouseover="this.style.background='#12121c'" onmouseout="this.style.background='transparent'">
-                <div style="flex: 1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0;">
-                    <span style="font-size: 12.5px; color: #c0c0d8;">{{ exercise.nome }}</span>
+                <div class="ex-name-btn" data-ex-id="{{ exercise.id }}" style="flex: 1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0;">
+                    <span style="font-size: 12.5px; color: #c0c0d8; transition: color .1s;">{{ exercise.nome }}</span>
                     {% if exercise.tipologia %}
                     <span style="font-size: 10px; padding: 1px 7px; border-radius: 4px;" class="{% if 'bilanciere' in exercise.tipologia|lower %}tipo-bilanciere{% elif 'manubrio' in exercise.tipologia|lower %}tipo-manubrio{% elif 'cavi' in exercise.tipologia|lower %}tipo-cavi{% elif 'macchine' in exercise.tipologia|lower %}tipo-macchine{% elif 'corpo' in exercise.tipologia|lower %}tipo-corpo{% else %}tipo-default{% endif %}">{{ exercise.tipologia }}</span>
                     {% endif %}
                 </div>
                 {% if user.is_superuser %}
                 <div style="display: flex; gap: 5px; flex-shrink: 0; margin-left: 10px;">
-                    <button type="button" onclick="openEdit({{ exercise.id }}, '{{ exercise.nome|escapejs }}', '{{ exercise.tipologia|escapejs }}', '')" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: rgba(88,101,242,.07); border: 1px solid rgba(88,101,242,.2); border-radius: 5px; color: #8b97f5; cursor: pointer;">
+                    <button type="button" data-edit-btn data-ex-id="{{ exercise.id }}" data-ex-nome="{{ exercise.nome }}" data-ex-tipologia="{{ exercise.tipologia }}" data-ex-tag="" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: rgba(88,101,242,.07); border: 1px solid rgba(88,101,242,.2); border-radius: 5px; color: #8b97f5; cursor: pointer;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </button>
-                    <form method="post" action="{% url 'delete_exercise_admin' exercise.id %}" onsubmit="return confirm('Elimina {{ exercise.nome|escapejs }}?');" style="margin: 0;">
+                    <form method="post" action="{% url 'delete_exercise_admin' exercise.id %}" data-confirm-nome="{{ exercise.nome }}" style="margin: 0;">
                         {% csrf_token %}
                         <button type="submit" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: transparent; border: 1px solid transparent; border-radius: 5px; color: #3a3a5a; cursor: pointer; transition: all .12s;" onmouseover="this.style.background='rgba(248,81,73,.07)';this.style.borderColor='rgba(248,81,73,.2)';this.style.color='#f85149'" onmouseout="this.style.background='transparent';this.style.borderColor='transparent';this.style.color='#3a3a5a'">
                             <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -172,6 +182,28 @@
 
     {% endif %}
 
+</div>
+
+<!-- Exercise Detail Modal (immagini + info) -->
+<div id="ex-modal" onclick="if(event.target===this) closeExModal();">
+    <div id="ex-modal-box">
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px;">
+            <div>
+                <div id="ex-modal-nome" style="font-size: 17px; font-weight: 700; color: #f0f0f3;"></div>
+                <div id="ex-modal-meta" style="margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap;"></div>
+            </div>
+            <button type="button" onclick="closeExModal()" style="background: transparent; border: none; color: #484860; cursor: pointer; font-size: 20px; line-height: 1; flex-shrink: 0; margin-left: 12px;">&times;</button>
+        </div>
+        <div id="ex-modal-gallery" style="display: flex; flex-wrap: wrap; gap: 10px; min-height: 80px; margin-bottom: 4px;"></div>
+        {% if user.is_superuser %}
+        <form id="ex-upload-form" method="post" enctype="multipart/form-data" style="display: flex; gap: 8px; align-items: center; border-top: 1px solid #1c1c2c; padding-top: 16px; margin-top: 16px;">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <input type="file" name="immagine" accept="image/*" required style="flex: 1; font-size: 12px; color: #a0a0c0; background: #0d0d14; border: 1px solid #1c1c2c; border-radius: 7px; padding: 6px 10px; cursor: pointer;">
+            <button type="submit" class="btn-primary-gradient" style="height: 34px; padding: 0 16px; font-size: 12px; white-space: nowrap;">Aggiungi</button>
+        </form>
+        {% endif %}
+    </div>
 </div>
 
 <!-- Edit Modal -->
@@ -209,43 +241,120 @@
 </div>
 
 <script>
+    var IS_ADMIN = {{ user.is_superuser|yesno:"true,false" }};
+
     var exerciseTagMap = {
         {% for group in tag_groups %}{% for ex in group.exercises %}{{ ex.id }}:[{% for t in ex.tags.all %}{{ t.id }},{% endfor %}],{% endfor %}{% endfor %}
         {% if exercises %}{% for ex in exercises %}{{ ex.id }}:[{% for t in ex.tags.all %}{{ t.id }},{% endfor %}],{% endfor %}{% endif %}
     };
 
-    var editUrlTpl = '{% url "edit_exercise_admin" 0 %}'.replace('/0/', '/__ID__/');
+    var exerciseData = {
+        {% for group in tag_groups %}{% for ex in group.exercises %}"{{ ex.id }}":{"nome":"{{ ex.nome|escapejs }}","tipologia":"{{ ex.tipologia|escapejs }}","images":[{% for img in ex.images.all %}{"id":{{ img.id }},"url":"{{ img.immagine.url }}"},{% endfor %}]},{% endfor %}{% endfor %}
+        {% if exercises %}{% for ex in exercises %}"{{ ex.id }}":{"nome":"{{ ex.nome|escapejs }}","tipologia":"{{ ex.tipologia|escapejs }}","images":[{% for img in ex.images.all %}{"id":{{ img.id }},"url":"{{ img.immagine.url }}"},{% endfor %}]},{% endfor %}{% endif %}
+    };
 
-    function openEdit(id, nome, tipologia, tag) {
-        document.getElementById('edit-form').action = editUrlTpl.replace('__ID__', id);
-        document.getElementById('edit-nome').value = nome;
-        document.getElementById('edit-tipologia').value = tipologia;
-        document.getElementById('edit-tag').value = tag;
-        var activeTags = exerciseTagMap[id] || [];
-        document.querySelectorAll('#edit-tags input[type=checkbox]').forEach(function(cb) {
-            cb.checked = activeTags.indexOf(parseInt(cb.dataset.tagId)) !== -1;
-        });
-        document.getElementById('edit-modal').classList.add('open');
+    var addImgUrlTpl = '{% url "add_exercise_image" 0 %}'.replace('/0/', '/__ID__/');
+    var delImgUrlTpl = '{% url "delete_exercise_image" 0 %}'.replace('/0/', '/__ID__/');
+    var editUrlTpl   = '{% url "edit_exercise_admin" 0 %}'.replace('/0/', '/__ID__/');
+    var csrfToken    = '{{ csrf_token }}';
+
+    /* ---- Exercise detail modal ---- */
+    function openExModal(id) {
+        var d = exerciseData[String(id)];
+        if (!d) return;
+
+        document.getElementById('ex-modal-nome').textContent = d.nome;
+
+        var meta = document.getElementById('ex-modal-meta');
+        meta.innerHTML = '';
+        if (d.tipologia) {
+            var badge = document.createElement('span');
+            badge.textContent = d.tipologia;
+            badge.style.cssText = 'font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(120,120,144,.1);color:#9090a8;border:1px solid rgba(120,120,144,.2);';
+            meta.appendChild(badge);
+        }
+
+        var gallery = document.getElementById('ex-modal-gallery');
+        gallery.innerHTML = '';
+        if (d.images.length === 0) {
+            gallery.innerHTML = '<span style="font-size:12px;color:#3a3a52;padding:20px 0;">Nessuna immagine ancora.</span>';
+        } else {
+            d.images.forEach(function(img) {
+                var wrap = document.createElement('div');
+                wrap.style.cssText = 'position:relative;display:inline-block;';
+                var imgEl = document.createElement('img');
+                imgEl.src = img.url;
+                imgEl.style.cssText = 'width:120px;height:90px;object-fit:cover;border-radius:7px;border:1px solid #1c1c2c;display:block;';
+                wrap.appendChild(imgEl);
+                if (IS_ADMIN) {
+                    var form = document.createElement('form');
+                    form.method = 'post';
+                    form.action = delImgUrlTpl.replace('__ID__', img.id);
+                    form.style.cssText = 'position:absolute;top:4px;right:4px;';
+                    form.innerHTML = '<input type="hidden" name="csrfmiddlewaretoken" value="' + csrfToken + '"><input type="hidden" name="next" value="' + window.location.pathname + window.location.search + '"><button type="submit" style="width:20px;height:20px;border-radius:4px;background:rgba(0,0,0,.7);border:none;color:#f85149;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;" onclick="return confirm(\'Elimina immagine?\');">&times;</button>';
+                    wrap.appendChild(form);
+                }
+                gallery.appendChild(wrap);
+            });
+        }
+
+        if (IS_ADMIN) {
+            var uploadForm = document.getElementById('ex-upload-form');
+            if (uploadForm) {
+                uploadForm.action = addImgUrlTpl.replace('__ID__', id);
+                uploadForm.querySelector('input[type=file]').value = '';
+            }
+        }
+
+        document.getElementById('ex-modal').classList.add('open');
     }
+
+    function closeExModal() {
+        document.getElementById('ex-modal').classList.remove('open');
+    }
+
+    document.addEventListener('click', function(e) {
+        var nameBtn = e.target.closest('.ex-name-btn');
+        if (nameBtn) { openExModal(nameBtn.dataset.exId); return; }
+
+        var editBtn = e.target.closest('[data-edit-btn]');
+        if (editBtn) {
+            var d = editBtn.dataset;
+            var id = d.exId;
+            document.getElementById('edit-form').action = editUrlTpl.replace('__ID__', id);
+            document.getElementById('edit-nome').value = d.exNome;
+            document.getElementById('edit-tipologia').value = d.exTipologia;
+            document.getElementById('edit-tag').value = d.exTag;
+            var activeTags = exerciseTagMap[parseInt(id)] || [];
+            document.querySelectorAll('#edit-tags input[type=checkbox]').forEach(function(cb) {
+                cb.checked = activeTags.indexOf(parseInt(cb.dataset.tagId)) !== -1;
+            });
+            document.getElementById('edit-modal').classList.add('open');
+        }
+    });
+
+    document.addEventListener('submit', function(e) {
+        var form = e.target.closest('[data-confirm-nome]');
+        if (form && !confirm('Elimina ' + form.dataset.confirmNome + '?')) e.preventDefault();
+    });
 
     function closeEdit() {
         document.getElementById('edit-modal').classList.remove('open');
     }
 
+    /* ---- Search ---- */
     function filterExercises(query) {
         var q = query.toLowerCase().trim();
-        var rows = document.querySelectorAll('.ex-row');
-        rows.forEach(function(row) {
-            var match = !q || row.dataset.name.indexOf(q) !== -1;
-            row.style.display = match ? '' : 'none';
+        document.querySelectorAll('.ex-row').forEach(function(row) {
+            row.style.display = (!q || row.dataset.name.indexOf(q) !== -1) ? '' : 'none';
         });
-        // Nascondi le group-card se tutti i figli sono nascosti
         document.querySelectorAll('.group-card').forEach(function(card) {
-            var visible = card.querySelectorAll('.ex-row:not([style*="display: none"])').length;
-            card.style.display = visible ? '' : 'none';
+            card.style.display = card.querySelectorAll('.ex-row:not([style*="display: none"])').length ? '' : 'none';
         });
     }
 
-    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeEdit(); });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { closeExModal(); closeEdit(); }
+    });
 </script>
 {% endblock %}

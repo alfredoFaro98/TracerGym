@@ -17,6 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import render
+from django.conf import settings
+from django.conf.urls.static import static
 
 def handler401(request, exception=None):
     return render(request, '401.html', status=401)
@@ -33,4 +35,4 @@ def handler500(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('tracker.urls')),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
