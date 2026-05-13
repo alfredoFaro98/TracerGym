@@ -107,6 +107,7 @@ def session_detail(request, session_id):
         weight = request.POST.get('weight') or None
         rest_time = request.POST.get('rest_time') or None
         per_lato = request.POST.get('per_lato') == 'on'
+        avviamento = request.POST.get('avviamento') == 'on'
         num_sets = int(request.POST.get('num_sets') or 1)
 
         exercise = Exercise.objects.filter(nome__iexact=exercise_name).first()
@@ -132,6 +133,7 @@ def session_detail(request, session_id):
                 weight=weight,
                 rest_time=rest_time,
                 per_lato=per_lato,
+                avviamento=avviamento,
             )
         url = reverse('session_detail', kwargs={'session_id': session.id})
         return redirect(f'{url}?open={exercise.id}')
@@ -185,6 +187,7 @@ def duplicate_set(request, set_id):
             weight=original.weight,
             rest_time=original.rest_time,
             per_lato=original.per_lato,
+            avviamento=original.avviamento,
             order=original.order + 1,
         )
         new_set.muscles.set(original.muscles.all())
@@ -207,6 +210,7 @@ def edit_set(request, set_id):
         workout_set.weight = weight
         workout_set.rest_time = rest_time
         workout_set.per_lato = request.POST.get('per_lato') == 'on'
+        workout_set.avviamento = request.POST.get('avviamento') == 'on'
         workout_set.save()
     url = reverse('session_detail', kwargs={'session_id': workout_set.session.id})
     return redirect(f'{url}?open={workout_set.exercise_id}')
@@ -224,6 +228,7 @@ def duplicate_session(request, session_id):
                 weight=s.weight,
                 rest_time=s.rest_time,
                 per_lato=s.per_lato,
+                avviamento=s.avviamento,
             )
         return redirect('session_detail', session_id=new_session.id)
     return redirect('session_detail', session_id=session_id)
@@ -284,6 +289,7 @@ def export_sessions(request):
                 'weight': float(s.weight) if s.weight is not None else None,
                 'rest_time': s.rest_time,
                 'per_lato': s.per_lato,
+                'avviamento': s.avviamento,
                 'order': s.order,
             })
         data.append({
@@ -337,6 +343,7 @@ def import_sessions(request):
                         weight=s.get('weight'),
                         rest_time=s.get('rest_time'),
                         per_lato=bool(s.get('per_lato', False)),
+                        avviamento=bool(s.get('avviamento', False)),
                         order=s.get('order', i),
                     )
                 imported += 1
@@ -362,6 +369,7 @@ def export_session(request, session_id):
             'weight': float(s.weight) if s.weight is not None else None,
             'rest_time': s.rest_time,
             'per_lato': s.per_lato,
+            'avviamento': s.avviamento,
             'order': s.order,
         })
     data = [{'data': session.data.strftime('%Y-%m-%d'), 'note': session.note or '', 'sets': sets}]
@@ -650,6 +658,7 @@ def import_session_from_user(request, username, session_id):
             weight=new_weight,
             rest_time=s.rest_time,
             per_lato=s.per_lato,
+            avviamento=s.avviamento,
             order=s.order,
         )
 

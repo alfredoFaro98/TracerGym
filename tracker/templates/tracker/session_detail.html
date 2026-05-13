@@ -82,6 +82,10 @@
                         <input type="checkbox" name="per_lato" style="width: 14px; height: 14px; accent-color: #f0883e; cursor: pointer;">
                         <span style="font-size: 11px; font-weight: 600; color: #787890;">Per lato</span>
                     </label>
+                    <label style="display: flex; align-items: center; gap: 7px; cursor: pointer; padding-bottom: 9px; white-space: nowrap;">
+                        <input type="checkbox" name="avviamento" style="width: 14px; height: 14px; accent-color: #6a9fd8; cursor: pointer;">
+                        <span style="font-size: 11px; font-weight: 600; color: #787890;">Avviamento</span>
+                    </label>
                 </div>
 
                 <button type="submit" class="btn-primary-gradient" style="padding: 11px; margin-top: 5px;">Aggiungi Serie</button>
@@ -135,6 +139,7 @@
                         <div>
                             <div id="row-{{ set.id }}" style="padding: 9px 12px; border-radius: 7px; background: #0a0a12; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                                 <span style="font-size: 10px; font-weight: 700; color: #2e2e46; font-family: 'JetBrains Mono', monospace; min-width: 20px;">#{{ forloop.counter }}</span>
+                                {% if set.avviamento %}<span style="font-size: 9px; font-weight: 700; color: #6a9fd8; background: rgba(106,159,216,.12); border: 1px solid rgba(106,159,216,.25); border-radius: 4px; padding: 1px 5px; letter-spacing: .4px;">AVV</span>{% endif %}
                                 <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #f0f0f3;">{{ set.reps }}<span style="font-size: 10px; font-weight: 400; color: #484862; margin-left: 2px;">reps</span></span>
                                 {% if set.weight %}
                                 <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #c0c0d8;">× {{ set.weight }}<span style="font-size: 10px; color: #38384e;"> kg</span>{% if set.per_lato %}<span style="font-size: 10px; color: #f0883e; margin-left: 4px; font-weight: 700;">/ lato</span>{% endif %}</span>
@@ -177,6 +182,10 @@
                                     <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding-bottom: 2px; white-space: nowrap;">
                                         <input type="checkbox" name="per_lato" {% if set.per_lato %}checked{% endif %} style="width: 14px; height: 14px; accent-color: #f0883e; cursor: pointer;">
                                         <span style="font-size: 11px; font-weight: 600; color: #787890;">Per lato</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding-bottom: 2px; white-space: nowrap;">
+                                        <input type="checkbox" name="avviamento" {% if set.avviamento %}checked{% endif %} style="width: 14px; height: 14px; accent-color: #6a9fd8; cursor: pointer;">
+                                        <span style="font-size: 11px; font-weight: 600; color: #787890;">Avviamento</span>
                                     </label>
                                     <button type="submit" class="btn-primary-gradient" style="padding: 7px 13px; font-size: 12px;">Salva</button>
                                     <button type="button" onclick="toggleEditRow(this.dataset.id)" data-id="{{ set.id }}" style="padding: 7px 11px; font-size: 12px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #484862; cursor: pointer;">Annulla</button>
@@ -263,7 +272,6 @@
                     <th style="padding: 5px 10px; text-align: left; border: 1px solid #ddd;">Reps</th>
                     <th style="padding: 5px 10px; text-align: left; border: 1px solid #ddd;">Peso (kg)</th>
                     <th style="padding: 5px 10px; text-align: left; border: 1px solid #ddd;">Recupero (s)</th>
-                    <th style="padding: 5px 10px; text-align: left; border: 1px solid #ddd;">Per lato</th>
                 </tr>
             </thead>
             <tbody>
@@ -271,9 +279,8 @@
                 <tr style="border: 1px solid #ddd;">
                     <td style="padding: 5px 10px; border: 1px solid #ddd; color: #999;">{{ forloop.counter }}</td>
                     <td style="padding: 5px 10px; border: 1px solid #ddd; font-weight: 700;">{{ set.reps }}</td>
-                    <td style="padding: 5px 10px; border: 1px solid #ddd;">{{ set.weight|default:"-" }}</td>
+                    <td style="padding: 5px 10px; border: 1px solid #ddd;">{% if set.avviamento %}<span style="font-size: 9px; color: #6a9fd8; font-weight: 700; margin-right: 4px;">AVV</span>{% endif %}{{ set.weight|default:"-" }}{% if set.per_lato %} <span style="font-size: 10px; color: #888;">(per lato)</span>{% endif %}</td>
                     <td style="padding: 5px 10px; border: 1px solid #ddd;">{{ set.rest_time|default:"-" }}</td>
-                    <td style="padding: 5px 10px; border: 1px solid #ddd;">{% if set.per_lato %}Sì{% else %}—{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>
