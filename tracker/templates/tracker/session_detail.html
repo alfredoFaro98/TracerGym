@@ -72,10 +72,16 @@
                     </div>
                 </div>
 
-                <!-- Rest -->
-                <div>
-                    <label style="display: block; font-size: 10px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Recupero (s)</label>
-                    <input type="number" name="rest_time" class="tracer-input" placeholder="90" min="0">
+                <!-- Rest + Per lato -->
+                <div style="display: grid; grid-template-columns: 1fr auto; gap: 9px; align-items: end;">
+                    <div>
+                        <label style="display: block; font-size: 10px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Recupero (s)</label>
+                        <input type="number" name="rest_time" class="tracer-input" placeholder="90" min="0">
+                    </div>
+                    <label style="display: flex; align-items: center; gap: 7px; cursor: pointer; padding-bottom: 9px; white-space: nowrap;">
+                        <input type="checkbox" name="per_lato" style="width: 14px; height: 14px; accent-color: #f0883e; cursor: pointer;">
+                        <span style="font-size: 11px; font-weight: 600; color: #787890;">Per lato</span>
+                    </label>
                 </div>
 
                 <button type="submit" class="btn-primary-gradient" style="padding: 11px; margin-top: 5px;">Aggiungi Serie</button>
@@ -131,7 +137,7 @@
                                 <span style="font-size: 10px; font-weight: 700; color: #2e2e46; font-family: 'JetBrains Mono', monospace; min-width: 20px;">#{{ forloop.counter }}</span>
                                 <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #f0f0f3;">{{ set.reps }}<span style="font-size: 10px; font-weight: 400; color: #484862; margin-left: 2px;">reps</span></span>
                                 {% if set.weight %}
-                                <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #c0c0d8;">× {{ set.weight }}<span style="font-size: 10px; color: #38384e;"> kg</span></span>
+                                <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #c0c0d8;">× {{ set.weight }}<span style="font-size: 10px; color: #38384e;"> kg</span>{% if set.per_lato %}<span style="font-size: 10px; color: #f0883e; margin-left: 4px; font-weight: 700;">/ lato</span>{% endif %}</span>
                                 {% endif %}
                                 {% if set.rest_time %}
                                 <span style="font-size: 11px; color: #404058; font-family: 'JetBrains Mono', monospace;">{{ set.rest_time }}s</span>
@@ -168,6 +174,10 @@
                                         <label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Recupero (s)</label>
                                         <input type="number" name="rest_time" value="{{ set.rest_time|default:'' }}" class="tracer-input" style="width: 75px;" min="0">
                                     </div>
+                                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding-bottom: 2px; white-space: nowrap;">
+                                        <input type="checkbox" name="per_lato" {% if set.per_lato %}checked{% endif %} style="width: 14px; height: 14px; accent-color: #f0883e; cursor: pointer;">
+                                        <span style="font-size: 11px; font-weight: 600; color: #787890;">Per lato</span>
+                                    </label>
                                     <button type="submit" class="btn-primary-gradient" style="padding: 7px 13px; font-size: 12px;">Salva</button>
                                     <button type="button" onclick="toggleEditRow(this.dataset.id)" data-id="{{ set.id }}" style="padding: 7px 11px; font-size: 12px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #484862; cursor: pointer;">Annulla</button>
                                 </form>
@@ -253,6 +263,7 @@
                     <th style="padding: 5px 10px; text-align: left; border: 1px solid #ddd;">Reps</th>
                     <th style="padding: 5px 10px; text-align: left; border: 1px solid #ddd;">Peso (kg)</th>
                     <th style="padding: 5px 10px; text-align: left; border: 1px solid #ddd;">Recupero (s)</th>
+                    <th style="padding: 5px 10px; text-align: left; border: 1px solid #ddd;">Per lato</th>
                 </tr>
             </thead>
             <tbody>
@@ -262,6 +273,7 @@
                     <td style="padding: 5px 10px; border: 1px solid #ddd; font-weight: 700;">{{ set.reps }}</td>
                     <td style="padding: 5px 10px; border: 1px solid #ddd;">{{ set.weight|default:"-" }}</td>
                     <td style="padding: 5px 10px; border: 1px solid #ddd;">{{ set.rest_time|default:"-" }}</td>
+                    <td style="padding: 5px 10px; border: 1px solid #ddd;">{% if set.per_lato %}Sì{% else %}—{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>
