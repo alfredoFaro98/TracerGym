@@ -171,7 +171,7 @@
                             </div>
                             <!-- Form modifica inline -->
                             <div id="edit-row-{{ set.id }}" style="display: none; padding: 10px 12px; background: #0d0d1a; border-radius: 7px; margin-top: 4px;">
-                                <form action="{% url 'edit_set' set.id %}" method="post" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end;">
+                                <form action="{% url 'edit_set' set.id %}" method="post" novalidate style="display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end;">
                                     {% csrf_token %}
                                     <div>
                                         <label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Esercizio</label>
