@@ -131,6 +131,8 @@ def weekly_sessions_data(request):
                     entry['weight'] = float(ws.weight)
                 if ws.durata:
                     entry['durata'] = ws.durata
+                if ws.a_cedimento:
+                    entry['a_cedimento'] = True
                 exercises[ex].append(entry)
             sessions_data.append({
                 'id': s.id,
@@ -160,6 +162,7 @@ def session_detail(request, session_id):
         rest_time = request.POST.get('rest_time') or None
         per_lato = request.POST.get('per_lato') == 'on'
         avviamento = request.POST.get('avviamento') == 'on'
+        a_cedimento = request.POST.get('a_cedimento') == 'on'
         num_sets = int(request.POST.get('num_sets') or 1)
 
         exercise = Exercise.objects.filter(nome__iexact=exercise_name).first()
@@ -187,6 +190,7 @@ def session_detail(request, session_id):
                 rest_time=rest_time,
                 per_lato=per_lato,
                 avviamento=avviamento,
+                a_cedimento=a_cedimento,
             )
         url = reverse('session_detail', kwargs={'session_id': session.id})
         return redirect(f'{url}?open={exercise.id}')
@@ -242,6 +246,7 @@ def duplicate_set(request, set_id):
             rest_time=original.rest_time,
             per_lato=original.per_lato,
             avviamento=original.avviamento,
+            a_cedimento=original.a_cedimento,
             order=original.order + 1,
         )
         new_set.muscles.set(original.muscles.all())
@@ -266,6 +271,7 @@ def edit_set(request, set_id):
         workout_set.rest_time = rest_time
         workout_set.per_lato = request.POST.get('per_lato') == 'on'
         workout_set.avviamento = request.POST.get('avviamento') == 'on'
+        workout_set.a_cedimento = request.POST.get('a_cedimento') == 'on'
         workout_set.save()
     url = reverse('session_detail', kwargs={'session_id': workout_set.session.id})
     return redirect(f'{url}?open={workout_set.exercise_id}')
@@ -285,6 +291,7 @@ def duplicate_session(request, session_id):
                 rest_time=s.rest_time,
                 per_lato=s.per_lato,
                 avviamento=s.avviamento,
+                a_cedimento=s.a_cedimento,
             )
         return redirect('session_detail', session_id=new_session.id)
     return redirect('session_detail', session_id=session_id)
@@ -346,6 +353,7 @@ def export_sessions(request):
                 'rest_time': s.rest_time,
                 'per_lato': s.per_lato,
                 'avviamento': s.avviamento,
+                'a_cedimento': s.a_cedimento,
                 'durata': s.durata,
                 'order': s.order,
             })
@@ -401,6 +409,7 @@ def import_sessions(request):
                         rest_time=s.get('rest_time'),
                         per_lato=bool(s.get('per_lato', False)),
                         avviamento=bool(s.get('avviamento', False)),
+                        a_cedimento=bool(s.get('a_cedimento', False)),
                         durata=s.get('durata'),
                         order=s.get('order', i),
                     )
@@ -428,6 +437,7 @@ def export_session(request, session_id):
             'rest_time': s.rest_time,
             'per_lato': s.per_lato,
             'avviamento': s.avviamento,
+            'a_cedimento': s.a_cedimento,
             'order': s.order,
         })
     data = [{'data': session.data.strftime('%Y-%m-%d'), 'note': session.note or '', 'sets': sets}]
@@ -741,6 +751,7 @@ def import_session_from_user(request, username, session_id):
             rest_time=s.rest_time,
             per_lato=s.per_lato,
             avviamento=s.avviamento,
+            a_cedimento=s.a_cedimento,
             durata=s.durata,
             order=s.order,
         )

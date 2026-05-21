@@ -487,8 +487,10 @@
 
     function formatSetLine(s) {
         var parts = [];
-        if (s.reps && s.weight) parts.push(s.reps + ' \xd7 ' + s.weight + ' kg');
-        else if (s.reps) parts.push(s.reps + ' rip');
+        var repsLabel = s.a_cedimento ? 'CED' : (s.reps ? String(s.reps) : null);
+        if (repsLabel && s.weight) parts.push(repsLabel + ' \xd7 ' + s.weight + ' kg');
+        else if (repsLabel) parts.push(repsLabel);
+        else if (s.weight) parts.push(s.weight + ' kg');
         if (s.durata) parts.push(s.durata + 's');
         return parts.join(' \xb7 ') || '—';
     }

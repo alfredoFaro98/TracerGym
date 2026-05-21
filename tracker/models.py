@@ -53,6 +53,7 @@ class WorkoutSet(models.Model):
     weight = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     per_lato = models.BooleanField(default=False)
     avviamento = models.BooleanField(default=False)
+    a_cedimento = models.BooleanField(default=False)
     rest_time = models.PositiveIntegerField(null=True, blank=True, help_text="Recupero in secondi")
     muscles = models.ManyToManyField(MuscleGroup, blank=True, related_name='sets')
 
