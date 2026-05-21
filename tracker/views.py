@@ -595,7 +595,7 @@ def export_exercises_json(request):
 
 @login_required
 def exercise_weight_history(request):
-    from django.db.models import F, ExpressionWrapper, DecimalField
+    from django.db.models import F, ExpressionWrapper, DecimalField, Case, When
     from django.db.models.functions import Coalesce
 
     exercise_name = request.GET.get('exercise', '').strip()
@@ -605,8 +605,9 @@ def exercise_weight_history(request):
     if not exercise:
         return JsonResponse({'points': []})
 
+    base = Coalesce(F('weight'), 0) + Coalesce(F('barra_kg'), 0)
     total_expr = ExpressionWrapper(
-        Coalesce(F('weight'), 0) + Coalesce(F('barra_kg'), 0),
+        Case(When(per_lato=True, then=base * 2), default=base),
         output_field=DecimalField(max_digits=7, decimal_places=2)
     )
     rows = (
