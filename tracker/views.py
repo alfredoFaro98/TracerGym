@@ -9,7 +9,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from itertools import groupby
 import time
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from django.utils import timezone
 from django.contrib.auth.models import User
 from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage
@@ -90,6 +90,57 @@ def dashboard(request):
         'selected_year': year_int,
         'exercises_json': json.dumps(exercises_data),
     })
+
+@login_required
+def weekly_sessions_data(request):
+    monday_str = request.GET.get('monday', '')
+    today = timezone.now().date()
+
+    try:
+        monday = date.fromisoformat(monday_str) if monday_str else today - timedelta(days=today.weekday())
+    except ValueError:
+        monday = today - timedelta(days=today.weekday())
+
+    monday -= timedelta(days=monday.weekday())
+    sunday = monday + timedelta(days=6)
+
+    sessions = (
+        WorkoutSession.objects
+        .filter(utente=request.user, data__gte=monday, data__lte=sunday)
+        .prefetch_related('sets__exercise')
+        .order_by('data', 'id')
+    )
+
+    days = []
+    for i in range(7):
+        day_date = monday + timedelta(days=i)
+        day_sessions = [s for s in sessions if s.data == day_date]
+        sessions_data = []
+        for s in day_sessions:
+            exercises = {}
+            order_list = []
+            for ws in s.sets.all().order_by('order', 'id'):
+                ex = ws.exercise.nome
+                if ex not in exercises:
+                    exercises[ex] = []
+                    order_list.append(ex)
+                entry = {}
+                if ws.reps:
+                    entry['reps'] = ws.reps
+                if ws.weight is not None:
+                    entry['weight'] = float(ws.weight)
+                if ws.durata:
+                    entry['durata'] = ws.durata
+                exercises[ex].append(entry)
+            sessions_data.append({
+                'id': s.id,
+                'note': s.note or '',
+                'exercises': [{'nome': k, 'sets': exercises[k]} for k in order_list],
+            })
+        days.append({'date': day_date.strftime('%Y-%m-%d'), 'sessions': sessions_data})
+
+    return JsonResponse({'monday': monday.strftime('%Y-%m-%d'), 'sunday': sunday.strftime('%Y-%m-%d'), 'days': days})
+
 
 @login_required
 def create_session(request):
