@@ -346,6 +346,7 @@
 (function() {
     var EXERCISES   = {{ exercises_json|safe }};
     var HISTORY_URL = '{% url "exercise_weight_history" %}';
+    var DEFAULT_EXERCISE = '{{ default_exercise|escapejs }}';
 
     var input      = document.getElementById('wc-input');
     var dropdown   = document.getElementById('wc-dropdown');
@@ -457,6 +458,10 @@
             }
         });
     }
+    if (DEFAULT_EXERCISE) {
+        input.value = DEFAULT_EXERCISE;
+        loadChart(DEFAULT_EXERCISE);
+    }
 })();
 </script>
 
@@ -488,9 +493,13 @@
     function formatSetLine(s) {
         var parts = [];
         var repsLabel = s.a_cedimento ? 'CED' : (s.reps ? String(s.reps) : null);
-        if (repsLabel && s.weight) parts.push(repsLabel + ' \xd7 ' + s.weight + ' kg');
+        var weightLabel = null;
+        if (s.weight && s.barra_kg) weightLabel = s.weight + '+' + s.barra_kg + 'sbarra';
+        else if (s.weight) weightLabel = s.weight + ' kg';
+        else if (s.barra_kg) weightLabel = 'sbarra ' + s.barra_kg + ' kg';
+        if (repsLabel && weightLabel) parts.push(repsLabel + ' \xd7 ' + weightLabel);
         else if (repsLabel) parts.push(repsLabel);
-        else if (s.weight) parts.push(s.weight + ' kg');
+        else if (weightLabel) parts.push(weightLabel);
         if (s.durata) parts.push(s.durata + 's');
         return parts.join(' \xb7 ') || '—';
     }

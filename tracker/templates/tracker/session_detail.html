@@ -94,6 +94,14 @@
                         <input type="checkbox" name="a_cedimento" style="width: 14px; height: 14px; accent-color: #e05a6a; cursor: pointer;">
                         <span style="font-size: 11px; font-weight: 600; color: #787890;">A cedimento</span>
                     </label>
+                    <label style="display: flex; align-items: center; gap: 7px; cursor: pointer; padding-bottom: 9px; white-space: nowrap;" onclick="toggleBarraAdd(event)">
+                        <input type="checkbox" id="barra-check-add" style="width: 14px; height: 14px; accent-color: #a0c878; cursor: pointer;">
+                        <span style="font-size: 11px; font-weight: 600; color: #787890;">+Sbarra</span>
+                    </label>
+                </div>
+                <div id="barra-wrap-add" style="display:none; margin-top: -4px;">
+                    <label style="display: block; font-size: 10px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Sbarra (kg)</label>
+                    <input type="number" step="any" name="barra_kg" id="barra-input-add" class="tracer-input" placeholder="20" min="0" style="width: 80px;">
                 </div>
 
                 <button type="submit" class="btn-primary-gradient" style="padding: 11px; margin-top: 5px;">Aggiungi Serie</button>
@@ -153,11 +161,11 @@
                                 <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #f0f0f3;">{{ set.reps }}<span style="font-size: 10px; font-weight: 400; color: #484862; margin-left: 2px;">×</span> {{ set.durata }}<span style="font-size: 10px; font-weight: 400; color: #484862; margin-left: 1px;">s</span></span>
                                 {% elif set.durata %}
                                 <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #f0f0f3;">{{ set.durata }}<span style="font-size: 10px; font-weight: 400; color: #484862; margin-left: 2px;">s</span></span>
-                                {% else %}
+                                {% elif set.reps %}
                                 <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #f0f0f3;">{{ set.reps }}<span style="font-size: 10px; font-weight: 400; color: #484862; margin-left: 2px;">reps</span></span>
                                 {% endif %}
-                                {% if set.weight %}
-                                <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #c0c0d8;">× {{ set.weight }}<span style="font-size: 10px; color: #38384e;"> kg</span>{% if set.per_lato %}<span style="font-size: 10px; color: #f0883e; margin-left: 4px; font-weight: 700;">/ lato</span>{% endif %}</span>
+                                {% if set.weight or set.barra_kg %}
+                                <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #c0c0d8;">{% if set.weight %}× {{ set.weight }}<span style="font-size: 10px; color: #38384e;"> kg</span>{% endif %}{% if set.barra_kg %}<span style="font-size: 10px; color: #a0c878; margin-left: 4px;">+{{ set.barra_kg }} sbarra</span>{% endif %}{% if set.per_lato %}<span style="font-size: 10px; color: #f0883e; margin-left: 4px; font-weight: 700;">/ lato</span>{% endif %}</span>
                                 {% endif %}
                                 {% if set.rest_time %}
                                 <span style="font-size: 11px; color: #404058; font-family: 'JetBrains Mono', monospace;">{{ set.rest_time }}s</span>
@@ -210,6 +218,16 @@
                                         <input type="checkbox" name="a_cedimento" {% if set.a_cedimento %}checked{% endif %} style="width: 14px; height: 14px; accent-color: #e05a6a; cursor: pointer;">
                                         <span style="font-size: 11px; font-weight: 600; color: #787890;">A cedimento</span>
                                     </label>
+                                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding-bottom: 2px; white-space: nowrap;" onclick="toggleBarraEdit(event, '{{ set.id }}')">
+                                        <input type="checkbox" id="barra-check-{{ set.id }}" {% if set.barra_kg %}checked{% endif %} style="width: 14px; height: 14px; accent-color: #a0c878; cursor: pointer;">
+                                        <span style="font-size: 11px; font-weight: 600; color: #787890;">+Sbarra</span>
+                                    </label>
+                                    <div id="barra-wrap-{{ set.id }}" data-barra-show="{% if set.barra_kg %}1{% else %}0{% endif %}" style="display:none; align-items: flex-end; gap: 6px;">
+                                        <div>
+                                            <label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Sbarra (kg)</label>
+                                            <input type="number" step="any" name="barra_kg" id="barra-input-{{ set.id }}" value="{{ set.barra_kg|default:'' }}" class="tracer-input" style="width: 70px;" min="0">
+                                        </div>
+                                    </div>
                                     <button type="submit" class="btn-primary-gradient" style="padding: 7px 13px; font-size: 12px;">Salva</button>
                                     <button type="button" onclick="toggleEditRow(this.dataset.id)" data-id="{{ set.id }}" style="padding: 7px 11px; font-size: 12px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #484862; cursor: pointer;">Annulla</button>
                                 </form>
@@ -302,7 +320,7 @@
                 <tr style="border: 1px solid #ddd;">
                     <td style="padding: 5px 10px; border: 1px solid #ddd; color: #999;">{{ forloop.counter }}</td>
                     <td style="padding: 5px 10px; border: 1px solid #ddd; font-weight: 700;">{% if set.durata and set.reps %}{{ set.reps }} × {{ set.durata }}s{% elif set.durata %}{{ set.durata }}s{% else %}{{ set.reps }}{% endif %}</td>
-                    <td style="padding: 5px 10px; border: 1px solid #ddd;">{% if set.avviamento %}<span style="font-size: 9px; color: #6a9fd8; font-weight: 700; margin-right: 4px;">AVV</span>{% endif %}{{ set.weight|default:"-" }}{% if set.per_lato %} <span style="font-size: 10px; color: #888;">(per lato)</span>{% endif %}</td>
+                    <td style="padding: 5px 10px; border: 1px solid #ddd;">{% if set.avviamento %}<span style="font-size: 9px; color: #6a9fd8; font-weight: 700; margin-right: 4px;">AVV</span>{% endif %}{% if set.a_cedimento %}<span style="font-size: 9px; color: #e05a6a; font-weight: 700; margin-right: 4px;">CED</span>{% endif %}{{ set.weight|default:"-" }}{% if set.barra_kg %} <span style="font-size: 10px; color: #5a8a3a;">+{{ set.barra_kg }} sbarra</span>{% endif %}{% if set.per_lato %} <span style="font-size: 10px; color: #888;">(per lato)</span>{% endif %}</td>
                     <td style="padding: 5px 10px; border: 1px solid #ddd;">{{ set.rest_time|default:"-" }}</td>
                 </tr>
                 {% endfor %}
@@ -339,11 +357,35 @@ function toggleAllGroups(btn) {
 }
 document.addEventListener('DOMContentLoaded', function() {
     var openId = new URLSearchParams(window.location.search).get('open');
-    if (!openId) return;
-    document.querySelectorAll('[data-ex-id]').forEach(function(el) {
-        if (el.dataset.exId === openId) el.style.display = 'flex';
+    if (openId) {
+        document.querySelectorAll('[data-ex-id]').forEach(function(el) {
+            if (el.dataset.exId === openId) el.style.display = 'flex';
+        });
+    }
+    document.querySelectorAll('[data-barra-show="1"]').forEach(function(el) {
+        el.style.display = 'flex';
     });
 });
+function toggleBarraAdd(e) {
+    e.preventDefault();
+    var cb = document.getElementById('barra-check-add');
+    cb.checked = !cb.checked;
+    var wrap = document.getElementById('barra-wrap-add');
+    var input = document.getElementById('barra-input-add');
+    wrap.style.display = cb.checked ? 'block' : 'none';
+    if (cb.checked && !input.value) input.value = '20';
+    else if (!cb.checked) input.value = '';
+}
+function toggleBarraEdit(e, id) {
+    e.preventDefault();
+    var cb = document.getElementById('barra-check-' + id);
+    cb.checked = !cb.checked;
+    var wrap = document.getElementById('barra-wrap-' + id);
+    var input = document.getElementById('barra-input-' + id);
+    wrap.style.display = cb.checked ? 'flex' : 'none';
+    if (cb.checked && !input.value) input.value = '20';
+    else if (!cb.checked) input.value = '';
+}
 // --- Autocomplete esercizi ---
 (function() {
     var SUGGESTIONS_URL = '{% url "exercise_suggestions" %}';

@@ -81,6 +81,16 @@ def dashboard(request):
             'tags': [t.nome.lower() for t in ex.tags.all()],
         })
     
+    last_set = (
+        WorkoutSet.objects
+        .filter(session__utente=request.user)
+        .filter(models.Q(weight__isnull=False) | models.Q(barra_kg__isnull=False))
+        .order_by('-session__data', '-id')
+        .select_related('exercise')
+        .first()
+    )
+    default_exercise = last_set.exercise.nome if last_set else ''
+
     return render(request, 'tracker/dashboard.html', {
         'sessions': sessions,
         'total_sessions_count': all_sessions.count(),
@@ -89,6 +99,7 @@ def dashboard(request):
         'heatmap_data_json': json.dumps(heatmap_data),
         'selected_year': year_int,
         'exercises_json': json.dumps(exercises_data),
+        'default_exercise': default_exercise,
     })
 
 @login_required
@@ -133,6 +144,8 @@ def weekly_sessions_data(request):
                     entry['durata'] = ws.durata
                 if ws.a_cedimento:
                     entry['a_cedimento'] = True
+                if ws.barra_kg is not None:
+                    entry['barra_kg'] = float(ws.barra_kg)
                 exercises[ex].append(entry)
             sessions_data.append({
                 'id': s.id,
@@ -163,6 +176,7 @@ def session_detail(request, session_id):
         per_lato = request.POST.get('per_lato') == 'on'
         avviamento = request.POST.get('avviamento') == 'on'
         a_cedimento = request.POST.get('a_cedimento') == 'on'
+        barra_kg = request.POST.get('barra_kg') or None
         num_sets = int(request.POST.get('num_sets') or 1)
 
         exercise = Exercise.objects.filter(nome__iexact=exercise_name).first()
@@ -191,6 +205,7 @@ def session_detail(request, session_id):
                 per_lato=per_lato,
                 avviamento=avviamento,
                 a_cedimento=a_cedimento,
+                barra_kg=barra_kg,
             )
         url = reverse('session_detail', kwargs={'session_id': session.id})
         return redirect(f'{url}?open={exercise.id}')
@@ -247,6 +262,7 @@ def duplicate_set(request, set_id):
             per_lato=original.per_lato,
             avviamento=original.avviamento,
             a_cedimento=original.a_cedimento,
+            barra_kg=original.barra_kg,
             order=original.order + 1,
         )
         new_set.muscles.set(original.muscles.all())
@@ -272,6 +288,7 @@ def edit_set(request, set_id):
         workout_set.per_lato = request.POST.get('per_lato') == 'on'
         workout_set.avviamento = request.POST.get('avviamento') == 'on'
         workout_set.a_cedimento = request.POST.get('a_cedimento') == 'on'
+        workout_set.barra_kg = request.POST.get('barra_kg') or None
         workout_set.save()
     url = reverse('session_detail', kwargs={'session_id': workout_set.session.id})
     return redirect(f'{url}?open={workout_set.exercise_id}')
@@ -292,6 +309,7 @@ def duplicate_session(request, session_id):
                 per_lato=s.per_lato,
                 avviamento=s.avviamento,
                 a_cedimento=s.a_cedimento,
+                barra_kg=s.barra_kg,
             )
         return redirect('session_detail', session_id=new_session.id)
     return redirect('session_detail', session_id=session_id)
@@ -354,6 +372,7 @@ def export_sessions(request):
                 'per_lato': s.per_lato,
                 'avviamento': s.avviamento,
                 'a_cedimento': s.a_cedimento,
+                'barra_kg': float(s.barra_kg) if s.barra_kg is not None else None,
                 'durata': s.durata,
                 'order': s.order,
             })
@@ -410,6 +429,7 @@ def import_sessions(request):
                         per_lato=bool(s.get('per_lato', False)),
                         avviamento=bool(s.get('avviamento', False)),
                         a_cedimento=bool(s.get('a_cedimento', False)),
+                        barra_kg=s.get('barra_kg'),
                         durata=s.get('durata'),
                         order=s.get('order', i),
                     )
@@ -438,6 +458,7 @@ def export_session(request, session_id):
             'per_lato': s.per_lato,
             'avviamento': s.avviamento,
             'a_cedimento': s.a_cedimento,
+            'barra_kg': float(s.barra_kg) if s.barra_kg is not None else None,
             'order': s.order,
         })
     data = [{'data': session.data.strftime('%Y-%m-%d'), 'note': session.note or '', 'sets': sets}]
@@ -574,17 +595,27 @@ def export_exercises_json(request):
 
 @login_required
 def exercise_weight_history(request):
+    from django.db.models import F, ExpressionWrapper, DecimalField
+    from django.db.models.functions import Coalesce
+
     exercise_name = request.GET.get('exercise', '').strip()
     if not exercise_name:
         return JsonResponse({'points': []})
     exercise = Exercise.objects.filter(nome__iexact=exercise_name).first()
     if not exercise:
         return JsonResponse({'points': []})
+
+    total_expr = ExpressionWrapper(
+        Coalesce(F('weight'), 0) + Coalesce(F('barra_kg'), 0),
+        output_field=DecimalField(max_digits=7, decimal_places=2)
+    )
     rows = (
         WorkoutSet.objects
-        .filter(session__utente=request.user, exercise=exercise, weight__isnull=False)
+        .filter(session__utente=request.user, exercise=exercise)
+        .filter(models.Q(weight__isnull=False) | models.Q(barra_kg__isnull=False))
+        .annotate(total_w=total_expr)
         .values('session__data')
-        .annotate(max_weight=models.Max('weight'))
+        .annotate(max_weight=models.Max('total_w'))
         .order_by('session__data')
     )
     points = [
@@ -752,6 +783,7 @@ def import_session_from_user(request, username, session_id):
             per_lato=s.per_lato,
             avviamento=s.avviamento,
             a_cedimento=s.a_cedimento,
+            barra_kg=s.barra_kg,
             durata=s.durata,
             order=s.order,
         )
