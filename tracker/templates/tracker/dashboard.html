@@ -508,7 +508,7 @@
     function groupSets(sets) {
         var groups = [];
         sets.forEach(function(s) {
-            var key = (s.reps||'') + '|' + (s.weight||'') + '|' + (s.durata||'');
+            var key = (s.reps||'') + '|' + (s.weight||'') + '|' + (s.durata||'') + '|' + (s.rest_time||'');
             if (groups.length && groups[groups.length-1].key === key) {
                 groups[groups.length-1].count++;
             } else {
@@ -516,8 +516,10 @@
             }
         });
         return groups.map(function(g) {
-            var line = g.count + ' \xd7 ' + formatSetLine(g.set);
-            return line;
+            return {
+                line: g.count + ' \xd7 ' + formatSetLine(g.set),
+                rest_time: g.set.rest_time || null
+            };
         });
     }
 
@@ -604,8 +606,11 @@
                     if (sess.note) c += '<div style="font-size:8px;color:#888;font-style:italic;margin-bottom:4px;">"' + esc(sess.note) + '"</div>';
                     sess.exercises.forEach(function(ex) {
                         c += '<div style="font-size:10px;font-weight:700;color:#111;margin-bottom:1px;">' + esc(ex.nome) + '</div>';
-                        groupSets(ex.sets).forEach(function(line) {
-                            c += '<div style="font-size:8.5px;color:#555;padding-left:6px;margin-bottom:1px;">' + esc(line) + '</div>';
+                        groupSets(ex.sets).forEach(function(g) {
+                            c += '<div style="font-size:8.5px;color:#555;padding-left:6px;margin-bottom:1px;display:flex;justify-content:space-between;gap:4px;">';
+                            c += '<span>' + esc(g.line) + '</span>';
+                            if (g.rest_time) c += '<span style="color:#aaa;white-space:nowrap;">[' + g.rest_time + 's]</span>';
+                            c += '</div>';
                         });
                         c += '<div style="height:5px;"></div>';
                     });

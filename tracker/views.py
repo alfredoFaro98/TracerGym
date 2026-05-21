@@ -148,6 +148,8 @@ def weekly_sessions_data(request):
                     entry['barra_kg'] = float(ws.barra_kg)
                 if ws.per_lato:
                     entry['per_lato'] = True
+                if ws.rest_time:
+                    entry['rest_time'] = ws.rest_time
                 exercises[ex].append(entry)
             sessions_data.append({
                 'id': s.id,
