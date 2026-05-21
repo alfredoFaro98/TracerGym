@@ -146,6 +146,8 @@ def weekly_sessions_data(request):
                     entry['a_cedimento'] = True
                 if ws.barra_kg is not None:
                     entry['barra_kg'] = float(ws.barra_kg)
+                if ws.per_lato:
+                    entry['per_lato'] = True
                 exercises[ex].append(entry)
             sessions_data.append({
                 'id': s.id,

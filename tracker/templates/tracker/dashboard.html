@@ -501,6 +501,7 @@
         else if (repsLabel) parts.push(repsLabel);
         else if (weightLabel) parts.push(weightLabel);
         if (s.durata) parts.push(s.durata + 's');
+        if (s.per_lato) parts.push('\xd7 L');
         return parts.join(' \xb7 ') || '—';
     }
 
