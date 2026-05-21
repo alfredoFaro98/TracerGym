@@ -595,9 +595,6 @@ def export_exercises_json(request):
 
 @login_required
 def exercise_weight_history(request):
-    from django.db.models import F, ExpressionWrapper, DecimalField, Case, When
-    from django.db.models.functions import Coalesce
-
     exercise_name = request.GET.get('exercise', '').strip()
     if not exercise_name:
         return JsonResponse({'points': []})
@@ -605,24 +602,24 @@ def exercise_weight_history(request):
     if not exercise:
         return JsonResponse({'points': []})
 
-    base = Coalesce(F('weight'), 0) + Coalesce(F('barra_kg'), 0)
-    total_expr = ExpressionWrapper(
-        Case(When(per_lato=True, then=base * 2), default=base),
-        output_field=DecimalField(max_digits=7, decimal_places=2)
-    )
     rows = (
         WorkoutSet.objects
         .filter(session__utente=request.user, exercise=exercise)
         .filter(models.Q(weight__isnull=False) | models.Q(barra_kg__isnull=False))
-        .annotate(total_w=total_expr)
-        .values('session__data')
-        .annotate(max_weight=models.Max('total_w'))
+        .values('session__data', 'weight', 'barra_kg', 'per_lato')
         .order_by('session__data')
     )
-    points = [
-        {'date': r['session__data'].strftime('%Y-%m-%d'), 'weight': float(r['max_weight'])}
-        for r in rows
-    ]
+
+    day_max = {}
+    for r in rows:
+        total = float(r['weight'] or 0) + float(r['barra_kg'] or 0)
+        if r['per_lato']:
+            total *= 2
+        d = r['session__data'].strftime('%Y-%m-%d')
+        if d not in day_max or total > day_max[d]:
+            day_max[d] = total
+
+    points = [{'date': d, 'weight': w} for d, w in sorted(day_max.items())]
     return JsonResponse({'points': points, 'exercise': exercise.nome})
 
 
