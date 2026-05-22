@@ -12,7 +12,7 @@ import time
 from datetime import datetime, date, timedelta
 from django.utils import timezone
 from django.contrib.auth.models import User
-from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage
+from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit
 
 
 @login_required
@@ -181,21 +181,20 @@ def session_detail(request, session_id):
         avviamento = request.POST.get('avviamento') == 'on'
         a_cedimento = request.POST.get('a_cedimento') == 'on'
         barra_kg = request.POST.get('barra_kg') or None
-        num_sets = int(request.POST.get('num_sets') or 1)
+        circuit_id = request.POST.get('circuit_id') or None
 
         exercise = Exercise.objects.filter(nome__iexact=exercise_name).first()
         if not exercise:
-            all_sets = list(session.sets.select_related('exercise').order_by('order', 'id'))
-            exercise_groups = []
-            for _, grp in groupby(all_sets, key=lambda s: s.exercise_id):
-                grp_list = list(grp)
-                exercise_groups.append({'exercise': grp_list[0].exercise, 'sets': grp_list, 'count': len(grp_list)})
             return render(request, 'tracker/session_detail.html', {
-                'session': session,
-                'exercise_groups': exercise_groups,
+                **_build_session_context(session),
                 'error_exercise': f'"{exercise_name}" non è nella lista degli esercizi. Seleziona un esercizio dalla lista.',
             })
 
+        circuit = None
+        if circuit_id:
+            circuit = Circuit.objects.filter(id=circuit_id, session=session).first()
+
+        num_sets = 1 if circuit else int(request.POST.get('num_sets') or 1)
         base_order = session.sets.count()
         for i in range(max(1, min(num_sets, 20))):
             WorkoutSet.objects.create(
@@ -210,24 +209,34 @@ def session_detail(request, session_id):
                 avviamento=avviamento,
                 a_cedimento=a_cedimento,
                 barra_kg=barra_kg,
+                circuit=circuit,
             )
         url = reverse('session_detail', kwargs={'session_id': session.id})
+        if circuit:
+            return redirect(f'{url}?opencircuit={circuit.id}')
         return redirect(f'{url}?open={exercise.id}')
 
-    all_sets = list(session.sets.select_related('exercise').order_by('order', 'id'))
-    exercise_groups = []
-    for _, grp in groupby(all_sets, key=lambda s: s.exercise_id):
-        grp_list = list(grp)
-        exercise_groups.append({
-            'exercise': grp_list[0].exercise,
-            'sets': grp_list,
-            'count': len(grp_list),
-        })
+    return render(request, 'tracker/session_detail.html', _build_session_context(session))
 
-    return render(request, 'tracker/session_detail.html', {
-        'session': session,
-        'exercise_groups': exercise_groups,
-    })
+
+def _build_session_context(session):
+    normal_sets = list(session.sets.filter(circuit__isnull=True).select_related('exercise').order_by('order', 'id'))
+    exercise_groups = []
+    for _, grp in groupby(normal_sets, key=lambda s: s.exercise_id):
+        grp_list = list(grp)
+        exercise_groups.append({'exercise': grp_list[0].exercise, 'sets': grp_list, 'count': len(grp_list)})
+
+    circuits_qs = session.circuits.prefetch_related('sets__exercise').order_by('order', 'id')
+    circuit_items = []
+    for circuit in circuits_qs:
+        c_sets = list(circuit.sets.select_related('exercise').order_by('order', 'id'))
+        c_groups = []
+        for _, grp in groupby(c_sets, key=lambda s: s.exercise_id):
+            grp_list = list(grp)
+            c_groups.append({'exercise': grp_list[0].exercise, 'sets': grp_list})
+        circuit_items.append({'circuit': circuit, 'exercise_groups': c_groups})
+
+    return {'session': session, 'exercise_groups': exercise_groups, 'circuit_items': circuit_items}
 
 def register(request):
     if request.method == 'POST':
@@ -242,19 +251,61 @@ def register(request):
     return render(request, 'tracker/register.html', {'form': form})
 
 @login_required
+def create_circuit(request, session_id):
+    session = get_object_or_404(WorkoutSession, id=session_id, utente=request.user)
+    if request.method == 'POST':
+        nome = request.POST.get('nome', '').strip()
+        rounds = int(request.POST.get('rounds') or 3)
+        rest_tra_round = request.POST.get('rest_tra_round') or None
+        order = session.circuits.count()
+        circuit = Circuit.objects.create(
+            session=session, nome=nome, rounds=rounds,
+            rest_tra_round=rest_tra_round, order=order,
+        )
+        url = reverse('session_detail', kwargs={'session_id': session_id})
+        return redirect(f'{url}?opencircuit={circuit.id}')
+    return redirect('session_detail', session_id=session_id)
+
+
+@login_required
+def edit_circuit(request, circuit_id):
+    circuit = get_object_or_404(Circuit, id=circuit_id, session__utente=request.user)
+    if request.method == 'POST':
+        circuit.nome = request.POST.get('nome', '').strip()
+        circuit.rounds = int(request.POST.get('rounds') or circuit.rounds)
+        circuit.rest_tra_round = request.POST.get('rest_tra_round') or None
+        circuit.save()
+    url = reverse('session_detail', kwargs={'session_id': circuit.session_id})
+    return redirect(f'{url}?opencircuit={circuit.id}')
+
+
+@login_required
+def delete_circuit(request, circuit_id):
+    circuit = get_object_or_404(Circuit, id=circuit_id, session__utente=request.user)
+    session_id = circuit.session_id
+    if request.method == 'POST':
+        circuit.sets.all().delete()
+        circuit.delete()
+    return redirect('session_detail', session_id=session_id)
+
+
+@login_required
 def delete_set(request, set_id):
     # Recupera il set solo se la sessione appartiene all'utente loggato
     workout_set = get_object_or_404(WorkoutSet, id=set_id, session__utente=request.user)
     session_id = workout_set.session.id
+    circuit_id = workout_set.circuit_id
     if request.method == 'POST':
         workout_set.delete()
-    return redirect('session_detail', session_id=session_id)
+    url = reverse('session_detail', kwargs={'session_id': session_id})
+    if circuit_id:
+        return redirect(f'{url}?opencircuit={circuit_id}')
+    return redirect(url)
 
 @login_required
 def duplicate_set(request, set_id):
     original = get_object_or_404(WorkoutSet, id=set_id, session__utente=request.user)
     if request.method == 'POST':
-        # Shifta di 1 tutte le serie che vengono dopo quella originale
         original.session.sets.filter(order__gt=original.order).update(order=models.F('order') + 1)
         new_set = WorkoutSet.objects.create(
             session=original.session,
@@ -268,17 +319,20 @@ def duplicate_set(request, set_id):
             a_cedimento=original.a_cedimento,
             barra_kg=original.barra_kg,
             order=original.order + 1,
+            circuit=original.circuit,
         )
         new_set.muscles.set(original.muscles.all())
     url = reverse('session_detail', kwargs={'session_id': original.session.id})
+    if original.circuit_id:
+        return redirect(f'{url}?opencircuit={original.circuit_id}')
     return redirect(f'{url}?open={original.exercise_id}')
 
 @login_required
 def edit_set(request, set_id):
     workout_set = get_object_or_404(WorkoutSet, id=set_id, session__utente=request.user)
+    circuit_id = workout_set.circuit_id
     if request.method == 'POST':
         exercise_name = request.POST.get('exercise_name', '').strip()
-        reps = request.POST.get('reps')
         weight = request.POST.get('weight') or None
         rest_time = request.POST.get('rest_time') or None
         if exercise_name:
@@ -295,6 +349,8 @@ def edit_set(request, set_id):
         workout_set.barra_kg = request.POST.get('barra_kg') or None
         workout_set.save()
     url = reverse('session_detail', kwargs={'session_id': workout_set.session.id})
+    if circuit_id:
+        return redirect(f'{url}?opencircuit={circuit_id}')
     return redirect(f'{url}?open={workout_set.exercise_id}')
 
 @login_required
@@ -302,19 +358,27 @@ def duplicate_session(request, session_id):
     original = get_object_or_404(WorkoutSession, id=session_id, utente=request.user)
     if request.method == 'POST':
         new_session = WorkoutSession.objects.create(utente=request.user)
-        for s in original.sets.all():
+        for s in original.sets.filter(circuit__isnull=True).order_by('order', 'id'):
             WorkoutSet.objects.create(
-                session=new_session,
-                exercise=s.exercise,
-                reps=s.reps,
-                durata=s.durata,
-                weight=s.weight,
-                rest_time=s.rest_time,
-                per_lato=s.per_lato,
-                avviamento=s.avviamento,
-                a_cedimento=s.a_cedimento,
-                barra_kg=s.barra_kg,
+                session=new_session, exercise=s.exercise,
+                reps=s.reps, durata=s.durata, weight=s.weight,
+                rest_time=s.rest_time, per_lato=s.per_lato,
+                avviamento=s.avviamento, a_cedimento=s.a_cedimento,
+                barra_kg=s.barra_kg, order=s.order,
             )
+        for c in original.circuits.order_by('order', 'id'):
+            new_circuit = Circuit.objects.create(
+                session=new_session, nome=c.nome,
+                rounds=c.rounds, rest_tra_round=c.rest_tra_round, order=c.order,
+            )
+            for s in c.sets.order_by('order', 'id'):
+                WorkoutSet.objects.create(
+                    session=new_session, exercise=s.exercise,
+                    reps=s.reps, durata=s.durata, weight=s.weight,
+                    rest_time=s.rest_time, per_lato=s.per_lato,
+                    avviamento=s.avviamento, a_cedimento=s.a_cedimento,
+                    barra_kg=s.barra_kg, order=s.order, circuit=new_circuit,
+                )
         return redirect('session_detail', session_id=new_session.id)
     return redirect('session_detail', session_id=session_id)
 

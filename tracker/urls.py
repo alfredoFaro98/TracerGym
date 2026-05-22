@@ -40,4 +40,7 @@ urlpatterns = [
     path('profile/toggle-visibility/', views.toggle_profile_visibility, name='toggle_profile_visibility'),
     path('body-map/', views.body_map, name='body_map'),
     path('sessions/week/', views.weekly_sessions_data, name='weekly_sessions_data'),
+    path('session/<int:session_id>/circuit/create/', views.create_circuit, name='create_circuit'),
+    path('circuit/<int:circuit_id>/edit/', views.edit_circuit, name='edit_circuit'),
+    path('circuit/<int:circuit_id>/delete/', views.delete_circuit, name='delete_circuit'),
 ]

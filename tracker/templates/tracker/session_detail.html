@@ -239,6 +239,138 @@
                 {% endfor %}
             </div>
             {% endif %}
+
+            <!-- ── Circuits ── -->
+            {% if circuit_items %}
+            <div class="tracer-card" style="overflow: hidden; margin-top: 16px;">
+                <div style="padding: 13px 16px; border-bottom: 1px solid #16162a; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="font-size: 10.5px; font-weight: 700; color: #3a3a52; text-transform: uppercase; letter-spacing: 1px;">Circuiti</div>
+                    <div style="font-size: 11px; color: #34344e; font-family: 'JetBrains Mono', monospace;">{{ circuit_items|length }} circuiti</div>
+                </div>
+                {% for item in circuit_items %}
+                <div style="border-bottom: 1px solid #0e0e1e;">
+                    <!-- Circuit header row -->
+                    <div style="padding: 13px 16px; display: flex; align-items: center; gap: 12px; transition: background .12s;" onmouseover="this.style.background='#0f0f1c'" onmouseout="this.style.background='transparent'">
+                        <div onclick="toggleCircuit({{ item.circuit.id }})" style="flex: 1; cursor: pointer; user-select: none;">
+                            <div style="font-size: 13px; font-weight: 700; color: #e8e8f8;">{% if item.circuit.nome %}{{ item.circuit.nome }}{% else %}Circuito #{{ forloop.counter }}{% endif %}</div>
+                            <div style="font-size: 11px; color: #484862; margin-top: 2px;">{{ item.circuit.rounds }} round{% if item.circuit.rest_tra_round %} &middot; {{ item.circuit.rest_tra_round }}s recupero{% endif %}</div>
+                        </div>
+                        <span style="padding: 3px 9px; background: rgba(106,159,216,.07); border: 1px solid rgba(106,159,216,.14); border-radius: 5px; font-size: 11px; color: #6a9fd8; font-weight: 600; font-family: 'JetBrains Mono', monospace;">{{ item.circuit.rounds }}×</span>
+                        <button onclick="toggleCircuitEdit({{ item.circuit.id }})" style="padding: 4px 8px; background: rgba(96,96,200,.07); border: 1px solid rgba(96,96,200,.18); border-radius: 6px; color: #7878c0; font-size: 11px; cursor: pointer; font-weight: 600;">Modifica</button>
+                        <form action="{% url 'delete_circuit' item.circuit.id %}" method="post" style="display:inline;" onsubmit="return confirm('Eliminare circuito e tutte le sue serie?');">
+                            {% csrf_token %}
+                            <button type="submit" style="padding: 4px 8px; background: rgba(248,81,73,.07); border: 1px solid rgba(248,81,73,.14); border-radius: 6px; color: #f85149; font-size: 11px; cursor: pointer; font-weight: 600;">Elimina</button>
+                        </form>
+                    </div>
+                    <!-- Inline edit circuit form -->
+                    <div id="circuit-edit-{{ item.circuit.id }}" style="display: none; padding: 10px 16px; background: #0d0d1a; border-top: 1px solid #0e0e1e;">
+                        <form action="{% url 'edit_circuit' item.circuit.id %}" method="post" novalidate style="display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end;">
+                            {% csrf_token %}
+                            <div>
+                                <label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Nome</label>
+                                <input type="text" name="nome" value="{{ item.circuit.nome }}" class="tracer-input" style="width: 140px;" placeholder="Circuito A">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Round</label>
+                                <input type="number" name="rounds" value="{{ item.circuit.rounds }}" class="tracer-input" style="width: 60px;" min="1" required>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Recupero tra round (s)</label>
+                                <input type="number" name="rest_tra_round" value="{{ item.circuit.rest_tra_round|default:'' }}" class="tracer-input" style="width: 90px;" min="0" placeholder="Opc.">
+                            </div>
+                            <button type="submit" class="btn-primary-gradient" style="padding: 7px 13px; font-size: 12px;">Salva</button>
+                            <button type="button" onclick="toggleCircuitEdit({{ item.circuit.id }})" style="padding: 7px 11px; font-size: 12px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #484862; cursor: pointer;">Annulla</button>
+                        </form>
+                    </div>
+                    <!-- Circuit body (collapsible) -->
+                    <div id="circuit-body-{{ item.circuit.id }}" style="display: none; flex-direction: column;">
+                        {% for group in item.exercise_groups %}
+                        <div style="border-top: 1px solid #0e0e1e; padding: 10px 16px 6px;">
+                            <div style="font-size: 12px; font-weight: 600; color: #c0c0d0; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+                                {{ group.exercise.nome }}
+                                <span style="font-size: 10px; color: #484862; font-family: 'JetBrains Mono', monospace;">{{ group.sets|length }} serie</span>
+                            </div>
+                            {% for set in group.sets %}
+                            <div style="margin-bottom: 3px;">
+                                <div id="row-{{ set.id }}" style="padding: 8px 10px; border-radius: 7px; background: #0a0a12; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                    <span style="font-size: 10px; font-weight: 700; color: #2e2e46; font-family: 'JetBrains Mono', monospace; min-width: 20px;">#{{ forloop.counter }}</span>
+                                    {% if set.avviamento %}<span style="font-size: 9px; font-weight: 700; color: #6a9fd8; background: rgba(106,159,216,.12); border: 1px solid rgba(106,159,216,.25); border-radius: 4px; padding: 1px 5px; letter-spacing: .4px;">AVV</span>{% endif %}
+                                    {% if set.a_cedimento %}<span style="font-size: 9px; font-weight: 700; color: #e05a6a; background: rgba(224,90,106,.12); border: 1px solid rgba(224,90,106,.25); border-radius: 4px; padding: 1px 5px; letter-spacing: .4px;">CED</span>{% endif %}
+                                    {% if set.durata and set.reps %}<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #f0f0f3;">{{ set.reps }}<span style="font-size: 10px; font-weight: 400; color: #484862; margin-left: 2px;">×</span> {{ set.durata }}<span style="font-size: 10px; font-weight: 400; color: #484862; margin-left: 1px;">s</span></span>
+                                    {% elif set.durata %}<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #f0f0f3;">{{ set.durata }}<span style="font-size: 10px; font-weight: 400; color: #484862; margin-left: 2px;">s</span></span>
+                                    {% elif set.reps %}<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #f0f0f3;">{{ set.reps }}<span style="font-size: 10px; font-weight: 400; color: #484862; margin-left: 2px;">reps</span></span>
+                                    {% endif %}
+                                    {% if set.weight or set.barra_kg %}<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #c0c0d8;">{% if set.weight %}× {{ set.weight }}<span style="font-size: 10px; color: #38384e;"> kg</span>{% endif %}{% if set.barra_kg %}<span style="font-size: 10px; color: #a0c878; margin-left: 4px;">+{{ set.barra_kg }} sbarra</span>{% endif %}{% if set.per_lato %}<span style="font-size: 10px; color: #f0883e; margin-left: 4px; font-weight: 700;">/ lato</span>{% endif %}</span>{% endif %}
+                                    {% if set.rest_time %}<span style="font-size: 11px; color: #404058; font-family: 'JetBrains Mono', monospace;">{{ set.rest_time }}s</span>{% endif %}
+                                    <div style="margin-left: auto; display: flex; gap: 4px;">
+                                        <button onclick="toggleEditRow(this.dataset.id)" data-id="{{ set.id }}" style="padding: 4px 8px; background: rgba(96,96,200,.07); border: 1px solid rgba(96,96,200,.18); border-radius: 6px; color: #7878c0; font-size: 11px; cursor: pointer; font-weight: 600;">Modifica</button>
+                                        <form action="{% url 'duplicate_set' set.id %}" method="post" style="display:inline;">{% csrf_token %}<button type="submit" style="padding: 4px 8px; background: rgba(96,160,96,.07); border: 1px solid rgba(96,160,96,.18); border-radius: 6px; color: #60a060; font-size: 11px; cursor: pointer; font-weight: 600;">Duplica</button></form>
+                                        <form action="{% url 'delete_set' set.id %}" method="post" style="display:inline;" onsubmit="return confirm('Eliminare?');">{% csrf_token %}<button type="submit" style="padding: 4px 8px; background: rgba(248,81,73,.07); border: 1px solid rgba(248,81,73,.14); border-radius: 6px; color: #f85149; font-size: 11px; cursor: pointer; font-weight: 600;">Elimina</button></form>
+                                    </div>
+                                </div>
+                                <div id="edit-row-{{ set.id }}" style="display: none; padding: 10px 12px; background: #0d0d1a; border-radius: 7px; margin-top: 4px;">
+                                    <form action="{% url 'edit_set' set.id %}" method="post" novalidate style="display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end;">
+                                        {% csrf_token %}
+                                        <div><label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Esercizio</label><input type="text" name="exercise_name" value="{{ set.exercise.nome }}" class="tracer-input" style="width: 150px;" autocomplete="off"></div>
+                                        <div><label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Reps</label><input type="number" name="reps" value="{{ set.reps|default:'' }}" class="tracer-input" style="width: 65px;" min="1"></div>
+                                        <div><label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Durata (s)</label><input type="number" name="durata" value="{{ set.durata|default:'' }}" class="tracer-input" style="width: 75px;" min="1"></div>
+                                        <div><label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Peso (kg)</label><input type="number" step="any" name="weight" value="{{ set.weight|default:'' }}" class="tracer-input" style="width: 75px;" min="0"></div>
+                                        <div><label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Recupero (s)</label><input type="number" name="rest_time" value="{{ set.rest_time|default:'' }}" class="tracer-input" style="width: 75px;" min="0"></div>
+                                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding-bottom: 2px; white-space: nowrap;"><input type="checkbox" name="per_lato" {% if set.per_lato %}checked{% endif %} style="width: 14px; height: 14px; accent-color: #f0883e; cursor: pointer;"><span style="font-size: 11px; font-weight: 600; color: #787890;">Per lato</span></label>
+                                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding-bottom: 2px; white-space: nowrap;"><input type="checkbox" name="avviamento" {% if set.avviamento %}checked{% endif %} style="width: 14px; height: 14px; accent-color: #6a9fd8; cursor: pointer;"><span style="font-size: 11px; font-weight: 600; color: #787890;">Avviamento</span></label>
+                                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding-bottom: 2px; white-space: nowrap;"><input type="checkbox" name="a_cedimento" {% if set.a_cedimento %}checked{% endif %} style="width: 14px; height: 14px; accent-color: #e05a6a; cursor: pointer;"><span style="font-size: 11px; font-weight: 600; color: #787890;">A cedimento</span></label>
+                                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding-bottom: 2px; white-space: nowrap;" onclick="toggleBarraEdit(event, '{{ set.id }}')"><input type="checkbox" id="barra-check-{{ set.id }}" {% if set.barra_kg %}checked{% endif %} style="width: 14px; height: 14px; accent-color: #a0c878; cursor: pointer;"><span style="font-size: 11px; font-weight: 600; color: #787890;">+Sbarra</span></label>
+                                        <div id="barra-wrap-{{ set.id }}" data-barra-show="{% if set.barra_kg %}1{% else %}0{% endif %}" style="display:none; align-items: flex-end; gap: 6px;"><div><label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Sbarra (kg)</label><input type="number" step="any" name="barra_kg" id="barra-input-{{ set.id }}" value="{{ set.barra_kg|default:'' }}" class="tracer-input" style="width: 70px;" min="0"></div></div>
+                                        <button type="submit" class="btn-primary-gradient" style="padding: 7px 13px; font-size: 12px;">Salva</button>
+                                        <button type="button" onclick="toggleEditRow(this.dataset.id)" data-id="{{ set.id }}" style="padding: 7px 11px; font-size: 12px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #484862; cursor: pointer;">Annulla</button>
+                                    </form>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+                        <!-- Add exercise to circuit -->
+                        <div style="padding: 12px 16px; border-top: 1px solid #0e0e1e;">
+                            <button onclick="toggleCircuitAddForm({{ item.circuit.id }})" style="width: 100%; padding: 8px; background: rgba(106,159,216,.05); border: 1px dashed rgba(106,159,216,.2); border-radius: 7px; color: #5a7aa0; font-size: 11px; font-weight: 600; cursor: pointer; transition: all .12s;" onmouseover="this.style.borderColor='rgba(106,159,216,.4)';this.style.color='#6a9fd8'" onmouseout="this.style.borderColor='rgba(106,159,216,.2)';this.style.color='#5a7aa0'">+ Aggiungi esercizio al circuito</button>
+                            <div id="circuit-add-{{ item.circuit.id }}" style="display: none; margin-top: 12px;">
+                                <form action="{% url 'session_detail' session.id %}" method="post" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="circuit_id" value="{{ item.circuit.id }}">
+                                    <div><label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Esercizio</label><input type="text" name="exercise_name" class="tracer-input" style="width: 160px;" placeholder="Cerca esercizio…" required autocomplete="off" data-valid="false"></div>
+                                    <div><label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Reps</label><input type="number" name="reps" class="tracer-input" style="width: 60px;" placeholder="10" min="1"></div>
+                                    <div><label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Durata (s)</label><input type="number" name="durata" class="tracer-input" style="width: 70px;" placeholder="Opc." min="1"></div>
+                                    <div><label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Peso (kg)</label><input type="number" step="0.5" name="weight" class="tracer-input" style="width: 70px;" placeholder="Opc." min="0"></div>
+                                    <div><label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Recupero (s)</label><input type="number" name="rest_time" class="tracer-input" style="width: 70px;" placeholder="Opc." min="0"></div>
+                                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding-bottom: 2px; white-space: nowrap;"><input type="checkbox" name="per_lato" style="width: 14px; height: 14px; accent-color: #f0883e; cursor: pointer;"><span style="font-size: 11px; font-weight: 600; color: #787890;">Per lato</span></label>
+                                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding-bottom: 2px; white-space: nowrap;"><input type="checkbox" name="a_cedimento" style="width: 14px; height: 14px; accent-color: #e05a6a; cursor: pointer;"><span style="font-size: 11px; font-weight: 600; color: #787890;">A cedimento</span></label>
+                                    <button type="submit" class="btn-primary-gradient" style="padding: 7px 13px; font-size: 12px;">Aggiungi</button>
+                                    <button type="button" onclick="toggleCircuitAddForm({{ item.circuit.id }})" style="padding: 7px 11px; font-size: 12px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #484862; cursor: pointer;">Annulla</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Nuovo Circuito -->
+            <div style="margin-top: 14px;">
+                <button onclick="toggleNewCircuitForm()" style="width: 100%; padding: 10px; background: rgba(106,159,216,.04); border: 1px dashed rgba(106,159,216,.2); border-radius: 9px; color: #4a6a8a; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .12s;" onmouseover="this.style.borderColor='rgba(106,159,216,.4)';this.style.color='#6a9fd8'" onmouseout="this.style.borderColor='rgba(106,159,216,.2)';this.style.color='#4a6a8a'">⊕ Nuovo Circuito</button>
+                <div id="new-circuit-form" style="display: none; margin-top: 12px;">
+                    <div class="tracer-card" style="padding: 16px;">
+                        <div style="font-size: 10.5px; font-weight: 700; color: #3a3a52; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Nuovo Circuito</div>
+                        <form action="{% url 'create_circuit' session.id %}" method="post" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end;">
+                            {% csrf_token %}
+                            <div><label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Nome (opc.)</label><input type="text" name="nome" class="tracer-input" style="width: 150px;" placeholder="Circuito A"></div>
+                            <div><label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Round</label><input type="number" name="rounds" class="tracer-input" style="width: 60px;" value="3" min="1" required></div>
+                            <div><label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Recupero tra round (s)</label><input type="number" name="rest_tra_round" class="tracer-input" style="width: 90px;" placeholder="Opc." min="0"></div>
+                            <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12px;">Crea Circuito</button>
+                            <button type="button" onclick="toggleNewCircuitForm()" style="padding: 8px 12px; font-size: 12px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #484862; cursor: pointer;">Annulla</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -356,16 +488,38 @@ function toggleAllGroups(btn) {
     btn.textContent = anyOpen ? 'Espandi tutto' : 'Comprimi tutto';
 }
 document.addEventListener('DOMContentLoaded', function() {
-    var openId = new URLSearchParams(window.location.search).get('open');
+    var params = new URLSearchParams(window.location.search);
+    var openId = params.get('open');
     if (openId) {
         document.querySelectorAll('[data-ex-id]').forEach(function(el) {
             if (el.dataset.exId === openId) el.style.display = 'flex';
         });
     }
+    var openCircuitId = params.get('opencircuit');
+    if (openCircuitId) {
+        var body = document.getElementById('circuit-body-' + openCircuitId);
+        if (body) body.style.display = 'flex';
+    }
     document.querySelectorAll('[data-barra-show="1"]').forEach(function(el) {
         el.style.display = 'flex';
     });
 });
+function toggleCircuit(id) {
+    var body = document.getElementById('circuit-body-' + id);
+    body.style.display = body.style.display === 'flex' ? 'none' : 'flex';
+}
+function toggleCircuitEdit(id) {
+    var form = document.getElementById('circuit-edit-' + id);
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+function toggleCircuitAddForm(id) {
+    var form = document.getElementById('circuit-add-' + id);
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+function toggleNewCircuitForm() {
+    var form = document.getElementById('new-circuit-form');
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
 function toggleBarraAdd(e) {
     e.preventDefault();
     var cb = document.getElementById('barra-check-add');
