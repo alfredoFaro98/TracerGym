@@ -43,4 +43,5 @@ urlpatterns = [
     path('session/<int:session_id>/circuit/create/', views.create_circuit, name='create_circuit'),
     path('circuit/<int:circuit_id>/edit/', views.edit_circuit, name='edit_circuit'),
     path('circuit/<int:circuit_id>/delete/', views.delete_circuit, name='delete_circuit'),
+    path('circuit/<int:circuit_id>/reorder/', views.reorder_circuit_exercises, name='reorder_circuit_exercises'),
 ]

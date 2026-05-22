@@ -118,9 +118,20 @@ def weekly_sessions_data(request):
     sessions = (
         WorkoutSession.objects
         .filter(utente=request.user, data__gte=monday, data__lte=sunday)
-        .prefetch_related('sets__exercise')
+        .prefetch_related('sets__exercise', 'circuits__sets__exercise')
         .order_by('data', 'id')
     )
+
+    def _ws_entry(ws):
+        entry = {}
+        if ws.reps: entry['reps'] = ws.reps
+        if ws.weight is not None: entry['weight'] = float(ws.weight)
+        if ws.durata: entry['durata'] = ws.durata
+        if ws.a_cedimento: entry['a_cedimento'] = True
+        if ws.barra_kg is not None: entry['barra_kg'] = float(ws.barra_kg)
+        if ws.per_lato: entry['per_lato'] = True
+        if ws.rest_time: entry['rest_time'] = ws.rest_time
+        return entry
 
     days = []
     for i in range(7):
@@ -131,30 +142,34 @@ def weekly_sessions_data(request):
             exercises = {}
             order_list = []
             for ws in s.sets.all().order_by('order', 'id'):
+                if ws.circuit_id is not None:
+                    continue
                 ex = ws.exercise.nome
                 if ex not in exercises:
                     exercises[ex] = []
                     order_list.append(ex)
-                entry = {}
-                if ws.reps:
-                    entry['reps'] = ws.reps
-                if ws.weight is not None:
-                    entry['weight'] = float(ws.weight)
-                if ws.durata:
-                    entry['durata'] = ws.durata
-                if ws.a_cedimento:
-                    entry['a_cedimento'] = True
-                if ws.barra_kg is not None:
-                    entry['barra_kg'] = float(ws.barra_kg)
-                if ws.per_lato:
-                    entry['per_lato'] = True
-                if ws.rest_time:
-                    entry['rest_time'] = ws.rest_time
-                exercises[ex].append(entry)
+                exercises[ex].append(_ws_entry(ws))
+            circuit_list = []
+            for c in s.circuits.all().order_by('order', 'id'):
+                c_exercises = {}
+                c_order_list = []
+                for ws in c.sets.all().order_by('order', 'id'):
+                    ex = ws.exercise.nome
+                    if ex not in c_exercises:
+                        c_exercises[ex] = []
+                        c_order_list.append(ex)
+                    c_exercises[ex].append(_ws_entry(ws))
+                circuit_list.append({
+                    'nome': c.nome,
+                    'rounds': c.rounds,
+                    'rest_tra_round': c.rest_tra_round,
+                    'exercises': [{'nome': k, 'sets': c_exercises[k]} for k in c_order_list],
+                })
             sessions_data.append({
                 'id': s.id,
                 'note': s.note or '',
                 'exercises': [{'nome': k, 'sets': exercises[k]} for k in order_list],
+                'circuits': circuit_list,
             })
         days.append({'date': day_date.strftime('%Y-%m-%d'), 'sessions': sessions_data})
 
@@ -417,6 +432,22 @@ def reorder_exercises(request, session_id):
     order_counter = 0
     for exercise_id in exercise_ids:
         for ws in session.sets.filter(exercise_id=exercise_id).order_by('order', 'id'):
+            ws.order = order_counter
+            ws.save(update_fields=['order'])
+            order_counter += 1
+    return JsonResponse({'ok': True})
+
+
+@login_required
+def reorder_circuit_exercises(request, circuit_id):
+    if request.method != 'POST':
+        return JsonResponse({'ok': False}, status=405)
+    circuit = get_object_or_404(Circuit, id=circuit_id, session__utente=request.user)
+    data = json.loads(request.body)
+    exercise_ids = data.get('exercise_ids', [])
+    order_counter = 0
+    for exercise_id in exercise_ids:
+        for ws in circuit.sets.filter(exercise_id=exercise_id).order_by('order', 'id'):
             ws.order = order_counter
             ws.save(update_fields=['order'])
             order_counter += 1

@@ -565,6 +565,15 @@
                         html += '<div style="font-size:10.5px;font-weight:600;color:#c0c0d8;line-height:1.3;">' + esc(ex.nome) + '</div>';
                         html += '<div style="font-size:9px;color:#484860;margin-bottom:4px;">' + ex.sets.length + ' serie</div>';
                     });
+                    if (sess.circuits && sess.circuits.length) {
+                        sess.circuits.forEach(function(circ) {
+                            var cname = circ.nome || 'Circuito';
+                            html += '<div style="font-size:9.5px;font-weight:700;color:#6a9fd8;margin-top:3px;margin-bottom:1px;">' + esc(cname) + ' \xb7 ' + circ.rounds + '\xd7</div>';
+                            circ.exercises.forEach(function(ex) {
+                                html += '<div style="font-size:10px;font-weight:600;color:#8aaec8;line-height:1.3;padding-left:6px;">' + esc(ex.nome) + '</div>';
+                            });
+                        });
+                    }
                     html += '<a href="/session/' + sess.id + '/" style="font-size:9px;color:#3a3a5a;text-decoration:none;border-bottom:1px dotted #3a3a5a;" onmouseover="this.style.color=\'#7070b0\'" onmouseout="this.style.color=\'#3a3a5a\'">apri →</a>';
                 });
             }
@@ -614,6 +623,22 @@
                         });
                         c += '<div style="height:5px;"></div>';
                     });
+                    if (sess.circuits && sess.circuits.length) {
+                        sess.circuits.forEach(function(circ) {
+                            var cname = circ.nome || 'Circuito';
+                            c += '<div style="font-size:9px;font-weight:700;color:#3a6a9a;margin-top:4px;margin-bottom:2px;border-top:1px dashed #ddd;padding-top:3px;">' + esc(cname) + ' \xb7 ' + circ.rounds + '\xd7 round' + (circ.rest_tra_round ? ' \xb7 ' + circ.rest_tra_round + 's rec.' : '') + '</div>';
+                            circ.exercises.forEach(function(ex) {
+                                c += '<div style="font-size:10px;font-weight:700;color:#333;margin-bottom:1px;padding-left:4px;">' + esc(ex.nome) + '</div>';
+                                groupSets(ex.sets).forEach(function(g) {
+                                    c += '<div style="font-size:8.5px;color:#555;padding-left:10px;margin-bottom:1px;display:flex;justify-content:space-between;gap:4px;">';
+                                    c += '<span>' + esc(g.line) + '</span>';
+                                    if (g.rest_time) c += '<span style="color:#4a8a3a;white-space:nowrap;font-weight:600;">[' + g.rest_time + 's]</span>';
+                                    c += '</div>';
+                                });
+                                c += '<div style="height:4px;"></div>';
+                            });
+                        });
+                    }
                 });
             }
             c += '</div></td>';

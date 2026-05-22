@@ -283,10 +283,11 @@
                         </form>
                     </div>
                     <!-- Circuit body (collapsible) -->
-                    <div id="circuit-body-{{ item.circuit.id }}" style="display: none; flex-direction: column;">
+                    <div id="circuit-body-{{ item.circuit.id }}" data-reorder-url="{% url 'reorder_circuit_exercises' item.circuit.id %}" style="display: none; flex-direction: column;">
                         {% for group in item.exercise_groups %}
-                        <div style="border-top: 1px solid #0e0e1e; padding: 10px 16px 6px;">
+                        <div class="circuit-ex-group" data-exercise-id="{{ group.exercise.id }}" data-circuit-id="{{ item.circuit.id }}" style="border-top: 1px solid #0e0e1e; padding: 10px 16px 6px;">
                             <div style="font-size: 12px; font-weight: 600; color: #c0c0d0; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+                                <span class="drag-handle" title="Trascina per ordinare" style="cursor: grab; color: #2a2a3e; font-size: 15px; line-height: 1; flex-shrink: 0; user-select: none;">⠿</span>
                                 {{ group.exercise.nome }}
                                 <span style="font-size: 10px; color: #484862; font-family: 'JetBrains Mono', monospace;">{{ group.sets|length }} serie</span>
                             </div>
@@ -300,7 +301,7 @@
                                     {% elif set.durata %}<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #f0f0f3;">{{ set.durata }}<span style="font-size: 10px; font-weight: 400; color: #484862; margin-left: 2px;">s</span></span>
                                     {% elif set.reps %}<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #f0f0f3;">{{ set.reps }}<span style="font-size: 10px; font-weight: 400; color: #484862; margin-left: 2px;">reps</span></span>
                                     {% endif %}
-                                    {% if set.weight or set.barra_kg %}<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #c0c0d8;">{% if set.weight %}× {{ set.weight }}<span style="font-size: 10px; color: #38384e;"> kg</span>{% endif %}{% if set.barra_kg %}<span style="font-size: 10px; color: #a0c878; margin-left: 4px;">+{{ set.barra_kg }} sbarra</span>{% endif %}{% if set.per_lato %}<span style="font-size: 10px; color: #f0883e; margin-left: 4px; font-weight: 700;">/ lato</span>{% endif %}</span>{% endif %}
+                                    {% if set.weight or set.barra_kg %}<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #c0c0d8;">{% if set.weight %}× {{ set.weight }}<span style="font-size: 10px; color: #38384e;"> kg</span>{% endif %}{% if set.barra_kg %}<span style="font-size: 10px; color: #a0c878; margin-left: 4px;">+{{ set.barra_kg }} sbarra</span>{% endif %}</span>{% endif %}{% if set.per_lato %}<span style="font-size: 10px; color: #f0883e; font-weight: 700; margin-left: 4px;">/ lato</span>{% endif %}
                                     {% if set.rest_time %}<span style="font-size: 11px; color: #404058; font-family: 'JetBrains Mono', monospace;">{{ set.rest_time }}s</span>{% endif %}
                                     <div style="margin-left: auto; display: flex; gap: 4px;">
                                         <button onclick="toggleEditRow(this.dataset.id)" data-id="{{ set.id }}" style="padding: 4px 8px; background: rgba(96,96,200,.07); border: 1px solid rgba(96,96,200,.18); border-radius: 6px; color: #7878c0; font-size: 11px; cursor: pointer; font-weight: 600;">Modifica</button>
@@ -458,6 +459,32 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+    {% for item in circuit_items %}
+    <div style="margin-bottom: 18px; border: 1px solid #ccd; border-radius: 5px; overflow: hidden;">
+        <div style="padding: 8px 12px; background: #eef2f8; border-bottom: 1px solid #ccd; display: flex; align-items: center; gap: 10px;">
+            <div style="font-size: 13px; font-weight: 700; color: #333;">{% if item.circuit.nome %}{{ item.circuit.nome }}{% else %}Circuito #{{ forloop.counter }}{% endif %}</div>
+            <span style="font-size: 11px; font-weight: 600; color: #555; border: 1px solid #aab; border-radius: 4px; padding: 1px 7px;">{{ item.circuit.rounds }} round</span>
+            {% if item.circuit.rest_tra_round %}<span style="font-size: 11px; color: #888;">&middot; {{ item.circuit.rest_tra_round }}s recupero</span>{% endif %}
+        </div>
+        {% for group in item.exercise_groups %}
+        <div style="padding: 8px 12px;{% if not forloop.last %} border-bottom: 1px solid #eee;{% endif %}">
+            <div style="font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #444;">{{ group.exercise.nome }}</div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                <thead><tr style="background: #f8f8f8;"><th style="padding: 4px 8px; text-align: left; border: 1px solid #ddd;">#</th><th style="padding: 4px 8px; text-align: left; border: 1px solid #ddd;">Reps / Durata</th><th style="padding: 4px 8px; text-align: left; border: 1px solid #ddd;">Peso (kg)</th><th style="padding: 4px 8px; text-align: left; border: 1px solid #ddd;">Recupero (s)</th></tr></thead>
+                <tbody>
+                    {% for set in group.sets %}
+                    <tr>
+                        <td style="padding: 4px 8px; border: 1px solid #ddd; color: #999;">{{ forloop.counter }}</td>
+                        <td style="padding: 4px 8px; border: 1px solid #ddd; font-weight: 700;">{% if set.durata and set.reps %}{{ set.reps }} &times; {{ set.durata }}s{% elif set.durata %}{{ set.durata }}s{% elif set.a_cedimento %}CED{% elif set.reps %}{{ set.reps }}{% else %}&mdash;{% endif %}</td>
+                        <td style="padding: 4px 8px; border: 1px solid #ddd;">{% if set.a_cedimento %}<span style="font-size: 9px; color: #e05a6a; font-weight: 700; margin-right: 4px;">CED</span>{% endif %}{{ set.weight|default:"&mdash;" }}{% if set.barra_kg %} <span style="font-size: 10px; color: #5a8a3a;">+{{ set.barra_kg }} sbarra</span>{% endif %}{% if set.per_lato %} <span style="font-size: 10px; color: #888;">(per lato)</span>{% endif %}</td>
+                        <td style="padding: 4px 8px; border: 1px solid #ddd;">{{ set.rest_time|default:"&mdash;" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endfor %}
     </div>
     {% endfor %}
 </div>
@@ -724,6 +751,57 @@ function toggleBarraEdit(e, id) {
             body: JSON.stringify({ exercise_ids: ids })
         });
     }
+})();
+
+// --- Circuit exercises Drag & Drop ---
+(function() {
+    var dragEl = null;
+    function getCGroups(circuitId) {
+        return Array.from(document.querySelectorAll('.circuit-ex-group[data-circuit-id="' + circuitId + '"]'));
+    }
+    function attachCircuitDnD(el) {
+        el.setAttribute('draggable', 'true');
+        el.addEventListener('dragstart', function(e) {
+            dragEl = el;
+            setTimeout(function() { el.style.opacity = '0.4'; }, 0);
+            e.dataTransfer.effectAllowed = 'move';
+        });
+        el.addEventListener('dragend', function() {
+            el.style.opacity = '1';
+            document.querySelectorAll('.circuit-ex-group').forEach(function(g) { g.classList.remove('dnd-over'); });
+            saveCircuitOrder(el.dataset.circuitId);
+        });
+        el.addEventListener('dragover', function(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+        el.addEventListener('dragenter', function() {
+            if (dragEl !== el) {
+                document.querySelectorAll('.circuit-ex-group').forEach(function(g) { g.classList.remove('dnd-over'); });
+                el.classList.add('dnd-over');
+            }
+        });
+        el.addEventListener('drop', function(e) {
+            e.preventDefault();
+            if (dragEl && dragEl !== el && dragEl.dataset.circuitId === el.dataset.circuitId) {
+                var all = getCGroups(el.dataset.circuitId);
+                var fromIdx = all.indexOf(dragEl);
+                var toIdx = all.indexOf(el);
+                el.parentNode.insertBefore(dragEl, fromIdx < toIdx ? el.nextElementSibling : el);
+            }
+            el.classList.remove('dnd-over');
+        });
+    }
+    function saveCircuitOrder(circuitId) {
+        var ids = getCGroups(circuitId).map(function(g) { return parseInt(g.dataset.exerciseId); });
+        var bodyEl = document.getElementById('circuit-body-' + circuitId);
+        if (!bodyEl) return;
+        fetch(bodyEl.dataset.reorderUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+            body: JSON.stringify({ exercise_ids: ids })
+        });
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.circuit-ex-group').forEach(attachCircuitDnD);
+    });
 })();
 
 function toggleDateEdit() {
