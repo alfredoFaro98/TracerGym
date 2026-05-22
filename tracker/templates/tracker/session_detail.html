@@ -255,7 +255,7 @@
                             <div style="font-size: 13px; font-weight: 700; color: #e8e8f8;">{% if item.circuit.nome %}{{ item.circuit.nome }}{% else %}Circuito #{{ forloop.counter }}{% endif %}</div>
                             <div style="font-size: 11px; color: #484862; margin-top: 2px;">{{ item.circuit.rounds }} round{% if item.circuit.rest_tra_round %} &middot; {{ item.circuit.rest_tra_round }}s recupero{% endif %}</div>
                         </div>
-                        <span style="padding: 3px 9px; background: rgba(106,159,216,.07); border: 1px solid rgba(106,159,216,.14); border-radius: 5px; font-size: 11px; color: #6a9fd8; font-weight: 600; font-family: 'JetBrains Mono', monospace;">{{ item.circuit.rounds }}×</span>
+                        <span style="padding: 3px 9px; background: #ffe44d; border: 1px solid #f5d800; border-radius: 5px; font-size: 11px; color: #111; font-weight: 700; font-family: 'JetBrains Mono', monospace;">{{ item.circuit.rounds }} round</span>
                         <button onclick="toggleCircuitEdit({{ item.circuit.id }})" style="padding: 4px 8px; background: rgba(96,96,200,.07); border: 1px solid rgba(96,96,200,.18); border-radius: 6px; color: #7878c0; font-size: 11px; cursor: pointer; font-weight: 600;">Modifica</button>
                         <form action="{% url 'delete_circuit' item.circuit.id %}" method="post" style="display:inline;" onsubmit="return confirm('Eliminare circuito e tutte le sue serie?');">
                             {% csrf_token %}
