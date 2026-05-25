@@ -2,45 +2,439 @@
 
 {% block title %}Login - Tracer Workout{% endblock %}
 
+{% block extra_head %}
+<style>
+    .login-shell {
+        flex: 1;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 36px;
+        background:
+            radial-gradient(circle at left center, rgba(240, 114, 40, 0.12) 0%, transparent 18%),
+            radial-gradient(circle at center bottom, rgba(240, 114, 40, 0.08) 0%, transparent 30%),
+            #0a0a0c;
+    }
+
+    .login-stage {
+        width: min(100%, 1280px);
+        min-height: 790px;
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        background: linear-gradient(180deg, #15151a 0%, #141418 100%);
+        border: 1px solid #23232c;
+        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+    }
+
+    .login-showcase {
+        position: relative;
+        padding: 52px 58px;
+        background:
+            radial-gradient(circle at 20% 100%, rgba(240, 114, 40, 0.1) 0%, transparent 28%),
+            #15151a;
+        border-right: 1px solid #23232c;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .login-brand {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+    }
+
+    .login-brand-mark {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #ff8a40 0%, #e66b1c 100%);
+        box-shadow: 0 10px 24px rgba(240, 114, 40, 0.28);
+        color: #fff;
+    }
+
+    .login-brand-name {
+        font-size: 17px;
+        font-weight: 700;
+        color: #f5f5f7;
+        line-height: 1.1;
+    }
+
+    .login-brand-sub {
+        margin-top: 2px;
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #4a4a68;
+    }
+
+    .login-hero {
+        margin-top: 185px;
+        max-width: 450px;
+    }
+
+    .login-hero h1 {
+        font-size: 42px;
+        line-height: 1.12;
+        letter-spacing: -0.04em;
+        color: #f7f7fa;
+    }
+
+    .login-hero h1 span {
+        color: #ff7b2f;
+    }
+
+    .login-hero p {
+        margin-top: 20px;
+        font-size: 17px;
+        line-height: 1.7;
+        color: #666691;
+    }
+
+    .login-preview {
+        margin-top: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        max-width: 560px;
+    }
+
+    .login-activity {
+        background: rgba(29, 29, 37, 0.9);
+        border: 1px solid #282832;
+        border-radius: 16px;
+        padding: 20px 22px 18px;
+    }
+
+    .login-activity-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #4d4d6b;
+        margin-bottom: 16px;
+    }
+
+    .login-heatmap {
+        display: grid;
+        grid-template-columns: repeat(14, 10px);
+        gap: 4px;
+        align-content: start;
+    }
+
+    .login-heatmap span {
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        background: #f07228;
+        opacity: var(--cell-opacity, 1);
+    }
+
+    .login-kpis {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .login-kpi {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px 14px;
+        background: rgba(34, 34, 42, 0.92);
+        border: 1px solid #2c2c36;
+        border-radius: 12px;
+    }
+
+    .login-kpi-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .login-kpi-value {
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1;
+        color: #f3f3f6;
+    }
+
+    .login-kpi-label {
+        margin-top: 2px;
+        font-size: 10px;
+        color: #565676;
+    }
+
+    .login-panel {
+        background: #0e0e12;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 54px;
+    }
+
+    .login-card {
+        width: min(100%, 380px);
+    }
+
+    .login-card h2 {
+        font-size: 36px;
+        color: #f7f7fa;
+        letter-spacing: -0.03em;
+        margin-bottom: 10px;
+    }
+
+    .login-card p {
+        font-size: 15px;
+        color: #4c4c69;
+        margin-bottom: 34px;
+    }
+
+    .login-form {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .login-field label {
+        display: block;
+        margin-bottom: 9px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+        color: #40405a;
+    }
+
+    .login-input-wrap {
+        position: relative;
+    }
+
+    .login-input-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #444460;
+        pointer-events: none;
+    }
+
+    .login-input-wrap input {
+        width: 100%;
+        height: 44px;
+        padding: 0 14px 0 38px;
+        border-radius: 9px;
+        border: 1px solid #272732;
+        background: #1c1c22;
+        color: #f2f2f5;
+        font-size: 13px;
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .login-input-wrap input:focus {
+        border-color: rgba(240, 114, 40, 0.72);
+        box-shadow: 0 0 0 3px rgba(240, 114, 40, 0.08);
+    }
+
+    .login-error {
+        font-size: 12px;
+        color: #f87171;
+        background: rgba(248, 81, 73, 0.08);
+        border: 1px solid rgba(248, 81, 73, 0.16);
+        border-radius: 10px;
+        padding: 11px 12px;
+    }
+
+    .login-submit {
+        margin-top: 12px;
+        height: 48px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #ff832f 0%, #f36d20 100%);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 700;
+        box-shadow: 0 10px 24px rgba(240, 114, 40, 0.24);
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .login-submit:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 28px rgba(240, 114, 40, 0.28);
+    }
+
+    @media (max-width: 900px) {
+        html, body {
+            overflow: auto;
+        }
+
+        .main-content {
+            height: auto;
+        }
+
+        .login-shell {
+            padding: 16px;
+        }
+
+        .login-panel {
+            padding: 28px 22px 34px;
+        }
+
+        .login-card {
+            width: min(100%, 360px);
+        }
+    }
+
+    @media (max-width: 560px) {
+        .login-shell {
+            padding: 18px;
+        }
+
+        .login-stage {
+            width: min(100%, 420px);
+            min-height: auto;
+            display: block;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+
+        .login-showcase {
+            display: none;
+        }
+
+        .login-panel {
+            padding: 0;
+            background: transparent;
+        }
+
+        .login-card {
+            width: 100%;
+            padding: 28px 22px 30px;
+            background: #111116;
+            border: 1px solid #23232c;
+            border-radius: 18px;
+            box-shadow: 0 22px 60px rgba(0, 0, 0, 0.42);
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div style="flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; height: 100vh;">
-    <!-- Sfondo radiale -->
-    <div style="position: absolute; width: 700px; height: 700px; background: radial-gradient(circle, rgba(240,136,62,.055) 0%, transparent 65%); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none;"></div>
-    
-    <div class="page-enter responsive-card-width" style="width: 360px; background: #0d0d14; border: 1px solid #1e1e2c; border-radius: 14px; padding: 32px; z-index: 1;">
-        
-        <!-- Logo -->
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 28px;">
-            <div style="width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg, #f0883e, #c85c1a); display: flex; align-items: center; justify-content: center;">
-                <svg width="22" height="22" viewBox="0 0 64 64" fill="none">
-                    <rect x="2"  y="20" width="10" height="24" rx="3" fill="white" opacity=".95"/>
-                    <rect x="12" y="25" width="6"  height="14" rx="2" fill="white" opacity=".85"/>
-                    <rect x="18" y="28" width="28" height="8"  rx="2" fill="white" opacity=".75"/>
-                    <rect x="46" y="25" width="6"  height="14" rx="2" fill="white" opacity=".85"/>
-                    <rect x="52" y="20" width="10" height="24" rx="3" fill="white" opacity=".95"/>
-                </svg>
+<div class="login-shell">
+    <div class="login-stage page-enter">
+        <section class="login-showcase">
+            <div class="login-brand">
+                <div class="login-brand-mark" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round">
+                        <path d="M6 5v14M18 5v14M6 12h12M3 8h3M18 8h3M3 16h3M18 16h3"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="login-brand-name">Tracer</div>
+                    <div class="login-brand-sub">Workout Tracker</div>
+                </div>
             </div>
-            <div>
-                <div style="font-size: 16px; font-weight: 700; color: #f0f0f3;">Tracer</div>
-                <div style="font-size: 9.5px; color: #404052; font-weight: 600; letter-spacing: 1px;">WORKOUT TRACKER</div>
-            </div>
-        </div>
 
-        <!-- Form -->
-        <form method="post" style="display: flex; flex-direction: column; gap: 11px;">
-            {% csrf_token %}
-            
-            <input type="text" name="username" class="tracer-input" placeholder="Username" required autofocus>
-            <input type="password" name="password" class="tracer-input" placeholder="Password" required>
-            
-            {% if form.errors %}
-            <div style="font-size: 11.5px; color: #f85149; padding: 8px 10px; background: rgba(248,81,73,.07); border-radius: 6px; border: 1px solid rgba(248,81,73,.14);">
-                Credenziali non valide. Riprova.
+            <div class="login-hero">
+                <h1>Traccia ogni <span>progressione.</span></h1>
+                <p>Storico allenamenti, analisi muscolare, trend di forza. Tutto in un posto.</p>
             </div>
-            {% endif %}
 
-            <button type="submit" class="btn-primary-gradient" style="padding: 11px; margin-top: 3px; font-size: 14px;">Entra</button>
-        </form>
+            <div class="login-preview">
+                <div class="login-activity">
+                    <div class="login-activity-label">Attivita recente</div>
+                    <div class="login-heatmap" aria-hidden="true">
+                        <span style="--cell-opacity: .18"></span><span style="--cell-opacity: .18"></span><span style="--cell-opacity: .18"></span><span style="--cell-opacity: .18"></span><span style="--cell-opacity: .18"></span><span style="--cell-opacity: .45"></span><span style="--cell-opacity: .62"></span><span style="--cell-opacity: .82"></span><span style="--cell-opacity: .95"></span><span style="--cell-opacity: .75"></span><span style="--cell-opacity: .62"></span><span style="--cell-opacity: .45"></span><span style="--cell-opacity: .45"></span><span style="--cell-opacity: .2"></span>
+                        <span style="--cell-opacity: .18"></span><span style="--cell-opacity: .18"></span><span style="--cell-opacity: .35"></span><span style="--cell-opacity: .55"></span><span style="--cell-opacity: .82"></span><span style="--cell-opacity: .95"></span><span style="--cell-opacity: .82"></span><span style="--cell-opacity: .55"></span><span style="--cell-opacity: .82"></span><span style="--cell-opacity: .95"></span><span style="--cell-opacity: .82"></span><span style="--cell-opacity: .55"></span><span style="--cell-opacity: .35"></span><span style="--cell-opacity: .18"></span>
+                        <span style="--cell-opacity: .18"></span><span style="--cell-opacity: .45"></span><span style="--cell-opacity: .82"></span><span style="--cell-opacity: .95"></span><span style="--cell-opacity: .75"></span><span style="--cell-opacity: .62"></span><span style="--cell-opacity: .95"></span><span style="--cell-opacity: .82"></span><span style="--cell-opacity: .62"></span><span style="--cell-opacity: .95"></span><span style="--cell-opacity: .82"></span><span style="--cell-opacity: .62"></span><span style="--cell-opacity: .45"></span><span style="--cell-opacity: .18"></span>
+                        <span style="--cell-opacity: .2"></span><span style="--cell-opacity: .55"></span><span style="--cell-opacity: .95"></span><span style="--cell-opacity: .82"></span><span style="--cell-opacity: .62"></span><span style="--cell-opacity: .82"></span><span style="--cell-opacity: .95"></span><span style="--cell-opacity: .75"></span><span style="--cell-opacity: .55"></span><span style="--cell-opacity: .82"></span><span style="--cell-opacity: .95"></span><span style="--cell-opacity: .75"></span><span style="--cell-opacity: .45"></span><span style="--cell-opacity: .2"></span>
+                        <span style="--cell-opacity: .18"></span><span style="--cell-opacity: .35"></span><span style="--cell-opacity: .55"></span><span style="--cell-opacity: .82"></span><span style="--cell-opacity: .95"></span><span style="--cell-opacity: .82"></span><span style="--cell-opacity: .62"></span><span style="--cell-opacity: .45"></span><span style="--cell-opacity: .82"></span><span style="--cell-opacity: .95"></span><span style="--cell-opacity: .82"></span><span style="--cell-opacity: .62"></span><span style="--cell-opacity: .35"></span><span style="--cell-opacity: .18"></span>
+                        <span style="--cell-opacity: .18"></span><span style="--cell-opacity: .18"></span><span style="--cell-opacity: .35"></span><span style="--cell-opacity: .55"></span><span style="--cell-opacity: .82"></span><span style="--cell-opacity: .95"></span><span style="--cell-opacity: .75"></span><span style="--cell-opacity: .62"></span><span style="--cell-opacity: .82"></span><span style="--cell-opacity: .95"></span><span style="--cell-opacity: .75"></span><span style="--cell-opacity: .55"></span><span style="--cell-opacity: .35"></span><span style="--cell-opacity: .18"></span>
+                    </div>
+                </div>
+
+                <div class="login-kpis">
+                    <div class="login-kpi">
+                        <div class="login-kpi-icon" style="background: rgba(240, 114, 40, 0.12); color: #f07228;">&#9711;</div>
+                        <div>
+                            <div class="login-kpi-value">7</div>
+                            <div class="login-kpi-label">gg streak</div>
+                        </div>
+                    </div>
+                    <div class="login-kpi">
+                        <div class="login-kpi-icon" style="background: rgba(61, 214, 140, 0.12); color: #3dd68c;">&#8741;</div>
+                        <div>
+                            <div class="login-kpi-value">147</div>
+                            <div class="login-kpi-label">sessioni</div>
+                        </div>
+                    </div>
+                    <div class="login-kpi">
+                        <div class="login-kpi-icon" style="background: rgba(91, 158, 255, 0.12); color: #5b9eff;">&#8599;</div>
+                        <div>
+                            <div class="login-kpi-value">35</div>
+                            <div class="login-kpi-label">serie ieri</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="login-panel">
+            <div class="login-card">
+                <h2>Bentornato</h2>
+                <p>Inserisci le credenziali per continuare.</p>
+
+                <form method="post" class="login-form">
+                    {% csrf_token %}
+                    {% if next %}
+                    <input type="hidden" name="next" value="{{ next }}">
+                    {% endif %}
+
+                    <div class="login-field">
+                        <label for="id_username">Username</label>
+                        <div class="login-input-wrap">
+                            <div class="login-input-icon" aria-hidden="true">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                            </div>
+                            <input type="text" id="id_username" name="username" placeholder="Il tuo username" autocomplete="username" required autofocus>
+                        </div>
+                    </div>
+
+                    <div class="login-field">
+                        <label for="id_password">Password</label>
+                        <div class="login-input-wrap">
+                            <div class="login-input-icon" aria-hidden="true">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="11" width="18" height="11" rx="2"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                            </div>
+                            <input type="password" id="id_password" name="password" placeholder="La tua password" autocomplete="current-password" required>
+                        </div>
+                    </div>
+
+                    {% if form.errors %}
+                    <div class="login-error">Credenziali non valide. Riprova.</div>
+                    {% endif %}
+
+                    <button type="submit" class="login-submit">Entra in Tracer</button>
+                </form>
+            </div>
+        </section>
     </div>
 </div>
 {% endblock %}
