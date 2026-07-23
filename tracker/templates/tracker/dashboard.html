@@ -301,9 +301,15 @@
 
         var rawData = {{ heatmap_data_json|safe }};
         var data = {};
+        var dataByDate = {};
         var maxCount = 0;
         rawData.forEach(function(item) {
             data[item.date] = item.value;
+            // item.date è un timestamp unix (usato da cal-heatmap su mobile); la griglia
+            // custom desktop indicizza invece per stringa "YYYY-MM-DD".
+            var d = new Date(item.date * 1000);
+            var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+            dataByDate[key] = item.value;
             if (item.value > maxCount) maxCount = item.value;
         });
 
@@ -349,7 +355,7 @@
 
                     if (valid) {
                         var dateStr = YEAR + '-' + String(m + 1).padStart(2, '0') + '-' + String(dayNum).padStart(2, '0');
-                        var count = data[dateStr] || 0;
+                        var count = dataByDate[dateStr] || 0;
                         cell.style.background = heatmapLevelColor(count);
                         cell.setAttribute('data-hmcell', '1');
 
