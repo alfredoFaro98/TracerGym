@@ -24,40 +24,40 @@
             <!-- Logo -->
             <a href="{% url 'dashboard' %}" class="logo-container" style="display: flex; align-items: center; gap: 10px; margin-bottom: 40px; padding: 0 8px; text-decoration: none; cursor: pointer;">
                 <div>
-                    <div style="font-size: 15px; font-weight: 700; color: #f0f0f3;">Tracer</div>
-                    <div style="font-size: 9px; color: #404052; font-weight: 600; letter-spacing: 1px;">WORKOUT TRACKER</div>
+                    <div style="font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; color: #f0f0f3;">Tracer</div>
+                    <div style="font-size: 9px; color: #f0f0f3; font-weight: 600; letter-spacing: 1px;">WORKOUT TRACKER</div>
                 </div>
             </a>
 
             <!-- Menu -->
             <div class="menu-container" style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
-                <a href="{% url 'dashboard' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; background: #1c1c2c; font-size: 13px; font-weight: 500; transition: all .15s;">
+                <a href="{% url 'dashboard' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35); font-size: 13px; font-weight: 500; transition: all .15s;">
                     <span class="menu-text">Dashboard</span>
                 </a>
-                <a href="{% url 'create_session' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #787890; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='#1c1c2c';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#787890'">
+                <a href="{% url 'create_session' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid transparent; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'">
                     <span class="menu-text">Nuovo Allenamento</span>
                 </a>
-                <a href="{% url 'user_list' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #787890; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='#1c1c2c';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#787890'">
+                <a href="{% url 'user_list' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid transparent; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'">
                     <span class="menu-text">Atleti</span>
                 </a>
-                <a href="{% url 'body_map' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #787890; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='#1c1c2c';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#787890'">
+                <a href="{% url 'body_map' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid transparent; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'">
                     <span class="menu-text">Mappa Muscolare</span>
                 </a>
-                <a href="{% url 'exercises_list' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #787890; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='#1c1c2c';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#787890'">
+                <a href="{% url 'exercises_list' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid transparent; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'">
                     <span class="menu-text">Catalogo Esercizi</span>
                 </a>
 
-                <a href="{% url 'user_profile' user.username %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #787890; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='#1c1c2c';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#787890'">
+                <a href="{% url 'user_profile' user.username %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid transparent; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'">
                     <span class="menu-text">Il mio profilo</span>
                 </a>
                 {% if user.is_superuser %}
-                <div style="font-size: 9px; font-weight: 700; color: #2a2a3e; text-transform: uppercase; letter-spacing: 1.2px; padding: 8px 14px 2px;">Admin</div>
-                <a href="/admin/" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #787890; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='#1c1c2c';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#787890'">
+                <div style="font-size: 9px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1.2px; padding: 8px 14px 2px;">Admin</div>
+                <a href="/admin/" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid transparent; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'">
                     <span class="menu-text">Django Admin</span>
                 </a>
                 {% endif %}
-                
-                <button id="tour-menu-btn" onclick="if(typeof startTour !== 'undefined') startTour(); else window.location.href='{% url 'dashboard' %}?tour=1';" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #787890; font-size: 13px; font-weight: 500; transition: all .15s; background: transparent; border: none; width: 100%; text-align: left; cursor: pointer; font-family: inherit;" onmouseover="this.style.background='#1c1c2c'; this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent'; this.style.color='#787890'">
+
+                <button id="tour-menu-btn" onclick="if(typeof startTour !== 'undefined') startTour(); else window.location.href='{% url 'dashboard' %}?tour=1';" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid transparent; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s; background: transparent; width: 100%; text-align: left; cursor: pointer; font-family: inherit;" onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent'; this.style.color='#f0f0f3'">
                     <span class="menu-text">Guida</span>
                 </button>
             </div>
@@ -66,17 +66,17 @@
             <div class="user-info-container" style="border-top: 1px solid #14141f; padding-top: 20px; margin-top: auto;">
                 <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <div style="width: 30px; height: 30px; border-radius: 8px; background: #1c1c2c; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #a0a0c0;">
+                        <div style="width: 30px; height: 30px; border-radius: 8px; background: #7c6cf6; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff;">
                             {{ user.username|make_list|first|upper }}
                         </div>
                         <div>
                             <div style="font-size: 12.5px; font-weight: 600; color: #e0e0f0;">{{ user.username }}</div>
-                            <div style="font-size: 10.5px; color: #505068;">Atleta</div>
+                            <div style="font-size: 10.5px; color: #f0f0f3;">Atleta</div>
                         </div>
                     </div>
                     <form action="{% url 'logout' %}" method="post" style="display:inline;">
                         {% csrf_token %}
-                        <button type="submit" title="Logout" style="background: transparent; border: none; color: #484860; cursor: pointer; transition: color .15s; font-size: 12px; font-weight: 500;">
+                        <button type="submit" title="Logout" style="background: transparent; border: none; color: #f0f0f3; cursor: pointer; transition: color .15s; font-size: 12px; font-weight: 500;" onmouseover="this.style.color='#9d8ffb'" onmouseout="this.style.color='#f0f0f3'">
                             Logout
                         </button>
                     </form>

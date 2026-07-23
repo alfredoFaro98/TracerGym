@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 *, *::before, *::after { 
   box-sizing: border-box; 
@@ -12,7 +12,7 @@ html, body {
 }
 
 body {
-  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   background: #080809;
   color: #f0f0f3;
   -webkit-font-smoothing: antialiased;
@@ -32,14 +32,19 @@ body {
 
 /* Inputs / buttons global reset */
 input, textarea, select {
-  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   color: #f0f0f3;
   outline: none;
 }
 
-button { 
-  cursor: pointer; 
-  font-family: 'Space Grotesk', system-ui, sans-serif; 
+button {
+  cursor: pointer;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* Titoli e brand: restano in Space Grotesk come nei mockup */
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
 }
 
 /* Page entrance */
