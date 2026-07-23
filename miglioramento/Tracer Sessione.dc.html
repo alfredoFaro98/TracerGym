@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; background: #08080c; }
+    a { color: #7c6cf6; }
+    a:hover { color: #9d8ffb; }
+    ::placeholder { color: #6d7285; }
+  </style>
+</helmet>
+
+<div style="display: flex; height: 100vh; background: #08080c; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden;">
+
+  <div style="width: 260px; flex-shrink: 0; background: #0b0b10; border-right: 1px solid rgba(255,255,255,0.07); padding: 28px 20px; display: flex; flex-direction: column; overflow-y: auto;">
+    <div style="display: flex; flex-direction: column; gap: 3px; padding: 0 8px 24px;">
+      <div style="font-family: 'Space Grotesk', sans-serif; font-size: 21px; font-weight: 700; color: #ffffff;">Tracer</div>
+      <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.12em; color: #7d8296;">WORKOUT TRACKER</div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 3px;">
+      <div style="display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 11px; background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        <span style="font-size: 15px; font-weight: 700; color: #ffffff;">Dashboard</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 11px;" style-hover="background: rgba(255,255,255,0.06);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+        <span style="font-size: 15px; font-weight: 500; color: #c7cbd6;">Nuovo Allenamento</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 11px;" style-hover="background: rgba(255,255,255,0.06);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        <span style="font-size: 15px; font-weight: 500; color: #c7cbd6;">Atleti</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 11px;" style-hover="background: rgba(255,255,255,0.06);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+        <span style="font-size: 15px; font-weight: 500; color: #c7cbd6;">Mappa Muscolare</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 11px;" style-hover="background: rgba(255,255,255,0.06);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+        <span style="font-size: 15px; font-weight: 500; color: #c7cbd6;">Catalogo Esercizi</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 11px;" style-hover="background: rgba(255,255,255,0.06);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <span style="font-size: 15px; font-weight: 500; color: #c7cbd6;">Il mio profilo</span>
+      </div>
+    </div>
+
+    <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.12em; color: #666b7d; padding: 22px 12px 8px;">ADMIN</div>
+    <div style="display: flex; flex-direction: column; gap: 3px;">
+      <div style="display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 11px;" style-hover="background: rgba(255,255,255,0.06);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        <span style="font-size: 15px; font-weight: 500; color: #c7cbd6;">Django Admin</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 11px;" style-hover="background: rgba(255,255,255,0.06);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 2-3 4"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        <span style="font-size: 15px; font-weight: 500; color: #c7cbd6;">Guida</span>
+      </div>
+    </div>
+
+    <div style="flex: 1;"></div>
+
+    <div style="border-top: 1px solid rgba(255,255,255,0.09); margin-top: 16px; padding-top: 16px; display: flex; align-items: center; gap: 10px;">
+      <div style="width: 36px; height: 36px; border-radius: 10px; background: #7c6cf6; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 14px; flex-shrink: 0;">A</div>
+      <div style="display: flex; flex-direction: column; flex: 1; min-width: 0;">
+        <span style="font-size: 14px; font-weight: 700; color: #ffffff;">admin</span>
+        <span style="font-size: 12px; color: #9297a8;">Atleta</span>
+      </div>
+      <a href="#" style="font-size: 13px; font-weight: 600; text-decoration: none;">Logout</a>
+    </div>
+  </div>
+
+  <div style="flex: 1; min-width: 0; overflow: auto; padding: 36px 44px; box-sizing: border-box;">
+  <div style="min-width: 900px; display: flex; flex-direction: column; gap: 22px;">
+
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: nowrap;">
+        <span style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: #ffffff; white-space: nowrap;">Mercoledì 22 Luglio 2026</span>
+        <div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #c7cbd6; font-size: 12.5px; font-weight: 600; padding: 7px 14px; border-radius: 8px; cursor: pointer; white-space: nowrap; flex-shrink: 0;" style-hover="background: rgba(255,255,255,0.1);">Modifica data</div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer;" style-hover="background: rgba(255,255,255,0.09);">Duplica Sessione</div>
+        <div style="background: rgba(124,108,246,0.14); border: 1px solid rgba(124,108,246,0.4); color: #b7bdf0; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer;" style-hover="background: rgba(124,108,246,0.22);">Esporta PDF</div>
+        <div style="width: 36px; height: 36px; border-radius: 9px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;" style-hover="background: rgba(255,255,255,0.09);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        </div>
+        <div style="background: #7c6cf6; color: #fff; font-size: 13.5px; font-weight: 700; padding: 9px 18px; border-radius: 9px;">25 serie</div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 22px; align-items: flex-start;">
+
+      <div style="width: 300px; box-sizing: border-box; flex-shrink: 0; background: #111117; border: 1px solid rgba(255,255,255,0.06); border-radius: 18px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+        <span style="font-size: 11.5px; font-weight: 700; letter-spacing: 0.12em; color: #838a9e;">AGGIUNGI SERIE</span>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #7d8296;">ESERCIZIO</span>
+          <input type="text" placeholder="Cerca esercizio dalla lista…" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 9px; padding: 10px 12px; font-size: 13.5px; color: #ffffff; width: 100%; box-sizing: border-box; font-family: inherit;" />
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px;">
+          <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">RIPETIZIONI</span>
+            <input type="text" value="10" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #ffffff; width: 100%; box-sizing: border-box; font-family: inherit;" />
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">DURATA (S)</span>
+            <input type="text" placeholder="Opc." style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #ffffff; width: 100%; box-sizing: border-box; font-family: inherit;" />
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">PESO (KG)</span>
+            <input type="text" placeholder="Opc." style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #ffffff; width: 100%; box-sizing: border-box; font-family: inherit;" />
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">N. SERIE</span>
+            <input type="text" value="1" style="background: rgba(124,108,246,0.1); border: 1px solid #7c6cf6; border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #ffffff; width: 100%; box-sizing: border-box; font-family: inherit;" />
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: flex-end; gap: 14px;">
+          <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+            <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RECUPERO (S)</span>
+            <input type="text" value="90" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #ffffff; width: 100%; box-sizing: border-box; font-family: inherit;" />
+          </div>
+          <label style="display: flex; align-items: center; gap: 6px; padding-bottom: 9px; cursor: pointer;">
+            <input type="checkbox" style="width: 15px; height: 15px; accent-color: #7c6cf6;" />
+            <span style="font-size: 12.5px; color: #c7cbd6;">Per lato</span>
+          </label>
+        </div>
+
+        <div style="display: flex; gap: 18px;">
+          <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;">
+            <input type="checkbox" style="width: 15px; height: 15px; accent-color: #7c6cf6; flex-shrink: 0;" />
+            <span style="font-size: 12.5px; color: #c7cbd6; white-space: nowrap;">Avviamento</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;">
+            <input type="checkbox" style="width: 15px; height: 15px; accent-color: #7c6cf6; flex-shrink: 0;" />
+            <span style="font-size: 12.5px; color: #c7cbd6; white-space: nowrap;">A cedimento</span>
+          </label>
+        </div>
+
+        <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;">
+          <input type="checkbox" style="width: 15px; height: 15px; accent-color: #7c6cf6;" />
+          <span style="font-size: 12.5px; color: #c7cbd6;">+Sbarra</span>
+        </label>
+
+        <div style="background: #7c6cf6; color: #fff; font-size: 14px; font-weight: 700; text-align: center; padding: 12px; border-radius: 10px; cursor: pointer; box-shadow: 0 10px 24px rgba(124,108,246,0.3);" style-hover="background: #8b7bf7;">Aggiungi Serie</div>
+      </div>
+
+      <div style="flex: 1; background: #111117; border: 1px solid rgba(255,255,255,0.06); border-radius: 18px; padding: 24px 26px; display: flex; flex-direction: column; gap: 14px; min-width: 0;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: #ffffff; white-space: nowrap;">ESERCIZI REGISTRATI</span>
+          <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+            <span style="font-size: 12.5px; color: #7d8296; white-space: nowrap;">{{ exerciseCount }} esercizi · {{ seriesCount }} serie</span>
+            <a href="#" style="font-size: 12.5px; font-weight: 600; text-decoration: none; white-space: nowrap;">Espandi tutto</a>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+          <sc-for list="{{ exercises }}" as="ex" hint-placeholder-count="10">
+            <div style="border-top: 1px solid rgba(255,255,255,0.06);">
+              <div onClick="{{ ex.toggle }}" style="display: flex; align-items: center; gap: 14px; padding: 15px 4px; border-radius: 10px; cursor: pointer; flex-wrap: wrap;" style-hover="background: rgba(255,255,255,0.03);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#565b6e" style="flex-shrink: 0;"><circle cx="8" cy="6" r="1.6"></circle><circle cx="16" cy="6" r="1.6"></circle><circle cx="8" cy="12" r="1.6"></circle><circle cx="16" cy="12" r="1.6"></circle><circle cx="8" cy="18" r="1.6"></circle><circle cx="16" cy="18" r="1.6"></circle></svg>
+                <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 220px; flex-wrap: wrap;">
+                  <span style="font-size: 15.5px; font-weight: 700; color: #ffffff; white-space: nowrap;">{{ ex.name }}</span>
+                  <sc-for list="{{ ex.tags }}" as="tag" hint-placeholder-count="2">
+                    <span style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em; color: #b7bdf0; background: rgba(124,108,246,0.12); border: 1px solid rgba(124,108,246,0.2); border-radius: 6px; padding: 4px 8px; white-space: nowrap;">{{ tag }}</span>
+                  </sc-for>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0; margin-left: auto;">
+                  <span style="background: rgba(124,108,246,0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 7px; white-space: nowrap;">{{ ex.seriesLabel }}</span>
+                  <div style="width: 30px; height: 30px; border-radius: 8px; background: rgba(248,113,113,0.12); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;" style-hover="background: rgba(248,113,113,0.22);">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg>
+                  </div>
+                </div>
+              </div>
+
+              <sc-if value="{{ ex.expanded }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; flex-direction: column; gap: 6px; padding: 0 4px 14px 42px;">
+                  <sc-for list="{{ ex.sets }}" as="st" hint-placeholder-count="3">
+                    <sc-if value="{{ st.editing }}" hint-placeholder-val="{{ false }}">
+                      <div style="display: flex; flex-direction: column; gap: 8px; background: rgba(124,108,246,0.06); border: 1px solid rgba(124,108,246,0.3); border-radius: 9px; padding: 12px 14px;">
+                        <div style="display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap;">
+                          <div style="display: flex; flex-direction: column; gap: 5px;">
+                            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">ESERCIZIO</span>
+                            <input type="text" value="{{ ex.name }}" style="background: rgba(255,255,255,0.05); border: 1px solid #7c6cf6; border-radius: 7px; padding: 7px 10px; font-size: 12.5px; color: #ffffff; width: 150px; box-sizing: border-box; font-family: inherit;" />
+                          </div>
+                          <div style="display: flex; flex-direction: column; gap: 5px;">
+                            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">REPS</span>
+                            <input type="text" value="{{ st.reps }}" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 7px 10px; font-size: 12.5px; color: #ffffff; width: 60px; box-sizing: border-box; font-family: inherit;" />
+                          </div>
+                          <div style="display: flex; flex-direction: column; gap: 5px;">
+                            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">DURATA (S)</span>
+                            <input type="text" placeholder="Opc." style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 7px 10px; font-size: 12.5px; color: #ffffff; width: 70px; box-sizing: border-box; font-family: inherit;" />
+                          </div>
+                          <div style="display: flex; flex-direction: column; gap: 5px;">
+                            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">PESO (KG)</span>
+                            <input type="text" value="{{ st.weight }}" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 7px 10px; font-size: 12.5px; color: #ffffff; width: 70px; box-sizing: border-box; font-family: inherit;" />
+                          </div>
+                          <div style="display: flex; flex-direction: column; gap: 5px;">
+                            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RECUPERO (S)</span>
+                            <input type="text" value="{{ st.rest }}" style="background: rgba(124,108,246,0.1); border: 1px solid #7c6cf6; border-radius: 7px; padding: 7px 10px; font-size: 12.5px; color: #ffffff; width: 70px; box-sizing: border-box; font-family: inherit;" />
+                          </div>
+                          <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;">
+                            <input type="checkbox" style="width: 13px; height: 13px; accent-color: #7c6cf6;" />
+                            <span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">Per lato</span>
+                          </label>
+                          <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;">
+                            <input type="checkbox" style="width: 13px; height: 13px; accent-color: #7c6cf6;" />
+                            <span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">Avviamento</span>
+                          </label>
+                          <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;">
+                            <input type="checkbox" style="width: 13px; height: 13px; accent-color: #7c6cf6;" />
+                            <span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">A cedimento</span>
+                          </label>
+                          <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;">
+                            <input type="checkbox" style="width: 13px; height: 13px; accent-color: #7c6cf6;" />
+                            <span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">+Sbarra</span>
+                          </label>
+                          <div onClick="{{ st.saveEdit }}" style="background: #7c6cf6; color: #fff; font-size: 12.5px; font-weight: 700; padding: 8px 16px; border-radius: 7px; cursor: pointer; white-space: nowrap;" style-hover="background: #8b7bf7;">Salva</div>
+                          <div onClick="{{ st.cancelEdit }}" style="color: #838a9e; font-size: 12.5px; font-weight: 600; padding: 8px 10px; cursor: pointer; white-space: nowrap;" style-hover="color: #c7cbd6;">Annulla</div>
+                        </div>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ st.notEditing }}" hint-placeholder-val="{{ true }}">
+                      <div style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.05); border-radius: 9px; padding: 9px 14px;">
+                        <span style="font-size: 12px; font-weight: 700; color: #9297a8; width: 26px; flex-shrink: 0;">#{{ st.idx }}</span>
+                        <span style="font-size: 13.5px; color: #ffffff;"><b>{{ st.reps }}</b> reps × <b>{{ st.weight }}</b> kg · {{ st.rest }}s</span>
+                        <div style="flex: 1;"></div>
+                        <span onClick="{{ st.startEdit }}" style="font-size: 12px; font-weight: 600; color: #a996ff; padding: 6px 12px; border-radius: 7px; background: rgba(124,108,246,0.12); cursor: pointer;" style-hover="background: rgba(124,108,246,0.22);">Modifica</span>
+                        <span style="font-size: 12px; font-weight: 600; color: #4ade80; padding: 6px 12px; border-radius: 7px; background: rgba(74,222,128,0.1); cursor: pointer;" style-hover="background: rgba(74,222,128,0.2);">Duplica</span>
+                        <span style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); cursor: pointer;" style-hover="background: rgba(248,113,113,0.2);">Elimina</span>
+                      </div>
+                    </sc-if>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div style="display: flex; gap: 22px; align-items: flex-start;">
+      <div style="width: 300px; flex-shrink: 0;"></div>
+      <div style="flex: 1; background: #111117; border: 1px solid rgba(255,255,255,0.06); border-radius: 18px; padding: 24px 26px; display: flex; flex-direction: column; gap: 14px; min-width: 0;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: #ffffff;">CIRCUITI</span>
+          <span style="font-size: 12.5px; color: #7d8296;">{{ circuitCount }} circuiti</span>
+        </div>
+
+        <sc-for list="{{ circuits }}" as="c" hint-placeholder-count="1">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding-bottom: 6px;">
+              <div style="display: flex; flex-direction: column; gap: 1px;">
+                <span style="font-size: 15.5px; font-weight: 700; color: #ffffff;">{{ c.name }}</span>
+                <span style="font-size: 12px; color: #7d8296;">{{ c.roundsLabel }}</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="background: rgba(124,108,246,0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 7px; white-space: nowrap;">{{ c.roundsLabel }}</span>
+                <span style="font-size: 12px; font-weight: 600; color: #a996ff; padding: 6px 12px; border-radius: 7px; background: rgba(124,108,246,0.12); cursor: pointer; white-space: nowrap;" style-hover="background: rgba(124,108,246,0.22);">Modifica</span>
+                <span style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); cursor: pointer; white-space: nowrap;" style-hover="background: rgba(248,113,113,0.2);">Elimina</span>
+              </div>
+            </div>
+
+            <sc-for list="{{ c.exercises }}" as="ex" hint-placeholder-count="7">
+              <div style="display: flex; flex-direction: column; gap: 6px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.06);">
+                <div style="display: flex; align-items: baseline; gap: 8px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="#565b6e" style="flex-shrink: 0;"><circle cx="8" cy="6" r="1.6"></circle><circle cx="16" cy="6" r="1.6"></circle><circle cx="8" cy="12" r="1.6"></circle><circle cx="16" cy="12" r="1.6"></circle><circle cx="8" cy="18" r="1.6"></circle><circle cx="16" cy="18" r="1.6"></circle></svg>
+                  <span style="font-size: 14px; font-weight: 700; color: #ffffff;">{{ ex.name }}</span>
+                  <span style="font-size: 12px; color: #7d8296;">{{ ex.seriesLabel }}</span>
+                </div>
+                <sc-for list="{{ ex.sets }}" as="st" hint-placeholder-count="1">
+                  <div style="display: flex; align-items: center; gap: 10px; padding: 9px 14px; margin: 0 5px 0 38px;">
+                    <span style="font-size: 12px; font-weight: 700; color: #9297a8; width: 22px; flex-shrink: 0;">#{{ st.idx }}</span>
+                    <span style="font-size: 13.5px; color: #ffffff; white-space: nowrap;"><b>{{ st.value }}</b> {{ st.unit }}</span>
+                    <sc-if value="{{ ex.perSide }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-size: 11.5px; font-weight: 600; color: #f0a875;">/ lato</span>
+                    </sc-if>
+                    <div style="flex: 1;"></div>
+                    <span style="font-size: 12px; font-weight: 600; color: #a996ff; padding: 6px 12px; border-radius: 7px; background: rgba(124,108,246,0.12); cursor: pointer; white-space: nowrap;" style-hover="background: rgba(124,108,246,0.22);">Modifica</span>
+                    <span style="font-size: 12px; font-weight: 600; color: #4ade80; padding: 6px 12px; border-radius: 7px; background: rgba(74,222,128,0.1); cursor: pointer; white-space: nowrap;" style-hover="background: rgba(74,222,128,0.2);">Duplica</span>
+                    <span style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); cursor: pointer; white-space: nowrap;" style-hover="background: rgba(248,113,113,0.2);">Elimina</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+
+            <div style="border: 1px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 12px; text-align: center; margin-top: 8px; cursor: pointer;" style-hover="background: rgba(255,255,255,0.03);">
+              <a href="#" style="font-size: 13px; font-weight: 600; text-decoration: none;">+ Aggiungi esercizio al circuito</a>
+            </div>
+          </div>
+        </sc-for>
+
+        <sc-if value="{{ showNewCircuitForm }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 14px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 18px 20px;">
+            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #838a9e;">NUOVO CIRCUITO</span>
+            <div style="display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap;">
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">NOME (OPZ.)</span>
+                <input type="text" placeholder="Circuito A" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 9px 12px; font-size: 13px; color: #ffffff; width: 160px; box-sizing: border-box; font-family: inherit;" />
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">ROUND</span>
+                <input type="text" value="3" style="background: rgba(124,108,246,0.1); border: 1px solid #7c6cf6; border-radius: 8px; padding: 9px 12px; font-size: 13px; color: #ffffff; width: 70px; box-sizing: border-box; font-family: inherit;" />
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RECUPERO TRA ROUND (S)</span>
+                <input type="text" placeholder="Opc." style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 9px 12px; font-size: 13px; color: #ffffff; width: 100px; box-sizing: border-box; font-family: inherit;" />
+              </div>
+              <div style="background: #7c6cf6; color: #fff; font-size: 13.5px; font-weight: 700; padding: 10px 20px; border-radius: 9px; cursor: pointer; white-space: nowrap;" style-hover="background: #8b7bf7;">Crea Circuito</div>
+              <div onClick="{{ toggleNewCircuitForm }}" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 13.5px; font-weight: 600; padding: 10px 18px; border-radius: 9px; cursor: pointer; white-space: nowrap;" style-hover="background: rgba(255,255,255,0.09);">Annulla</div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showNewCircuitButton }}" hint-placeholder-val="{{ true }}">
+          <div onClick="{{ toggleNewCircuitForm }}" style="border: 1px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 14px; text-align: center; cursor: pointer;" style-hover="background: rgba(255,255,255,0.03);">
+            <a href="#" style="font-size: 13px; font-weight: 600; text-decoration: none;">⊕ Nuovo Circuito</a>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+  </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { expandedIdx: 1, showNewCircuitForm: false, editingKey: null };
+
+  toggle(i) {
+    this.setState(s => ({ expandedIdx: s.expandedIdx === i ? -1 : i }));
+  }
+
+  toggleNewCircuitForm = () => {
+    this.setState(s => ({ showNewCircuitForm: !s.showNewCircuitForm }));
+  };
+
+  startEdit(key) {
+    this.setState({ editingKey: key });
+  }
+
+  cancelEdit = () => {
+    this.setState({ editingKey: null });
+  };
+
+  renderVals() {
+    const data = [
+      { name: 'Trazioni alla sbarra presa neutra', tags: [], series: 2 },
+      { name: 'Lat machine presa larga prona', tags: ['GRAN DORSALE'], series: 3, sets: [
+        { idx: 1, reps: 6, weight: '90,00', rest: 90 },
+        { idx: 2, reps: 6, weight: '90,00', rest: 90 },
+        { idx: 3, reps: 6, weight: '90,00', rest: 90 }
+      ] },
+      { name: 'Pullover ai cavi', tags: ['GRAN DORSALE'], series: 3 },
+      { name: 'Pure Strength Low Row Gran dorsale', tags: ['TRAPEZI', 'ROMBOIDI'], series: 2 },
+      { name: 'Pure Strength Low Row Upperback', tags: [], series: 2 },
+      { name: 'Curl manubri su panca inclinata 60', tags: ['BICIPITI'], series: 3 },
+      { name: 'Hammer curl manubri', tags: ['BICIPITI'], series: 3 },
+      { name: 'Alzate posteriori', tags: ['DELTOIDE POSTERIORE'], series: 3 },
+      { name: 'Shrug con manubri', tags: ['TRAPEZI'], series: 2 },
+      { name: 'Rear delt ai cavi doppio', tags: ['DELTOIDE POSTERIORE'], series: 2 }
+    ];
+
+    const exercises = data.map((ex, i) => ({
+      ...ex,
+      seriesLabel: `${ex.series} serie`,
+      expanded: this.state.expandedIdx === i,
+      sets: (ex.sets || []).map(st => {
+        const key = `${i}-${st.idx}`;
+        const editing = this.state.editingKey === key;
+        return { ...st, editing, notEditing: !editing, startEdit: () => this.startEdit(key), saveEdit: this.cancelEdit, cancelEdit: this.cancelEdit };
+      }),
+      toggle: () => this.toggle(i)
+    }));
+
+    const seriesCount = data.reduce((a, e) => a + e.series, 0);
+
+    const circuits = [
+      { name: 'Addome', rounds: 1, exercises: [
+        { name: 'Plank', series: 1, perSide: false, sets: [{ idx: 1, value: 60, unit: 's' }] },
+        { name: 'Crunch', series: 1, perSide: false, sets: [{ idx: 1, value: 20, unit: 'reps' }] },
+        { name: 'Leg raise', series: 1, perSide: false, sets: [{ idx: 1, value: 10, unit: 'reps' }] },
+        { name: 'Bicycle Crunch', series: 1, perSide: false, sets: [{ idx: 1, value: 20, unit: 'reps' }] },
+        { name: 'Mountain climbers', series: 1, perSide: true, sets: [{ idx: 1, value: 10, unit: 'reps' }] },
+        { name: 'Side Plank', series: 1, perSide: true, sets: [{ idx: 1, value: 15, unit: 's' }] },
+        { name: 'Dead Bug', series: 1, perSide: true, sets: [{ idx: 1, value: 10, unit: 'reps' }] }
+      ] }
+    ].map(c => ({
+      ...c,
+      roundsLabel: `${c.rounds} round`,
+      exercises: c.exercises.map(ex => ({ ...ex, seriesLabel: `${ex.series} serie` }))
+    }));
+
+    return {
+      exercises, exerciseCount: data.length, seriesCount,
+      circuits, circuitCount: circuits.length,
+      showNewCircuitForm: this.state.showNewCircuitForm,
+      showNewCircuitButton: !this.state.showNewCircuitForm,
+      toggleNewCircuitForm: this.toggleNewCircuitForm
+    };
+  }
+}
+
+</script>
+</body>
+</html>

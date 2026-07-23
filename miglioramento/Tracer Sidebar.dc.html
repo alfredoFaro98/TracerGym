@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta name="design_doc_mode" content="canvas">
+  <style>
+    body { margin: 0; background: #eef0f4; }
+    a { color: #7c6cf6; }
+    a:hover { color: #9d8ffb; }
+  </style>
+</helmet>
+
+<section style="padding: 56px 48px; display: flex; flex-direction: column; gap: 28px; font-family: 'Plus Jakarta Sans', sans-serif;">
+  <div style="display: flex; flex-direction: column; gap: 4px;">
+    <div style="font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #7c6cf6;">Turno 1</div>
+    <div style="font-size: 22px; font-weight: 700; color: #16161c; font-family: 'Space Grotesk', sans-serif;">Sidebar Tracer — 3 opzioni dark</div>
+    <div style="font-size: 14px; color: #6b6f7d; max-width: 620px;">Testo più grande, contrasto più alto (niente più grigio illeggibile), icone, e stati hover/attivo più chiari. Scegli un'opzione o combina elementi.</div>
+  </div>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start;">
+
+    <!-- OPTION 1a -->
+    <div id="1a" style="display: flex; flex-direction: column; gap: 14px; align-items: flex-start;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: #fff; background: #7c6cf6; padding: 3px 9px; border-radius: 999px;">1a</span>
+        <span style="font-size: 13px; font-weight: 600; color: #3a3d47;">Contrasto raffinato</span>
+      </div>
+
+      <div style="width: 280px; background: #0b0b10; border-radius: 18px; padding: 28px 20px; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.25); min-height: 720px;">
+        <div style="display: flex; flex-direction: column; gap: 3px; padding: 0 8px 24px;">
+          <div style="font-family: 'Space Grotesk', sans-serif; font-size: 21px; font-weight: 700; color: #ffffff;">Tracer</div>
+          <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.12em; color: #7d8296;">WORKOUT TRACKER</div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 3px;">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 11px; background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span style="font-size: 15px; font-weight: 700; color: #ffffff;">Dashboard</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 11px;" style-hover="background: rgba(255,255,255,0.06);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+            <span style="font-size: 15px; font-weight: 500; color: #c7cbd6;">Nuovo Allenamento</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 11px;" style-hover="background: rgba(255,255,255,0.06);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <span style="font-size: 15px; font-weight: 500; color: #c7cbd6;">Atleti</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 11px;" style-hover="background: rgba(255,255,255,0.06);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            <span style="font-size: 15px; font-weight: 500; color: #c7cbd6;">Mappa Muscolare</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 11px;" style-hover="background: rgba(255,255,255,0.06);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+            <span style="font-size: 15px; font-weight: 500; color: #c7cbd6;">Catalogo Esercizi</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 11px;" style-hover="background: rgba(255,255,255,0.06);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span style="font-size: 15px; font-weight: 500; color: #c7cbd6;">Il mio profilo</span>
+          </div>
+        </div>
+
+        <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.12em; color: #666b7d; padding: 22px 12px 8px;">ADMIN</div>
+        <div style="display: flex; flex-direction: column; gap: 3px;">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 11px;" style-hover="background: rgba(255,255,255,0.06);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <span style="font-size: 15px; font-weight: 500; color: #c7cbd6;">Django Admin</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 11px;" style-hover="background: rgba(255,255,255,0.06);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 2-3 4"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <span style="font-size: 15px; font-weight: 500; color: #c7cbd6;">Guida</span>
+          </div>
+        </div>
+
+        <div style="flex: 1;"></div>
+
+        <div style="border-top: 1px solid rgba(255,255,255,0.09); margin-top: 16px; padding-top: 16px; display: flex; align-items: center; gap: 10px;">
+          <div style="width: 36px; height: 36px; border-radius: 10px; background: #7c6cf6; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 14px; flex-shrink: 0;">A</div>
+          <div style="display: flex; flex-direction: column; flex: 1; min-width: 0;">
+            <span style="font-size: 14px; font-weight: 700; color: #ffffff;">admin</span>
+            <span style="font-size: 12px; color: #9297a8;">Atleta</span>
+          </div>
+          <a href="#" style="font-size: 13px; font-weight: 600; text-decoration: none;">Logout</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTION 1b -->
+    <div id="1b" style="display: flex; flex-direction: column; gap: 14px; align-items: flex-start;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: #fff; background: #7c6cf6; padding: 3px 9px; border-radius: 999px;">1b</span>
+        <span style="font-size: 13px; font-weight: 600; color: #3a3d47;">Accento marcato</span>
+      </div>
+
+      <div style="width: 280px; background: #0c0c13; border-radius: 18px; padding: 26px 18px; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.25); min-height: 720px;">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 26px;">
+          <div style="width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg, #8b7bf7, #5a4bd6); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 1px;">
+            <div style="font-family: 'Space Grotesk', sans-serif; font-size: 19px; font-weight: 700; color: #ffffff; line-height: 1;">Tracer</div>
+            <div style="font-size: 10.5px; font-weight: 600; letter-spacing: 0.1em; color: #8791ab;">WORKOUT TRACKER</div>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: #7c6cf6; box-shadow: 0 8px 20px rgba(124,108,246,0.35);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span style="font-size: 15px; font-weight: 700; color: #ffffff;">Dashboard</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px;" style-hover="background: rgba(255,255,255,0.06);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d5d8e2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+            <span style="font-size: 15px; font-weight: 600; color: #d5d8e2;">Nuovo Allenamento</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px;" style-hover="background: rgba(255,255,255,0.06);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d5d8e2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <span style="font-size: 15px; font-weight: 600; color: #d5d8e2;">Atleti</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px;" style-hover="background: rgba(255,255,255,0.06);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d5d8e2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            <span style="font-size: 15px; font-weight: 600; color: #d5d8e2;">Mappa Muscolare</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px;" style-hover="background: rgba(255,255,255,0.06);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d5d8e2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+            <span style="font-size: 15px; font-weight: 600; color: #d5d8e2;">Catalogo Esercizi</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px;" style-hover="background: rgba(255,255,255,0.06);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d5d8e2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span style="font-size: 15px; font-weight: 600; color: #d5d8e2;">Il mio profilo</span>
+          </div>
+        </div>
+
+        <div style="margin: 20px 14px 10px; height: 1px; background: rgba(255,255,255,0.08);"></div>
+        <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.12em; color: #6f7690; padding: 0 14px 8px;">ADMIN</div>
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px;" style-hover="background: rgba(255,255,255,0.06);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d5d8e2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <span style="font-size: 15px; font-weight: 600; color: #d5d8e2;">Django Admin</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px;" style-hover="background: rgba(255,255,255,0.06);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d5d8e2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 2-3 4"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <span style="font-size: 15px; font-weight: 600; color: #d5d8e2;">Guida</span>
+          </div>
+        </div>
+
+        <div style="flex: 1;"></div>
+
+        <div style="background: rgba(255,255,255,0.05); border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
+          <div style="width: 36px; height: 36px; border-radius: 999px; background: linear-gradient(135deg, #8b7bf7, #5a4bd6); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 14px; flex-shrink: 0; position: relative;">
+            A
+            <div style="position: absolute; bottom: -1px; right: -1px; width: 10px; height: 10px; border-radius: 999px; background: #4ade80; border: 2px solid #0c0c13;"></div>
+          </div>
+          <div style="display: flex; flex-direction: column; flex: 1; min-width: 0;">
+            <span style="font-size: 14px; font-weight: 700; color: #ffffff;">admin</span>
+            <span style="font-size: 12px; color: #9297a8;">Atleta</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9297a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTION 1c -->
+    <div id="1c" style="display: flex; flex-direction: column; gap: 14px; align-items: flex-start;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: #fff; background: #7c6cf6; padding: 3px 9px; border-radius: 999px;">1c</span>
+        <span style="font-size: 13px; font-weight: 600; color: #3a3d47;">Spazioso / editoriale</span>
+      </div>
+
+      <div style="width: 292px; background: #09090e; border-radius: 18px; padding: 30px 22px; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 20px 50px rgba(0,0,0,0.25); min-height: 720px;">
+        <div style="display: flex; flex-direction: column; gap: 4px; padding-bottom: 30px;">
+          <div style="font-family: 'Space Grotesk', sans-serif; font-size: 23px; font-weight: 700; color: #ffffff;">Tracer</div>
+          <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.14em; color: #82889c;">WORKOUT TRACKER</div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 14px; padding: 10px 10px; border-radius: 10px; background: rgba(139,123,247,0.10);">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#a996ff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span style="font-size: 16px; font-weight: 700; color: #ffffff;">Dashboard</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 14px; padding: 10px 10px; border-radius: 10px;" style-hover="background: rgba(255,255,255,0.05);">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#9298ad" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+            <span style="font-size: 16px; font-weight: 500; color: #d8dae3;">Nuovo Allenamento</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 14px; padding: 10px 10px; border-radius: 10px;" style-hover="background: rgba(255,255,255,0.05);">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#9298ad" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <span style="font-size: 16px; font-weight: 500; color: #d8dae3;">Atleti</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 14px; padding: 10px 10px; border-radius: 10px;" style-hover="background: rgba(255,255,255,0.05);">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#9298ad" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            <span style="font-size: 16px; font-weight: 500; color: #d8dae3;">Mappa Muscolare</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 14px; padding: 10px 10px; border-radius: 10px;" style-hover="background: rgba(255,255,255,0.05);">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#9298ad" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+            <span style="font-size: 16px; font-weight: 500; color: #d8dae3;">Catalogo Esercizi</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 14px; padding: 10px 10px; border-radius: 10px;" style-hover="background: rgba(255,255,255,0.05);">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#9298ad" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span style="font-size: 16px; font-weight: 500; color: #d8dae3;">Il mio profilo</span>
+          </div>
+        </div>
+
+        <div style="font-size: 11.5px; font-weight: 700; letter-spacing: 0.14em; color: #5f6478; padding: 28px 10px 10px;">ADMIN</div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 14px; padding: 10px 10px; border-radius: 10px;" style-hover="background: rgba(255,255,255,0.05);">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#9298ad" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <span style="font-size: 16px; font-weight: 500; color: #d8dae3;">Django Admin</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 14px; padding: 10px 10px; border-radius: 10px;" style-hover="background: rgba(255,255,255,0.05);">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#9298ad" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 2-3 4"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <span style="font-size: 16px; font-weight: 500; color: #d8dae3;">Guida</span>
+          </div>
+        </div>
+
+        <div style="flex: 1;"></div>
+
+        <div style="border-top: 1px solid rgba(255,255,255,0.09); margin-top: 16px; padding-top: 18px; display: flex; align-items: center; gap: 12px;">
+          <div style="width: 38px; height: 38px; border-radius: 999px; background: #201d33; border: 1.5px solid #7c6cf6; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #a996ff; font-size: 14px; flex-shrink: 0;">A</div>
+          <div style="display: flex; flex-direction: column; flex: 1; min-width: 0;">
+            <span style="font-size: 15px; font-weight: 700; color: #ffffff;">admin</span>
+            <span style="font-size: 12.5px; color: #9297a8;">Atleta</span>
+          </div>
+          <a href="#" style="font-size: 13.5px; font-weight: 700; text-decoration: none;">Logout</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</x-dc>
+</body>
+</html>
