@@ -50,7 +50,7 @@ class WaterEntry(models.Model):
     utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='water_entries')
     data = models.DateField(default=timezone.now)
     quantita_ml = models.PositiveIntegerField()
-    creato_il = models.DateTimeField(auto_now_add=True)
+    creato_il = models.DateTimeField(default=timezone.now)
 
     class Meta:
         ordering = ['-data', '-creato_il']

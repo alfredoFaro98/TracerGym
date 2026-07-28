@@ -33,6 +33,10 @@
                     <input type="date" name="data" value="{% now 'Y-m-d' %}" class="tracer-input" style="width: 150px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
+                    <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input" style="width: 110px;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
                     <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ML</span>
                     <input type="number" name="quantita_ml" placeholder="es. 250" min="1" class="tracer-input" style="width: 110px;">
                 </div>
@@ -111,6 +115,10 @@
                                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
                                 <input type="date" name="data" value="{{ e.data|date:'Y-m-d' }}" class="tracer-input" style="width: 150px;">
                             </div>
+                            <div style="display: flex; flex-direction: column; gap: 5px;">
+                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
+                                <input type="time" name="ora" value="{{ e.creato_il|date:'H:i' }}" class="tracer-input" style="width: 100px;">
+                            </div>
                             <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
                             <button type="button" onclick="toggleWaterEdit('{{ e.id }}')" style="color: #838a9e; font-size: 12.5px; font-weight: 600; padding: 8px 10px; background: transparent; border: none; cursor: pointer;" onmouseover="this.style.color='#c7cbd6'" onmouseout="this.style.color='#838a9e'">Annulla</button>
                         </form>
@@ -122,11 +130,12 @@
             <div style="margin-top: 12px;">
                 <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" class="water-quick-btn">+ Aggiungi bevuta</button>
                 <div id="day-add-{{ day_key }}" style="display: none; margin-top: 10px;">
-                    <form action="{% url 'add_water_entry' %}" method="post" style="display: flex; gap: 8px; align-items: center;">
+                    <form action="{% url 'add_water_entry' %}" method="post" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                         {% csrf_token %}
                         <input type="hidden" name="data" value="{{ day_key }}">
                         <input type="hidden" name="next" value="{% url 'water_history' %}">
                         <input type="number" name="quantita_ml" placeholder="ml" min="1" class="tracer-input" style="width: 90px; padding: 8px 10px; font-size: 12.5px;">
+                        <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input" style="width: 100px; padding: 8px 10px; font-size: 12.5px;">
                         <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Aggiungi</button>
                         <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" style="padding: 8px 12px; font-size: 12.5px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #787890; cursor: pointer;">Annulla</button>
                     </form>

@@ -9,7 +9,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from itertools import groupby
 import time
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, time as dt_time
 from django.utils import timezone
 from django.contrib.auth.models import User
 from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry
@@ -937,6 +937,18 @@ def toggle_profile_visibility(request):
     return redirect('user_profile', username=request.user.username)
 
 
+def _combine_water_datetime(entry_data, ora_str):
+    ora = timezone.now().time()
+    if ora_str:
+        try:
+            hh, mm = ora_str.split(':')
+            ora = dt_time(int(hh), int(mm))
+        except (ValueError, AttributeError):
+            pass
+    naive = datetime.combine(entry_data, ora)
+    return timezone.make_aware(naive) if timezone.is_naive(naive) else naive
+
+
 @login_required
 def add_water_entry(request):
     if request.method == 'POST':
@@ -949,7 +961,8 @@ def add_water_entry(request):
                     entry_data = date.fromisoformat(data_str)
                 except ValueError:
                     pass
-            WaterEntry.objects.create(utente=request.user, quantita_ml=int(quantita_ml), data=entry_data)
+            creato_il = _combine_water_datetime(entry_data, request.POST.get('ora'))
+            WaterEntry.objects.create(utente=request.user, quantita_ml=int(quantita_ml), data=entry_data, creato_il=creato_il)
     return redirect(request.POST.get('next') or 'dashboard')
 
 
@@ -967,6 +980,7 @@ def edit_water_entry(request, entry_id):
     if request.method == 'POST':
         quantita_ml = request.POST.get('quantita_ml')
         data_str = request.POST.get('data')
+        ora_str = request.POST.get('ora')
         if quantita_ml and quantita_ml.isdigit() and int(quantita_ml) > 0:
             entry.quantita_ml = int(quantita_ml)
         if data_str:
@@ -974,6 +988,11 @@ def edit_water_entry(request, entry_id):
                 entry.data = date.fromisoformat(data_str)
             except ValueError:
                 pass
+        if ora_str:
+            entry.creato_il = _combine_water_datetime(entry.data, ora_str)
+        elif data_str:
+            # Se cambia solo la data, mantiene l'orario originale
+            entry.creato_il = _combine_water_datetime(entry.data, entry.creato_il.strftime('%H:%M'))
         entry.save()
     return redirect(request.POST.get('next') or 'dashboard')
 
