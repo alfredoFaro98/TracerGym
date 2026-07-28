@@ -84,12 +84,16 @@
         {% for day in days %}
         {% with day_key=day.data|date:"Y-m-d" %}
         <div style="padding: 16px 20px; border-bottom: 1px solid #16162a;">
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
-                <span style="font-size: 13.5px; font-weight: 700; color: #f0f0f3;">{{ day.data|date:"l d F Y"|capfirst }}</span>
+            <div onclick="toggleDay('{{ day_key }}')" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; cursor: pointer; user-select: none;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <svg id="day-chevron-{{ day_key }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    <span style="font-size: 13.5px; font-weight: 700; color: #f0f0f3;">{{ day.data|date:"l d F Y"|capfirst }}</span>
+                    <span style="font-size: 11.5px; color: #7d8296;">{{ day.entries|length }} bevut{{ day.entries|length|pluralize:"a,e" }}</span>
+                </div>
                 <span style="background: rgba(124,108,246,0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px;">{{ day.total_l|floatformat:"-2" }} L</span>
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: 6px;">
+            <div id="day-body-{{ day_key }}" style="display: none; flex-direction: column; gap: 6px; margin-top: 12px;">
                 {% for e in day.entries %}
                 <div>
                     <div id="water-view-{{ e.id }}" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.05); border-radius: 9px; padding: 9px 14px; flex-wrap: wrap;">
@@ -125,20 +129,20 @@
                     </div>
                 </div>
                 {% endfor %}
-            </div>
 
-            <div style="margin-top: 12px;">
-                <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" class="water-quick-btn">+ Aggiungi bevuta</button>
-                <div id="day-add-{{ day_key }}" style="display: none; margin-top: 10px;">
-                    <form action="{% url 'add_water_entry' %}" method="post" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                        {% csrf_token %}
-                        <input type="hidden" name="data" value="{{ day_key }}">
-                        <input type="hidden" name="next" value="{% url 'water_history' %}">
-                        <input type="number" name="quantita_ml" placeholder="ml" min="1" class="tracer-input" style="width: 90px; padding: 8px 10px; font-size: 12.5px;">
-                        <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input" style="width: 100px; padding: 8px 10px; font-size: 12.5px;">
-                        <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Aggiungi</button>
-                        <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" style="padding: 8px 12px; font-size: 12.5px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #787890; cursor: pointer;">Annulla</button>
-                    </form>
+                <div style="margin-top: 6px;">
+                    <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" class="water-quick-btn">+ Aggiungi bevuta</button>
+                    <div id="day-add-{{ day_key }}" style="display: none; margin-top: 10px;">
+                        <form action="{% url 'add_water_entry' %}" method="post" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                            {% csrf_token %}
+                            <input type="hidden" name="data" value="{{ day_key }}">
+                            <input type="hidden" name="next" value="{% url 'water_history' %}">
+                            <input type="number" name="quantita_ml" placeholder="ml" min="1" class="tracer-input" style="width: 90px; padding: 8px 10px; font-size: 12.5px;">
+                            <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input" style="width: 100px; padding: 8px 10px; font-size: 12.5px;">
+                            <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Aggiungi</button>
+                            <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" style="padding: 8px 12px; font-size: 12.5px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #787890; cursor: pointer;">Annulla</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -221,6 +225,35 @@
 .heatmap-scroll-wrap::-webkit-scrollbar-thumb { background: #1c1c2c; border-radius: 2px; }
 </style>
 <script>
+var OPEN_DAYS_KEY = 'open_water_days';
+function getOpenDays() {
+    try { return new Set(JSON.parse(sessionStorage.getItem(OPEN_DAYS_KEY) || '[]')); }
+    catch (e) { return new Set(); }
+}
+function saveOpenDays(set) {
+    try { sessionStorage.setItem(OPEN_DAYS_KEY, JSON.stringify(Array.from(set))); }
+    catch (e) {}
+}
+function toggleDay(dayKey) {
+    var body = document.getElementById('day-body-' + dayKey);
+    var chevron = document.getElementById('day-chevron-' + dayKey);
+    var visible = body.style.display === 'flex';
+    body.style.display = visible ? 'none' : 'flex';
+    if (chevron) chevron.style.transform = visible ? 'rotate(0deg)' : 'rotate(90deg)';
+    var openDays = getOpenDays();
+    if (visible) openDays.delete(dayKey); else openDays.add(dayKey);
+    saveOpenDays(openDays);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    getOpenDays().forEach(function(dayKey) {
+        var body = document.getElementById('day-body-' + dayKey);
+        var chevron = document.getElementById('day-chevron-' + dayKey);
+        if (body) {
+            body.style.display = 'flex';
+            if (chevron) chevron.style.transform = 'rotate(90deg)';
+        }
+    });
+});
 function toggleNewEntryForm() {
     var el = document.getElementById('new-entry-form');
     el.style.display = el.style.display === 'none' ? 'block' : 'none';
