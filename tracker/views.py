@@ -207,6 +207,7 @@ def session_detail(request, session_id):
         per_lato = request.POST.get('per_lato') == 'on'
         avviamento = request.POST.get('avviamento') == 'on'
         a_cedimento = request.POST.get('a_cedimento') == 'on'
+        richiamo = request.POST.get('richiamo') == 'on'
         barra_kg = request.POST.get('barra_kg') or None
         circuit_id = request.POST.get('circuit_id') or None
 
@@ -235,6 +236,7 @@ def session_detail(request, session_id):
                 per_lato=per_lato,
                 avviamento=avviamento,
                 a_cedimento=a_cedimento,
+                richiamo=richiamo,
                 barra_kg=barra_kg,
                 circuit=circuit,
             )
@@ -364,6 +366,7 @@ def duplicate_set(request, set_id):
             per_lato=original.per_lato,
             avviamento=original.avviamento,
             a_cedimento=original.a_cedimento,
+            richiamo=original.richiamo,
             barra_kg=original.barra_kg,
             order=original.order + 1,
             circuit=original.circuit,
@@ -393,6 +396,7 @@ def edit_set(request, set_id):
         workout_set.per_lato = request.POST.get('per_lato') == 'on'
         workout_set.avviamento = request.POST.get('avviamento') == 'on'
         workout_set.a_cedimento = request.POST.get('a_cedimento') == 'on'
+        workout_set.richiamo = request.POST.get('richiamo') == 'on'
         workout_set.barra_kg = request.POST.get('barra_kg') or None
         workout_set.save()
     url = reverse('session_detail', kwargs={'session_id': workout_set.session.id})
@@ -411,6 +415,7 @@ def duplicate_session(request, session_id):
                 reps=s.reps, durata=s.durata, weight=s.weight,
                 rest_time=s.rest_time, per_lato=s.per_lato,
                 avviamento=s.avviamento, a_cedimento=s.a_cedimento,
+                richiamo=s.richiamo,
                 barra_kg=s.barra_kg, order=s.order,
             )
         for c in original.circuits.order_by('order', 'id'):
@@ -424,6 +429,7 @@ def duplicate_session(request, session_id):
                     reps=s.reps, durata=s.durata, weight=s.weight,
                     rest_time=s.rest_time, per_lato=s.per_lato,
                     avviamento=s.avviamento, a_cedimento=s.a_cedimento,
+                    richiamo=s.richiamo,
                     barra_kg=s.barra_kg, order=s.order, circuit=new_circuit,
                 )
         return redirect('session_detail', session_id=new_session.id)
@@ -528,6 +534,7 @@ def export_sessions(request):
                 'per_lato': s.per_lato,
                 'avviamento': s.avviamento,
                 'a_cedimento': s.a_cedimento,
+                'richiamo': s.richiamo,
                 'barra_kg': float(s.barra_kg) if s.barra_kg is not None else None,
                 'durata': s.durata,
                 'order': s.order,
@@ -585,6 +592,7 @@ def import_sessions(request):
                         per_lato=bool(s.get('per_lato', False)),
                         avviamento=bool(s.get('avviamento', False)),
                         a_cedimento=bool(s.get('a_cedimento', False)),
+                        richiamo=bool(s.get('richiamo', False)),
                         barra_kg=s.get('barra_kg'),
                         durata=s.get('durata'),
                         order=s.get('order', i),
@@ -614,6 +622,7 @@ def export_session(request, session_id):
             'per_lato': s.per_lato,
             'avviamento': s.avviamento,
             'a_cedimento': s.a_cedimento,
+            'richiamo': s.richiamo,
             'barra_kg': float(s.barra_kg) if s.barra_kg is not None else None,
             'order': s.order,
         })
