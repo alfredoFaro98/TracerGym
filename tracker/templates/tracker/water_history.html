@@ -2,6 +2,12 @@
 
 {% block title %}Storico Acqua - Workout Tracker{% endblock %}
 
+{% block extra_head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cal-heatmap/3.6.2/cal-heatmap.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cal-heatmap/3.6.2/cal-heatmap.css">
+{% endblock %}
+
 {% block content %}
 <div class="page-container">
     <a href="{% url 'dashboard' %}" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #787890; text-decoration: none; margin-bottom: 20px; transition: color .12s;" onmouseover="this.style.color='#c7cbd6'" onmouseout="this.style.color='#787890'">
@@ -24,31 +30,35 @@
                 <span style="font-size: 13.5px; font-weight: 700; color: #f0f0f3;">{{ day.data|date:"l d F Y"|capfirst }}</span>
                 <span style="background: rgba(124,108,246,0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px;">{{ day.total_l|floatformat:"-2" }} L</span>
             </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+
+            <div style="display: flex; flex-direction: column; gap: 6px;">
                 {% for e in day.entries %}
-                <div style="position: relative; display: inline-flex; flex-direction: column;">
-                    <form action="{% url 'delete_water_entry' e.id %}" method="post" id="water-view-{{ e.id }}" class="water-pill" style="position: relative; display: inline-flex;" onsubmit="return confirm('Eliminare questa aggiunta?');">
-                        {% csrf_token %}
-                        <input type="hidden" name="next" value="{% url 'water_history' %}">
-                        <span onclick="toggleWaterEdit('{{ e.id }}'); return false;" style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: rgba(124,108,246,0.12); border: 1px solid rgba(124,108,246,0.2); border-radius: 20px; color: #b7bdf0; font-size: 11.5px; font-weight: 600;">
-                            {{ e.quantita_ml }}ml <span style="color: #7d8296; font-weight: 500;">· {{ e.creato_il|date:"H:i" }}</span>
-                        </span>
-                        <button type="submit" class="water-pill-x" title="Elimina">×</button>
-                    </form>
-                    <div id="water-edit-{{ e.id }}" style="display: none; margin-top: 6px;">
-                        <form action="{% url 'edit_water_entry' e.id %}" method="post" style="display: flex; align-items: flex-end; gap: 6px; background: rgba(124,108,246,0.06); border: 1px solid rgba(124,108,246,0.3); border-radius: 9px; padding: 8px 10px;">
+                <div>
+                    <div id="water-view-{{ e.id }}" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.05); border-radius: 9px; padding: 9px 14px; flex-wrap: wrap;">
+                        <span style="font-size: 13.5px; color: #ffffff;"><b>{{ e.quantita_ml }}</b> ml</span>
+                        <span style="font-size: 12px; color: #7d8296;">{{ e.creato_il|date:"H:i" }}</span>
+                        <div style="flex: 1;"></div>
+                        <span onclick="toggleWaterEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: #a996ff; padding: 6px 12px; border-radius: 7px; background: rgba(124,108,246,0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(124,108,246,0.22)'" onmouseout="this.style.background='rgba(124,108,246,0.12)'">Modifica</span>
+                        <form action="{% url 'delete_water_entry' e.id %}" method="post" style="display:inline;" onsubmit="return confirm('Eliminare questa aggiunta?');">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="{% url 'water_history' %}">
-                            <div>
-                                <span style="display: block; font-size: 9px; font-weight: 700; letter-spacing: .05em; color: #7d8296; margin-bottom: 4px;">ML</span>
-                                <input type="number" name="quantita_ml" value="{{ e.quantita_ml }}" class="tracer-input" style="width: 70px; padding: 6px 8px; font-size: 12px;" min="1">
+                            <button type="submit" style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
+                        </form>
+                    </div>
+                    <div id="water-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(124,108,246,0.06); border: 1px solid rgba(124,108,246,0.3); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
+                        <form action="{% url 'edit_water_entry' e.id %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{% url 'water_history' %}">
+                            <div style="display: flex; flex-direction: column; gap: 5px;">
+                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ML</span>
+                                <input type="number" name="quantita_ml" value="{{ e.quantita_ml }}" class="tracer-input" style="width: 80px;" min="1">
                             </div>
-                            <div>
-                                <span style="display: block; font-size: 9px; font-weight: 700; letter-spacing: .05em; color: #7d8296; margin-bottom: 4px;">DATA</span>
-                                <input type="date" name="data" value="{{ e.data|date:'Y-m-d' }}" class="tracer-input" style="padding: 6px 8px; font-size: 12px;">
+                            <div style="display: flex; flex-direction: column; gap: 5px;">
+                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
+                                <input type="date" name="data" value="{{ e.data|date:'Y-m-d' }}" class="tracer-input" style="width: 150px;">
                             </div>
-                            <button type="submit" class="btn-primary-gradient" style="padding: 7px 12px; font-size: 11.5px;">Salva</button>
-                            <button type="button" onclick="toggleWaterEdit('{{ e.id }}')" style="padding: 7px 10px; font-size: 11.5px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #787890; cursor: pointer;">Annulla</button>
+                            <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
+                            <button type="button" onclick="toggleWaterEdit('{{ e.id }}')" style="color: #838a9e; font-size: 12.5px; font-weight: 600; padding: 8px 10px; background: transparent; border: none; cursor: pointer;" onmouseover="this.style.color='#c7cbd6'" onmouseout="this.style.color='#838a9e'">Annulla</button>
                         </form>
                     </div>
                 </div>
@@ -56,14 +66,15 @@
             </div>
 
             <div style="margin-top: 12px;">
-                <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" class="water-quick-btn" style="background: transparent; border-style: dashed;">+ Aggiungi a questo giorno</button>
-                <div id="day-add-{{ day_key }}" style="display: none; margin-top: 8px;">
-                    <form action="{% url 'add_water_entry' %}" method="post" style="display: flex; gap: 6px; align-items: center;">
+                <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" class="water-quick-btn">+ Aggiungi bevuta</button>
+                <div id="day-add-{{ day_key }}" style="display: none; margin-top: 10px;">
+                    <form action="{% url 'add_water_entry' %}" method="post" style="display: flex; gap: 8px; align-items: center;">
                         {% csrf_token %}
                         <input type="hidden" name="data" value="{{ day_key }}">
                         <input type="hidden" name="next" value="{% url 'water_history' %}">
-                        <input type="number" name="quantita_ml" placeholder="ml" min="1" class="tracer-input" style="width: 80px; padding: 7px 9px; font-size: 12px;">
-                        <button type="submit" class="water-quick-btn">Aggiungi</button>
+                        <input type="number" name="quantita_ml" placeholder="ml" min="1" class="tracer-input" style="width: 90px; padding: 8px 10px; font-size: 12.5px;">
+                        <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Aggiungi</button>
+                        <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" style="padding: 8px 12px; font-size: 12.5px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #787890; cursor: pointer;">Annulla</button>
                     </form>
                 </div>
             </div>
@@ -71,6 +82,33 @@
         {% endwith %}
         {% endfor %}
         {% endif %}
+
+        <!-- Heatmap annuale -->
+        <div style="padding: 24px 26px 6px;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 20px; padding-bottom: 18px;">
+                <button type="button" onclick="changeYear(-1)" style="background:none;border:none;color:#9ba0b3;cursor:pointer;padding:4px;display:flex;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                </button>
+                <span style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: #f0f0f3;">{{ selected_year }}</span>
+                <button type="button" onclick="changeYear(1)" style="background:none;border:none;color:#9ba0b3;cursor:pointer;padding:4px;display:flex;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+            </div>
+            <div class="desktop-only heatmap-scroll-wrap">
+                <div id="year-heatmap" style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; width: 100%; min-width: 920px;"></div>
+            </div>
+            <div class="mobile-only">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 10px;">
+                    <button type="button" onclick="mobileCalPrev()" style="background:none;border:none;color:#f0f0f3;font-size:16px;cursor:pointer;padding:4px 10px;">&#8592;</button>
+                    <span id="mobile-month-label" style="font-size: 11px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px; min-width: 80px; text-align: center;"></span>
+                    <button type="button" onclick="mobileCalNext()" style="background:none;border:none;color:#f0f0f3;font-size:16px;cursor:pointer;padding:4px 10px;">&#8594;</button>
+                </div>
+                <div style="display: flex; justify-content: center; width: 100%;">
+                    <div id="mobile-cal-heatmap" style="overflow: visible; position: relative;"></div>
+                </div>
+            </div>
+            <div style="font-size: 10.5px; color: #565b6e; text-align: center; padding: 10px 0 4px;">Colore in base alla % dell'obiettivo giornaliero attuale ({{ water_goal_ml }} ml)</div>
+        </div>
 
         {% if days.has_other_pages %}
         <div style="display: flex; justify-content: center; gap: 8px; padding: 16px; border-top: 1px solid #16162a;">
@@ -87,29 +125,6 @@
 </div>
 
 <style>
-.water-pill-x {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #f87171;
-    color: #fff;
-    border: none;
-    font-size: 11px;
-    line-height: 1;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transform: scale(0.8);
-    transition: opacity .12s, transform .12s;
-    padding: 0;
-}
-.water-pill:hover .water-pill-x { opacity: 1; transform: scale(1); }
-
 .water-quick-btn {
     padding: 8px 14px;
     background: rgba(124,108,246,0.12);
@@ -129,6 +144,36 @@
     background: #7c6cf6;
 }
 .page-container .btn-primary-gradient:hover { background: #8b7bf7; opacity: 1; }
+
+[data-hmcell]:hover [data-hmtip] { opacity: 1 !important; }
+.ch-domain-text { fill: #a0a6af; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; }
+.ch-tooltip {
+    position: absolute !important;
+    z-index: 99999 !important;
+    background: #15151c !important;
+    color: #f0f0f3 !important;
+    border: 1px solid rgba(255,255,255,.08) !important;
+    border-radius: 6px !important;
+    padding: 8px 12px !important;
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-size: 12px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+    pointer-events: none;
+}
+.ch-tooltip::after { border-top-color: #15151c !important; }
+.heatmap-scroll-wrap {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    display: flex;
+    justify-content: center;
+}
+@media (max-width: 1300px) {
+    .heatmap-scroll-wrap { justify-content: flex-start; }
+}
+.heatmap-scroll-wrap::-webkit-scrollbar { height: 4px; }
+.heatmap-scroll-wrap::-webkit-scrollbar-track { background: transparent; }
+.heatmap-scroll-wrap::-webkit-scrollbar-thumb { background: #1c1c2c; border-radius: 2px; }
 </style>
 <script>
 function toggleWaterEdit(id) {
@@ -142,5 +187,130 @@ function toggleDayAddForm(dayKey) {
     var el = document.getElementById('day-add-' + dayKey);
     el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
+
+function changeYear(delta) {
+    var currentYear = parseInt('{{ selected_year }}');
+    var newYear = currentYear + delta;
+    var url = new URL(window.location);
+    url.searchParams.set('year', newYear);
+    url.searchParams.delete('page');
+    window.location = url;
+}
+
+var GOAL_ML = {{ water_goal_ml }};
+var rawData = {{ heatmap_data_json|safe }};
+var data = {};
+var dataByDate = {};
+rawData.forEach(function(item) {
+    data[item.date] = item.value;
+    var d = new Date(item.date * 1000);
+    var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    dataByDate[key] = item.value;
+});
+
+var YEAR = {{ selected_year }};
+var MONTH_NAMES_IT = ['GEN','FEB','MAR','APR','MAG','GIU','LUG','AGO','SET','OTT','NOV','DIC'];
+var MONTH_NAMES_IT_SHORT = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+
+function heatmapLevelColor(ml) {
+    if (!ml) return 'rgba(255,255,255,0.05)';
+    var ratio = GOAL_ML > 0 ? ml / GOAL_ML : 0;
+    if (ratio >= 1) return 'rgba(124,108,246,1)';
+    if (ratio >= 0.75) return 'rgba(124,108,246,0.78)';
+    if (ratio >= 0.5) return 'rgba(124,108,246,0.55)';
+    if (ratio >= 0.25) return 'rgba(124,108,246,0.35)';
+    return 'rgba(124,108,246,0.18)';
+}
+
+function buildYearHeatmap() {
+    var container = document.getElementById('year-heatmap');
+    if (!container) return;
+    container.innerHTML = '';
+    for (var m = 0; m < 12; m++) {
+        var daysInMonth = new Date(YEAR, m + 1, 0).getDate();
+        var firstWeekday = (new Date(YEAR, m, 1).getDay() + 6) % 7;
+        var cols = Math.ceil((firstWeekday + daysInMonth) / 7);
+
+        var monthCol = document.createElement('div');
+        monthCol.style.cssText = 'display:flex;flex-direction:column;gap:8px;align-items:center;min-width:0;';
+
+        var label = document.createElement('div');
+        label.style.cssText = 'font-size:10px;font-weight:600;color:#a7abc0;';
+        label.textContent = MONTH_NAMES_IT[m];
+        monthCol.appendChild(label);
+
+        var grid = document.createElement('div');
+        grid.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(' + cols + ',auto);gap:2px;width:100%;';
+
+        for (var i = 0; i < cols * 7; i++) {
+            var dayNum = i - firstWeekday + 1;
+            var valid = dayNum >= 1 && dayNum <= daysInMonth;
+            var cell = document.createElement('div');
+            cell.style.cssText = 'position:relative;width:100%;aspect-ratio:1;border-radius:2px;';
+
+            if (valid) {
+                var dateStr = YEAR + '-' + String(m + 1).padStart(2, '0') + '-' + String(dayNum).padStart(2, '0');
+                var ml = dataByDate[dateStr] || 0;
+                cell.style.background = heatmapLevelColor(ml);
+                cell.setAttribute('data-hmcell', '1');
+
+                var pct = GOAL_ML > 0 ? Math.round((ml / GOAL_ML) * 100) : 0;
+                var tip = document.createElement('div');
+                tip.setAttribute('data-hmtip', '1');
+                tip.style.cssText = 'position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:#15151c;color:#fff;font-size:11px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;z-index:20;box-shadow:0 6px 16px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);transition:opacity .1s;';
+                tip.textContent = dayNum + ' ' + MONTH_NAMES_IT_SHORT[m] + ' ' + YEAR + ' — ' + (ml === 0 ? 'nessuna bevuta' : (ml / 1000).toFixed(2) + 'L (' + pct + '% obiettivo)');
+                cell.appendChild(tip);
+            } else {
+                cell.style.background = 'transparent';
+            }
+            grid.appendChild(cell);
+        }
+        monthCol.appendChild(grid);
+        container.appendChild(monthCol);
+    }
+}
+buildYearHeatmap();
+
+var mobileMonthNames = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+var mobileCalStart = new Date();
+mobileCalStart.setDate(1);
+var mobileCal = null;
+
+function updateMobileLabel() {
+    var el = document.getElementById('mobile-month-label');
+    if (el) {
+        el.textContent = mobileMonthNames[mobileCalStart.getMonth()] + ' ' + mobileCalStart.getFullYear();
+    }
+}
+function mobileCalPrev() {
+    mobileCalStart = new Date(mobileCalStart.getFullYear(), mobileCalStart.getMonth() - 1, 1);
+    updateMobileLabel();
+    if (mobileCal) mobileCal.previous(1);
+}
+function mobileCalNext() {
+    mobileCalStart = new Date(mobileCalStart.getFullYear(), mobileCalStart.getMonth() + 1, 1);
+    updateMobileLabel();
+    if (mobileCal) mobileCal.next(1);
+}
+if (window.innerWidth <= 768) {
+    mobileCal = new CalHeatMap();
+    mobileCal.init({
+        itemSelector: "#mobile-cal-heatmap",
+        domain: "month",
+        subDomain: "x_day",
+        data: data,
+        start: mobileCalStart,
+        cellSize: 12,
+        cellPadding: 2,
+        domainGutter: 0,
+        range: 1,
+        tooltip: true,
+        displayLegend: false,
+        itemName: ["ml", "ml"],
+        domainLabelFormat: "",
+        label: { position: "top", height: 0, offset: { x: 0, y: 0 } }
+    });
+}
+updateMobileLabel();
 </script>
 {% endblock %}

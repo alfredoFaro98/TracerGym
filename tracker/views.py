@@ -980,6 +980,8 @@ def edit_water_entry(request, entry_id):
 
 @login_required
 def water_history(request):
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+
     entries = WaterEntry.objects.filter(utente=request.user).order_by('-data', '-creato_il')
     days = []
     for day, grp in groupby(entries, key=lambda e: e.data):
@@ -991,7 +993,27 @@ def water_history(request):
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
 
-    return render(request, 'tracker/water_history.html', {'days': page})
+    year_str = request.GET.get('year')
+    if year_str and year_str.isdigit():
+        year_int = int(year_str)
+    else:
+        year_int = timezone.now().year
+
+    year_totals = {}
+    for e in WaterEntry.objects.filter(utente=request.user, data__year=year_int):
+        d_str = e.data.strftime('%Y-%m-%d')
+        year_totals[d_str] = year_totals.get(d_str, 0) + e.quantita_ml
+    heatmap_data = []
+    for d_str, total_ml in year_totals.items():
+        dt = datetime.strptime(d_str, '%Y-%m-%d')
+        heatmap_data.append({'date': int(time.mktime(dt.timetuple())), 'value': total_ml})
+
+    return render(request, 'tracker/water_history.html', {
+        'days': page,
+        'water_goal_ml': profile.obiettivo_acqua_ml,
+        'heatmap_data_json': json.dumps(heatmap_data),
+        'selected_year': year_int,
+    })
 
 
 @login_required
