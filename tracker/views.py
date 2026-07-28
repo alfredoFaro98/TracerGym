@@ -805,8 +805,15 @@ def user_profile(request, username):
         .order_by('-count')[:5]
     )
 
+    year_str = request.GET.get('year')
+    if year_str and year_str.isdigit():
+        year_int = int(year_str)
+    else:
+        year_int = timezone.now().year
+
+    year_sessions = sessions.filter(data__year=year_int)
     date_counts = {}
-    for s in sessions:
+    for s in year_sessions:
         d_str = s.data.strftime('%Y-%m-%d')
         date_counts[d_str] = date_counts.get(d_str, 0) + 1
     heatmap_data = []
@@ -824,6 +831,7 @@ def user_profile(request, username):
         'total_sets': total_sets,
         'top_exercises': top_exercises,
         'heatmap_data_json': json.dumps(heatmap_data),
+        'selected_year': year_int,
     })
 
 
