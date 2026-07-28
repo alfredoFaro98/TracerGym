@@ -411,8 +411,13 @@
 
             <!-- Nuovo Circuito -->
             <div style="margin-top: 14px;">
-                <div onclick="toggleNewCircuitForm()" style="border: 1px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 14px; text-align: center; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
-                    <span style="font-size: 13px; font-weight: 600; color: #7c6cf6;">⊕ Nuovo Circuito</span>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <div onclick="toggleNewCircuitForm()" style="flex: 1; min-width: 200px; border: 1px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 14px; text-align: center; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+                        <span style="font-size: 13px; font-weight: 600; color: #7c6cf6;">⊕ Nuovo Circuito</span>
+                    </div>
+                    <div onclick="toggleImportCircuitForm()" style="flex: 1; min-width: 200px; border: 1px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 14px; text-align: center; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+                        <span style="font-size: 13px; font-weight: 600; color: #7c6cf6;">⤵ Importa Circuito</span>
+                    </div>
                 </div>
                 <div id="new-circuit-form" style="display: none; margin-top: 12px;">
                     <div class="tracer-card" style="padding: 18px 20px; display: flex; flex-direction: column; gap: 14px;">
@@ -424,6 +429,21 @@
                             <div style="display: flex; flex-direction: column; gap: 6px;"><span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RECUPERO TRA ROUND (S)</span><input type="number" name="rest_tra_round" class="tracer-input" style="width: 100px;" placeholder="Opc." min="0"></div>
                             <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13.5px;">Crea Circuito</button>
                             <button type="button" onclick="toggleNewCircuitForm()" style="padding: 10px 18px; font-size: 13.5px; font-weight: 600; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 9px; color: #c7cbd6; cursor: pointer; white-space: nowrap;">Annulla</button>
+                        </form>
+                    </div>
+                </div>
+                <div id="import-circuit-form" style="display: none; margin-top: 12px;">
+                    <div class="tracer-card" style="padding: 18px 20px; display: flex; flex-direction: column; gap: 14px;">
+                        <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #838a9e;">IMPORTA CIRCUITO DA UN'ALTRA GIORNATA</span>
+                        <form action="{% url 'import_circuit' session.id %}" method="post" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
+                            {% csrf_token %}
+                            <input type="hidden" name="circuit_id" id="import-circuit-id">
+                            <div style="display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 240px;">
+                                <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">CERCA CIRCUITO</span>
+                                <input type="text" id="import-circuit-search" class="tracer-input" placeholder="Cerca per nome o esercizio…" autocomplete="off">
+                            </div>
+                            <button type="submit" id="import-circuit-submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13.5px;" disabled>Importa</button>
+                            <button type="button" onclick="toggleImportCircuitForm()" style="padding: 10px 18px; font-size: 13.5px; font-weight: 600; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 9px; color: #c7cbd6; cursor: pointer; white-space: nowrap;">Annulla</button>
                         </form>
                     </div>
                 </div>
@@ -659,6 +679,81 @@ function toggleNewCircuitForm() {
     var form = document.getElementById('new-circuit-form');
     form.style.display = form.style.display === 'none' ? 'block' : 'none';
 }
+function toggleImportCircuitForm() {
+    var form = document.getElementById('import-circuit-form');
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+// --- Autocomplete importa circuito ---
+(function() {
+    var input = document.getElementById('import-circuit-search');
+    if (!input) return;
+    var SUGGESTIONS_URL = '{% url "circuit_suggestions" %}';
+    var hiddenId = document.getElementById('import-circuit-id');
+    var submitBtn = document.getElementById('import-circuit-submit');
+
+    var dropdown = document.createElement('div');
+    dropdown.id = 'circuit-dropdown';
+    dropdown.style.cssText = 'display:none; position:fixed; z-index:9999; background:#0d0d1a; border:1px solid #1c1c2c; border-radius:0 0 8px 8px; overflow:hidden; max-height:260px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,.5);';
+    document.body.appendChild(dropdown);
+
+    var fetchTimer = null;
+
+    function position() {
+        var r = input.getBoundingClientRect();
+        dropdown.style.top = (r.bottom + window.scrollY) + 'px';
+        dropdown.style.left = (r.left + window.scrollX) + 'px';
+        dropdown.style.width = r.width + 'px';
+    }
+
+    function hide() { dropdown.style.display = 'none'; }
+
+    function markInvalid() {
+        hiddenId.value = '';
+        submitBtn.disabled = true;
+    }
+
+    function render(results) {
+        if (!results.length) { hide(); return; }
+        dropdown.innerHTML = '';
+        results.forEach(function(item) {
+            var el = document.createElement('div');
+            el.style.cssText = 'padding:9px 14px; font-size:12.5px; cursor:pointer; border-bottom:1px solid #16162a;';
+            el.innerHTML = '<div style="color:#f0f0f3; font-weight:600;">' + item.label + '</div>' +
+                (item.exercises ? '<div style="font-size:11px; color:#565b6e; margin-top:2px;">' + item.exercises + '</div>' : '');
+            el.addEventListener('mouseover', function() { el.style.background = '#141428'; });
+            el.addEventListener('mouseout', function() { el.style.background = 'transparent'; });
+            el.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                input.value = item.label;
+                hiddenId.value = item.id;
+                submitBtn.disabled = false;
+                hide();
+            });
+            dropdown.appendChild(el);
+        });
+        position();
+        dropdown.style.display = 'block';
+    }
+
+    function fetchSuggestions(q) {
+        fetch(SUGGESTIONS_URL + '?q=' + encodeURIComponent(q))
+            .then(function(r) { return r.json(); })
+            .then(function(data) { render(data.results); });
+    }
+
+    input.addEventListener('input', function() {
+        markInvalid();
+        clearTimeout(fetchTimer);
+        var q = input.value.trim();
+        fetchTimer = setTimeout(function() { fetchSuggestions(q); }, 150);
+    });
+    input.addEventListener('focus', function() {
+        fetchSuggestions(input.value.trim());
+    });
+    input.addEventListener('blur', function() {
+        setTimeout(hide, 150);
+    });
+})();
 function toggleBarraAdd(e) {
     e.preventDefault();
     var cb = document.getElementById('barra-check-add');

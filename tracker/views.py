@@ -317,6 +317,65 @@ def create_circuit(request, session_id):
 
 
 @login_required
+def import_circuit(request, session_id):
+    session = get_object_or_404(WorkoutSession, id=session_id, utente=request.user)
+    if request.method == 'POST':
+        source = (
+            Circuit.objects
+            .filter(id=request.POST.get('circuit_id'), session__utente=request.user)
+            .prefetch_related('sets__exercise')
+            .first()
+        )
+        if source:
+            order = session.circuits.count()
+            new_circuit = Circuit.objects.create(
+                session=session, nome=source.nome, rounds=source.rounds,
+                rest_tra_round=source.rest_tra_round, order=order,
+            )
+            base_order = session.sets.count()
+            for i, s in enumerate(source.sets.order_by('order', 'id')):
+                WorkoutSet.objects.create(
+                    session=session, exercise=s.exercise, circuit=new_circuit,
+                    reps=s.reps, durata=s.durata, weight=s.weight,
+                    rest_time=s.rest_time, per_lato=s.per_lato,
+                    avviamento=s.avviamento, a_cedimento=s.a_cedimento,
+                    richiamo=s.richiamo, barra_kg=s.barra_kg,
+                    order=base_order + i,
+                )
+            url = reverse('session_detail', kwargs={'session_id': session_id})
+            return redirect(f'{url}?opencircuit={new_circuit.id}')
+    return redirect('session_detail', session_id=session_id)
+
+
+@login_required
+def circuit_suggestions(request):
+    q = request.GET.get('q', '').strip()
+    circuits_qs = (
+        Circuit.objects
+        .filter(session__utente=request.user)
+        .select_related('session')
+        .prefetch_related('sets__exercise')
+        .order_by('-session__data', '-id')
+    )
+    if q:
+        circuits_qs = circuits_qs.filter(
+            models.Q(nome__icontains=q) | models.Q(sets__exercise__nome__icontains=q)
+        ).distinct()
+
+    results = []
+    for c in circuits_qs[:20]:
+        exercise_names = []
+        seen = set()
+        for s in c.sets.all():
+            if s.exercise_id not in seen:
+                seen.add(s.exercise_id)
+                exercise_names.append(s.exercise.nome)
+        label = f"{c.session.data.strftime('%d/%m/%Y')} — {c.nome or 'Circuito'} ({c.rounds} round, {len(exercise_names)} esercizi)"
+        results.append({'id': c.id, 'label': label, 'exercises': ', '.join(exercise_names[:4])})
+    return JsonResponse({'results': results})
+
+
+@login_required
 def edit_circuit(request, circuit_id):
     circuit = get_object_or_404(Circuit, id=circuit_id, session__utente=request.user)
     if request.method == 'POST':
