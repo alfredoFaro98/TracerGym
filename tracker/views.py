@@ -12,7 +12,7 @@ import time
 from datetime import datetime, date, timedelta, time as dt_time
 from django.utils import timezone
 from django.contrib.auth.models import User
-from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry
+from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric
 
 
 @login_required
@@ -1086,3 +1086,55 @@ def body_map(request):
     return render(request, 'tracker/body_map.html', {
         'exercises_json': json.dumps(exercises_data),
     })
+
+
+@login_required
+def misurazioni(request):
+    entries_qs = BodyMetric.objects.filter(utente=request.user).order_by('-data')
+    paginator = Paginator(entries_qs, 20)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+
+    chart_entries = BodyMetric.objects.filter(utente=request.user).order_by('data')
+    chart_data = {
+        'peso': [{'date': e.data.strftime('%d/%m/%Y'), 'value': float(e.peso_kg)} for e in chart_entries if e.peso_kg is not None],
+        'altezza': [{'date': e.data.strftime('%d/%m/%Y'), 'value': float(e.altezza_cm)} for e in chart_entries if e.altezza_cm is not None],
+        'body_fat': [{'date': e.data.strftime('%d/%m/%Y'), 'value': float(e.body_fat_pct)} for e in chart_entries if e.body_fat_pct is not None],
+    }
+
+    return render(request, 'tracker/misurazioni.html', {
+        'entries': page,
+        'chart_data_json': json.dumps(chart_data),
+    })
+
+
+@login_required
+def save_misurazione(request):
+    if request.method == 'POST':
+        data_str = request.POST.get('data')
+        try:
+            entry_data = date.fromisoformat(data_str) if data_str else timezone.now().date()
+        except ValueError:
+            entry_data = timezone.now().date()
+
+        entry, _ = BodyMetric.objects.get_or_create(utente=request.user, data=entry_data)
+
+        # Un campo lasciato vuoto non tocca il valore gia' salvato per quel giorno
+        # (evita che il form rapido "+", sempre vuoto, azzeri dati inseriti in precedenza).
+        for field in ('peso_kg', 'altezza_cm', 'body_fat_pct'):
+            val = request.POST.get(field)
+            if val:
+                try:
+                    setattr(entry, field, float(val))
+                except ValueError:
+                    pass
+        entry.save()
+    return redirect(request.POST.get('next') or 'misurazioni')
+
+
+@login_required
+def delete_misurazione(request, entry_id):
+    entry = get_object_or_404(BodyMetric, id=entry_id, utente=request.user)
+    if request.method == 'POST':
+        entry.delete()
+    return redirect(request.POST.get('next') or 'misurazioni')

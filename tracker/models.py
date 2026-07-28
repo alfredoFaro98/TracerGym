@@ -62,6 +62,22 @@ class WaterEntry(models.Model):
     def __str__(self):
         return f"{self.utente.username} - {self.quantita_ml}ml ({self.data})"
 
+class BodyMetric(models.Model):
+    # Misurazioni corporee dell'utente per una data giornata (una sola voce per giorno)
+    utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='body_metrics')
+    data = models.DateField(default=timezone.now)
+    peso_kg = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    altezza_cm = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
+    body_fat_pct = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
+
+    class Meta:
+        ordering = ['-data']
+        unique_together = ('utente', 'data')
+
+    def __str__(self):
+        return f"{self.utente.username} - {self.data}"
+
+
 class Circuit(models.Model):
     session = models.ForeignKey(WorkoutSession, on_delete=models.CASCADE, related_name='circuits')
     nome = models.CharField(max_length=100, blank=True, default='')
