@@ -20,76 +20,6 @@
         </a>
     </div>
 
-    <!-- Acqua -->
-    <div class="tracer-card" style="padding: 22px 26px; border-radius: 18px; margin-bottom: 24px;">
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 14px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <span style="font-size: 22px;">💧</span>
-                <div>
-                    <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #7d8296; text-transform: uppercase;">Acqua di oggi</div>
-                    <div style="font-size: 20px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">
-                        {{ water_today_l|floatformat:"-2" }} L <span style="font-size: 13px; font-weight: 500; color: #7d8296;">/ {{ water_goal_l|floatformat:"-2" }} L</span>
-                    </div>
-                </div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <form action="{% url 'add_water_entry' %}" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="quantita_ml" value="250">
-                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                    <button type="submit" class="water-quick-btn">+250ml</button>
-                </form>
-                <form action="{% url 'add_water_entry' %}" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="quantita_ml" value="500">
-                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                    <button type="submit" class="water-quick-btn">+500ml</button>
-                </form>
-                <form action="{% url 'add_water_entry' %}" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="quantita_ml" value="1000">
-                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                    <button type="submit" class="water-quick-btn">+1L</button>
-                </form>
-                <button type="button" onclick="toggleWaterGoalForm()" class="water-quick-btn" style="background: transparent;">🎯 Obiettivo</button>
-            </div>
-        </div>
-
-        <!-- Barra di progresso -->
-        <div style="width: 100%; height: 10px; background: rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden;">
-            <div style="height: 100%; width: {{ water_progress_pct }}%; background: linear-gradient(90deg, #5aa7f0, #7c6cf6); border-radius: 6px; transition: width .3s;"></div>
-        </div>
-
-        <!-- Form obiettivo (nascosto) -->
-        <div id="water-goal-form" style="display:none; margin-top: 16px;">
-            <form action="{% url 'set_water_goal' %}" method="post" style="display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap;">
-                {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                <div>
-                    <label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Obiettivo giornaliero (ml)</label>
-                    <input type="number" name="obiettivo_ml" value="{{ water_goal_ml }}" class="tracer-input" style="width: 110px;" min="100" step="50">
-                </div>
-                <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12px;">Salva</button>
-                <button type="button" onclick="toggleWaterGoalForm()" style="padding: 8px 12px; font-size: 12px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #787890; cursor: pointer;">Annulla</button>
-            </form>
-        </div>
-
-        <!-- Aggiunte di oggi -->
-        {% if water_entries_today %}
-        <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px;">
-            {% for e in water_entries_today %}
-            <form action="{% url 'delete_water_entry' e.id %}" method="post" style="display:inline;" onsubmit="return confirm('Eliminare questa aggiunta?');">
-                {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                <button type="submit" title="Elimina" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: rgba(90,167,240,0.1); border: 1px solid rgba(90,167,240,0.22); border-radius: 20px; color: #8ab8ea; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.15)'" onmouseout="this.style.background='rgba(90,167,240,0.1)'">
-                    {{ e.quantita_ml }}ml <span style="color: #5a6a80;">· {{ e.creato_il|date:"H:i" }}</span>
-                </button>
-            </form>
-            {% endfor %}
-        </div>
-        {% endif %}
-    </div>
-
     <!-- Heatmap -->
     <div class="tracer-card" style="padding: 28px 32px; border-radius: 18px; margin-bottom: 24px;">
         <div style="display: flex; align-items: center; justify-content: center; gap: 20px; padding-bottom: 22px;">
@@ -133,6 +63,89 @@
                     <div style="font-size: 9px; color: #f0f0f3; text-transform: uppercase; margin-top: 3px;">Serie</div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Acqua -->
+    <div class="tracer-card" style="padding: 22px 26px; border-radius: 18px; margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 22px;">💧</span>
+                <div>
+                    <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #7d8296; text-transform: uppercase;">Acqua di oggi</div>
+                    <div style="font-size: 20px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">
+                        {{ water_today_l|floatformat:"-2" }} L <span style="font-size: 13px; font-weight: 500; color: #7d8296;">/ {{ water_goal_l|floatformat:"-2" }} L</span>
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <form action="{% url 'add_water_entry' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="quantita_ml" value="250">
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" class="water-quick-btn">+250ml</button>
+                </form>
+                <form action="{% url 'add_water_entry' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="quantita_ml" value="500">
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" class="water-quick-btn">+500ml</button>
+                </form>
+                <form action="{% url 'add_water_entry' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="quantita_ml" value="1000">
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" class="water-quick-btn">+1L</button>
+                </form>
+                <form action="{% url 'add_water_entry' %}" method="post" style="display: flex; gap: 6px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <input type="number" name="quantita_ml" placeholder="ml" min="1" class="tracer-input" style="width: 72px; padding: 8px 10px; font-size: 12.5px;">
+                    <button type="submit" class="water-quick-btn">Aggiungi</button>
+                </form>
+                <button type="button" onclick="toggleWaterGoalForm()" title="Modifica obiettivo giornaliero" style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 9px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; cursor: pointer; flex-shrink: 0; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Barra di progresso -->
+        <div style="width: 100%; height: 10px; background: rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden;">
+            <div style="height: 100%; width: {{ water_progress_pct }}%; background: #7c6cf6; border-radius: 6px; transition: width .3s;"></div>
+        </div>
+
+        <!-- Form obiettivo (nascosto) -->
+        <div id="water-goal-form" style="display:none; margin-top: 16px;">
+            <form action="{% url 'set_water_goal' %}" method="post" style="display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <div>
+                    <label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Obiettivo giornaliero (ml)</label>
+                    <input type="number" name="obiettivo_ml" value="{{ water_goal_ml }}" class="tracer-input" style="width: 110px;" min="100" step="50">
+                </div>
+                <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12px;">Salva</button>
+                <button type="button" onclick="toggleWaterGoalForm()" style="padding: 8px 12px; font-size: 12px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #787890; cursor: pointer;">Annulla</button>
+            </form>
+        </div>
+
+        <!-- Aggiunte di oggi -->
+        {% if water_entries_today %}
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px;">
+            {% for e in water_entries_today %}
+            <form action="{% url 'delete_water_entry' e.id %}" method="post" class="water-pill" style="position: relative; display: inline-flex;" onsubmit="return confirm('Eliminare questa aggiunta?');">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <span style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: rgba(124,108,246,0.12); border: 1px solid rgba(124,108,246,0.2); border-radius: 20px; color: #b7bdf0; font-size: 11.5px; font-weight: 600;">
+                    {{ e.quantita_ml }}ml <span style="color: #7d8296; font-weight: 500;">· {{ e.creato_il|date:"H:i" }}</span>
+                </span>
+                <button type="submit" class="water-pill-x" title="Elimina">×</button>
+            </form>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div style="margin-top: 14px; text-align: right;">
+            <a href="{% url 'water_history' %}" style="font-size: 12px; font-weight: 600; color: #9d8ffb; text-decoration: none;">Vedi storico →</a>
         </div>
     </div>
 
@@ -295,17 +308,41 @@
 
     .water-quick-btn {
         padding: 8px 14px;
-        background: rgba(90,167,240,0.12);
-        border: 1px solid rgba(90,167,240,0.3);
+        background: rgba(124,108,246,0.12);
+        border: 1px solid rgba(124,108,246,0.2);
         border-radius: 8px;
-        color: #8ab8ea;
+        color: #b7bdf0;
         font-size: 12.5px;
         font-weight: 600;
         cursor: pointer;
         transition: background .12s;
         font-family: inherit;
+        white-space: nowrap;
     }
-    .water-quick-btn:hover { background: rgba(90,167,240,0.22); }
+    .water-quick-btn:hover { background: rgba(124,108,246,0.22); }
+
+    .water-pill-x {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #f87171;
+        color: #fff;
+        border: none;
+        font-size: 11px;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transform: scale(0.8);
+        transition: opacity .12s, transform .12s;
+        padding: 0;
+    }
+    .water-pill:hover .water-pill-x { opacity: 1; transform: scale(1); }
 
     .page-container .btn-primary-gradient {
         background: #7c6cf6;

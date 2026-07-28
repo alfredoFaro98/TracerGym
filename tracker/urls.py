@@ -47,4 +47,5 @@ urlpatterns = [
     path('water/add/', views.add_water_entry, name='add_water_entry'),
     path('water/<int:entry_id>/delete/', views.delete_water_entry, name='delete_water_entry'),
     path('water/goal/', views.set_water_goal, name='set_water_goal'),
+    path('water/storico/', views.water_history, name='water_history'),
 ]

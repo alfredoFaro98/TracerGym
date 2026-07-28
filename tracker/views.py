@@ -955,6 +955,22 @@ def delete_water_entry(request, entry_id):
 
 
 @login_required
+def water_history(request):
+    entries = WaterEntry.objects.filter(utente=request.user).order_by('-data', '-creato_il')
+    days = []
+    for day, grp in groupby(entries, key=lambda e: e.data):
+        day_entries = list(grp)
+        total_ml = sum(e.quantita_ml for e in day_entries)
+        days.append({'data': day, 'entries': day_entries, 'total_ml': total_ml, 'total_l': total_ml / 1000})
+
+    paginator = Paginator(days, 14)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+
+    return render(request, 'tracker/water_history.html', {'days': page})
+
+
+@login_required
 def set_water_goal(request):
     if request.method == 'POST':
         obiettivo_ml = request.POST.get('obiettivo_ml')
