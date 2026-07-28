@@ -3,8 +3,8 @@ from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
-    # Autenticazione (usiamo le viste built-in di Django)
-    path('', auth_views.LoginView.as_view(template_name='tracker/login.html'), name='login'),
+    # Autenticazione (TracerLoginView estende il LoginView built-in per gestire "Ricordami")
+    path('', views.TracerLoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     
     # App views

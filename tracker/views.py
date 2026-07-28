@@ -7,12 +7,27 @@ from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
+from django.contrib.auth.views import LoginView
 from itertools import groupby
 import time
 from datetime import datetime, date, timedelta, time as dt_time
 from django.utils import timezone
 from django.contrib.auth.models import User
 from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric
+
+
+REMEMBER_ME_SECONDS = 60 * 60 * 24 * 30  # 30 giorni
+
+
+class TracerLoginView(LoginView):
+    template_name = 'tracker/login.html'
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if self.request.POST.get('remember') == 'on':
+            self.request.session.set_expiry(REMEMBER_ME_SECONDS)
+        # Se non spuntato, non tocchiamo nulla: resta la durata di default (SESSION_COOKIE_AGE).
+        return response
 
 
 @login_required
