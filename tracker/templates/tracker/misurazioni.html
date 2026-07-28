@@ -88,15 +88,15 @@
                     <input type="hidden" name="data" value="{{ e.data|date:'Y-m-d' }}">
                     <div style="display: flex; flex-direction: column; gap: 5px;">
                         <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">PESO (KG)</span>
-                        <input type="number" step="0.1" name="peso_kg" value="{{ e.peso_kg|default:'' }}" min="0" class="tracer-input" style="width: 90px;">
+                        <input type="number" step="0.1" name="peso_kg" value="{{ e.peso_kg|default_if_none:''|stringformat:'s' }}" min="0" class="tracer-input" style="width: 90px;">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 5px;">
                         <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ALTEZZA (CM)</span>
-                        <input type="number" step="0.1" name="altezza_cm" value="{{ e.altezza_cm|default:'' }}" min="0" class="tracer-input" style="width: 90px;">
+                        <input type="number" step="0.1" name="altezza_cm" value="{{ e.altezza_cm|default_if_none:''|stringformat:'s' }}" min="0" class="tracer-input" style="width: 90px;">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 5px;">
                         <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">BODY FAT (%)</span>
-                        <input type="number" step="0.1" name="body_fat_pct" value="{{ e.body_fat_pct|default:'' }}" min="0" max="100" class="tracer-input" style="width: 90px;">
+                        <input type="number" step="0.1" name="body_fat_pct" value="{{ e.body_fat_pct|default_if_none:''|stringformat:'s' }}" min="0" max="100" class="tracer-input" style="width: 90px;">
                     </div>
                     <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
                     <button type="button" onclick="toggleMetricEdit('{{ e.id }}')" style="color: #838a9e; font-size: 12.5px; font-weight: 600; padding: 8px 10px; background: transparent; border: none; cursor: pointer;" onmouseover="this.style.color='#c7cbd6'" onmouseout="this.style.color='#838a9e'">Annulla</button>
