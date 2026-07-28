@@ -20,6 +20,7 @@ urlpatterns = [
     path('session/<int:session_id>/edit-date/', views.edit_session_date, name='edit_session_date'),
     path('session/<int:session_id>/delete-exercise/<int:exercise_id>/', views.delete_exercise_sets, name='delete_exercise_sets'),
     path('session/<int:session_id>/reorder/', views.reorder_exercises, name='reorder_exercises'),
+    path('session/<int:session_id>/exercise/<int:exercise_id>/reorder-sets/', views.reorder_sets, name='reorder_sets'),
     path('exercises/', views.exercises_list, name='exercises_list'),
 
     path('exercises/add/', views.add_exercise, name='add_exercise'),
@@ -44,6 +45,7 @@ urlpatterns = [
     path('circuit/<int:circuit_id>/edit/', views.edit_circuit, name='edit_circuit'),
     path('circuit/<int:circuit_id>/delete/', views.delete_circuit, name='delete_circuit'),
     path('circuit/<int:circuit_id>/reorder/', views.reorder_circuit_exercises, name='reorder_circuit_exercises'),
+    path('circuit/<int:circuit_id>/exercise/<int:exercise_id>/reorder-sets/', views.reorder_circuit_exercise_sets, name='reorder_circuit_exercise_sets'),
     path('water/add/', views.add_water_entry, name='add_water_entry'),
     path('water/<int:entry_id>/delete/', views.delete_water_entry, name='delete_water_entry'),
     path('water/<int:entry_id>/edit/', views.edit_water_entry, name='edit_water_entry'),

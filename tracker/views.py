@@ -344,12 +344,13 @@ def delete_set(request, set_id):
     workout_set = get_object_or_404(WorkoutSet, id=set_id, session__utente=request.user)
     session_id = workout_set.session.id
     circuit_id = workout_set.circuit_id
+    exercise_id = workout_set.exercise_id
     if request.method == 'POST':
         workout_set.delete()
     url = reverse('session_detail', kwargs={'session_id': session_id})
     if circuit_id:
         return redirect(f'{url}?opencircuit={circuit_id}')
-    return redirect(url)
+    return redirect(f'{url}?open={exercise_id}')
 
 @login_required
 def duplicate_set(request, set_id):
@@ -525,6 +526,38 @@ def reorder_circuit_exercises(request, circuit_id):
             ws.order = order_counter
             ws.save(update_fields=['order'])
             order_counter += 1
+    return JsonResponse({'ok': True})
+
+
+def _reorder_sets_within(queryset, set_ids):
+    sets = {ws.id: ws for ws in queryset.filter(id__in=set_ids)}
+    slots = sorted(ws.order for ws in sets.values())
+    for order_value, set_id in zip(slots, set_ids):
+        ws = sets.get(int(set_id))
+        if ws:
+            ws.order = order_value
+            ws.save(update_fields=['order'])
+
+
+@login_required
+def reorder_sets(request, session_id, exercise_id):
+    if request.method != 'POST':
+        return JsonResponse({'ok': False}, status=405)
+    session = get_object_or_404(WorkoutSession, id=session_id, utente=request.user)
+    data = json.loads(request.body)
+    set_ids = data.get('set_ids', [])
+    _reorder_sets_within(session.sets.filter(exercise_id=exercise_id, circuit__isnull=True), set_ids)
+    return JsonResponse({'ok': True})
+
+
+@login_required
+def reorder_circuit_exercise_sets(request, circuit_id, exercise_id):
+    if request.method != 'POST':
+        return JsonResponse({'ok': False}, status=405)
+    circuit = get_object_or_404(Circuit, id=circuit_id, session__utente=request.user)
+    data = json.loads(request.body)
+    set_ids = data.get('set_ids', [])
+    _reorder_sets_within(circuit.sets.filter(exercise_id=exercise_id), set_ids)
     return JsonResponse({'ok': True})
 
 @login_required

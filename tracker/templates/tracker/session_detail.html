@@ -193,10 +193,11 @@
                     </div>
 
                     <!-- Serie espandibili -->
-                    <div id="group-{{ forloop.counter }}" data-ex-id="{{ group.exercise.id }}" style="display: none; flex-direction: column; gap: 6px; padding: 0 4px 14px 42px;">
+                    <div id="group-{{ forloop.counter }}" data-ex-id="{{ group.exercise.id }}" data-set-reorder-url="{% url 'reorder_sets' session.id group.exercise.id %}" style="display: none; flex-direction: column; gap: 6px; padding: 0 4px 14px 42px;">
                         {% for set in group.sets %}
-                        <div>
+                        <div class="set-row-wrap" data-set-id="{{ set.id }}">
                             <div id="row-{{ set.id }}" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.05); border-radius: 9px; padding: 9px 14px; flex-wrap: wrap;">
+                                <span class="set-drag-handle" title="Trascina per ordinare" style="cursor: grab; color: #565b6e; font-size: 14px; line-height: 1; flex-shrink: 0; user-select: none;">⠿</span>
                                 <span style="font-size: 12px; font-weight: 700; color: #9297a8; width: 26px; flex-shrink: 0;">#{{ forloop.counter }}</span>
                                 {% if set.avviamento %}<span style="font-size: 9px; font-weight: 700; color: #6a9fd8; background: rgba(106,159,216,.12); border: 1px solid rgba(106,159,216,.25); border-radius: 4px; padding: 1px 5px; letter-spacing: .4px;">AVV</span>{% endif %}
                                 {% if set.a_cedimento %}<span style="font-size: 9px; font-weight: 700; color: #e05a6a; background: rgba(224,90,106,.12); border: 1px solid rgba(224,90,106,.25); border-radius: 4px; padding: 1px 5px; letter-spacing: .4px;">CED</span>{% endif %}
@@ -228,7 +229,7 @@
                                     {% csrf_token %}
                                     <div style="display: flex; flex-direction: column; gap: 5px;">
                                         <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">ESERCIZIO</span>
-                                        <input type="text" name="exercise_name" value="{{ set.exercise.nome }}" class="tracer-input" style="width: 150px; border-color: #7c6cf6;" autocomplete="off">
+                                        <input type="text" name="exercise_name" value="{{ set.exercise.nome }}" data-valid="true" class="tracer-input" style="width: 150px; border-color: #7c6cf6;" autocomplete="off">
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 5px;">
                                         <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">REPS</span>
@@ -331,15 +332,16 @@
                     <!-- Circuit body (collapsible) -->
                     <div id="circuit-body-{{ item.circuit.id }}" data-reorder-url="{% url 'reorder_circuit_exercises' item.circuit.id %}" style="display: none; flex-direction: column;">
                         {% for group in item.exercise_groups %}
-                        <div class="circuit-ex-group" data-exercise-id="{{ group.exercise.id }}" data-circuit-id="{{ item.circuit.id }}" style="display: flex; flex-direction: column; gap: 6px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.06);">
+                        <div class="circuit-ex-group" data-exercise-id="{{ group.exercise.id }}" data-circuit-id="{{ item.circuit.id }}" data-set-reorder-url="{% url 'reorder_circuit_exercise_sets' item.circuit.id group.exercise.id %}" style="display: flex; flex-direction: column; gap: 6px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.06);">
                             <div style="display: flex; align-items: baseline; gap: 8px;">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="#565b6e" style="flex-shrink: 0;"><circle cx="8" cy="6" r="1.6"></circle><circle cx="16" cy="6" r="1.6"></circle><circle cx="8" cy="12" r="1.6"></circle><circle cx="16" cy="12" r="1.6"></circle><circle cx="8" cy="18" r="1.6"></circle><circle cx="16" cy="18" r="1.6"></circle></svg>
                                 <span style="font-size: 14px; font-weight: 700; color: #ffffff;">{{ group.exercise.nome }}</span>
                                 <span style="font-size: 12px; color: #7d8296;">{{ group.sets|length }} serie</span>
                             </div>
                             {% for set in group.sets %}
-                            <div style="margin: 0 5px 0 20px;">
+                            <div class="set-row-wrap" data-set-id="{{ set.id }}" style="margin: 0 5px 0 20px;">
                                 <div id="row-{{ set.id }}" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.05); border-radius: 9px; padding: 9px 14px; flex-wrap: wrap;">
+                                    <span class="set-drag-handle" title="Trascina per ordinare" style="cursor: grab; color: #565b6e; font-size: 14px; line-height: 1; flex-shrink: 0; user-select: none;">⠿</span>
                                     <span style="font-size: 12px; font-weight: 700; color: #9297a8; width: 22px; flex-shrink: 0;">#{{ forloop.counter }}</span>
                                     {% if set.avviamento %}<span style="font-size: 9px; font-weight: 700; color: #6a9fd8; background: rgba(106,159,216,.12); border: 1px solid rgba(106,159,216,.25); border-radius: 4px; padding: 1px 5px; letter-spacing: .4px;">AVV</span>{% endif %}
                                     {% if set.a_cedimento %}<span style="font-size: 9px; font-weight: 700; color: #e05a6a; background: rgba(224,90,106,.12); border: 1px solid rgba(224,90,106,.25); border-radius: 4px; padding: 1px 5px; letter-spacing: .4px;">CED</span>{% endif %}
@@ -361,7 +363,7 @@
                                 <div id="edit-row-{{ set.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(124,108,246,0.06); border: 1px solid rgba(124,108,246,0.3); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
                                     <form action="{% url 'edit_set' set.id %}" method="post" novalidate style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
                                         {% csrf_token %}
-                                        <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">ESERCIZIO</span><input type="text" name="exercise_name" value="{{ set.exercise.nome }}" class="tracer-input" style="width: 150px; border-color: #7c6cf6;" autocomplete="off"></div>
+                                        <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">ESERCIZIO</span><input type="text" name="exercise_name" value="{{ set.exercise.nome }}" data-valid="true" class="tracer-input" style="width: 150px; border-color: #7c6cf6;" autocomplete="off"></div>
                                         <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">REPS</span><input type="number" name="reps" value="{{ set.reps|default:'' }}" class="tracer-input" style="width: 60px;" min="1"></div>
                                         <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">DURATA (S)</span><input type="number" name="durata" value="{{ set.durata|default:'' }}" class="tracer-input" style="width: 70px;" min="1"></div>
                                         <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">PESO (KG)</span><input type="number" step="any" name="weight" value="{{ set.weight|default:'' }}" class="tracer-input" style="width: 70px;" min="0"></div>
@@ -460,6 +462,9 @@
 .exercise-group { transition: opacity .15s; }
 .exercise-group.dnd-over { outline: 1px solid rgba(240,136,62,.35); border-radius: 4px; }
 .drag-handle:hover { color: #5a5a78 !important; }
+.set-row-wrap { transition: opacity .15s; }
+.set-row-wrap.dnd-over > div:first-child { outline: 1px solid rgba(124,108,246,.35); border-radius: 9px; }
+.set-drag-handle:hover { color: #8a8fa5 !important; }
 .mpill-label input[type="checkbox"] { display: none; }
 .mpill-label span {
     display: inline-block;
@@ -574,10 +579,26 @@ function toggleEditRow(id) {
     row.style.display = visible ? 'none' : 'block';
     dataRow.style.opacity = visible ? '1' : '0.5';
 }
+// --- Persistenza esercizi/circuiti aperti tra un redirect e l'altro (modifica/duplica/elimina non li richiude piu') ---
+var OPEN_EX_KEY = 'open_exercises_session_{{ session.id }}';
+var OPEN_CIRCUITS_KEY = 'open_circuits_session_{{ session.id }}';
+
+function getOpenSet(key) {
+    try { return new Set(JSON.parse(sessionStorage.getItem(key) || '[]')); }
+    catch (e) { return new Set(); }
+}
+function saveOpenSet(key, set) {
+    try { sessionStorage.setItem(key, JSON.stringify(Array.from(set))); }
+    catch (e) {}
+}
+
 function toggleGroup(n) {
     var content = document.getElementById('group-' + n);
     var visible = content.style.display === 'flex';
     content.style.display = visible ? 'none' : 'flex';
+    var openSet = getOpenSet(OPEN_EX_KEY);
+    if (visible) openSet.delete(content.dataset.exId); else openSet.add(content.dataset.exId);
+    saveOpenSet(OPEN_EX_KEY, openSet);
 }
 function toggleAllGroups(btn) {
     var count = parseInt(btn.dataset.count);
@@ -585,31 +606,46 @@ function toggleAllGroups(btn) {
     for (var i = 1; i <= count; i++) {
         if (document.getElementById('group-' + i).style.display === 'flex') { anyOpen = true; break; }
     }
+    var openSet = getOpenSet(OPEN_EX_KEY);
     for (var i = 1; i <= count; i++) {
-        document.getElementById('group-' + i).style.display = anyOpen ? 'none' : 'flex';
+        var el = document.getElementById('group-' + i);
+        el.style.display = anyOpen ? 'none' : 'flex';
+        if (anyOpen) openSet.delete(el.dataset.exId); else openSet.add(el.dataset.exId);
     }
+    saveOpenSet(OPEN_EX_KEY, openSet);
     btn.textContent = anyOpen ? 'Espandi tutto' : 'Comprimi tutto';
 }
 document.addEventListener('DOMContentLoaded', function() {
     var params = new URLSearchParams(window.location.search);
+
+    var openSet = getOpenSet(OPEN_EX_KEY);
     var openId = params.get('open');
-    if (openId) {
-        document.querySelectorAll('[data-ex-id]').forEach(function(el) {
-            if (el.dataset.exId === openId) el.style.display = 'flex';
-        });
-    }
+    if (openId) openSet.add(openId);
+    document.querySelectorAll('[data-ex-id]').forEach(function(el) {
+        if (openSet.has(el.dataset.exId)) el.style.display = 'flex';
+    });
+    saveOpenSet(OPEN_EX_KEY, openSet);
+
+    var circuitOpenSet = getOpenSet(OPEN_CIRCUITS_KEY);
     var openCircuitId = params.get('opencircuit');
-    if (openCircuitId) {
-        var body = document.getElementById('circuit-body-' + openCircuitId);
-        if (body) body.style.display = 'flex';
-    }
+    if (openCircuitId) circuitOpenSet.add(openCircuitId);
+    document.querySelectorAll('[id^="circuit-body-"]').forEach(function(el) {
+        var circuitId = el.id.replace('circuit-body-', '');
+        if (circuitOpenSet.has(circuitId)) el.style.display = 'flex';
+    });
+    saveOpenSet(OPEN_CIRCUITS_KEY, circuitOpenSet);
+
     document.querySelectorAll('[data-barra-show="1"]').forEach(function(el) {
         el.style.display = 'flex';
     });
 });
 function toggleCircuit(id) {
     var body = document.getElementById('circuit-body-' + id);
-    body.style.display = body.style.display === 'flex' ? 'none' : 'flex';
+    var visible = body.style.display === 'flex';
+    body.style.display = visible ? 'none' : 'flex';
+    var openSet = getOpenSet(OPEN_CIRCUITS_KEY);
+    if (visible) openSet.delete(String(id)); else openSet.add(String(id));
+    saveOpenSet(OPEN_CIRCUITS_KEY, openSet);
 }
 function toggleCircuitEdit(id) {
     var form = document.getElementById('circuit-edit-' + id);
@@ -877,6 +913,70 @@ function toggleBarraEdit(e, id) {
     }
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.circuit-ex-group').forEach(attachCircuitDnD);
+    });
+})();
+
+// --- Reorder serie all'interno di un esercizio (lista principale e circuiti) ---
+(function() {
+    var dragEl = null;
+
+    function getSetRows(parent) {
+        return Array.from(parent.querySelectorAll(':scope > .set-row-wrap'));
+    }
+
+    function attach(el) {
+        el.setAttribute('draggable', 'true');
+        el.addEventListener('dragstart', function(e) {
+            e.stopPropagation();
+            dragEl = el;
+            setTimeout(function() { el.style.opacity = '0.4'; }, 0);
+            e.dataTransfer.effectAllowed = 'move';
+        });
+        el.addEventListener('dragend', function(e) {
+            e.stopPropagation();
+            el.style.opacity = '1';
+            getSetRows(el.parentNode).forEach(function(r) { r.classList.remove('dnd-over'); });
+            saveSetOrder(el.parentNode);
+        });
+        el.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.dataTransfer.dropEffect = 'move';
+        });
+        el.addEventListener('dragenter', function(e) {
+            e.stopPropagation();
+            if (dragEl && dragEl !== el && dragEl.parentNode === el.parentNode) {
+                getSetRows(el.parentNode).forEach(function(r) { r.classList.remove('dnd-over'); });
+                el.classList.add('dnd-over');
+            }
+        });
+        el.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (dragEl && dragEl !== el && dragEl.parentNode === el.parentNode) {
+                var parent = el.parentNode;
+                var all = getSetRows(parent);
+                var fromIdx = all.indexOf(dragEl);
+                var toIdx = all.indexOf(el);
+                parent.insertBefore(dragEl, fromIdx < toIdx ? el.nextElementSibling : el);
+            }
+            el.classList.remove('dnd-over');
+        });
+    }
+
+    function saveSetOrder(parent) {
+        var url = parent.dataset.setReorderUrl;
+        if (!url) return;
+        var ids = getSetRows(parent).map(function(r) { return parseInt(r.dataset.setId); });
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+            body: JSON.stringify({ set_ids: ids })
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.set-row-wrap').forEach(attach);
     });
 })();
 
