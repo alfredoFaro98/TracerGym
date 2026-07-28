@@ -18,6 +18,7 @@
         </div>
         {% else %}
         {% for day in days %}
+        {% with day_key=day.data|date:"Y-m-d" %}
         <div style="padding: 16px 20px; border-bottom: 1px solid #16162a;">
             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
                 <span style="font-size: 13.5px; font-weight: 700; color: #f0f0f3;">{{ day.data|date:"l d F Y"|capfirst }}</span>
@@ -25,17 +26,49 @@
             </div>
             <div style="display: flex; flex-wrap: wrap; gap: 10px;">
                 {% for e in day.entries %}
-                <form action="{% url 'delete_water_entry' e.id %}" method="post" class="water-pill" style="position: relative; display: inline-flex;" onsubmit="return confirm('Eliminare questa aggiunta?');">
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{% url 'water_history' %}">
-                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: rgba(124,108,246,0.12); border: 1px solid rgba(124,108,246,0.2); border-radius: 20px; color: #b7bdf0; font-size: 11.5px; font-weight: 600;">
-                        {{ e.quantita_ml }}ml <span style="color: #7d8296; font-weight: 500;">· {{ e.creato_il|date:"H:i" }}</span>
-                    </span>
-                    <button type="submit" class="water-pill-x" title="Elimina">×</button>
-                </form>
+                <div style="position: relative; display: inline-flex; flex-direction: column;">
+                    <form action="{% url 'delete_water_entry' e.id %}" method="post" id="water-view-{{ e.id }}" class="water-pill" style="position: relative; display: inline-flex;" onsubmit="return confirm('Eliminare questa aggiunta?');">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{% url 'water_history' %}">
+                        <span onclick="toggleWaterEdit('{{ e.id }}'); return false;" style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: rgba(124,108,246,0.12); border: 1px solid rgba(124,108,246,0.2); border-radius: 20px; color: #b7bdf0; font-size: 11.5px; font-weight: 600;">
+                            {{ e.quantita_ml }}ml <span style="color: #7d8296; font-weight: 500;">· {{ e.creato_il|date:"H:i" }}</span>
+                        </span>
+                        <button type="submit" class="water-pill-x" title="Elimina">×</button>
+                    </form>
+                    <div id="water-edit-{{ e.id }}" style="display: none; margin-top: 6px;">
+                        <form action="{% url 'edit_water_entry' e.id %}" method="post" style="display: flex; align-items: flex-end; gap: 6px; background: rgba(124,108,246,0.06); border: 1px solid rgba(124,108,246,0.3); border-radius: 9px; padding: 8px 10px;">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{% url 'water_history' %}">
+                            <div>
+                                <span style="display: block; font-size: 9px; font-weight: 700; letter-spacing: .05em; color: #7d8296; margin-bottom: 4px;">ML</span>
+                                <input type="number" name="quantita_ml" value="{{ e.quantita_ml }}" class="tracer-input" style="width: 70px; padding: 6px 8px; font-size: 12px;" min="1">
+                            </div>
+                            <div>
+                                <span style="display: block; font-size: 9px; font-weight: 700; letter-spacing: .05em; color: #7d8296; margin-bottom: 4px;">DATA</span>
+                                <input type="date" name="data" value="{{ e.data|date:'Y-m-d' }}" class="tracer-input" style="padding: 6px 8px; font-size: 12px;">
+                            </div>
+                            <button type="submit" class="btn-primary-gradient" style="padding: 7px 12px; font-size: 11.5px;">Salva</button>
+                            <button type="button" onclick="toggleWaterEdit('{{ e.id }}')" style="padding: 7px 10px; font-size: 11.5px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #787890; cursor: pointer;">Annulla</button>
+                        </form>
+                    </div>
+                </div>
                 {% endfor %}
             </div>
+
+            <div style="margin-top: 12px;">
+                <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" class="water-quick-btn" style="background: transparent; border-style: dashed;">+ Aggiungi a questo giorno</button>
+                <div id="day-add-{{ day_key }}" style="display: none; margin-top: 8px;">
+                    <form action="{% url 'add_water_entry' %}" method="post" style="display: flex; gap: 6px; align-items: center;">
+                        {% csrf_token %}
+                        <input type="hidden" name="data" value="{{ day_key }}">
+                        <input type="hidden" name="next" value="{% url 'water_history' %}">
+                        <input type="number" name="quantita_ml" placeholder="ml" min="1" class="tracer-input" style="width: 80px; padding: 7px 9px; font-size: 12px;">
+                        <button type="submit" class="water-quick-btn">Aggiungi</button>
+                    </form>
+                </div>
+            </div>
         </div>
+        {% endwith %}
         {% endfor %}
         {% endif %}
 
@@ -76,5 +109,38 @@
     padding: 0;
 }
 .water-pill:hover .water-pill-x { opacity: 1; transform: scale(1); }
+
+.water-quick-btn {
+    padding: 8px 14px;
+    background: rgba(124,108,246,0.12);
+    border: 1px solid rgba(124,108,246,0.2);
+    border-radius: 8px;
+    color: #b7bdf0;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .12s;
+    font-family: inherit;
+    white-space: nowrap;
+}
+.water-quick-btn:hover { background: rgba(124,108,246,0.22); }
+
+.page-container .btn-primary-gradient {
+    background: #7c6cf6;
+}
+.page-container .btn-primary-gradient:hover { background: #8b7bf7; opacity: 1; }
 </style>
+<script>
+function toggleWaterEdit(id) {
+    var view = document.getElementById('water-view-' + id);
+    var edit = document.getElementById('water-edit-' + id);
+    var showEdit = edit.style.display === 'none';
+    edit.style.display = showEdit ? 'flex' : 'none';
+    view.style.opacity = showEdit ? '0.5' : '1';
+}
+function toggleDayAddForm(dayKey) {
+    var el = document.getElementById('day-add-' + dayKey);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+</script>
 {% endblock %}

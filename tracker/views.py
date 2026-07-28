@@ -942,7 +942,14 @@ def add_water_entry(request):
     if request.method == 'POST':
         quantita_ml = request.POST.get('quantita_ml')
         if quantita_ml and quantita_ml.isdigit() and int(quantita_ml) > 0:
-            WaterEntry.objects.create(utente=request.user, quantita_ml=int(quantita_ml))
+            entry_data = timezone.now().date()
+            data_str = request.POST.get('data')
+            if data_str:
+                try:
+                    entry_data = date.fromisoformat(data_str)
+                except ValueError:
+                    pass
+            WaterEntry.objects.create(utente=request.user, quantita_ml=int(quantita_ml), data=entry_data)
     return redirect(request.POST.get('next') or 'dashboard')
 
 
@@ -951,6 +958,23 @@ def delete_water_entry(request, entry_id):
     entry = get_object_or_404(WaterEntry, id=entry_id, utente=request.user)
     if request.method == 'POST':
         entry.delete()
+    return redirect(request.POST.get('next') or 'dashboard')
+
+
+@login_required
+def edit_water_entry(request, entry_id):
+    entry = get_object_or_404(WaterEntry, id=entry_id, utente=request.user)
+    if request.method == 'POST':
+        quantita_ml = request.POST.get('quantita_ml')
+        data_str = request.POST.get('data')
+        if quantita_ml and quantita_ml.isdigit() and int(quantita_ml) > 0:
+            entry.quantita_ml = int(quantita_ml)
+        if data_str:
+            try:
+                entry.data = date.fromisoformat(data_str)
+            except ValueError:
+                pass
+        entry.save()
     return redirect(request.POST.get('next') or 'dashboard')
 
 
