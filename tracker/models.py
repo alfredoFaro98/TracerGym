@@ -39,9 +39,24 @@ class WorkoutSession(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     is_public = models.BooleanField(default=False)
+    obiettivo_acqua_ml = models.PositiveIntegerField(default=2000)
 
     def __str__(self):
         return f"Profilo di {self.user.username}"
+
+
+class WaterEntry(models.Model):
+    # Singola aggiunta di acqua bevuta in una giornata
+    utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='water_entries')
+    data = models.DateField(default=timezone.now)
+    quantita_ml = models.PositiveIntegerField()
+    creato_il = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-data', '-creato_il']
+
+    def __str__(self):
+        return f"{self.utente.username} - {self.quantita_ml}ml ({self.data})"
 
 class Circuit(models.Model):
     session = models.ForeignKey(WorkoutSession, on_delete=models.CASCADE, related_name='circuits')

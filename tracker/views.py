@@ -12,7 +12,7 @@ import time
 from datetime import datetime, date, timedelta
 from django.utils import timezone
 from django.contrib.auth.models import User
-from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit
+from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry
 
 
 @login_required
@@ -91,6 +91,12 @@ def dashboard(request):
     )
     default_exercise = last_set.exercise.nome if last_set else ''
 
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    today = timezone.now().date()
+    water_entries_today = WaterEntry.objects.filter(utente=request.user, data=today).order_by('-creato_il')
+    water_today_ml = sum(e.quantita_ml for e in water_entries_today)
+    water_goal_ml = profile.obiettivo_acqua_ml
+
     return render(request, 'tracker/dashboard.html', {
         'sessions': sessions,
         'total_sessions_count': all_sessions.count(),
@@ -100,6 +106,12 @@ def dashboard(request):
         'selected_year': year_int,
         'exercises_json': json.dumps(exercises_data),
         'default_exercise': default_exercise,
+        'water_entries_today': water_entries_today,
+        'water_today_ml': water_today_ml,
+        'water_goal_ml': water_goal_ml,
+        'water_today_l': water_today_ml / 1000,
+        'water_goal_l': water_goal_ml / 1000,
+        'water_progress_pct': min(100, round(water_today_ml / water_goal_ml * 100)) if water_goal_ml else 0,
     })
 
 @login_required
@@ -923,6 +935,34 @@ def toggle_profile_visibility(request):
         profile.is_public = not profile.is_public
         profile.save()
     return redirect('user_profile', username=request.user.username)
+
+
+@login_required
+def add_water_entry(request):
+    if request.method == 'POST':
+        quantita_ml = request.POST.get('quantita_ml')
+        if quantita_ml and quantita_ml.isdigit() and int(quantita_ml) > 0:
+            WaterEntry.objects.create(utente=request.user, quantita_ml=int(quantita_ml))
+    return redirect(request.POST.get('next') or 'dashboard')
+
+
+@login_required
+def delete_water_entry(request, entry_id):
+    entry = get_object_or_404(WaterEntry, id=entry_id, utente=request.user)
+    if request.method == 'POST':
+        entry.delete()
+    return redirect(request.POST.get('next') or 'dashboard')
+
+
+@login_required
+def set_water_goal(request):
+    if request.method == 'POST':
+        obiettivo_ml = request.POST.get('obiettivo_ml')
+        if obiettivo_ml and obiettivo_ml.isdigit() and int(obiettivo_ml) > 0:
+            profile, _ = UserProfile.objects.get_or_create(user=request.user)
+            profile.obiettivo_acqua_ml = int(obiettivo_ml)
+            profile.save()
+    return redirect(request.POST.get('next') or 'dashboard')
 
 
 @login_required

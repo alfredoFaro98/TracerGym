@@ -44,4 +44,7 @@ urlpatterns = [
     path('circuit/<int:circuit_id>/edit/', views.edit_circuit, name='edit_circuit'),
     path('circuit/<int:circuit_id>/delete/', views.delete_circuit, name='delete_circuit'),
     path('circuit/<int:circuit_id>/reorder/', views.reorder_circuit_exercises, name='reorder_circuit_exercises'),
+    path('water/add/', views.add_water_entry, name='add_water_entry'),
+    path('water/<int:entry_id>/delete/', views.delete_water_entry, name='delete_water_entry'),
+    path('water/goal/', views.set_water_goal, name='set_water_goal'),
 ]
