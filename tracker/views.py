@@ -234,9 +234,21 @@ def session_detail(request, session_id):
     return render(request, 'tracker/session_detail.html', _build_session_context(session))
 
 
+def _format_rest_duration(total_seconds):
+    total_seconds = int(total_seconds or 0)
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    if hours:
+        return f"{hours}h {minutes}m {seconds}s"
+    if minutes:
+        return f"{minutes}m {seconds}s"
+    return f"{seconds}s"
+
+
 def _build_session_context(session):
     normal_sets = list(session.sets.filter(circuit__isnull=True).select_related('exercise').order_by('order', 'id'))
     exercise_groups = []
+    total_rest_seconds = sum(s.rest_time or 0 for s in normal_sets)
     for _, grp in groupby(normal_sets, key=lambda s: s.exercise_id):
         grp_list = list(grp)
         exercise_groups.append({'exercise': grp_list[0].exercise, 'sets': grp_list, 'count': len(grp_list)})
@@ -245,13 +257,21 @@ def _build_session_context(session):
     circuit_items = []
     for circuit in circuits_qs:
         c_sets = list(circuit.sets.select_related('exercise').order_by('order', 'id'))
+        total_rest_seconds += sum(s.rest_time or 0 for s in c_sets)
+        if circuit.rest_tra_round and circuit.rounds > 1:
+            total_rest_seconds += circuit.rest_tra_round * (circuit.rounds - 1)
         c_groups = []
         for _, grp in groupby(c_sets, key=lambda s: s.exercise_id):
             grp_list = list(grp)
             c_groups.append({'exercise': grp_list[0].exercise, 'sets': grp_list})
         circuit_items.append({'circuit': circuit, 'exercise_groups': c_groups})
 
-    return {'session': session, 'exercise_groups': exercise_groups, 'circuit_items': circuit_items}
+    return {
+        'session': session,
+        'exercise_groups': exercise_groups,
+        'circuit_items': circuit_items,
+        'total_rest_label': _format_rest_duration(total_rest_seconds),
+    }
 
 def register(request):
     if request.method == 'POST':
