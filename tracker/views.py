@@ -436,7 +436,32 @@ def edit_session_date(request, session_id):
         new_date = request.POST.get('data')
         if new_date:
             session.data = new_date
-            session.save()
+
+        session.luogo = (request.POST.get('luogo') or '').strip()
+
+        orario_str = request.POST.get('orario')
+        if orario_str:
+            try:
+                hh, mm = orario_str.split(':')
+                session.orario = dt_time(int(hh), int(mm))
+            except (ValueError, AttributeError):
+                pass
+        else:
+            session.orario = None
+
+        durata_str = request.POST.get('durata_minuti')
+        session.durata_minuti = int(durata_str) if durata_str and durata_str.isdigit() else None
+
+        peso_str = request.POST.get('peso_kg')
+        if peso_str:
+            try:
+                session.peso_kg = float(peso_str)
+            except ValueError:
+                pass
+        else:
+            session.peso_kg = None
+
+        session.save()
     return redirect('session_detail', session_id=session_id)
 
 @login_required

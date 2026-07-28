@@ -5,17 +5,48 @@
 {% block content %}
 <div class="page-container">
     <!-- Header -->
-    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 24px;">
-        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-            <h1 id="date-label" style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: #f0f0f3; letter-spacing: -0.3px; margin: 0; white-space: nowrap;">
-                {{ session.data|date:"l d F Y"|capfirst }}
-            </h1>
-            <button onclick="toggleDateEdit()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #c7cbd6; font-size: 12.5px; font-weight: 600; padding: 7px 14px; border-radius: 8px; cursor: pointer; white-space: nowrap; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">Modifica data</button>
-            <form id="date-form" action="{% url 'edit_session_date' session.id %}" method="post" style="display:none; align-items: center; gap: 8px;">
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 24px;">
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <h1 id="date-label" style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: #f0f0f3; letter-spacing: -0.3px; margin: 0; white-space: nowrap;">
+                    {{ session.data|date:"l d F Y"|capfirst }}
+                </h1>
+                <button onclick="toggleDateEdit()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #c7cbd6; font-size: 12.5px; font-weight: 600; padding: 7px 14px; border-radius: 8px; cursor: pointer; white-space: nowrap; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">Modifica dettagli</button>
+            </div>
+
+            {% if session.orario or session.luogo or session.durata_minuti or session.peso_kg %}
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                {% if session.orario %}<span style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">🕐 {{ session.orario|time:"H:i" }}</span>{% endif %}
+                {% if session.luogo %}<span style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">📍 {{ session.luogo }}</span>{% endif %}
+                {% if session.durata_minuti %}<span style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">⏱ {{ session.durata_minuti }} min</span>{% endif %}
+                {% if session.peso_kg %}<span style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">⚖️ {{ session.peso_kg }} kg</span>{% endif %}
+            </div>
+            {% endif %}
+
+            <form id="date-form" action="{% url 'edit_session_date' session.id %}" method="post" style="display:none; flex-wrap: wrap; align-items: flex-end; gap: 10px; background: rgba(124,108,246,0.06); border: 1px solid rgba(124,108,246,0.3); border-radius: 9px; padding: 14px 16px; margin-top: 2px;">
                 {% csrf_token %}
-                <input type="date" name="data" value="{{ session.data|date:'Y-m-d' }}" class="tracer-input" style="width: auto; padding: 6px 10px; font-size: 13px;">
-                <button type="submit" class="btn-primary-gradient" style="padding: 6px 12px; font-size: 12px;">Salva</button>
-                <button type="button" onclick="toggleDateEdit()" style="padding: 6px 12px; font-size: 12px; background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #c7cbd6; cursor: pointer;">Annulla</button>
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
+                    <input type="date" name="data" value="{{ session.data|date:'Y-m-d' }}" class="tracer-input" style="width: 150px;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
+                    <input type="time" name="orario" value="{% if session.orario %}{{ session.orario|time:'H:i' }}{% endif %}" class="tracer-input" style="width: 100px;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">LUOGO</span>
+                    <input type="text" name="luogo" value="{{ session.luogo }}" placeholder="Es. Palestra" class="tracer-input" style="width: 150px;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DURATA (MIN)</span>
+                    <input type="number" name="durata_minuti" value="{{ session.durata_minuti|default:'' }}" min="0" placeholder="Opz." class="tracer-input" style="width: 90px;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">PESO ATLETA (KG)</span>
+                    <input type="number" step="0.1" name="peso_kg" value="{{ session.peso_kg|default:'' }}" min="0" placeholder="Opz." class="tracer-input" style="width: 100px;">
+                </div>
+                <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
+                <button type="button" onclick="toggleDateEdit()" style="padding: 8px 12px; font-size: 12.5px; background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #c7cbd6; cursor: pointer;">Annulla</button>
             </form>
         </div>
         <div style="display: flex; align-items: center; gap: 10px;">

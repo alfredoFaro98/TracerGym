@@ -29,6 +29,10 @@ class WorkoutSession(models.Model):
     utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='workout_sessions')
     data = models.DateField(default=timezone.now)
     note = models.TextField(blank=True, null=True)
+    luogo = models.CharField(max_length=150, blank=True, default='')
+    orario = models.TimeField(null=True, blank=True)
+    durata_minuti = models.PositiveIntegerField(null=True, blank=True)
+    peso_kg = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
         return f"Sessione di {self.utente.username} del {self.data}"
