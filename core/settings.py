@@ -16,12 +16,21 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Siamo sul server PythonAnywhere o in locale? Usato sia per il DB che per la secret key.
+IS_PRODUCTION = 'PYTHONANYWHERE_DOMAIN' in os.environ
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-50s_yk^2b4_)ogu8w9)*q@c$#3_!&u=(0r$8of9&o%)%a!_s_6'
+# In produzione DEVE arrivare dalla variabile d'ambiente SECRET_KEY (impostala su
+# PythonAnywhere prima di ricaricare l'app, altrimenti l'avvio fallisce con KeyError).
+# In locale, se non la imposti, usa un valore di comodo solo per sviluppo.
+if IS_PRODUCTION:
+    SECRET_KEY = os.environ['SECRET_KEY']
+else:
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-50s_yk^2b4_)ogu8w9)*q@c$#3_!&u=(0r$8of9&o%)%a!_s_6')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -82,14 +91,16 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-import os
-if 'PYTHONANYWHERE_DOMAIN' in os.environ:
+# La password DEVE arrivare dalla variabile d'ambiente DB_PASSWORD in produzione
+# (impostala su PythonAnywhere prima di ricaricare l'app, altrimenti KeyError all'avvio).
+# In locale, se non la imposti, usa "prova" come prima per comodita'.
+if IS_PRODUCTION:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
             'NAME': 'alfredoFaro98$default', # Il nome esatto su PA
             'USER': 'alfredoFaro98',         # Il tuo utente su PA
-            'PASSWORD': 'provoletta',
+            'PASSWORD': os.environ['DB_PASSWORD'],
             'HOST': 'alfredoFaro98.mysql.pythonanywhere-services.com',
             'PORT': '3306',
         }
@@ -101,7 +112,7 @@ else:
             'ENGINE': 'django.db.backends.mysql',
             'NAME': 'tracker',              # Il tuo db locale
             'USER': 'root',
-            'PASSWORD': 'prova',
+            'PASSWORD': os.environ.get('DB_PASSWORD', 'prova'),
             'HOST': '127.0.0.1',
             'PORT': '3306',
         }
