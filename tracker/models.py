@@ -33,6 +33,8 @@ class WorkoutSession(models.Model):
     orario = models.TimeField(null=True, blank=True)
     durata_minuti = models.PositiveIntegerField(null=True, blank=True)
     peso_kg = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    altezza_cm = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
+    compagni_allenamento = models.CharField(max_length=255, blank=True, default='')
 
     def __str__(self):
         return f"Sessione di {self.utente.username} del {self.data}"

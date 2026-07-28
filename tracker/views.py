@@ -467,6 +467,17 @@ def edit_session_date(request, session_id):
         else:
             session.peso_kg = None
 
+        altezza_str = request.POST.get('altezza_cm')
+        if altezza_str:
+            try:
+                session.altezza_cm = float(altezza_str)
+            except ValueError:
+                pass
+        else:
+            session.altezza_cm = None
+
+        session.compagni_allenamento = (request.POST.get('compagni_allenamento') or '').strip()
+
         session.save()
     return redirect('session_detail', session_id=session_id)
 
