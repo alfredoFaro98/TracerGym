@@ -698,8 +698,8 @@ function toggleImportCircuitForm() {
 
     function position() {
         var r = input.getBoundingClientRect();
-        dropdown.style.top = (r.bottom + window.scrollY) + 'px';
-        dropdown.style.left = (r.left + window.scrollX) + 'px';
+        dropdown.style.top = r.bottom + 'px';
+        dropdown.style.left = r.left + 'px';
         dropdown.style.width = r.width + 'px';
     }
 
@@ -872,8 +872,8 @@ function toggleBarraEdit(e, id) {
 
     function position(input) {
         var r = input.getBoundingClientRect();
-        dropdown.style.top  = (r.bottom + window.scrollY) + 'px';
-        dropdown.style.left = (r.left + window.scrollX) + 'px';
+        dropdown.style.top  = r.bottom + 'px';
+        dropdown.style.left = r.left + 'px';
         dropdown.style.width = r.width + 'px';
     }
 
