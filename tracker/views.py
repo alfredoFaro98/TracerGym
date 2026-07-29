@@ -809,12 +809,23 @@ def exercises_list(request):
         tag_groups = None
     else:
         exercises = None
+        # Un'unica query per tutti gli esercizi (con i loro tag/immagini prefetchati),
+        # poi raggruppati in Python: evita una query separata per ogni tag.
+        all_exercises = list(Exercise.objects.prefetch_related('tags', 'images').order_by('nome'))
+        by_tag = {}
+        untagged = []
+        for ex in all_exercises:
+            ex_tags = list(ex.tags.all())
+            if not ex_tags:
+                untagged.append(ex)
+            for tag in ex_tags:
+                by_tag.setdefault(tag.id, []).append(ex)
+
         tag_groups = []
         for tag in tags:
-            tag_exercises = list(Exercise.objects.filter(tags=tag).prefetch_related('tags', 'images').order_by('nome'))
+            tag_exercises = by_tag.get(tag.id, [])
             if tag_exercises:
                 tag_groups.append({'tag': tag, 'exercises': tag_exercises})
-        untagged = list(Exercise.objects.filter(tags__isnull=True).prefetch_related('tags', 'images').order_by('nome'))
         if untagged:
             tag_groups.append({'tag': None, 'exercises': untagged})
 

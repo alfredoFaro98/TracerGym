@@ -33,7 +33,10 @@ else:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-50s_yk^2b4_)ogu8w9)*q@c$#3_!&u=(0r$8of9&o%)%a!_s_6')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# In produzione DEBUG=True fa accumulare in memoria tutte le query SQL eseguite
+# (connection.queries) per l'intera vita del processo worker, rallentando
+# progressivamente l'app finche' non viene ricaricata: per questo qui DEVE essere False.
+DEBUG = not IS_PRODUCTION
 
 ALLOWED_HOSTS = ['alfredofaro98.pythonanywhere.com', '127.0.0.1', 'localhost']
 
