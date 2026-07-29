@@ -530,6 +530,19 @@
     <div style="border-bottom: 2px solid #111; padding-bottom: 12px; margin-bottom: 20px;">
         <div style="font-size: 20px; font-weight: 700;">{{ session.data|date:"l d F Y" }}</div>
         <div style="font-size: 12px; color: #555; margin-top: 4px;">{% if exercise_groups %}{{ exercise_groups|length }} esercizi &middot; {% endif %}{{ session.sets.count }} serie totali{% if circuit_items %} &middot; {{ circuit_items|length }} circuito{% if circuit_items|length > 1 %}i{% endif %}{% endif %}</div>
+        {% if session.orario or session.luogo or session.durata_minuti or session.peso_kg or session.altezza_cm or session.compagni_allenamento %}
+        <div style="font-size: 11.5px; color: #555; margin-top: 6px;">
+            {% if session.orario %}{{ session.orario|time:"H:i" }}{% endif %}
+            {% if session.luogo %}&middot; {{ session.luogo }}{% endif %}
+            {% if session.durata_minuti %}&middot; {{ session.durata_minuti }} min{% endif %}
+            {% if session.peso_kg %}&middot; {{ session.peso_kg }} kg{% endif %}
+            {% if session.altezza_cm %}&middot; {{ session.altezza_cm }} cm{% endif %}
+            {% if session.compagni_allenamento %}&middot; con {{ session.compagni_allenamento }}{% endif %}
+        </div>
+        {% endif %}
+        {% if session.note %}
+        <div style="font-size: 11.5px; color: #333; margin-top: 6px; font-style: italic;">{{ session.note }}</div>
+        {% endif %}
     </div>
     {% for group in exercise_groups %}
     <div style="margin-bottom: 18px;">
@@ -576,7 +589,7 @@
                     <tr>
                         <td style="padding: 4px 8px; border: 1px solid #ddd; color: #999;">{{ forloop.counter }}</td>
                         <td style="padding: 4px 8px; border: 1px solid #ddd; font-weight: 700;">{% if set.durata and set.reps %}{{ set.reps }} &times; {{ set.durata }}s{% elif set.durata %}{{ set.durata }}s{% elif set.a_cedimento %}CED{% elif set.reps %}{{ set.reps }}{% else %}&mdash;{% endif %}</td>
-                        <td style="padding: 4px 8px; border: 1px solid #ddd;">{% if set.a_cedimento %}<span style="font-size: 9px; color: #e05a6a; font-weight: 700; margin-right: 4px;">CED</span>{% endif %}{{ set.weight|default:"&mdash;" }}{% if set.barra_kg %} <span style="font-size: 10px; color: #5a8a3a;">+{{ set.barra_kg }} sbarra</span>{% endif %}{% if set.per_lato %} <span style="font-size: 10px; color: #888;">(per lato)</span>{% endif %}</td>
+                        <td style="padding: 4px 8px; border: 1px solid #ddd;">{% if set.avviamento %}<span style="font-size: 9px; color: #6a9fd8; font-weight: 700; margin-right: 4px;">AVV</span>{% endif %}{% if set.a_cedimento %}<span style="font-size: 9px; color: #e05a6a; font-weight: 700; margin-right: 4px;">CED</span>{% endif %}{% if set.richiamo %}<span style="font-size: 9px; color: #2dd4bf; font-weight: 700; margin-right: 4px;">RICH</span>{% endif %}{{ set.weight|default:"&mdash;" }}{% if set.barra_kg %} <span style="font-size: 10px; color: #5a8a3a;">+{{ set.barra_kg }} sbarra</span>{% endif %}{% if set.per_lato %} <span style="font-size: 10px; color: #888;">(per lato)</span>{% endif %}</td>
                         <td style="padding: 4px 8px; border: 1px solid #ddd;">{{ set.rest_time|default:"&mdash;" }}</td>
                     </tr>
                     {% endfor %}
