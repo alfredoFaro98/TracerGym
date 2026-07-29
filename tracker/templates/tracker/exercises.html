@@ -4,11 +4,11 @@
 
 {% block extra_head %}
 <style>
-    .tipo-bilanciere { background: rgba(88,101,242,.15); color: #8b97f5; border: 1px solid rgba(88,101,242,.25); }
-    .tipo-manubrio   { background: rgba(240,136,62,.12);  color: #f0a06e; border: 1px solid rgba(240,136,62,.25); }
-    .tipo-cavi       { background: rgba(57,211,83,.10);   color: #5dd67a; border: 1px solid rgba(57,211,83,.22); }
-    .tipo-macchine   { background: rgba(160,106,255,.12); color: #c084fc; border: 1px solid rgba(160,106,255,.25); }
-    .tipo-corpo      { background: rgba(20,200,190,.10);  color: #2dd4bf; border: 1px solid rgba(20,200,190,.22); }
+    .tipo-bilanciere { background: rgba(124,156,246,.12); color: #a8bdf8; border: 1px solid rgba(124,156,246,.28); }
+    .tipo-manubrio   { background: rgba(240,168,117,.12); color: #f0a875; border: 1px solid rgba(240,168,117,.28); }
+    .tipo-cavi       { background: rgba(74,222,128,.12);  color: #7fdb9a; border: 1px solid rgba(74,222,128,.28); }
+    .tipo-macchine   { background: rgba(183,140,247,.12); color: #c3a8fb; border: 1px solid rgba(183,140,247,.28); }
+    .tipo-corpo      { background: rgba(94,207,214,.12);  color: #7fdce1; border: 1px solid rgba(94,207,214,.28); }
     .tipo-default    { background: rgba(120,120,144,.10); color: #9090a8; border: 1px solid rgba(120,120,144,.2); }
 
     .ex-name-btn { cursor: pointer; }
@@ -22,8 +22,23 @@
     #ex-modal.open { display: flex; }
     #ex-modal-box { background: #12121e; border: 1px solid #1c1c2c; border-radius: 12px; padding: 24px; width: 100%; max-width: 580px; margin: 16px; max-height: 90vh; overflow-y: auto; }
 
-    .filter-tab { padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; text-decoration: none; transition: all .12s; background: #1c1c2c; color: #787890; }
-    .filter-tab.active { background: #5865f2; color: #fff; }
+    .filter-tab {
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 12.5px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all .12s;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        color: #c7cbd6;
+        white-space: nowrap;
+    }
+    .filter-tab:hover { background: rgba(255,255,255,0.09); }
+    .filter-tab.active { background: rgba(124,108,246,0.22); border-color: #7c6cf6; color: #ffffff; }
+
+    .page-container .btn-primary-gradient { background: #7c6cf6; }
+    .page-container .btn-primary-gradient:hover { background: #8b7bf7; opacity: 1; }
 </style>
 {% endblock %}
 
@@ -77,7 +92,7 @@
                     <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                         {% for tag in tags %}
                         <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 5px 10px; border: 1px solid #1c1c2c; border-radius: 6px; transition: border-color .12s;" onmouseover="this.style.borderColor='#3a3a5a'" onmouseout="this.style.borderColor='#1c1c2c'">
-                            <input type="checkbox" name="tags" value="{{ tag.id }}" style="accent-color: #5865f2;">
+                            <input type="checkbox" name="tags" value="{{ tag.id }}" style="accent-color: #7c6cf6;">
                             <span style="font-size: 11px; color: #a0a0c0;">{{ tag.nome }}</span>
                         </label>
                         {% endfor %}
@@ -87,25 +102,18 @@
         </div>
     </div>
 
-    <!-- Legenda -->
-    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; align-items: center;">
-        <span style="font-size: 10px; color: #3a3a52; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-right: 4px;">Legenda:</span>
-        <span style="font-size: 10px; padding: 2px 8px; border-radius: 4px;" class="tipo-bilanciere">Bilanciere</span>
-        <span style="font-size: 10px; padding: 2px 8px; border-radius: 4px;" class="tipo-manubrio">Manubrio</span>
-        <span style="font-size: 10px; padding: 2px 8px; border-radius: 4px;" class="tipo-cavi">Cavi</span>
-        <span style="font-size: 10px; padding: 2px 8px; border-radius: 4px;" class="tipo-macchine">Macchine</span>
-        <span style="font-size: 10px; padding: 2px 8px; border-radius: 4px;" class="tipo-corpo">Corpo libero</span>
-    </div>
-
-    <!-- Filter Tabs + Search -->
-    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px;">
-        <div style="display: flex; gap: 6px; flex-wrap: wrap; flex: 1;">
+    <!-- Filtri per gruppo muscolare + ricerca -->
+    <div class="tracer-card" style="padding: 18px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; flex: 1; min-width: 0;">
             <a href="{% url 'exercises_list' %}" class="filter-tab{% if not selected_tag %} active{% endif %}">Tutti</a>
             {% for tag in tags %}
             <a href="?tag={{ tag.nome }}" class="filter-tab{% if selected_tag == tag.nome %} active{% endif %}">{{ tag.nome }}</a>
             {% endfor %}
         </div>
-        <input id="search-input" type="text" placeholder="Cerca esercizio…" class="tracer-input" style="width: 200px; height: 30px; padding: 0 10px; font-size: 12px; border-radius: 20px; flex-shrink: 0;" oninput="filterExercises(this.value)">
+        <div style="position: relative; flex-shrink: 0;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); pointer-events: none;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input id="search-input" type="text" placeholder="Cerca esercizio…" class="tracer-input" style="width: 220px; padding: 9px 14px 9px 34px; font-size: 13px;" oninput="filterExercises(this.value)">
+        </div>
     </div>
 
     <!-- Esercizi -->
@@ -126,7 +134,7 @@
             </div>
             {% if user.is_superuser %}
             <div style="display: flex; gap: 5px; flex-shrink: 0; margin-left: 12px;">
-                <button type="button" data-edit-btn data-ex-id="{{ exercise.id }}" data-ex-nome="{{ exercise.nome }}" data-ex-tipologia="{{ exercise.tipologia }}" data-ex-tag="{{ selected_tag }}" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(88,101,242,.07); border: 1px solid rgba(88,101,242,.2); border-radius: 5px; color: #8b97f5; cursor: pointer;">
+                <button type="button" data-edit-btn data-ex-id="{{ exercise.id }}" data-ex-nome="{{ exercise.nome }}" data-ex-tipologia="{{ exercise.tipologia }}" data-ex-tag="{{ selected_tag }}" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(124,108,246,.12); border: 1px solid rgba(124,108,246,.28); border-radius: 5px; color: #a996ff; cursor: pointer;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </button>
                 <form method="post" action="{% url 'delete_exercise_admin' exercise.id %}" data-confirm-nome="{{ exercise.nome }}" style="margin: 0;">
@@ -163,7 +171,7 @@
                 </div>
                 {% if user.is_superuser %}
                 <div style="display: flex; gap: 5px; flex-shrink: 0; margin-left: 10px;">
-                    <button type="button" data-edit-btn data-ex-id="{{ exercise.id }}" data-ex-nome="{{ exercise.nome }}" data-ex-tipologia="{{ exercise.tipologia }}" data-ex-tag="" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: rgba(88,101,242,.07); border: 1px solid rgba(88,101,242,.2); border-radius: 5px; color: #8b97f5; cursor: pointer;">
+                    <button type="button" data-edit-btn data-ex-id="{{ exercise.id }}" data-ex-nome="{{ exercise.nome }}" data-ex-tipologia="{{ exercise.tipologia }}" data-ex-tag="" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: rgba(124,108,246,.12); border: 1px solid rgba(124,108,246,.28); border-radius: 5px; color: #a996ff; cursor: pointer;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </button>
                     <form method="post" action="{% url 'delete_exercise_admin' exercise.id %}" data-confirm-nome="{{ exercise.nome }}" style="margin: 0;">
@@ -226,7 +234,7 @@
                 <div style="display: flex; flex-wrap: wrap; gap: 8px;" id="edit-tags">
                     {% for tag in tags %}
                     <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 5px 10px; border: 1px solid #1c1c2c; border-radius: 6px;">
-                        <input type="checkbox" name="tags" value="{{ tag.id }}" data-tag-id="{{ tag.id }}" style="accent-color: #5865f2;">
+                        <input type="checkbox" name="tags" value="{{ tag.id }}" data-tag-id="{{ tag.id }}" style="accent-color: #7c6cf6;">
                         <span style="font-size: 11px; color: #a0a0c0;">{{ tag.nome }}</span>
                     </label>
                     {% endfor %}
