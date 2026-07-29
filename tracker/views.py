@@ -1046,36 +1046,50 @@ def import_session_from_user(request, username, session_id):
     original = get_object_or_404(WorkoutSession, id=session_id, utente=target_user)
 
     try:
-        load_pct = float(request.POST.get('load_pct', 0))
-        load_pct = max(-90.0, min(200.0, load_pct))
+        weight_pct = float(request.POST.get('weight_pct', 100))
     except (ValueError, TypeError):
-        load_pct = 0.0
+        weight_pct = 100.0
+    weight_pct = max(20.0, min(200.0, weight_pct))
+    multiplier = weight_pct / 100
+
+    data_str = request.POST.get('data')
+    try:
+        new_data = date.fromisoformat(data_str) if data_str else original.data
+    except ValueError:
+        new_data = original.data
+
+    def scaled_weight(weight):
+        if weight is None:
+            return None
+        adjusted = round(float(weight) * multiplier * 2) / 2  # arrotonda al mezzo kg più vicino
+        return max(0.0, adjusted)
 
     new_session = WorkoutSession.objects.create(
         utente=request.user,
-        data=original.data,
+        data=new_data,
         note=original.note,
     )
-    for s in original.sets.all().order_by('order', 'id'):
-        if s.weight is not None and load_pct != 0.0:
-            adjusted = float(s.weight) * (1 + load_pct / 100)
-            adjusted = round(adjusted * 2) / 2  # arrotonda al mezzo kg più vicino
-            new_weight = max(0.0, adjusted)
-        else:
-            new_weight = s.weight
+    for s in original.sets.filter(circuit__isnull=True).order_by('order', 'id'):
         WorkoutSet.objects.create(
-            session=new_session,
-            exercise=s.exercise,
-            reps=s.reps,
-            weight=new_weight,
-            rest_time=s.rest_time,
-            per_lato=s.per_lato,
-            avviamento=s.avviamento,
-            a_cedimento=s.a_cedimento,
-            barra_kg=s.barra_kg,
-            durata=s.durata,
-            order=s.order,
+            session=new_session, exercise=s.exercise,
+            reps=s.reps, durata=s.durata, weight=scaled_weight(s.weight),
+            rest_time=s.rest_time, per_lato=s.per_lato,
+            avviamento=s.avviamento, a_cedimento=s.a_cedimento, richiamo=s.richiamo,
+            barra_kg=s.barra_kg, order=s.order,
         )
+    for c in original.circuits.order_by('order', 'id'):
+        new_circuit = Circuit.objects.create(
+            session=new_session, nome=c.nome, rounds=c.rounds,
+            rest_tra_round=c.rest_tra_round, order=c.order,
+        )
+        for s in c.sets.order_by('order', 'id'):
+            WorkoutSet.objects.create(
+                session=new_session, exercise=s.exercise,
+                reps=s.reps, durata=s.durata, weight=scaled_weight(s.weight),
+                rest_time=s.rest_time, per_lato=s.per_lato,
+                avviamento=s.avviamento, a_cedimento=s.a_cedimento, richiamo=s.richiamo,
+                barra_kg=s.barra_kg, order=s.order, circuit=new_circuit,
+            )
 
     return redirect('session_detail', session_id=new_session.id)
 
