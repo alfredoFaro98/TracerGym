@@ -634,39 +634,80 @@ def reorder_circuit_exercise_sets(request, circuit_id, exercise_id):
     _reorder_sets_within(circuit.sets.filter(exercise_id=exercise_id), set_ids)
     return JsonResponse({'ok': True})
 
+def _export_set_dict(s):
+    return {
+        'exercise': s.exercise.nome,
+        'reps': s.reps,
+        'weight': float(s.weight) if s.weight is not None else None,
+        'rest_time': s.rest_time,
+        'per_lato': s.per_lato,
+        'avviamento': s.avviamento,
+        'a_cedimento': s.a_cedimento,
+        'richiamo': s.richiamo,
+        'barra_kg': float(s.barra_kg) if s.barra_kg is not None else None,
+        'durata': s.durata,
+        'order': s.order,
+    }
+
+
+def _export_session_dict(session):
+    sets = [_export_set_dict(s) for s in session.sets.filter(circuit__isnull=True).order_by('order', 'id')]
+    circuits = []
+    for c in session.circuits.order_by('order', 'id'):
+        circuits.append({
+            'nome': c.nome,
+            'rounds': c.rounds,
+            'rest_tra_round': c.rest_tra_round,
+            'order': c.order,
+            'sets': [_export_set_dict(s) for s in c.sets.order_by('order', 'id')],
+        })
+    return {
+        'data': session.data.strftime('%Y-%m-%d'),
+        'note': session.note or '',
+        'luogo': session.luogo or '',
+        'orario': session.orario.strftime('%H:%M') if session.orario else None,
+        'durata_minuti': session.durata_minuti,
+        'peso_kg': float(session.peso_kg) if session.peso_kg is not None else None,
+        'altezza_cm': float(session.altezza_cm) if session.altezza_cm is not None else None,
+        'compagni_allenamento': session.compagni_allenamento or '',
+        'sets': sets,
+        'circuits': circuits,
+    }
+
+
 @login_required
 def export_sessions(request):
     sessions = WorkoutSession.objects.filter(
         utente=request.user
-    ).prefetch_related('sets__exercise').order_by('data')
+    ).prefetch_related('sets__exercise', 'circuits__sets__exercise').order_by('data')
 
-    data = []
-    for session in sessions:
-        sets = []
-        for s in session.sets.all().order_by('order', 'id'):
-            sets.append({
-                'exercise': s.exercise.nome,
-                'reps': s.reps,
-                'weight': float(s.weight) if s.weight is not None else None,
-                'rest_time': s.rest_time,
-                'per_lato': s.per_lato,
-                'avviamento': s.avviamento,
-                'a_cedimento': s.a_cedimento,
-                'richiamo': s.richiamo,
-                'barra_kg': float(s.barra_kg) if s.barra_kg is not None else None,
-                'durata': s.durata,
-                'order': s.order,
-            })
-        data.append({
-            'data': session.data.strftime('%Y-%m-%d'),
-            'note': session.note or '',
-            'sets': sets,
-        })
+    data = [_export_session_dict(session) for session in sessions]
 
     response = JsonResponse(data, safe=False, json_dumps_params={'ensure_ascii': False, 'indent': 2})
     filename = f"workout_backup_{timezone.now().strftime('%Y%m%d')}.json"
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
+
+
+def _import_set_kwargs(s):
+    return dict(
+        reps=int(s.get('reps') or 0),
+        weight=s.get('weight'),
+        rest_time=s.get('rest_time'),
+        per_lato=bool(s.get('per_lato', False)),
+        avviamento=bool(s.get('avviamento', False)),
+        a_cedimento=bool(s.get('a_cedimento', False)),
+        richiamo=bool(s.get('richiamo', False)),
+        barra_kg=s.get('barra_kg'),
+        durata=s.get('durata'),
+    )
+
+
+def _get_or_create_exercise(name):
+    exercise = Exercise.objects.filter(nome__iexact=name).first()
+    if not exercise:
+        exercise = Exercise.objects.create(nome=name)
+    return exercise
 
 
 @login_required
@@ -689,32 +730,52 @@ def import_sessions(request):
         skipped = 0
         for item in data:
             try:
-                date = datetime.strptime(item['data'], '%Y-%m-%d').date()
+                session_date = datetime.strptime(item['data'], '%Y-%m-%d').date()
                 note = item.get('note') or None
+
+                orario = None
+                orario_str = item.get('orario')
+                if orario_str:
+                    orario = dt_time.fromisoformat(orario_str)
+
                 session = WorkoutSession.objects.create(
-                    utente=request.user, data=date, note=note,
+                    utente=request.user, data=session_date, note=note,
+                    luogo=item.get('luogo') or '',
+                    orario=orario,
+                    durata_minuti=item.get('durata_minuti'),
+                    peso_kg=item.get('peso_kg'),
+                    altezza_cm=item.get('altezza_cm'),
+                    compagni_allenamento=item.get('compagni_allenamento') or '',
                 )
                 for i, s in enumerate(item.get('sets', [])):
                     exercise_name = (s.get('exercise') or '').strip()
                     if not exercise_name:
                         continue
-                    exercise = Exercise.objects.filter(nome__iexact=exercise_name).first()
-                    if not exercise:
-                        exercise = Exercise.objects.create(nome=exercise_name)
                     WorkoutSet.objects.create(
                         session=session,
-                        exercise=exercise,
-                        reps=int(s.get('reps') or 0),
-                        weight=s.get('weight'),
-                        rest_time=s.get('rest_time'),
-                        per_lato=bool(s.get('per_lato', False)),
-                        avviamento=bool(s.get('avviamento', False)),
-                        a_cedimento=bool(s.get('a_cedimento', False)),
-                        richiamo=bool(s.get('richiamo', False)),
-                        barra_kg=s.get('barra_kg'),
-                        durata=s.get('durata'),
+                        exercise=_get_or_create_exercise(exercise_name),
                         order=s.get('order', i),
+                        **_import_set_kwargs(s),
                     )
+                for ci, c in enumerate(item.get('circuits', [])):
+                    circuit = Circuit.objects.create(
+                        session=session,
+                        nome=c.get('nome') or '',
+                        rounds=c.get('rounds') or 3,
+                        rest_tra_round=c.get('rest_tra_round'),
+                        order=c.get('order', ci),
+                    )
+                    for j, s in enumerate(c.get('sets', [])):
+                        exercise_name = (s.get('exercise') or '').strip()
+                        if not exercise_name:
+                            continue
+                        WorkoutSet.objects.create(
+                            session=session,
+                            exercise=_get_or_create_exercise(exercise_name),
+                            circuit=circuit,
+                            order=s.get('order', j),
+                            **_import_set_kwargs(s),
+                        )
                 imported += 1
             except Exception:
                 skipped += 1
@@ -730,21 +791,7 @@ def import_sessions(request):
 @login_required
 def export_session(request, session_id):
     session = get_object_or_404(WorkoutSession, id=session_id, utente=request.user)
-    sets = []
-    for s in session.sets.all().order_by('order', 'id'):
-        sets.append({
-            'exercise': s.exercise.nome,
-            'reps': s.reps,
-            'weight': float(s.weight) if s.weight is not None else None,
-            'rest_time': s.rest_time,
-            'per_lato': s.per_lato,
-            'avviamento': s.avviamento,
-            'a_cedimento': s.a_cedimento,
-            'richiamo': s.richiamo,
-            'barra_kg': float(s.barra_kg) if s.barra_kg is not None else None,
-            'order': s.order,
-        })
-    data = [{'data': session.data.strftime('%Y-%m-%d'), 'note': session.note or '', 'sets': sets}]
+    data = [_export_session_dict(session)]
     response = JsonResponse(data, safe=False, json_dumps_params={'ensure_ascii': False, 'indent': 2})
     response['Content-Disposition'] = f'attachment; filename="sessione_{session.data.strftime("%Y%m%d")}.json"'
     return response
