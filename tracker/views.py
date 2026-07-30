@@ -21,6 +21,7 @@ REMEMBER_ME_SECONDS = 60 * 60 * 24 * 30  # 30 giorni
 
 class TracerLoginView(LoginView):
     template_name = 'tracker/login.html'
+    redirect_authenticated_user = True
 
     def form_valid(self, form):
         response = super().form_valid(form)
