@@ -13,7 +13,7 @@ import time
 from datetime import datetime, date, timedelta, time as dt_time
 from django.utils import timezone
 from django.contrib.auth.models import User
-from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric
+from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal
 
 
 REMEMBER_ME_SECONDS = 60 * 60 * 24 * 30  # 30 giorni
@@ -110,7 +110,8 @@ def dashboard(request):
     today = timezone.now().date()
     water_entries_today = WaterEntry.objects.filter(utente=request.user, data=today).order_by('-creato_il')
     water_today_ml = sum(e.quantita_ml for e in water_entries_today)
-    water_goal_ml = profile.obiettivo_acqua_ml
+    today_goal_override = WaterGoal.objects.filter(utente=request.user, data=today).first()
+    water_goal_ml = today_goal_override.obiettivo_ml if today_goal_override else profile.obiettivo_acqua_ml
 
     return render(request, 'tracker/dashboard.html', {
         'sessions': sessions,
@@ -1222,15 +1223,34 @@ def edit_water_entry(request, entry_id):
 
 
 @login_required
+def _water_goals_map(utente, year=None):
+    qs = WaterGoal.objects.filter(utente=utente)
+    if year:
+        qs = qs.filter(data__year=year)
+    return {g.data: g.obiettivo_ml for g in qs}
+
+
 def water_history(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    default_goal_ml = profile.obiettivo_acqua_ml
 
     entries = WaterEntry.objects.filter(utente=request.user).order_by('-data', '-creato_il')
+    goals_by_date = _water_goals_map(request.user)
+
     days = []
     for day, grp in groupby(entries, key=lambda e: e.data):
         day_entries = list(grp)
         total_ml = sum(e.quantita_ml for e in day_entries)
-        days.append({'data': day, 'entries': day_entries, 'total_ml': total_ml, 'total_l': total_ml / 1000})
+        goal_ml = goals_by_date.get(day, default_goal_ml)
+        days.append({
+            'data': day,
+            'entries': day_entries,
+            'total_ml': total_ml,
+            'total_l': total_ml / 1000,
+            'goal_ml': goal_ml,
+            'goal_l': goal_ml / 1000,
+            'reached': total_ml >= goal_ml,
+        })
 
     paginator = Paginator(days, 14)
     page_number = request.GET.get('page')
@@ -1244,16 +1264,17 @@ def water_history(request):
 
     year_totals = {}
     for e in WaterEntry.objects.filter(utente=request.user, data__year=year_int):
-        d_str = e.data.strftime('%Y-%m-%d')
-        year_totals[d_str] = year_totals.get(d_str, 0) + e.quantita_ml
+        year_totals[e.data] = year_totals.get(e.data, 0) + e.quantita_ml
+    year_goals = _water_goals_map(request.user, year=year_int)
     heatmap_data = []
-    for d_str, total_ml in year_totals.items():
-        dt = datetime.strptime(d_str, '%Y-%m-%d')
-        heatmap_data.append({'date': int(time.mktime(dt.timetuple())), 'value': total_ml})
+    for d, total_ml in year_totals.items():
+        goal_ml = year_goals.get(d, default_goal_ml)
+        timestamp = int(time.mktime(datetime(d.year, d.month, d.day).timetuple()))
+        heatmap_data.append({'date': timestamp, 'value': total_ml, 'goal': goal_ml})
 
     return render(request, 'tracker/water_history.html', {
         'days': page,
-        'water_goal_ml': profile.obiettivo_acqua_ml,
+        'water_goal_ml': default_goal_ml,
         'heatmap_data_json': json.dumps(heatmap_data),
         'selected_year': year_int,
     })
@@ -1268,6 +1289,24 @@ def set_water_goal(request):
             profile.obiettivo_acqua_ml = int(obiettivo_ml)
             profile.save()
     return redirect(request.POST.get('next') or 'dashboard')
+
+
+@login_required
+def set_day_water_goal(request):
+    if request.method == 'POST':
+        obiettivo_ml = request.POST.get('obiettivo_ml')
+        data_str = request.POST.get('data')
+        if obiettivo_ml and obiettivo_ml.isdigit() and int(obiettivo_ml) > 0 and data_str:
+            try:
+                data = date.fromisoformat(data_str)
+            except ValueError:
+                data = None
+            if data:
+                WaterGoal.objects.update_or_create(
+                    utente=request.user, data=data,
+                    defaults={'obiettivo_ml': int(obiettivo_ml)},
+                )
+    return redirect(request.POST.get('next') or 'water_history')
 
 
 @login_required

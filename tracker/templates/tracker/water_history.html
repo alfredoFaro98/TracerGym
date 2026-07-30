@@ -70,7 +70,7 @@
                 <div id="mobile-cal-heatmap" style="overflow: visible; position: relative;"></div>
             </div>
         </div>
-        <div style="font-size: 10.5px; color: #565b6e; text-align: center; padding: 10px 0 4px;">Colore in base alla % dell'obiettivo giornaliero attuale ({{ water_goal_ml }} ml)</div>
+        <div style="font-size: 10.5px; color: #565b6e; text-align: center; padding: 10px 0 4px;">Colore in base alla % dell'obiettivo di quel giorno (default {{ water_goal_ml }} ml, sovrascrivibile per singolo giorno)</div>
     </div>
 
     <!-- Bevute per giorno -->
@@ -90,7 +90,28 @@
                     <span style="font-size: 13.5px; font-weight: 700; color: #f0f0f3;">{{ day.data|date:"l d F Y"|capfirst }}</span>
                     <span style="font-size: 11.5px; color: #7d8296;">{{ day.entries|length }} bevut{{ day.entries|length|pluralize:"a,e" }}</span>
                 </div>
-                <span style="background: rgba(124,108,246,0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px;">{{ day.total_l|floatformat:"-2" }} L</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="background: rgba(124,108,246,0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;">{{ day.total_l|floatformat:"-2" }} L <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goal_l|floatformat:"-2" }} L</span></span>
+                    {% if day.reached %}
+                    <span title="Obiettivo raggiunto" style="color: #4ade80; font-size: 15px; font-weight: 700;">✓</span>
+                    {% else %}
+                    <span title="Obiettivo non raggiunto" style="color: #f87171; font-size: 13px; font-weight: 700;">✕</span>
+                    {% endif %}
+                    <span onclick="event.stopPropagation(); toggleDayGoalForm('{{ day_key }}')" title="Imposta obiettivo di questo giorno" style="cursor: pointer; font-size: 14px; padding: 4px; border-radius: 6px; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">🎯</span>
+                </div>
+            </div>
+
+            <div id="day-goal-form-{{ day_key }}" style="display: none; margin-top: 10px;" onclick="event.stopPropagation();">
+                <form action="{% url 'set_day_water_goal' %}" method="post" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                    {% csrf_token %}
+                    <input type="hidden" name="data" value="{{ day_key }}">
+                    <input type="hidden" name="next" value="{% url 'water_history' %}">
+                    <span style="font-size: 11px; color: #7d8296;">Obiettivo di questo giorno:</span>
+                    <input type="number" name="obiettivo_ml" value="{{ day.goal_ml }}" min="100" step="50" class="tracer-input" style="width: 100px; padding: 7px 9px; font-size: 12px;">
+                    <span style="font-size: 11px; color: #7d8296;">ml</span>
+                    <button type="submit" class="btn-primary-gradient" style="padding: 7px 14px; font-size: 12px;">Salva</button>
+                    <button type="button" onclick="toggleDayGoalForm('{{ day_key }}')" style="padding: 7px 12px; font-size: 12px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #787890; cursor: pointer;">Annulla</button>
+                </form>
             </div>
 
             <div id="day-body-{{ day_key }}" style="display: none; flex-direction: column; gap: 6px; margin-top: 12px;">
@@ -269,6 +290,10 @@ function toggleDayAddForm(dayKey) {
     var el = document.getElementById('day-add-' + dayKey);
     el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
+function toggleDayGoalForm(dayKey) {
+    var el = document.getElementById('day-goal-form-' + dayKey);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
 
 function changeYear(delta) {
     var currentYear = parseInt('{{ selected_year }}');
@@ -279,24 +304,26 @@ function changeYear(delta) {
     window.location = url;
 }
 
-var GOAL_ML = {{ water_goal_ml }};
+var DEFAULT_GOAL_ML = {{ water_goal_ml }};
 var rawData = {{ heatmap_data_json|safe }};
 var data = {};
 var dataByDate = {};
+var goalByDate = {};
 rawData.forEach(function(item) {
     data[item.date] = item.value;
     var d = new Date(item.date * 1000);
     var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     dataByDate[key] = item.value;
+    goalByDate[key] = item.goal || DEFAULT_GOAL_ML;
 });
 
 var YEAR = {{ selected_year }};
 var MONTH_NAMES_IT = ['GEN','FEB','MAR','APR','MAG','GIU','LUG','AGO','SET','OTT','NOV','DIC'];
 var MONTH_NAMES_IT_SHORT = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
 
-function heatmapLevelColor(ml) {
+function heatmapLevelColor(ml, goalMl) {
     if (!ml) return 'rgba(255,255,255,0.05)';
-    var ratio = GOAL_ML > 0 ? ml / GOAL_ML : 0;
+    var ratio = goalMl > 0 ? ml / goalMl : 0;
     if (ratio >= 1) return 'rgba(124,108,246,1)';
     if (ratio >= 0.75) return 'rgba(124,108,246,0.78)';
     if (ratio >= 0.5) return 'rgba(124,108,246,0.55)';
@@ -333,10 +360,11 @@ function buildYearHeatmap() {
             if (valid) {
                 var dateStr = YEAR + '-' + String(m + 1).padStart(2, '0') + '-' + String(dayNum).padStart(2, '0');
                 var ml = dataByDate[dateStr] || 0;
-                cell.style.background = heatmapLevelColor(ml);
+                var dayGoalMl = goalByDate[dateStr] || DEFAULT_GOAL_ML;
+                cell.style.background = heatmapLevelColor(ml, dayGoalMl);
                 cell.setAttribute('data-hmcell', '1');
 
-                var pct = GOAL_ML > 0 ? Math.round((ml / GOAL_ML) * 100) : 0;
+                var pct = dayGoalMl > 0 ? Math.round((ml / dayGoalMl) * 100) : 0;
                 var tip = document.createElement('div');
                 tip.setAttribute('data-hmtip', '1');
                 tip.style.cssText = 'position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:#15151c;color:#fff;font-size:11px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;z-index:20;box-shadow:0 6px 16px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);transition:opacity .1s;';

@@ -51,6 +51,20 @@ class UserProfile(models.Model):
         return f"Profilo di {self.user.username}"
 
 
+class WaterGoal(models.Model):
+    # Obiettivo acqua specifico per una giornata (override rispetto al default su UserProfile)
+    utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='water_goals')
+    data = models.DateField(default=timezone.now)
+    obiettivo_ml = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ['-data']
+        unique_together = ('utente', 'data')
+
+    def __str__(self):
+        return f"{self.utente.username} - {self.data} - {self.obiettivo_ml}ml"
+
+
 class WaterEntry(models.Model):
     # Singola aggiunta di acqua bevuta in una giornata
     utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='water_entries')

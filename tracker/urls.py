@@ -52,6 +52,7 @@ urlpatterns = [
     path('water/<int:entry_id>/delete/', views.delete_water_entry, name='delete_water_entry'),
     path('water/<int:entry_id>/edit/', views.edit_water_entry, name='edit_water_entry'),
     path('water/goal/', views.set_water_goal, name='set_water_goal'),
+    path('water/goal/giorno/', views.set_day_water_goal, name='set_day_water_goal'),
     path('water/storico/', views.water_history, name='water_history'),
     path('misurazioni/', views.misurazioni, name='misurazioni'),
     path('misurazioni/salva/', views.save_misurazione, name='save_misurazione'),
