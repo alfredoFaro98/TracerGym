@@ -1222,7 +1222,6 @@ def edit_water_entry(request, entry_id):
     return redirect(request.POST.get('next') or 'dashboard')
 
 
-@login_required
 def _water_goals_map(utente, year=None):
     qs = WaterGoal.objects.filter(utente=utente)
     if year:
@@ -1230,6 +1229,7 @@ def _water_goals_map(utente, year=None):
     return {g.data: g.obiettivo_ml for g in qs}
 
 
+@login_required
 def water_history(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
     default_goal_ml = profile.obiettivo_acqua_ml
