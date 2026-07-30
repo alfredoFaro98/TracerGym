@@ -240,7 +240,25 @@ def session_detail(request, session_id):
             circuit = Circuit.objects.filter(id=circuit_id, session=session).first()
 
         num_sets = 1 if circuit else int(request.POST.get('num_sets') or 1)
-        base_order = session.sets.count()
+
+        # Inserisce le nuove serie subito dopo le serie esistenti dello stesso esercizio
+        # (nello stesso ambito: circuito o lista normale), cosi' restano contigue e non
+        # si spezzano in piu' gruppi separati quando si aggiunge di nuovo lo stesso esercizio.
+        if circuit:
+            scope_qs = circuit.sets.all()
+            existing_ex_sets = list(circuit.sets.filter(exercise=exercise).order_by('order', 'id'))
+        else:
+            scope_qs = session.sets.filter(circuit__isnull=True)
+            existing_ex_sets = list(scope_qs.filter(exercise=exercise).order_by('order', 'id'))
+
+        if existing_ex_sets:
+            insert_after = existing_ex_sets[-1].order
+            scope_qs.filter(order__gt=insert_after).update(order=models.F('order') + num_sets)
+            base_order = insert_after + 1
+        else:
+            max_order = scope_qs.aggregate(models.Max('order'))['order__max']
+            base_order = (max_order + 1) if max_order is not None else session.sets.count()
+
         for i in range(max(1, min(num_sets, 20))):
             WorkoutSet.objects.create(
                 order=base_order + i,
@@ -432,7 +450,11 @@ def delete_set(request, set_id):
 def duplicate_set(request, set_id):
     original = get_object_or_404(WorkoutSet, id=set_id, session__utente=request.user)
     if request.method == 'POST':
-        original.session.sets.filter(order__gt=original.order).update(order=models.F('order') + 1)
+        if original.circuit_id:
+            scope_qs = original.circuit.sets.all()
+        else:
+            scope_qs = original.session.sets.filter(circuit__isnull=True)
+        scope_qs.filter(order__gt=original.order).update(order=models.F('order') + 1)
         new_set = WorkoutSet.objects.create(
             session=original.session,
             exercise=original.exercise,
