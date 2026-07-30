@@ -61,6 +61,12 @@ MAINTENANCE_MODE = False
 
 SESSION_COOKIE_AGE = 1800  # 30 minuti
 
+# Cookie di sessione e CSRF marcati "Secure" solo in produzione (PythonAnywhere e' HTTPS):
+# il browser non li invia mai su una connessione non cifrata. In locale restano normali,
+# altrimenti login/form non funzionerebbero girando su http://127.0.0.1.
+SESSION_COOKIE_SECURE = IS_PRODUCTION
+CSRF_COOKIE_SECURE = IS_PRODUCTION
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'tracker.middleware.MaintenanceModeMiddleware',
