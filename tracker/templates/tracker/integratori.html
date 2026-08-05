@@ -2,6 +2,12 @@
 
 {% block title %}Integratori - Workout Tracker{% endblock %}
 
+{% block extra_head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cal-heatmap/3.6.2/cal-heatmap.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cal-heatmap/3.6.2/cal-heatmap.css">
+{% endblock %}
+
 {% block content %}
 <div class="page-container">
     <a href="{% url 'dashboard' %}" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #787890; text-decoration: none; margin-bottom: 20px; transition: color .12s;" onmouseover="this.style.color='#c7cbd6'" onmouseout="this.style.color='#787890'">
@@ -46,6 +52,33 @@
                 <button type="button" onclick="toggleNewEntryForm()" style="padding: 10px 16px; font-size: 13px; background: transparent; border: 1px solid #1c1c2c; border-radius: 8px; color: #787890; cursor: pointer;">Annulla</button>
             </form>
         </div>
+    </div>
+
+    <!-- Heatmap annuale -->
+    <div class="tracer-card" style="padding: 24px 26px 6px; margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; padding-bottom: 18px;">
+            <button type="button" onclick="changeYear(-1)" style="background:none;border:none;color:#9ba0b3;cursor:pointer;padding:4px;display:flex;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <span style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: #f0f0f3;">{{ selected_year }}</span>
+            <button type="button" onclick="changeYear(1)" style="background:none;border:none;color:#9ba0b3;cursor:pointer;padding:4px;display:flex;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+        </div>
+        <div class="desktop-only heatmap-scroll-wrap">
+            <div id="year-heatmap" style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; width: 100%; min-width: 920px;"></div>
+        </div>
+        <div class="mobile-only">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 10px;">
+                <button type="button" onclick="mobileCalPrev()" style="background:none;border:none;color:#f0f0f3;font-size:16px;cursor:pointer;padding:4px 10px;">&#8592;</button>
+                <span id="mobile-month-label" style="font-size: 11px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px; min-width: 80px; text-align: center;"></span>
+                <button type="button" onclick="mobileCalNext()" style="background:none;border:none;color:#f0f0f3;font-size:16px;cursor:pointer;padding:4px 10px;">&#8594;</button>
+            </div>
+            <div style="display: flex; justify-content: center; width: 100%;">
+                <div id="mobile-cal-heatmap" style="overflow: visible; position: relative;"></div>
+            </div>
+        </div>
+        <div style="font-size: 10.5px; color: #565b6e; text-align: center; padding: 10px 0 4px;">Colore in base a quanti integratori (su 3) sono stati assunti quel giorno</div>
     </div>
 
     <!-- Assunzioni per giorno -->
@@ -186,6 +219,34 @@
     background: #7c6cf6;
 }
 .page-container .btn-primary-gradient:hover { background: #8b7bf7; opacity: 1; }
+
+.ch-tooltip {
+    position: absolute !important;
+    z-index: 99999 !important;
+    background: #15151c !important;
+    color: #f0f0f3 !important;
+    border: 1px solid rgba(255,255,255,.08) !important;
+    border-radius: 6px !important;
+    padding: 8px 12px !important;
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-size: 12px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+    pointer-events: none;
+}
+.ch-tooltip::after { border-top-color: #15151c !important; }
+.heatmap-scroll-wrap {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    display: flex;
+    justify-content: center;
+}
+@media (max-width: 1300px) {
+    .heatmap-scroll-wrap { justify-content: flex-start; }
+}
+.heatmap-scroll-wrap::-webkit-scrollbar { height: 4px; }
+.heatmap-scroll-wrap::-webkit-scrollbar-track { background: transparent; }
+.heatmap-scroll-wrap::-webkit-scrollbar-thumb { background: #1c1c2c; border-radius: 2px; }
 </style>
 <script>
 var OPEN_DAYS_KEY = 'open_integratori_days';
@@ -232,5 +293,136 @@ function toggleDayAddForm(dayKey) {
     var el = document.getElementById('day-add-' + dayKey);
     el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
+
+function changeYear(delta) {
+    var currentYear = parseInt('{{ selected_year }}');
+    var newYear = currentYear + delta;
+    var url = new URL(window.location);
+    url.searchParams.set('year', newYear);
+    url.searchParams.delete('page');
+    window.location = url;
+}
+
+var rawData = {{ heatmap_data_json|safe }};
+var data = {};
+var infoByDate = {};
+rawData.forEach(function(item) {
+    data[item.date] = item.value;
+    var d = new Date(item.date * 1000);
+    var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    infoByDate[key] = item;
+});
+
+var YEAR = {{ selected_year }};
+var MONTH_NAMES_IT = ['GEN','FEB','MAR','APR','MAG','GIU','LUG','AGO','SET','OTT','NOV','DIC'];
+var MONTH_NAMES_IT_SHORT = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+
+function heatmapLevelColor(count) {
+    if (!count) return 'rgba(255,255,255,0.05)';
+    if (count >= 3) return 'rgba(124,108,246,1)';
+    if (count >= 2) return 'rgba(124,108,246,0.6)';
+    return 'rgba(124,108,246,0.32)';
+}
+
+function buildYearHeatmap() {
+    var container = document.getElementById('year-heatmap');
+    if (!container) return;
+    container.innerHTML = '';
+    for (var m = 0; m < 12; m++) {
+        var daysInMonth = new Date(YEAR, m + 1, 0).getDate();
+        var firstWeekday = (new Date(YEAR, m, 1).getDay() + 6) % 7;
+        var cols = Math.ceil((firstWeekday + daysInMonth) / 7);
+
+        var monthCol = document.createElement('div');
+        monthCol.style.cssText = 'display:flex;flex-direction:column;gap:8px;align-items:center;min-width:0;';
+
+        var label = document.createElement('div');
+        label.style.cssText = 'font-size:10px;font-weight:600;color:#a7abc0;';
+        label.textContent = MONTH_NAMES_IT[m];
+        monthCol.appendChild(label);
+
+        var grid = document.createElement('div');
+        grid.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(' + cols + ',auto);gap:2px;width:100%;';
+
+        for (var i = 0; i < cols * 7; i++) {
+            var dayNum = i - firstWeekday + 1;
+            var valid = dayNum >= 1 && dayNum <= daysInMonth;
+            var cell = document.createElement('div');
+            cell.style.cssText = 'position:relative;width:100%;aspect-ratio:1;border-radius:2px;';
+
+            if (valid) {
+                var dateStr = YEAR + '-' + String(m + 1).padStart(2, '0') + '-' + String(dayNum).padStart(2, '0');
+                var info = infoByDate[dateStr];
+                var count = info ? info.value : 0;
+                cell.style.background = heatmapLevelColor(count);
+                cell.setAttribute('data-hmcell', '1');
+
+                var tip = document.createElement('div');
+                tip.setAttribute('data-hmtip', '1');
+                tip.style.cssText = 'position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:#15151c;color:#fff;font-size:11px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;z-index:20;box-shadow:0 6px 16px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);transition:opacity .1s;';
+                var tipText = dayNum + ' ' + MONTH_NAMES_IT_SHORT[m] + ' ' + YEAR + ' — ';
+                if (!info) {
+                    tipText += 'nessuna assunzione';
+                } else {
+                    var parts = [];
+                    if (info.creatina) parts.push('Creatina ' + info.creatina + 'g');
+                    if (info.aminoacidi) parts.push('Aminoacidi ' + info.aminoacidi + 'g');
+                    if (info.proteine) parts.push('Proteine ' + info.proteine + 'g');
+                    tipText += parts.length ? parts.join(', ') : 'nessuna assunzione';
+                }
+                tip.textContent = tipText;
+                cell.appendChild(tip);
+            } else {
+                cell.style.background = 'transparent';
+            }
+            grid.appendChild(cell);
+        }
+        monthCol.appendChild(grid);
+        container.appendChild(monthCol);
+    }
+}
+buildYearHeatmap();
+
+var mobileMonthNames = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+var mobileCalStart = new Date();
+mobileCalStart.setDate(1);
+var mobileCal = null;
+
+function updateMobileLabel() {
+    var el = document.getElementById('mobile-month-label');
+    if (el) {
+        el.textContent = mobileMonthNames[mobileCalStart.getMonth()] + ' ' + mobileCalStart.getFullYear();
+    }
+}
+function mobileCalPrev() {
+    mobileCalStart = new Date(mobileCalStart.getFullYear(), mobileCalStart.getMonth() - 1, 1);
+    updateMobileLabel();
+    if (mobileCal) mobileCal.previous(1);
+}
+function mobileCalNext() {
+    mobileCalStart = new Date(mobileCalStart.getFullYear(), mobileCalStart.getMonth() + 1, 1);
+    updateMobileLabel();
+    if (mobileCal) mobileCal.next(1);
+}
+if (window.innerWidth <= 768) {
+    mobileCal = new CalHeatMap();
+    mobileCal.init({
+        itemSelector: "#mobile-cal-heatmap",
+        domain: "month",
+        subDomain: "x_day",
+        data: data,
+        start: mobileCalStart,
+        cellSize: 12,
+        cellPadding: 2,
+        domainGutter: 0,
+        range: 1,
+        tooltip: true,
+        displayLegend: false,
+        itemName: ["integratore", "integratori"],
+        domainLabelFormat: "",
+        label: { position: "top", height: 0, offset: { x: 0, y: 0 } }
+    });
+}
+updateMobileLabel();
 </script>
 {% endblock %}

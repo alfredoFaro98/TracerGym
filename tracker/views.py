@@ -1369,9 +1369,34 @@ def integratori(request):
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
 
+    year_str = request.GET.get('year')
+    if year_str and year_str.isdigit():
+        year_int = int(year_str)
+    else:
+        year_int = timezone.now().year
+
+    year_totals = {}
+    for e in IntegratoreEntry.objects.filter(utente=request.user, data__year=year_int):
+        day_totals = year_totals.setdefault(e.data, {tipo: 0 for tipo, _ in IntegratoreEntry.TIPO_CHOICES})
+        day_totals[e.tipo] += e.quantita_g
+
+    heatmap_data = []
+    for d, totals in year_totals.items():
+        tipi_assunti = sum(1 for v in totals.values() if v > 0)
+        timestamp = int(time.mktime(datetime(d.year, d.month, d.day).timetuple()))
+        heatmap_data.append({
+            'date': timestamp,
+            'value': tipi_assunti,
+            'creatina': totals['creatina'],
+            'aminoacidi': totals['aminoacidi'],
+            'proteine': totals['proteine'],
+        })
+
     return render(request, 'tracker/integratori.html', {
         'days': page,
         'tipo_choices': IntegratoreEntry.TIPO_CHOICES,
+        'selected_year': year_int,
+        'heatmap_data_json': json.dumps(heatmap_data),
     })
 
 
