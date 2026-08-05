@@ -13,7 +13,7 @@ import time
 from datetime import datetime, date, timedelta, time as dt_time
 from django.utils import timezone
 from django.contrib.auth.models import User
-from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal
+from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal, IntegratoreEntry
 
 
 REMEMBER_ME_SECONDS = 60 * 60 * 24 * 30  # 30 giorni
@@ -1347,6 +1347,83 @@ def set_day_water_goal(request):
                     defaults={'obiettivo_ml': int(obiettivo_ml)},
                 )
     return redirect(request.POST.get('next') or 'water_history')
+
+
+@login_required
+def integratori(request):
+    entries = IntegratoreEntry.objects.filter(utente=request.user).order_by('-data', '-creato_il')
+
+    days = []
+    for day, grp in groupby(entries, key=lambda e: e.data):
+        day_entries = list(grp)
+        totals = {tipo: 0 for tipo, _ in IntegratoreEntry.TIPO_CHOICES}
+        for e in day_entries:
+            totals[e.tipo] += e.quantita_g
+        days.append({
+            'data': day,
+            'entries': day_entries,
+            'totals': totals,
+        })
+
+    paginator = Paginator(days, 14)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+
+    return render(request, 'tracker/integratori.html', {
+        'days': page,
+        'tipo_choices': IntegratoreEntry.TIPO_CHOICES,
+    })
+
+
+@login_required
+def add_integratore_entry(request):
+    if request.method == 'POST':
+        tipo = request.POST.get('tipo')
+        quantita_g = request.POST.get('quantita_g')
+        if tipo in dict(IntegratoreEntry.TIPO_CHOICES) and quantita_g and quantita_g.isdigit() and int(quantita_g) > 0:
+            entry_data = timezone.now().date()
+            data_str = request.POST.get('data')
+            if data_str:
+                try:
+                    entry_data = date.fromisoformat(data_str)
+                except ValueError:
+                    pass
+            creato_il = _combine_water_datetime(entry_data, request.POST.get('ora'))
+            IntegratoreEntry.objects.create(utente=request.user, tipo=tipo, quantita_g=int(quantita_g), data=entry_data, creato_il=creato_il)
+    return redirect(request.POST.get('next') or 'integratori')
+
+
+@login_required
+def delete_integratore_entry(request, entry_id):
+    entry = get_object_or_404(IntegratoreEntry, id=entry_id, utente=request.user)
+    if request.method == 'POST':
+        entry.delete()
+    return redirect(request.POST.get('next') or 'integratori')
+
+
+@login_required
+def edit_integratore_entry(request, entry_id):
+    entry = get_object_or_404(IntegratoreEntry, id=entry_id, utente=request.user)
+    if request.method == 'POST':
+        tipo = request.POST.get('tipo')
+        quantita_g = request.POST.get('quantita_g')
+        data_str = request.POST.get('data')
+        ora_str = request.POST.get('ora')
+        if tipo in dict(IntegratoreEntry.TIPO_CHOICES):
+            entry.tipo = tipo
+        if quantita_g and quantita_g.isdigit() and int(quantita_g) > 0:
+            entry.quantita_g = int(quantita_g)
+        if data_str:
+            try:
+                entry.data = date.fromisoformat(data_str)
+            except ValueError:
+                pass
+        if ora_str:
+            entry.creato_il = _combine_water_datetime(entry.data, ora_str)
+        elif data_str:
+            entry.creato_il = _combine_water_datetime(entry.data, entry.creato_il.strftime('%H:%M'))
+        entry.save()
+    return redirect(request.POST.get('next') or 'integratori')
 
 
 @login_required

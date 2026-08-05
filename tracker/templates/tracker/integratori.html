@@ -1,0 +1,236 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Integratori - Workout Tracker{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <a href="{% url 'dashboard' %}" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #787890; text-decoration: none; margin-bottom: 20px; transition: color .12s;" onmouseover="this.style.color='#c7cbd6'" onmouseout="this.style.color='#787890'">
+        ← Dashboard
+    </a>
+
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 20px;">
+        <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: #f0f0f3; margin: 0;">💊 Integratori</h1>
+        <button type="button" onclick="toggleNewEntryForm()" class="dash-add-btn" title="Aggiungi assunzione" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+    </div>
+
+    <!-- Nuova assunzione (qualsiasi giorno, anche senza entry esistenti) -->
+    <div id="new-entry-form" style="display: none; margin-bottom: 24px;">
+        <div class="tracer-card" style="padding: 18px 20px;">
+            <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 12px;">Nuova assunzione</div>
+            <form action="{% url 'add_integratore_entry' %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'integratori' %}">
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">TIPO</span>
+                    <select name="tipo" class="tracer-input" style="width: 150px;">
+                        {% for value, label in tipo_choices %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
+                    <input type="date" name="data" value="{% now 'Y-m-d' %}" class="tracer-input" style="width: 150px;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
+                    <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input" style="width: 110px;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">GRAMMI</span>
+                    <input type="number" name="quantita_g" placeholder="es. 5" min="1" class="tracer-input" style="width: 100px;">
+                </div>
+                <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13px;">Aggiungi</button>
+                <button type="button" onclick="toggleNewEntryForm()" style="padding: 10px 16px; font-size: 13px; background: transparent; border: 1px solid #1c1c2c; border-radius: 8px; color: #787890; cursor: pointer;">Annulla</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Assunzioni per giorno -->
+    <div class="tracer-card" style="overflow: hidden;">
+        {% if not days %}
+        <div style="padding: 52px 24px; text-align: center;">
+            <div style="font-size: 26px; margin-bottom: 10px; opacity: .4;">💊</div>
+            <div style="font-size: 13.5px; color: #7d8296; font-weight: 500;">Ancora nessuna assunzione registrata</div>
+        </div>
+        {% else %}
+        {% for day in days %}
+        {% with day_key=day.data|date:"Y-m-d" %}
+        <div style="padding: 16px 20px; border-bottom: 1px solid #16162a;">
+            <div onclick="toggleDay('{{ day_key }}')" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; cursor: pointer; user-select: none;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <svg id="day-chevron-{{ day_key }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    <span style="font-size: 13.5px; font-weight: 700; color: #f0f0f3;">{{ day.data|date:"l d F Y"|capfirst }}</span>
+                    <span style="font-size: 11.5px; color: #7d8296;">{{ day.entries|length }} assunzion{{ day.entries|length|pluralize:"e,i" }}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                    {% if day.totals.creatina %}<span style="background: rgba(124,108,246,0.14); color: #b7bdf0; font-size: 11.5px; font-weight: 700; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">Creatina {{ day.totals.creatina }}g</span>{% endif %}
+                    {% if day.totals.aminoacidi %}<span style="background: rgba(45,212,191,0.14); color: #6ee0d0; font-size: 11.5px; font-weight: 700; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">Aminoacidi {{ day.totals.aminoacidi }}g</span>{% endif %}
+                    {% if day.totals.proteine %}<span style="background: rgba(240,168,117,0.14); color: #f0a875; font-size: 11.5px; font-weight: 700; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">Proteine {{ day.totals.proteine }}g</span>{% endif %}
+                </div>
+            </div>
+
+            <div id="day-body-{{ day_key }}" style="display: none; flex-direction: column; gap: 6px; margin-top: 12px;">
+                {% for e in day.entries %}
+                <div>
+                    <div id="integratore-view-{{ e.id }}" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.05); border-radius: 9px; padding: 9px 14px; flex-wrap: wrap;">
+                        <span style="font-size: 9px; font-weight: 700; color: #a996ff; background: rgba(124,108,246,.12); border: 1px solid rgba(124,108,246,.25); border-radius: 4px; padding: 2px 6px; letter-spacing: .4px; text-transform: uppercase;">{{ e.get_tipo_display }}</span>
+                        <span style="font-size: 13.5px; color: #ffffff;"><b>{{ e.quantita_g }}</b> g</span>
+                        <span style="font-size: 12px; color: #7d8296;">{{ e.creato_il|date:"H:i" }}</span>
+                        <div style="flex: 1;"></div>
+                        <span onclick="toggleIntegratoreEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: #a996ff; padding: 6px 12px; border-radius: 7px; background: rgba(124,108,246,0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(124,108,246,0.22)'" onmouseout="this.style.background='rgba(124,108,246,0.12)'">Modifica</span>
+                        <form action="{% url 'delete_integratore_entry' e.id %}" method="post" style="display:inline;" onsubmit="return confirm('Eliminare questa assunzione?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{% url 'integratori' %}">
+                            <button type="submit" style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
+                        </form>
+                    </div>
+                    <div id="integratore-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(124,108,246,0.06); border: 1px solid rgba(124,108,246,0.3); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
+                        <form action="{% url 'edit_integratore_entry' e.id %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{% url 'integratori' %}">
+                            <div style="display: flex; flex-direction: column; gap: 5px;">
+                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">TIPO</span>
+                                <select name="tipo" class="tracer-input" style="width: 140px;">
+                                    {% for value, label in tipo_choices %}
+                                    <option value="{{ value }}" {% if value == e.tipo %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 5px;">
+                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">GRAMMI</span>
+                                <input type="number" name="quantita_g" value="{{ e.quantita_g }}" class="tracer-input" style="width: 80px;" min="1">
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 5px;">
+                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
+                                <input type="date" name="data" value="{{ e.data|date:'Y-m-d' }}" class="tracer-input" style="width: 150px;">
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 5px;">
+                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
+                                <input type="time" name="ora" value="{{ e.creato_il|date:'H:i' }}" class="tracer-input" style="width: 100px;">
+                            </div>
+                            <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
+                            <button type="button" onclick="toggleIntegratoreEdit('{{ e.id }}')" style="color: #838a9e; font-size: 12.5px; font-weight: 600; padding: 8px 10px; background: transparent; border: none; cursor: pointer;" onmouseover="this.style.color='#c7cbd6'" onmouseout="this.style.color='#838a9e'">Annulla</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div style="margin-top: 6px;">
+                    <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" class="water-quick-btn">+ Aggiungi assunzione</button>
+                    <div id="day-add-{{ day_key }}" style="display: none; margin-top: 10px;">
+                        <form action="{% url 'add_integratore_entry' %}" method="post" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                            {% csrf_token %}
+                            <input type="hidden" name="data" value="{{ day_key }}">
+                            <input type="hidden" name="next" value="{% url 'integratori' %}">
+                            <select name="tipo" class="tracer-input" style="width: 130px; padding: 8px 10px; font-size: 12.5px;">
+                                {% for value, label in tipo_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="number" name="quantita_g" placeholder="g" min="1" class="tracer-input" style="width: 80px; padding: 8px 10px; font-size: 12.5px;">
+                            <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input" style="width: 100px; padding: 8px 10px; font-size: 12.5px;">
+                            <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Aggiungi</button>
+                            <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" style="padding: 8px 12px; font-size: 12.5px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #787890; cursor: pointer;">Annulla</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+        {% endif %}
+
+        {% if days.has_other_pages %}
+        <div style="display: flex; justify-content: center; gap: 8px; padding: 16px; border-top: 1px solid #16162a;">
+            {% if days.has_previous %}
+                <a href="?page={{ days.previous_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Precedente</a>
+            {% endif %}
+            <span style="font-size: 12px; color: #7d8296; align-self: center;">Pagina {{ days.number }} di {{ days.paginator.num_pages }}</span>
+            {% if days.has_next %}
+                <a href="?page={{ days.next_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Successiva</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.dash-add-btn {
+    background: #7c6cf6;
+    color: #fff;
+    border: none;
+    transition: background .15s, box-shadow .15s;
+    box-shadow: 0 8px 20px rgba(124,108,246,.35);
+}
+.dash-add-btn:hover { background: #8b7bf7; }
+
+.water-quick-btn {
+    padding: 8px 14px;
+    background: rgba(124,108,246,0.12);
+    border: 1px solid rgba(124,108,246,0.2);
+    border-radius: 8px;
+    color: #b7bdf0;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .12s;
+    font-family: inherit;
+    white-space: nowrap;
+}
+.water-quick-btn:hover { background: rgba(124,108,246,0.22); }
+
+.page-container .btn-primary-gradient {
+    background: #7c6cf6;
+}
+.page-container .btn-primary-gradient:hover { background: #8b7bf7; opacity: 1; }
+</style>
+<script>
+var OPEN_DAYS_KEY = 'open_integratori_days';
+function getOpenDays() {
+    try { return new Set(JSON.parse(sessionStorage.getItem(OPEN_DAYS_KEY) || '[]')); }
+    catch (e) { return new Set(); }
+}
+function saveOpenDays(set) {
+    try { sessionStorage.setItem(OPEN_DAYS_KEY, JSON.stringify(Array.from(set))); }
+    catch (e) {}
+}
+function toggleDay(dayKey) {
+    var body = document.getElementById('day-body-' + dayKey);
+    var chevron = document.getElementById('day-chevron-' + dayKey);
+    var visible = body.style.display === 'flex';
+    body.style.display = visible ? 'none' : 'flex';
+    if (chevron) chevron.style.transform = visible ? 'rotate(0deg)' : 'rotate(90deg)';
+    var openDays = getOpenDays();
+    if (visible) openDays.delete(dayKey); else openDays.add(dayKey);
+    saveOpenDays(openDays);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    getOpenDays().forEach(function(dayKey) {
+        var body = document.getElementById('day-body-' + dayKey);
+        var chevron = document.getElementById('day-chevron-' + dayKey);
+        if (body) {
+            body.style.display = 'flex';
+            if (chevron) chevron.style.transform = 'rotate(90deg)';
+        }
+    });
+});
+function toggleNewEntryForm() {
+    var el = document.getElementById('new-entry-form');
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+function toggleIntegratoreEdit(id) {
+    var view = document.getElementById('integratore-view-' + id);
+    var edit = document.getElementById('integratore-edit-' + id);
+    var showEdit = edit.style.display === 'none';
+    edit.style.display = showEdit ? 'flex' : 'none';
+    view.style.opacity = showEdit ? '0.5' : '1';
+}
+function toggleDayAddForm(dayKey) {
+    var el = document.getElementById('day-add-' + dayKey);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+</script>
+{% endblock %}

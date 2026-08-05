@@ -78,6 +78,26 @@ class WaterEntry(models.Model):
     def __str__(self):
         return f"{self.utente.username} - {self.quantita_ml}ml ({self.data})"
 
+
+class IntegratoreEntry(models.Model):
+    # Singola assunzione di creatina/aminoacidi/proteine in una giornata
+    TIPO_CHOICES = [
+        ('creatina', 'Creatina'),
+        ('aminoacidi', 'Aminoacidi'),
+        ('proteine', 'Proteine'),
+    ]
+    utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='integratore_entries')
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES)
+    quantita_g = models.PositiveIntegerField()
+    data = models.DateField(default=timezone.now)
+    creato_il = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['-data', '-creato_il']
+
+    def __str__(self):
+        return f"{self.utente.username} - {self.get_tipo_display()} {self.quantita_g}g ({self.data})"
+
 class BodyMetric(models.Model):
     # Misurazioni corporee dell'utente per una data giornata (una sola voce per giorno)
     utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='body_metrics')
