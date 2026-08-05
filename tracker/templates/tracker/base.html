@@ -1,4 +1,5 @@
 {% load static %}
+{% load tracker_extras %}
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -30,43 +31,58 @@
             </a>
 
             <!-- Menu -->
+            {% with current_url=request.resolver_match.url_name %}
             <div class="menu-container" style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
-                <a href="{% url 'dashboard' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35); font-size: 13px; font-weight: 500; transition: all .15s;">
+                {% with is_active=current_url|in_list:"dashboard,session_detail" %}
+                <a href="{% url 'dashboard' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                     <span class="menu-text">Dashboard</span>
                 </a>
-                <a href="{% url 'create_session' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid transparent; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'">
+                {% endwith %}
+                {% with is_active=current_url|in_list:"create_session" %}
+                <a href="{% url 'create_session' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
                     <span class="menu-text">Nuovo Allenamento</span>
                 </a>
-                <a href="{% url 'user_list' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid transparent; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'">
+                {% endwith %}
+                {% is_athletes_active as is_active %}
+                <a href="{% url 'user_list' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                     <span class="menu-text">Atleti</span>
                 </a>
-                <a href="{% url 'body_map' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid transparent; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'">
+                {% with is_active=current_url|in_list:"body_map" %}
+                <a href="{% url 'body_map' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
                     <span class="menu-text">Mappa Muscolare</span>
                 </a>
-                <a href="{% url 'exercises_list' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid transparent; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'">
+                {% endwith %}
+                {% with is_active=current_url|in_list:"exercises_list,add_exercise,edit_exercise_admin" %}
+                <a href="{% url 'exercises_list' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
                     <span class="menu-text">Catalogo Esercizi</span>
                 </a>
+                {% endwith %}
 
-                <a href="{% url 'misurazioni' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid transparent; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'">
+                {% with is_active=current_url|in_list:"misurazioni" %}
+                <a href="{% url 'misurazioni' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="3 17 9 11 13 15 21 7"></polyline><polyline points="14 7 21 7 21 14"></polyline></svg>
                     <span class="menu-text">Misurazioni</span>
                 </a>
+                {% endwith %}
 
-                <a href="{% url 'user_profile' user.username %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid transparent; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'">
+                {% is_own_profile as is_active %}
+                <a href="{% url 'user_profile' user.username %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                     <span class="menu-text">Il mio profilo</span>
                 </a>
                 {% if user.is_superuser %}
                 <div style="font-size: 9px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1.2px; padding: 8px 14px 2px;">Admin</div>
-                <a href="/admin/" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid transparent; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'">
+                {% with is_active=request.resolver_match.namespace|in_list:"admin" %}
+                <a href="/admin/" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                     <span class="menu-text">Django Admin</span>
                 </a>
+                {% endwith %}
                 {% endif %}
 
                 <button id="tour-menu-btn" onclick="if(typeof startTour !== 'undefined') startTour(); else window.location.href='{% url 'dashboard' %}?tour=1';" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid transparent; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s; background: transparent; width: 100%; text-align: left; cursor: pointer; font-family: inherit;" onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent'; this.style.color='#f0f0f3'">
@@ -74,6 +90,7 @@
                     <span class="menu-text">Guida</span>
                 </button>
             </div>
+            {% endwith %}
 
             <!-- User Info / Logout -->
             <div class="user-info-container" style="border-top: 1px solid #14141f; padding-top: 20px; margin-top: auto;">
