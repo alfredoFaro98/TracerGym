@@ -68,6 +68,12 @@
             <a href="{% url 'export_session' session.id %}" title="Esporta sessione JSON" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#c7cbd6;text-decoration:none;transition:background .12s;flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
                 <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
             </a>
+            {% if exercise_groups or circuit_items %}
+            <form action="{% url 'clear_session' session.id %}" method="post" onsubmit="return confirm('Eliminare tutte le {{ session.sets.count }} serie{% if circuit_items %} e i {{ circuit_items|length }} circuiti{% endif %} di questa sessione? L\'azione è irreversibile.');">
+                {% csrf_token %}
+                <button type="submit" style="background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.25); color: #f87171; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Svuota Sessione</button>
+            </form>
+            {% endif %}
             <div style="background: #7c6cf6; color: #fff; font-size: 13.5px; font-weight: 700; padding: 9px 18px; border-radius: 9px; white-space: nowrap;">
                 {{ session.sets.count }} serie
             </div>

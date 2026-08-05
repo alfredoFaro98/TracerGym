@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import JsonResponse
-from django.db import models
+from django.db import models, transaction
 import json
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
@@ -587,6 +587,15 @@ def delete_session(request, session_id):
     if request.method == 'POST':
         session.delete()
     return redirect('dashboard')
+
+@login_required
+def clear_session(request, session_id):
+    session = get_object_or_404(WorkoutSession, id=session_id, utente=request.user)
+    if request.method == 'POST':
+        with transaction.atomic():
+            session.sets.all().delete()
+            session.circuits.all().delete()
+    return redirect('session_detail', session_id=session_id)
 
 @login_required
 def delete_exercise_sets(request, session_id, exercise_id):

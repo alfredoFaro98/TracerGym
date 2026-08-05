@@ -16,6 +16,7 @@ urlpatterns = [
     path('set/<int:set_id>/duplicate/', views.duplicate_set, name='duplicate_set'),
     path('set/<int:set_id>/edit/', views.edit_set, name='edit_set'),
     path('session/<int:session_id>/delete/', views.delete_session, name='delete_session'),
+    path('session/<int:session_id>/svuota/', views.clear_session, name='clear_session'),
     path('session/<int:session_id>/duplicate/', views.duplicate_session, name='duplicate_session'),
     path('session/<int:session_id>/edit-date/', views.edit_session_date, name='edit_session_date'),
     path('session/<int:session_id>/delete-exercise/<int:exercise_id>/', views.delete_exercise_sets, name='delete_exercise_sets'),
