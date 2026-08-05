@@ -173,11 +173,24 @@
                     </div>
                 </div>
 
+                <!-- Barra azioni bulk (visibile quando ci sono serie selezionate) -->
+                <div id="bulk-actions-bar" style="display: none; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 16px; background: rgba(248,113,113,0.08); border-bottom: 1px solid rgba(248,113,113,0.2); flex-wrap: wrap;">
+                    <span id="bulk-actions-count" style="font-size: 12.5px; font-weight: 600; color: #f87171;">0 serie selezionate</span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button type="button" onclick="deselectAllSets()" style="padding: 6px 12px; font-size: 12px; font-weight: 600; background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; color: #c7cbd6; cursor: pointer;">Deseleziona</button>
+                        <button type="button" onclick="submitBulkDelete()" style="padding: 6px 14px; font-size: 12px; font-weight: 600; background: rgba(248,113,113,0.16); border: none; border-radius: 7px; color: #f87171; cursor: pointer;">Elimina selezionate</button>
+                    </div>
+                </div>
+                <form id="bulk-delete-form" action="{% url 'bulk_delete_sets' session.id %}" method="post" style="display:none;">
+                    {% csrf_token %}
+                </form>
+
                 {% for group in exercise_groups %}
                 <div class="exercise-group" data-exercise-id="{{ group.exercise.id }}" style="border-bottom: 1px solid #0e0e1e;">
                     <!-- Riga esercizio (cliccabile) -->
                     <div style="padding: 15px 4px 15px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
                         <span class="drag-handle" title="Trascina per ordinare" style="cursor: grab; color: #565b6e; font-size: 15px; line-height: 1; flex-shrink: 0; padding: 0 2px; user-select: none;">⠿</span>
+                        <input type="checkbox" class="group-select-cb" data-group-n="{{ forloop.counter }}" onchange="toggleGroupSelect(this)" title="Seleziona tutte le serie di questo esercizio" style="width: 16px; height: 16px; accent-color: #f87171; cursor: pointer; flex-shrink: 0;">
                         <div onclick="toggleGroup(this.dataset.n)" data-n="{{ forloop.counter }}" style="flex: 1; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; cursor: pointer; user-select: none; min-width: 220px;">
                             <span style="font-size: 15.5px; font-weight: 700; color: #ffffff; white-space: nowrap;">{{ group.exercise.nome }}</span>
                             {% for tag in group.exercise.tags.all %}
@@ -198,6 +211,7 @@
                         <div class="set-row-wrap" data-set-id="{{ set.id }}">
                             <div id="row-{{ set.id }}" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.05); border-radius: 9px; padding: 9px 14px; flex-wrap: wrap;">
                                 <span class="set-drag-handle" title="Trascina per ordinare" style="cursor: grab; color: #565b6e; font-size: 14px; line-height: 1; flex-shrink: 0; user-select: none;">⠿</span>
+                                <input type="checkbox" class="set-select-cb" data-group-n="{{ forloop.parentloop.counter }}" value="{{ set.id }}" onchange="onSetCbChange(this)" style="width: 15px; height: 15px; accent-color: #f87171; cursor: pointer; flex-shrink: 0;">
                                 {% if set.avviamento %}<span style="font-size: 9px; font-weight: 700; color: #6a9fd8; background: rgba(106,159,216,.12); border: 1px solid rgba(106,159,216,.25); border-radius: 4px; padding: 1px 5px; letter-spacing: .4px;">AVV</span>{% endif %}
                                 {% if set.a_cedimento %}<span style="font-size: 9px; font-weight: 700; color: #e05a6a; background: rgba(224,90,106,.12); border: 1px solid rgba(224,90,106,.25); border-radius: 4px; padding: 1px 5px; letter-spacing: .4px;">CED</span>{% endif %}
                                 {% if set.richiamo %}<span style="font-size: 9px; font-weight: 700; color: #2dd4bf; background: rgba(45,212,191,.12); border: 1px solid rgba(45,212,191,.25); border-radius: 4px; padding: 1px 5px; letter-spacing: .4px;">RICH</span>{% endif %}
@@ -603,6 +617,59 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
+// --- Selezione multipla serie / bulk delete ---
+function updateBulkBar() {
+    var checked = document.querySelectorAll('.set-select-cb:checked');
+    var bar = document.getElementById('bulk-actions-bar');
+    var countEl = document.getElementById('bulk-actions-count');
+    if (checked.length > 0) {
+        bar.style.display = 'flex';
+        countEl.textContent = checked.length + (checked.length === 1 ? ' serie selezionata' : ' serie selezionate');
+    } else {
+        bar.style.display = 'none';
+    }
+}
+function updateGroupCbState(n) {
+    var groupCb = document.querySelector('.group-select-cb[data-group-n="' + n + '"]');
+    if (!groupCb) return;
+    var setCbs = document.querySelectorAll('.set-select-cb[data-group-n="' + n + '"]');
+    var checkedCount = document.querySelectorAll('.set-select-cb[data-group-n="' + n + '"]:checked').length;
+    groupCb.checked = setCbs.length > 0 && checkedCount === setCbs.length;
+    groupCb.indeterminate = checkedCount > 0 && checkedCount < setCbs.length;
+}
+function onSetCbChange(cb) {
+    updateGroupCbState(cb.dataset.groupN);
+    updateBulkBar();
+}
+function toggleGroupSelect(groupCb) {
+    var n = groupCb.dataset.groupN;
+    document.querySelectorAll('.set-select-cb[data-group-n="' + n + '"]').forEach(function(cb) {
+        cb.checked = groupCb.checked;
+    });
+    groupCb.indeterminate = false;
+    updateBulkBar();
+}
+function deselectAllSets() {
+    document.querySelectorAll('.set-select-cb:checked').forEach(function(cb) { cb.checked = false; });
+    document.querySelectorAll('.group-select-cb').forEach(function(cb) { cb.checked = false; cb.indeterminate = false; });
+    updateBulkBar();
+}
+function submitBulkDelete() {
+    var checked = document.querySelectorAll('.set-select-cb:checked');
+    if (!checked.length) return;
+    if (!confirm('Eliminare ' + checked.length + ' serie selezionate?')) return;
+    var form = document.getElementById('bulk-delete-form');
+    form.querySelectorAll('input[name="set_ids"]').forEach(function(el) { el.remove(); });
+    checked.forEach(function(cb) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'set_ids';
+        input.value = cb.value;
+        form.appendChild(input);
+    });
+    form.submit();
+}
+
 function toggleEditRow(id) {
     var row = document.getElementById('edit-row-' + id);
     var dataRow = document.getElementById('row-' + id);

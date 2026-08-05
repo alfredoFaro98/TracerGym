@@ -596,6 +596,14 @@ def delete_exercise_sets(request, session_id, exercise_id):
     return redirect('session_detail', session_id=session_id)
 
 @login_required
+def bulk_delete_sets(request, session_id):
+    session = get_object_or_404(WorkoutSession, id=session_id, utente=request.user)
+    if request.method == 'POST':
+        set_ids = request.POST.getlist('set_ids')
+        session.sets.filter(id__in=set_ids).delete()
+    return redirect('session_detail', session_id=session_id)
+
+@login_required
 def reorder_exercises(request, session_id):
     if request.method != 'POST':
         return JsonResponse({'ok': False}, status=405)
