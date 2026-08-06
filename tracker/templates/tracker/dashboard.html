@@ -605,15 +605,20 @@
     });
 
     /* --- chart --- */
+    // Palette categoriale (ordine fisso, tarato per superficie scura) usata quando
+    // ci sono piu' palestre da distinguere; con una sola linea si usa il viola del brand.
+    var SERIES_COLORS = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#9085e9', '#e66767'];
+
     function loadChart(name) {
         fetch(HISTORY_URL + '?exercise=' + encodeURIComponent(name))
             .then(function(r) { return r.json(); })
-            .then(function(data) { renderChart(data.points, data.exercise || name); });
+            .then(function(data) { renderChart(data.series, data.exercise || name); });
     }
 
-    function renderChart(points, name) {
+    function renderChart(series, name) {
         placeholder.style.display = 'none';
-        if (!points || !points.length) {
+        series = (series || []).filter(function(s) { return s.points && s.points.length; });
+        if (!series.length) {
             nodata.style.display = 'block';
             chartWrap.style.display = 'none';
             if (chartInst) { chartInst.destroy(); chartInst = null; }
@@ -622,39 +627,56 @@
         nodata.style.display = 'none';
         chartWrap.style.display = 'block';
 
-        var labels  = points.map(function(p) { return p.date; });
-        var weights = points.map(function(p) { return p.weight; });
+        // Unione ordinata di tutte le date, cosi' ogni linea (palestra) avanza
+        // sul proprio asse X anche se le altre non hanno allenato quel giorno.
+        var labelSet = {};
+        series.forEach(function(s) { s.points.forEach(function(p) { labelSet[p.date] = true; }); });
+        var labels = Object.keys(labelSet).sort();
+
+        var multi = series.length > 1;
+
+        var datasets = series.map(function(s, i) {
+            var byDate = {};
+            s.points.forEach(function(p) { byDate[p.date] = p.weight; });
+            var data = labels.map(function(d) { return Object.prototype.hasOwnProperty.call(byDate, d) ? byDate[d] : null; });
+
+            var color = multi ? SERIES_COLORS[i % SERIES_COLORS.length] : '#8b7bf7';
+            var ctx = canvas.getContext('2d');
+            var fade = ctx.createLinearGradient(0, 0, 0, 210);
+            fade.addColorStop(0, color + '59');
+            fade.addColorStop(1, color + '00');
+
+            return {
+                label: s.name || name,
+                data: data,
+                borderColor: color,
+                backgroundColor: fade,
+                pointBackgroundColor: color,
+                pointBorderColor: '#111117',
+                pointBorderWidth: 2,
+                pointRadius: multi ? 3 : 4,
+                pointHoverRadius: 6,
+                borderWidth: 2.5,
+                fill: !multi,
+                tension: 0.35,
+                spanGaps: true,
+            };
+        });
 
         if (chartInst) chartInst.destroy();
 
-        var ctx = canvas.getContext('2d');
-        var fade = ctx.createLinearGradient(0, 0, 0, 210);
-        fade.addColorStop(0, 'rgba(124,108,246,.35)');
-        fade.addColorStop(1, 'rgba(124,108,246,0)');
-
         chartInst = new Chart(canvas, {
             type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: name,
-                    data: weights,
-                    borderColor: '#8b7bf7',
-                    backgroundColor: fade,
-                    pointBackgroundColor: '#8b7bf7',
-                    pointBorderColor: '#111117',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                    borderWidth: 2.5,
-                    fill: true,
-                    tension: 0.35,
-                }]
-            },
+            data: { labels: labels, datasets: datasets },
             options: {
                 responsive: true,
                 plugins: {
-                    legend: { display: false },
+                    legend: {
+                        display: multi,
+                        position: 'top',
+                        align: 'end',
+                        labels: { color: '#c7cbd6', boxWidth: 10, boxHeight: 10, font: { size: 11.5 }, usePointStyle: true, pointStyle: 'circle' }
+                    },
                     tooltip: {
                         backgroundColor: '#15151c',
                         borderColor: 'rgba(255,255,255,.08)',
@@ -662,7 +684,7 @@
                         padding: 10,
                         titleFont: { family: "'Space Grotesk', sans-serif" },
                         callbacks: {
-                            label: function(ctx) { return ctx.parsed.y + ' kg'; }
+                            label: function(ctx) { return (multi ? ctx.dataset.label + ': ' : '') + ctx.parsed.y + ' kg'; }
                         }
                     }
                 },

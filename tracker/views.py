@@ -979,30 +979,45 @@ def export_exercises_json(request):
 def exercise_weight_history(request):
     exercise_name = request.GET.get('exercise', '').strip()
     if not exercise_name:
-        return JsonResponse({'points': []})
+        return JsonResponse({'series': []})
     exercise = Exercise.objects.filter(nome__iexact=exercise_name).first()
     if not exercise:
-        return JsonResponse({'points': []})
+        return JsonResponse({'series': []})
 
     rows = (
         WorkoutSet.objects
         .filter(session__utente=request.user, exercise=exercise)
         .filter(models.Q(weight__isnull=False) | models.Q(barra_kg__isnull=False))
-        .values('session__data', 'weight', 'barra_kg', 'per_lato')
+        .values('session__data', 'session__luogo', 'weight', 'barra_kg', 'per_lato')
         .order_by('session__data')
     )
 
+    # Una linea per ogni palestra (session.luogo) diversa; le sessioni senza
+    # luogo indicato finiscono tutte in un'unica linea "Senza palestra".
     day_max = {}
     for r in rows:
         total = float(r['weight'] or 0) + float(r['barra_kg'] or 0)
         if r['per_lato']:
             total *= 2
+        luogo = (r['session__luogo'] or '').strip()
         d = r['session__data'].strftime('%Y-%m-%d')
-        if d not in day_max or total > day_max[d]:
-            day_max[d] = total
+        key = (luogo, d)
+        if key not in day_max or total > day_max[key]:
+            day_max[key] = total
 
-    points = [{'date': d, 'weight': w} for d, w in sorted(day_max.items())]
-    return JsonResponse({'points': points, 'exercise': exercise.nome})
+    by_luogo = {}
+    for (luogo, d), w in day_max.items():
+        by_luogo.setdefault(luogo, []).append({'date': d, 'weight': w})
+
+    series = []
+    unnamed_points = by_luogo.pop('', None)
+    for luogo in sorted(by_luogo):
+        series.append({'name': luogo, 'points': sorted(by_luogo[luogo], key=lambda p: p['date'])})
+    if unnamed_points:
+        name = 'Senza palestra' if series else ''
+        series.append({'name': name, 'points': sorted(unnamed_points, key=lambda p: p['date'])})
+
+    return JsonResponse({'series': series, 'exercise': exercise.nome})
 
 
 @login_required
