@@ -4,23 +4,69 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>403 - Accesso negato · Tracer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #08080f; color: #f0f0f3; font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-  .wrap { text-align: center; padding: 40px 24px; }
-  .code { font-size: 96px; font-weight: 800; color: #1a1a2e; font-family: 'JetBrains Mono', monospace; line-height: 1; margin-bottom: 8px; }
-  .title { font-size: 20px; font-weight: 700; color: #e0e0f0; margin-bottom: 10px; }
-  .desc { font-size: 13px; color: #484860; margin-bottom: 32px; line-height: 1.6; }
-  .btn { display: inline-block; padding: 10px 22px; background: linear-gradient(135deg, #5a5aff, #8a4adf); border-radius: 8px; color: #fff; font-size: 13px; font-weight: 600; text-decoration: none; transition: opacity .15s; }
-  .btn:hover { opacity: .85; }
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background:
+      radial-gradient(circle at left center, rgba(124, 108, 246, 0.12) 0%, transparent 18%),
+      radial-gradient(circle at center bottom, rgba(124, 108, 246, 0.08) 0%, transparent 30%),
+      #08080c;
+    color: #f0f0f3;
+  }
+  .err-card {
+    width: min(100%, 460px);
+    background: #111117;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 22px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    padding: 48px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .err-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 18px;
+    background: rgba(124,108,246,0.14);
+    border: 1px solid rgba(124,108,246,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 26px;
+  }
+  .err-code { font-family: 'Space Grotesk', sans-serif; font-size: 46px; font-weight: 700; color: #fff; line-height: 1; }
+  .err-title { font-size: 19px; font-weight: 700; color: #fff; margin-top: 14px; }
+  .err-desc { font-size: 14px; color: #9297a8; margin-top: 10px; line-height: 1.55; }
+  .err-actions { display: flex; gap: 10px; margin-top: 30px; flex-wrap: wrap; justify-content: center; }
+  .err-btn { font-size: 13.5px; font-weight: 700; border-radius: 10px; padding: 12px 22px; text-decoration: none; border: none; cursor: pointer; font-family: inherit; transition: transform .15s, box-shadow .15s, background .15s; }
+  .err-btn-primary { color: #fff; background: #7c6cf6; box-shadow: 0 8px 20px rgba(124,108,246,0.35); }
+  .err-btn-primary:hover { background: #8b7bf7; transform: translateY(-1px); }
+  .err-btn-ghost { color: #c7cbd6; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); }
+  .err-btn-ghost:hover { background: rgba(255,255,255,0.1); color: #fff; }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="code">403</div>
-  <div class="title">Accesso negato</div>
-  <div class="desc">Non hai i permessi per visualizzare questa pagina.</div>
-  <a href="/" class="btn">Torna alla home</a>
+<div class="err-card">
+  <div class="err-icon">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#a996ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+  </div>
+  <div class="err-code">403</div>
+  <div class="err-title">Accesso negato</div>
+  <div class="err-desc">Non hai i permessi per vedere questa pagina o questa sessione appartiene a un altro atleta.</div>
+  <div class="err-actions">
+    <button type="button" class="err-btn err-btn-ghost" onclick="history.back()">Torna indietro</button>
+    <a href="{% url 'dashboard' %}" class="err-btn err-btn-primary">Home</a>
+  </div>
 </div>
 </body>
 </html>
