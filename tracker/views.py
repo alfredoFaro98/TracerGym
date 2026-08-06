@@ -13,15 +13,29 @@ import time
 from datetime import datetime, date, timedelta, time as dt_time
 from django.utils import timezone
 from django.contrib.auth.models import User
-from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal, IntegratoreEntry
+from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal, IntegratoreEntry, SiteVisit
 
 
 REMEMBER_ME_SECONDS = 60 * 60 * 24 * 30  # 30 giorni
 
 
+def _record_site_visit():
+    """Incrementa il contatore di visite (dashboard/login) del giorno corrente."""
+    today = timezone.now().date()
+    updated = SiteVisit.objects.filter(data=today).update(conteggio=models.F('conteggio') + 1)
+    if not updated:
+        SiteVisit.objects.get_or_create(data=today, defaults={'conteggio': 1})
+
+
 class TracerLoginView(LoginView):
     template_name = 'tracker/login.html'
     redirect_authenticated_user = True
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        if response.status_code == 200:
+            _record_site_visit()
+        return response
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -33,6 +47,7 @@ class TracerLoginView(LoginView):
 
 @login_required
 def dashboard(request):
+    _record_site_visit()
     WorkoutSession.objects.filter(utente=request.user, sets__isnull=True).delete()
 
     # Recupera tutte le sessioni dell'utente loggato con prefetch per ottimizzare le query

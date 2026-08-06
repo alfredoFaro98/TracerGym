@@ -155,3 +155,16 @@ class ExerciseImage(models.Model):
 
     def __str__(self):
         return f"Immagine {self.id} - {self.exercise.nome}"
+
+
+class SiteVisit(models.Model):
+    # Una riga per giorno: numero di volte in cui dashboard o login sono state
+    # caricate quel giorno (visibile solo ai superuser, in sidebar).
+    data = models.DateField(default=timezone.now, unique=True)
+    conteggio = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['-data']
+
+    def __str__(self):
+        return f"{self.data}: {self.conteggio} visite"
