@@ -10,6 +10,7 @@ from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
 from itertools import groupby
 import time
+from decimal import Decimal, InvalidOperation
 from datetime import datetime, date, timedelta, time as dt_time
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -242,6 +243,7 @@ def session_detail(request, session_id):
         richiamo = request.POST.get('richiamo') == 'on'
         barra_kg = request.POST.get('barra_kg') or None
         circuit_id = request.POST.get('circuit_id') or None
+        add_default_warmup = request.POST.get('aggiungi_avviamento_default') == 'on'
 
         exercise = Exercise.objects.filter(nome__iexact=exercise_name).first()
         if not exercise:
@@ -256,6 +258,16 @@ def session_detail(request, session_id):
 
         num_sets = 1 if circuit else int(request.POST.get('num_sets') or 1)
 
+        # Serie di avviamento automatica: una sola, a meta' del peso inserito (mai negativo),
+        # inserita subito prima delle serie di lavoro appena aggiunte.
+        warmup_weight = None
+        if add_default_warmup and weight:
+            try:
+                warmup_weight = max(Decimal('0'), Decimal(weight) / 2)
+            except InvalidOperation:
+                warmup_weight = None
+        extra_warmup = 1 if warmup_weight is not None else 0
+
         # Inserisce le nuove serie subito dopo le serie esistenti dello stesso esercizio
         # (nello stesso ambito: circuito o lista normale), cosi' restano contigue e non
         # si spezzano in piu' gruppi separati quando si aggiunge di nuovo lo stesso esercizio.
@@ -266,13 +278,32 @@ def session_detail(request, session_id):
             scope_qs = session.sets.filter(circuit__isnull=True)
             existing_ex_sets = list(scope_qs.filter(exercise=exercise).order_by('order', 'id'))
 
+        total_new = num_sets + extra_warmup
         if existing_ex_sets:
             insert_after = existing_ex_sets[-1].order
-            scope_qs.filter(order__gt=insert_after).update(order=models.F('order') + num_sets)
+            scope_qs.filter(order__gt=insert_after).update(order=models.F('order') + total_new)
             base_order = insert_after + 1
         else:
             max_order = scope_qs.aggregate(models.Max('order'))['order__max']
             base_order = (max_order + 1) if max_order is not None else session.sets.count()
+
+        if warmup_weight is not None:
+            WorkoutSet.objects.create(
+                order=base_order,
+                session=session,
+                exercise=exercise,
+                reps=reps,
+                durata=durata,
+                weight=warmup_weight,
+                rest_time=rest_time,
+                per_lato=per_lato,
+                avviamento=True,
+                a_cedimento=False,
+                richiamo=False,
+                barra_kg=barra_kg,
+                circuit=circuit,
+            )
+        base_order += extra_warmup
 
         for i in range(max(1, min(num_sets, 20))):
             WorkoutSet.objects.create(
@@ -900,18 +931,20 @@ def exercises_list(request):
 def add_exercise(request):
     if not request.user.is_superuser:
         return redirect('dashboard')
+    next_url = request.POST.get('next', reverse('exercises_list'))
     if request.method == 'POST':
         nome = request.POST.get('nome', '').strip()
         tipologia = request.POST.get('tipologia', '').strip()
         tag_ids = request.POST.getlist('tags')
         if nome:
-            exercise, _ = Exercise.objects.get_or_create(nome=nome)
-            if tipologia:
-                exercise.tipologia = tipologia
-                exercise.save()
+            if Exercise.objects.filter(nome__iexact=nome).exists():
+                from urllib.parse import urlencode
+                error_msg = f'Esiste già un esercizio chiamato "{nome}".'
+                separator = '&' if '?' in next_url else '?'
+                return redirect(f'{next_url}{separator}{urlencode({"error": error_msg})}')
+            exercise = Exercise.objects.create(nome=nome, tipologia=tipologia)
             if tag_ids:
                 exercise.tags.set(tag_ids)
-    next_url = request.POST.get('next', reverse('exercises_list'))
     return redirect(next_url)
 
 
