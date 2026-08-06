@@ -258,14 +258,23 @@ def session_detail(request, session_id):
 
         num_sets = 1 if circuit else int(request.POST.get('num_sets') or 1)
 
-        # Serie di avviamento automatica: una sola, a meta' del peso inserito (mai negativo),
-        # inserita subito prima delle serie di lavoro appena aggiunte.
+        # Serie di avviamento automatica: una sola, inserita subito prima delle serie
+        # di lavoro appena aggiunte. Il peso e' quello del campo (proposto dal JS a
+        # meta' peso ma modificabile a mano); se manca o non e' valido, ricalcoliamo
+        # noi la meta' come rete di sicurezza. Mai negativo in entrambi i casi.
         warmup_weight = None
-        if add_default_warmup and weight:
-            try:
-                warmup_weight = max(Decimal('0'), Decimal(weight) / 2)
-            except InvalidOperation:
-                warmup_weight = None
+        if add_default_warmup:
+            warmup_override = request.POST.get('avviamento_default_peso')
+            if warmup_override:
+                try:
+                    warmup_weight = max(Decimal('0'), Decimal(warmup_override))
+                except InvalidOperation:
+                    warmup_weight = None
+            if warmup_weight is None and weight:
+                try:
+                    warmup_weight = max(Decimal('0'), Decimal(weight) / 2)
+                except InvalidOperation:
+                    warmup_weight = None
         extra_warmup = 1 if warmup_weight is not None else 0
 
         # Inserisce le nuove serie subito dopo le serie esistenti dello stesso esercizio
