@@ -186,7 +186,7 @@
                             <span style="font-size: 16px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ session.data|date:"d" }}</span>
                         </div>
                         <div>
-                            <div style="font-size: 14px; font-weight: 600; color: #e0e0f0; margin-bottom: 4px;">{{ session.data|date:"l d F" }}</div>
+                            <div style="font-size: 14px; font-weight: 600; color: #e0e0f0; margin-bottom: 4px;">{{ session.data|date:"l d F" }}{% if session.luogo %} <span style="font-size: 11px; font-weight: 600; color: #9ba0b3;">&middot; 📍 {{ session.luogo }}</span>{% endif %}</div>
                             <div style="display: flex; gap: 4px; flex-wrap: wrap; align-items: center;">
                                 <span style="font-size: 10px; font-weight: 700; color: #f0f0f3; margin-right: 4px;">{{ session.sets.count }} serie &middot;</span>
                                 <span class="desktop-only" style="display: contents;">
