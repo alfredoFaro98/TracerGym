@@ -169,9 +169,15 @@
                     <input type="checkbox" name="aggiungi_avviamento_default" id="warmup-check" style="width: 15px; height: 15px; accent-color: #7c6cf6; flex-shrink: 0; cursor: pointer;">
                     <span style="font-size: 12.5px; color: #c7cbd6;">+ Avviamento automatico (metà peso)</span>
                 </label>
-                <div id="warmup-preview-wrap" style="display:none; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">PESO AVVIAMENTO (KG)</span>
-                    <input type="number" step="0.5" name="avviamento_default_peso" id="warmup-preview-input" class="tracer-input" min="0" style="width: 110px;">
+                <div id="warmup-preview-wrap" style="display:none; gap: 10px;">
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RIP. AVVIAMENTO</span>
+                        <input type="number" name="avviamento_default_reps" id="warmup-reps-input" class="tracer-input" min="1" style="width: 90px;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">PESO AVVIAMENTO (KG)</span>
+                        <input type="number" step="0.5" name="avviamento_default_peso" id="warmup-preview-input" class="tracer-input" min="0" style="width: 110px;">
+                    </div>
                 </div>
 
                 <button type="submit" class="btn-primary-gradient" style="padding: 12px; font-size: 14px; box-shadow: 0 10px 24px rgba(124,108,246,0.3);">Aggiungi Serie</button>
@@ -910,19 +916,22 @@ function toggleBarraAdd(e) {
 (function() {
     var warmupCheck = document.getElementById('warmup-check');
     var warmupWrap = document.getElementById('warmup-preview-wrap');
-    var warmupInput = document.getElementById('warmup-preview-input');
-    if (!warmupCheck || !warmupWrap || !warmupInput) return;
+    var warmupWeightInput = document.getElementById('warmup-preview-input');
+    var warmupRepsInput = document.getElementById('warmup-reps-input');
+    if (!warmupCheck || !warmupWrap || !warmupWeightInput || !warmupRepsInput) return;
     var weightInput = warmupCheck.closest('form').querySelector('input[name="weight"]');
+    var repsInput = warmupCheck.closest('form').querySelector('input[name="reps"]');
 
-    // Il peso proposto si calcola una sola volta, al momento in cui si spunta la
-    // casella (meta' del peso presente in quel momento). Da li' in poi il campo
-    // e' libero: se cambi il peso principale dopo, la serie di avviamento NON si
-    // ricalcola da sola, sei tu a doverla aggiornare a mano.
+    // Peso e ripetizioni proposti si calcolano una sola volta, al momento in cui si
+    // spunta la casella (peso a meta' / stesse ripetizioni presenti in quel momento).
+    // Da li' in poi i campi sono liberi: se cambi peso o ripetizioni principali dopo,
+    // la serie di avviamento NON si ricalcola da sola, sei tu a doverla aggiornare a mano.
     warmupCheck.addEventListener('change', function() {
         if (!warmupCheck.checked) { warmupWrap.style.display = 'none'; return; }
         var w = parseFloat(weightInput.value);
         var half = isNaN(w) ? '' : Math.round(Math.max(0, w / 2) * 100) / 100;
-        warmupInput.value = half;
+        warmupWeightInput.value = half;
+        warmupRepsInput.value = repsInput.value;
         warmupWrap.style.display = 'flex';
     });
 })();
