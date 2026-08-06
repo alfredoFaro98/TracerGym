@@ -99,7 +99,14 @@
                 {% endif %}
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #7d8296;">ESERCIZIO</span>
-                    <input type="text" id="exercise_name" name="exercise_name" class="tracer-input" placeholder="Cerca esercizio dalla lista…" required autocomplete="off" data-valid="false">
+                    <div style="display: flex; gap: 6px;">
+                        <input type="text" id="exercise_name" name="exercise_name" class="tracer-input" placeholder="Cerca esercizio dalla lista…" required autocomplete="off" data-valid="false" style="flex: 1; min-width: 0;">
+                        {% if user.is_superuser %}
+                        <button type="button" onclick="openNewExModal('exercise_name')" title="Nuovo esercizio" style="width: 38px; height: 38px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: rgba(124,108,246,.12); border: 1px solid rgba(124,108,246,.3); border-radius: 8px; color: #a996ff; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(124,108,246,.22)'" onmouseout="this.style.background='rgba(124,108,246,.12)'">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        </button>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <!-- Reps + Durata + Weight + N.Serie -->
@@ -470,6 +477,41 @@
     </div>
 </div>
 
+{% if user.is_superuser %}
+<!-- Modale "Nuovo Esercizio" (solo superuser), creazione via fetch senza ricaricare la pagina -->
+<div id="new-ex-modal" onclick="if(event.target===this) closeNewExModal();">
+    <div id="new-ex-modal-box">
+        <div class="modal-title">Nuovo Esercizio</div>
+        <form id="new-ex-form" style="display: flex; flex-direction: column; gap: 14px;">
+            <div id="new-ex-error" style="display:none; padding: 9px 13px; background: rgba(248,81,73,.08); border: 1px solid rgba(248,81,73,.25); border-radius: 7px; font-size: 12px; color: #f85149;"></div>
+            <div>
+                <label class="modal-label">Nome</label>
+                <input type="text" id="new-ex-nome" class="tracer-input" required style="width: 100%;">
+            </div>
+            <div>
+                <label class="modal-label">Tipologia</label>
+                <input type="text" id="new-ex-tipologia" class="tracer-input" placeholder="Es. Esercizio con bilanciere" style="width: 100%;">
+            </div>
+            <div>
+                <label class="modal-label" style="margin-bottom: 8px;">Gruppo Muscolare</label>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    {% for tag in tags %}
+                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 5px 10px; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; transition: border-color .12s;" onmouseover="this.style.borderColor='rgba(255,255,255,0.2)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'">
+                        <input type="checkbox" name="new-ex-tags" value="{{ tag.id }}" style="accent-color: #7c6cf6;">
+                        <span style="font-size: 11px; color: #c7cbd6;">{{ tag.nome }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
+                <button type="button" onclick="closeNewExModal()" class="modal-cancel-btn">Annulla</button>
+                <button type="submit" id="new-ex-submit" class="btn-primary-gradient" style="padding: 0 20px; height: 34px; font-size: 12px; font-weight: 600;">Crea esercizio</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
 <style>
 #ex-dropdown {
     position: fixed;
@@ -543,6 +585,14 @@
     color: #b7bdf0;
     border: 1px solid rgba(124,108,246,.2);
 }
+
+#new-ex-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.75); align-items: center; justify-content: center; }
+#new-ex-modal.open { display: flex; }
+#new-ex-modal-box { background: #111117; border: 1px solid rgba(124,108,246,0.18); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 16px; padding: 24px; width: 100%; max-width: 460px; margin: 16px; }
+.modal-label { display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px; }
+.modal-title { font-size: 11px; font-weight: 700; color: #838a9e; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 18px; }
+.modal-cancel-btn { padding: 0 16px; height: 34px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #c7cbd6; font-size: 12px; font-weight: 600; cursor: pointer; transition: background .12s; }
+.modal-cancel-btn:hover { background: rgba(255,255,255,0.09); }
 </style>
 
 <!-- Contenuto nascosto usato per il PDF -->
@@ -1179,5 +1229,72 @@ function exportPDF() {
 if (new URLSearchParams(window.location.search).get('pdf') === '1') {
     document.addEventListener('DOMContentLoaded', exportPDF);
 }
+
+// --- Modale "Nuovo Esercizio" (solo superuser) ---
+(function() {
+    var modal = document.getElementById('new-ex-modal');
+    if (!modal) return; // non superuser: il modale non e' nel DOM
+
+    var form = document.getElementById('new-ex-form');
+    var nomeInput = document.getElementById('new-ex-nome');
+    var tipologiaInput = document.getElementById('new-ex-tipologia');
+    var errorBox = document.getElementById('new-ex-error');
+    var submitBtn = document.getElementById('new-ex-submit');
+    var newExTarget = null; // input "ESERCIZIO" da riempire dopo la creazione
+
+    window.openNewExModal = function(inputId) {
+        newExTarget = document.getElementById(inputId);
+        nomeInput.value = newExTarget ? newExTarget.value.trim() : '';
+        tipologiaInput.value = '';
+        modal.querySelectorAll('input[type=checkbox]').forEach(function(cb) { cb.checked = false; });
+        errorBox.style.display = 'none';
+        modal.classList.add('open');
+        setTimeout(function() { nomeInput.focus(); }, 50);
+    };
+
+    window.closeNewExModal = function() {
+        modal.classList.remove('open');
+    };
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var nome = nomeInput.value.trim();
+        errorBox.style.display = 'none';
+        if (!nome) return;
+
+        var tagIds = Array.from(modal.querySelectorAll('input[type=checkbox]:checked')).map(function(cb) { return cb.value; });
+        var body = new URLSearchParams();
+        body.set('nome', nome);
+        body.set('tipologia', tipologiaInput.value.trim());
+        tagIds.forEach(function(id) { body.append('tags', id); });
+
+        submitBtn.disabled = true;
+        fetch('{% url "add_exercise_ajax" %}', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body.toString(),
+        })
+            .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
+            .then(function(res) {
+                submitBtn.disabled = false;
+                if (!res.ok) {
+                    errorBox.textContent = res.data.error || 'Errore durante la creazione.';
+                    errorBox.style.display = 'block';
+                    return;
+                }
+                if (newExTarget) {
+                    newExTarget.value = res.data.nome;
+                    newExTarget.dataset.valid = 'true';
+                    newExTarget.style.borderColor = '';
+                }
+                closeNewExModal();
+            })
+            .catch(function() {
+                submitBtn.disabled = false;
+                errorBox.textContent = 'Errore di rete, riprova.';
+                errorBox.style.display = 'block';
+            });
+    });
+})();
 </script>
 {% endblock %}

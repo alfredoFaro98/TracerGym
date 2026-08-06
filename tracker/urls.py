@@ -26,6 +26,7 @@ urlpatterns = [
     path('exercises/', views.exercises_list, name='exercises_list'),
 
     path('exercises/add/', views.add_exercise, name='add_exercise'),
+    path('exercises/add-ajax/', views.add_exercise_ajax, name='add_exercise_ajax'),
     path('exercises/<int:exercise_id>/edit/', views.edit_exercise_admin, name='edit_exercise_admin'),
     path('exercises/<int:exercise_id>/delete/', views.delete_exercise_admin, name='delete_exercise_admin'),
     path('exercises/<int:exercise_id>/images/add/', views.add_exercise_image, name='add_exercise_image'),

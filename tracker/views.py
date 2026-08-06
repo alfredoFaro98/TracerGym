@@ -335,6 +335,7 @@ def _build_session_context(session):
         'exercise_groups': exercise_groups,
         'circuit_items': circuit_items,
         'total_rest_label': _format_rest_duration(total_rest_seconds),
+        'tags': Tag.objects.all().order_by('nome'),
     }
 
 def register(request):
@@ -912,6 +913,30 @@ def add_exercise(request):
                 exercise.tags.set(tag_ids)
     next_url = request.POST.get('next', reverse('exercises_list'))
     return redirect(next_url)
+
+
+@login_required
+def add_exercise_ajax(request):
+    """Crea un esercizio via fetch (usato dal modale "+" nella pagina sessione),
+    senza ricaricare la pagina e senza perdere quanto gia' compilato nel form."""
+    if not request.user.is_superuser:
+        return JsonResponse({'error': 'Non autorizzato.'}, status=403)
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Metodo non valido.'}, status=405)
+
+    nome = request.POST.get('nome', '').strip()
+    tipologia = request.POST.get('tipologia', '').strip()
+    tag_ids = request.POST.getlist('tags')
+
+    if not nome:
+        return JsonResponse({'error': 'Il nome è obbligatorio.'}, status=400)
+    if Exercise.objects.filter(nome__iexact=nome).exists():
+        return JsonResponse({'error': f'Esiste già un esercizio chiamato "{nome}".'}, status=409)
+
+    exercise = Exercise.objects.create(nome=nome, tipologia=tipologia)
+    if tag_ids:
+        exercise.tags.set(tag_ids)
+    return JsonResponse({'id': exercise.id, 'nome': exercise.nome})
 
 
 @login_required
