@@ -404,25 +404,26 @@ function mobileCalNext() {
     updateMobileLabel();
     if (mobileCal) mobileCal.next(1);
 }
-if (window.innerWidth <= 768) {
-    mobileCal = new CalHeatMap();
-    mobileCal.init({
-        itemSelector: "#mobile-cal-heatmap",
-        domain: "month",
-        subDomain: "x_day",
-        data: data,
-        start: mobileCalStart,
-        cellSize: 12,
-        cellPadding: 2,
-        domainGutter: 0,
-        range: 1,
-        tooltip: true,
-        displayLegend: false,
-        itemName: ["integratore", "integratori"],
-        domainLabelFormat: "",
-        label: { position: "top", height: 0, offset: { x: 0, y: 0 } }
-    });
-}
+// Costruita sempre (non solo sotto i 768px): e' il CSS a decidere quale
+// heatmap mostrare, cosi' restringendo la finestra senza reload il mini
+// calendario mobile e' gia' pronto invece di restare vuoto.
+mobileCal = new CalHeatMap();
+mobileCal.init({
+    itemSelector: "#mobile-cal-heatmap",
+    domain: "month",
+    subDomain: "x_day",
+    data: data,
+    start: mobileCalStart,
+    cellSize: 12,
+    cellPadding: 2,
+    domainGutter: 0,
+    range: 1,
+    tooltip: true,
+    displayLegend: false,
+    itemName: ["integratore", "integratori"],
+    domainLabelFormat: "",
+    label: { position: "top", height: 0, offset: { x: 0, y: 0 } }
+});
 updateMobileLabel();
 </script>
 {% endblock %}
