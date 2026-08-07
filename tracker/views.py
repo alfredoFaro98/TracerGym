@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.http import JsonResponse
 from django.db import models, transaction
@@ -490,23 +491,27 @@ def delete_circuit(request, circuit_id):
     return redirect('session_detail', session_id=session_id)
 
 
+def _render_set_row(request, workout_set):
+    return render_to_string('tracker/partials/set_row.html', {
+        'set': workout_set,
+        'group_n': workout_set.exercise_id,
+        'in_circuit': bool(workout_set.circuit_id),
+    }, request=request)
+
+
 @login_required
 def delete_set(request, set_id):
     # Recupera il set solo se la sessione appartiene all'utente loggato
     workout_set = get_object_or_404(WorkoutSet, id=set_id, session__utente=request.user)
-    session_id = workout_set.session.id
-    circuit_id = workout_set.circuit_id
-    exercise_id = workout_set.exercise_id
     if request.method == 'POST':
         workout_set.delete()
-    url = reverse('session_detail', kwargs={'session_id': session_id})
-    if circuit_id:
-        return redirect(f'{url}?opencircuit={circuit_id}')
-    return redirect(f'{url}?open={exercise_id}')
+    return JsonResponse({'ok': True})
+
 
 @login_required
 def duplicate_set(request, set_id):
     original = get_object_or_404(WorkoutSet, id=set_id, session__utente=request.user)
+    new_set = original
     if request.method == 'POST':
         if original.circuit_id:
             scope_qs = original.circuit.sets.all()
@@ -529,15 +534,12 @@ def duplicate_set(request, set_id):
             circuit=original.circuit,
         )
         new_set.muscles.set(original.muscles.all())
-    url = reverse('session_detail', kwargs={'session_id': original.session.id})
-    if original.circuit_id:
-        return redirect(f'{url}?opencircuit={original.circuit_id}')
-    return redirect(f'{url}?open={original.exercise_id}')
+    return JsonResponse({'ok': True, 'html': _render_set_row(request, new_set)})
+
 
 @login_required
 def edit_set(request, set_id):
     workout_set = get_object_or_404(WorkoutSet, id=set_id, session__utente=request.user)
-    circuit_id = workout_set.circuit_id
     if request.method == 'POST':
         exercise_name = request.POST.get('exercise_name', '').strip()
         weight = request.POST.get('weight') or None
@@ -556,10 +558,7 @@ def edit_set(request, set_id):
         workout_set.richiamo = request.POST.get('richiamo') == 'on'
         workout_set.barra_kg = request.POST.get('barra_kg') or None
         workout_set.save()
-    url = reverse('session_detail', kwargs={'session_id': workout_set.session.id})
-    if circuit_id:
-        return redirect(f'{url}?opencircuit={circuit_id}')
-    return redirect(f'{url}?open={workout_set.exercise_id}')
+    return JsonResponse({'ok': True, 'html': _render_set_row(request, workout_set)})
 
 @login_required
 def duplicate_session(request, session_id):
