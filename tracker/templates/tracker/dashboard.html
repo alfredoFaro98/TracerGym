@@ -79,25 +79,25 @@
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <form data-ajax-water action="{% url 'add_water_entry' %}" method="post">
+                <form data-ajax-water action="{% url 'add_water_entry_ajax' %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="quantita_ml" value="250">
                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
                     <button type="submit" class="water-quick-btn">+250ml</button>
                 </form>
-                <form data-ajax-water action="{% url 'add_water_entry' %}" method="post">
+                <form data-ajax-water action="{% url 'add_water_entry_ajax' %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="quantita_ml" value="500">
                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
                     <button type="submit" class="water-quick-btn">+500ml</button>
                 </form>
-                <form data-ajax-water action="{% url 'add_water_entry' %}" method="post">
+                <form data-ajax-water action="{% url 'add_water_entry_ajax' %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="quantita_ml" value="1000">
                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
                     <button type="submit" class="water-quick-btn">+1L</button>
                 </form>
-                <form data-ajax-water action="{% url 'add_water_entry' %}" method="post" style="display: flex; gap: 6px;">
+                <form data-ajax-water action="{% url 'add_water_entry_ajax' %}" method="post" style="display: flex; gap: 6px;">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
                     <input type="number" name="quantita_ml" placeholder="ml" min="1" class="tracer-input" style="width: 72px; padding: 8px 10px; font-size: 12.5px;">
