@@ -107,12 +107,18 @@ def dashboard(request):
     page_number = request.GET.get('page')
     sessions = paginator.get_page(page_number)
 
-    # Prepara dati per heatmap (su tutte le sessioni filtrate per anno)
+    # Prepara dati per heatmap: colore in base al numero di SERIE fatte quel
+    # giorno (non al numero di sessioni), sommando piu' sessioni nello stesso giorno.
     all_sessions = WorkoutSession.objects.filter(utente=request.user, data__year=year_int)
+    set_counts = (
+        WorkoutSet.objects.filter(session__utente=request.user, session__data__year=year_int)
+        .values('session__data')
+        .annotate(total=models.Count('id'))
+    )
     date_counts = {}
-    for s in all_sessions:
-        d_str = s.data.strftime('%Y-%m-%d')
-        date_counts[d_str] = date_counts.get(d_str, 0) + 1
+    for row in set_counts:
+        d_str = row['session__data'].strftime('%Y-%m-%d')
+        date_counts[d_str] = date_counts.get(d_str, 0) + row['total']
 
     heatmap_data = []
     for d_str, count in date_counts.items():

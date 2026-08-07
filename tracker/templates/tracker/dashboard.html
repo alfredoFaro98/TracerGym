@@ -542,7 +542,7 @@
                         var tip = document.createElement('div');
                         tip.setAttribute('data-hmtip', '1');
                         tip.style.cssText = 'position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:#15151c;color:#fff;font-size:11px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;z-index:20;box-shadow:0 6px 16px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);transition:opacity .1s;';
-                        tip.textContent = dayNum + ' ' + MONTH_NAMES_IT_SHORT[m] + ' ' + YEAR + ' — ' + (count === 0 ? 'nessun allenamento' : count + (count === 1 ? ' allenamento' : ' allenamenti'));
+                        tip.textContent = dayNum + ' ' + MONTH_NAMES_IT_SHORT[m] + ' ' + YEAR + ' — ' + (count === 0 ? 'nessuna serie' : count + ' serie');
                         cell.appendChild(tip);
                     } else {
                         cell.style.background = 'transparent';
@@ -596,7 +596,7 @@
             range: 1,
             tooltip: true,
             displayLegend: false,
-            itemName: ["allenamento", "allenamenti"],
+            itemName: ["serie", "serie"],
             domainLabelFormat: "",
             label: { position: "top", height: 0, offset: { x: 0, y: 0 } }
         });
