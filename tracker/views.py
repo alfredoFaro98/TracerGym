@@ -1351,6 +1351,37 @@ def add_water_entry(request):
 
 
 @login_required
+def add_water_entry_ajax(request):
+    """Usata dal widget acqua in Dashboard: aggiunge una bevuta di oggi senza
+    ricaricare la pagina, restituendo i nuovi totali per aggiornare la UI."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Metodo non valido.'}, status=405)
+
+    quantita_ml = request.POST.get('quantita_ml')
+    if not (quantita_ml and quantita_ml.isdigit() and int(quantita_ml) > 0):
+        return JsonResponse({'error': 'Quantità non valida.'}, status=400)
+
+    today = timezone.now().date()
+    creato_il = _combine_water_datetime(today, request.POST.get('ora'))
+    entry = WaterEntry.objects.create(utente=request.user, quantita_ml=int(quantita_ml), data=today, creato_il=creato_il)
+
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    today_goal_override = WaterGoal.objects.filter(utente=request.user, data=today).first()
+    goal_ml = today_goal_override.obiettivo_ml if today_goal_override else profile.obiettivo_acqua_ml
+
+    total_ml = WaterEntry.objects.filter(utente=request.user, data=today).aggregate(total=models.Sum('quantita_ml'))['total'] or 0
+
+    return JsonResponse({
+        'ok': True,
+        'entry': {'id': entry.id, 'quantita_ml': entry.quantita_ml, 'ora': entry.creato_il.strftime('%H:%M')},
+        'total_ml': total_ml,
+        'total_l': round(total_ml / 1000, 2),
+        'goal_ml': goal_ml,
+        'progress_pct': min(100, round(total_ml / goal_ml * 100)) if goal_ml else 0,
+    })
+
+
+@login_required
 def delete_water_entry(request, entry_id):
     entry = get_object_or_404(WaterEntry, id=entry_id, utente=request.user)
     if request.method == 'POST':

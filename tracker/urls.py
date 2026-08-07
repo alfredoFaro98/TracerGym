@@ -53,6 +53,7 @@ urlpatterns = [
     path('circuit/<int:circuit_id>/reorder/', views.reorder_circuit_exercises, name='reorder_circuit_exercises'),
     path('circuit/<int:circuit_id>/exercise/<int:exercise_id>/reorder-sets/', views.reorder_circuit_exercise_sets, name='reorder_circuit_exercise_sets'),
     path('water/add/', views.add_water_entry, name='add_water_entry'),
+    path('water/add-ajax/', views.add_water_entry_ajax, name='add_water_entry_ajax'),
     path('water/<int:entry_id>/delete/', views.delete_water_entry, name='delete_water_entry'),
     path('water/<int:entry_id>/edit/', views.edit_water_entry, name='edit_water_entry'),
     path('water/goal/', views.set_water_goal, name='set_water_goal'),

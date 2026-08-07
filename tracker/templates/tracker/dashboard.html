@@ -74,30 +74,30 @@
                 <div>
                     <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #7d8296; text-transform: uppercase;">Acqua di oggi</div>
                     <div style="font-size: 20px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">
-                        {{ water_today_l|floatformat:"-2" }} L <span style="font-size: 13px; font-weight: 500; color: #7d8296;">/ {{ water_goal_l|floatformat:"-2" }} L</span>
+                        <span id="water-total-label">{{ water_today_l|floatformat:"-2" }}</span> L <span style="font-size: 13px; font-weight: 500; color: #7d8296;">/ <span id="water-goal-label">{{ water_goal_l|floatformat:"-2" }}</span> L</span>
                     </div>
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <form action="{% url 'add_water_entry' %}" method="post">
+                <form data-ajax-water action="{% url 'add_water_entry' %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="quantita_ml" value="250">
                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
                     <button type="submit" class="water-quick-btn">+250ml</button>
                 </form>
-                <form action="{% url 'add_water_entry' %}" method="post">
+                <form data-ajax-water action="{% url 'add_water_entry' %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="quantita_ml" value="500">
                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
                     <button type="submit" class="water-quick-btn">+500ml</button>
                 </form>
-                <form action="{% url 'add_water_entry' %}" method="post">
+                <form data-ajax-water action="{% url 'add_water_entry' %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="quantita_ml" value="1000">
                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
                     <button type="submit" class="water-quick-btn">+1L</button>
                 </form>
-                <form action="{% url 'add_water_entry' %}" method="post" style="display: flex; gap: 6px;">
+                <form data-ajax-water action="{% url 'add_water_entry' %}" method="post" style="display: flex; gap: 6px;">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
                     <input type="number" name="quantita_ml" placeholder="ml" min="1" class="tracer-input" style="width: 72px; padding: 8px 10px; font-size: 12.5px;">
@@ -112,7 +112,7 @@
 
         <!-- Barra di progresso -->
         <div style="width: 100%; height: 10px; background: rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden;">
-            <div style="height: 100%; width: {{ water_progress_pct }}%; background: #7c6cf6; border-radius: 6px; transition: width .3s;"></div>
+            <div id="water-progress-bar" style="height: 100%; width: {{ water_progress_pct }}%; background: #7c6cf6; border-radius: 6px; transition: width .3s;"></div>
         </div>
 
         <!-- Form obiettivo (nascosto) -->
@@ -130,8 +130,7 @@
         </div>
 
         <!-- Aggiunte di oggi -->
-        {% if water_entries_today %}
-        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px;">
+        <div id="water-pills" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px;">
             {% for e in water_entries_today %}
             <form action="{% url 'delete_water_entry' e.id %}" method="post" class="water-pill" style="position: relative; display: inline-flex;" onsubmit="return confirm('Eliminare questa aggiunta?');">
                 {% csrf_token %}
@@ -143,7 +142,6 @@
             </form>
             {% endfor %}
         </div>
-        {% endif %}
 
         <div style="margin-top: 14px; text-align: right;">
             <a href="{% url 'water_history' %}" style="font-size: 12px; font-weight: 600; color: #9d8ffb; text-decoration: none;">Vedi storico →</a>
@@ -417,6 +415,61 @@
             var form = document.getElementById('water-goal-form');
             form.style.display = form.style.display === 'none' ? 'block' : 'none';
         }
+
+        // --- Aggiunta acqua via AJAX (niente reload della dashboard) ---
+        (function() {
+            var DELETE_URL_TPL = '{% url "delete_water_entry" 0 %}'.replace('/0/', '/__ID__/');
+            var pillsContainer = document.getElementById('water-pills');
+
+            function formatLiters(ml) {
+                var l = Math.round(ml) / 1000;
+                var s = l.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
+                return s === '' ? '0' : s;
+            }
+
+            function buildPill(entry) {
+                var form = document.createElement('form');
+                form.action = DELETE_URL_TPL.replace('__ID__', entry.id);
+                form.method = 'post';
+                form.className = 'water-pill';
+                form.style.cssText = 'position: relative; display: inline-flex;';
+                form.addEventListener('submit', function(e) {
+                    if (!confirm('Eliminare questa aggiunta?')) e.preventDefault();
+                });
+                var csrf = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+                form.innerHTML =
+                    '<input type="hidden" name="csrfmiddlewaretoken" value="' + csrf + '">' +
+                    '<input type="hidden" name="next" value="{{ request.get_full_path|escapejs }}">' +
+                    '<span style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: rgba(124,108,246,0.12); border: 1px solid rgba(124,108,246,0.2); border-radius: 20px; color: #b7bdf0; font-size: 11.5px; font-weight: 600;">' +
+                        entry.quantita_ml + 'ml <span style="color: #7d8296; font-weight: 500;">· ' + entry.ora + '</span>' +
+                    '</span>' +
+                    '<button type="submit" class="water-pill-x" title="Elimina">×</button>';
+                return form;
+            }
+
+            document.querySelectorAll('form[data-ajax-water]').forEach(function(form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    var btn = form.querySelector('button[type="submit"]');
+                    if (btn) btn.disabled = true;
+                    fetch(form.action, { method: 'POST', body: new FormData(form) })
+                        .then(function(r) { return r.json(); })
+                        .then(function(data) {
+                            if (btn) btn.disabled = false;
+                            if (!data.ok) { alert(data.error || 'Errore, riprova.'); return; }
+                            document.getElementById('water-total-label').textContent = formatLiters(data.total_ml);
+                            var bar = document.getElementById('water-progress-bar');
+                            if (bar) bar.style.width = data.progress_pct + '%';
+                            if (pillsContainer) pillsContainer.insertBefore(buildPill(data.entry), pillsContainer.firstChild);
+                            if (form.querySelector('input[name="quantita_ml"]:not([type="hidden"])')) form.reset();
+                        })
+                        .catch(function() {
+                            if (btn) btn.disabled = false;
+                            alert('Errore di rete, riprova.');
+                        });
+                });
+            });
+        })();
 
         function changeYear(delta) {
             var currentYear = parseInt('{{ selected_year }}');
