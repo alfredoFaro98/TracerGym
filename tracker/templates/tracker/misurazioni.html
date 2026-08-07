@@ -93,7 +93,12 @@
                     <input type="hidden" name="data" value="{{ e.data|date:'Y-m-d' }}">
                     <div style="display: flex; flex-direction: column; gap: 5px;">
                         <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
-                        <input type="time" name="ora" value="{{ e.orario|time:'H:i' }}" class="tracer-input" style="width: 100px;">
+                        <div style="display: flex; gap: 5px;">
+                            <input type="time" name="ora" value="{{ e.orario|time:'H:i' }}" class="tracer-input" style="width: 100px;">
+                            {% if e.orario %}
+                            <button type="submit" name="clear_ora" value="1" title="Rimuovi orario" style="width: 34px; height: 34px; flex-shrink: 0; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.2); border-radius: 8px; color: #f87171; font-size: 13px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">✕</button>
+                            {% endif %}
+                        </div>
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 5px;">
                         <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">PESO (KG)</span>

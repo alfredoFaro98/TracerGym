@@ -1608,12 +1608,15 @@ def save_misurazione(request):
                 except ValueError:
                     pass
 
-        ora_str = request.POST.get('ora')
-        if ora_str:
-            try:
-                entry.orario = dt_time.fromisoformat(ora_str)
-            except ValueError:
-                pass
+        if request.POST.get('clear_ora') == '1':
+            entry.orario = None
+        else:
+            ora_str = request.POST.get('ora')
+            if ora_str:
+                try:
+                    entry.orario = dt_time.fromisoformat(ora_str)
+                except ValueError:
+                    pass
 
         entry.save()
     return redirect(request.POST.get('next') or 'misurazioni')
