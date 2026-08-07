@@ -1148,19 +1148,29 @@ def exercise_suggestions(request):
 
 @login_required
 def user_list(request):
+    users_data = []
     if request.user.is_superuser:
-        profiles = UserProfile.objects.select_related('user').order_by('user__username')
+        # Il superuser vede tutti gli utenti registrati, anche quelli senza
+        # ancora un UserProfile (es. creati da Django Admin invece che dalla
+        # pagina di registrazione) e anche se privati.
+        profiles_by_user_id = {p.user_id: p for p in UserProfile.objects.all()}
+        for u in User.objects.order_by('username'):
+            profile = profiles_by_user_id.get(u.id)
+            session_count = WorkoutSession.objects.filter(utente=u).count()
+            users_data.append({
+                'user': u,
+                'is_public': profile.is_public if profile else False,
+                'session_count': session_count,
+            })
     else:
         profiles = UserProfile.objects.filter(is_public=True).select_related('user').order_by('user__username')
-
-    users_data = []
-    for profile in profiles:
-        session_count = WorkoutSession.objects.filter(utente=profile.user).count()
-        users_data.append({
-            'user': profile.user,
-            'is_public': profile.is_public,
-            'session_count': session_count,
-        })
+        for profile in profiles:
+            session_count = WorkoutSession.objects.filter(utente=profile.user).count()
+            users_data.append({
+                'user': profile.user,
+                'is_public': profile.is_public,
+                'session_count': session_count,
+            })
 
     return render(request, 'tracker/user_list.html', {'users_data': users_data})
 
