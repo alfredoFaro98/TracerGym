@@ -23,6 +23,10 @@
                     <input type="date" name="data" value="{% now 'Y-m-d' %}" class="tracer-input" style="width: 150px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
+                    <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input" style="width: 110px;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
                     <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">PESO (KG)</span>
                     <input type="number" step="0.1" name="peso_kg" placeholder="es. 78.5" min="0" class="tracer-input" style="width: 110px;">
                 </div>
@@ -70,6 +74,7 @@
         <div>
             <div id="metric-view-{{ e.id }}" style="display: flex; align-items: center; gap: 14px; padding: 13px 16px; border-bottom: 1px solid #0e0e1e; flex-wrap: wrap;">
                 <span style="font-size: 13px; font-weight: 700; color: #f0f0f3; min-width: 130px;">{{ e.data|date:"d M Y" }}</span>
+                {% if e.orario %}<span style="font-size: 12.5px; color: #7d8296;">🕐 {{ e.orario|time:"H:i" }}</span>{% endif %}
                 {% if e.peso_kg %}<span style="font-size: 12.5px; color: #c7cbd6;">⚖️ <b>{{ e.peso_kg }}</b> kg</span>{% endif %}
                 {% if e.altezza_cm %}<span style="font-size: 12.5px; color: #c7cbd6;">📏 <b>{{ e.altezza_cm }}</b> cm</span>{% endif %}
                 {% if e.body_fat_pct %}<span style="font-size: 12.5px; color: #c7cbd6;">📊 <b>{{ e.body_fat_pct }}</b> %</span>{% endif %}
@@ -86,6 +91,10 @@
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{% url 'misurazioni' %}">
                     <input type="hidden" name="data" value="{{ e.data|date:'Y-m-d' }}">
+                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
+                        <input type="time" name="ora" value="{{ e.orario|time:'H:i' }}" class="tracer-input" style="width: 100px;">
+                    </div>
                     <div style="display: flex; flex-direction: column; gap: 5px;">
                         <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">PESO (KG)</span>
                         <input type="number" step="0.1" name="peso_kg" value="{{ e.peso_kg|default_if_none:''|stringformat:'s' }}" min="0" class="tracer-input" style="width: 90px;">
