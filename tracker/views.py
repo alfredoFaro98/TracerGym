@@ -47,10 +47,31 @@ class TracerLoginView(LoginView):
         return response
 
 
+def _delete_blank_sessions(user):
+    """Rimuove solo le sessioni create ma mai davvero usate: nessuna serie,
+    nessun circuito, e nessun campo di dettaglio compilato (luogo/orario/
+    durata/peso/altezza/compagni/note). Cosi' una sessione dove l'utente ha
+    gia' compilato i dettagli ma non ha ancora aggiunto esercizi non sparisce
+    al primo giro in dashboard."""
+    WorkoutSession.objects.filter(
+        utente=user,
+        sets__isnull=True,
+        circuits__isnull=True,
+        luogo='',
+        orario__isnull=True,
+        durata_minuti__isnull=True,
+        peso_kg__isnull=True,
+        altezza_cm__isnull=True,
+        compagni_allenamento='',
+    ).filter(
+        models.Q(note__isnull=True) | models.Q(note='')
+    ).delete()
+
+
 @login_required
 def dashboard(request):
     _record_site_visit()
-    WorkoutSession.objects.filter(utente=request.user, sets__isnull=True).delete()
+    _delete_blank_sessions(request.user)
 
     # Recupera tutte le sessioni dell'utente loggato con prefetch per ottimizzare le query
     sessions_query = WorkoutSession.objects.filter(utente=request.user).prefetch_related('sets__exercise').order_by('-data', '-id')
@@ -224,7 +245,7 @@ def weekly_sessions_data(request):
 
 @login_required
 def create_session(request):
-    WorkoutSession.objects.filter(utente=request.user, sets__isnull=True).delete()
+    _delete_blank_sessions(request.user)
     session = WorkoutSession.objects.create(utente=request.user)
     return redirect('session_detail', session_id=session.id)
 
