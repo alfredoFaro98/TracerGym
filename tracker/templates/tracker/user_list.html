@@ -34,13 +34,15 @@
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0; margin-left: auto;">
-                <div style="text-align: right;">
+                <div style="width: 64px; display: flex; justify-content: flex-end;">
+                    {% if not item.is_public %}
+                    <span style="padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; background: rgba(124,108,246,0.12); border: 1px solid rgba(124,108,246,0.2); color: #b7bdf0; white-space: nowrap;">privato</span>
+                    {% endif %}
+                </div>
+                <div style="width: 54px; text-align: right;">
                     <div style="font-size: 13px; font-weight: 700; color: #f0883e; font-family: 'JetBrains Mono', monospace;">{{ item.session_count }}</div>
                     <div style="font-size: 10px; color: #404058; white-space: nowrap;">session{% if item.session_count == 1 %}e{% else %}i{% endif %}</div>
                 </div>
-                {% if not item.is_public %}
-                <span style="padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; background: rgba(240,136,62,.07); border: 1px solid rgba(240,136,62,.18); color: #f0883e; white-space: nowrap; flex-shrink: 0;">privato</span>
-                {% endif %}
             </div>
         </a>
         {% endfor %}
