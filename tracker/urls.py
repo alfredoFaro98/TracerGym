@@ -43,6 +43,7 @@ urlpatterns = [
     path('users/<str:username>/session/<int:session_id>/import/', views.import_session_from_user, name='import_session_from_user'),
     path('profile/toggle-visibility/', views.toggle_profile_visibility, name='toggle_profile_visibility'),
     path('body-map/', views.body_map, name='body_map'),
+    path('guida/', views.guida, name='guida'),
     path('sessions/week/', views.weekly_sessions_data, name='weekly_sessions_data'),
     path('session/<int:session_id>/circuit/create/', views.create_circuit, name='create_circuit'),
     path('session/<int:session_id>/circuit/import/', views.import_circuit, name='import_circuit'),
