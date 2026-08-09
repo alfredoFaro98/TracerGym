@@ -38,6 +38,10 @@
                     <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">BODY FAT (%)</span>
                     <input type="number" step="0.1" name="body_fat_pct" placeholder="Opz." min="0" max="100" class="tracer-input" style="width: 100px;">
                 </div>
+                <div style="display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 200px;">
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">NOTE</span>
+                    <input type="text" name="note" placeholder="Opzionale, max 100 caratteri" maxlength="100" class="tracer-input" style="width: 100%;">
+                </div>
                 <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13px;">Salva</button>
                 <button type="button" onclick="toggleNewEntryForm()" style="padding: 10px 16px; font-size: 13px; background: transparent; border: 1px solid #1c1c2c; border-radius: 8px; color: #787890; cursor: pointer;">Annulla</button>
             </form>
@@ -78,6 +82,7 @@
                 {% if e.peso_kg %}<span style="font-size: 12.5px; color: #c7cbd6;">⚖️ <b>{{ e.peso_kg }}</b> kg</span>{% endif %}
                 {% if e.altezza_cm %}<span style="font-size: 12.5px; color: #c7cbd6;">📏 <b>{{ e.altezza_cm }}</b> cm</span>{% endif %}
                 {% if e.body_fat_pct %}<span style="font-size: 12.5px; color: #c7cbd6;">📊 <b>{{ e.body_fat_pct }}</b> %</span>{% endif %}
+                {% if e.note %}<span style="font-size: 12.5px; color: #9ba0b3; font-style: italic;">📝 {{ e.note }}</span>{% endif %}
                 <div style="flex: 1;"></div>
                 <span onclick="toggleMetricEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: #a996ff; padding: 6px 12px; border-radius: 7px; background: rgba(124,108,246,0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(124,108,246,0.22)'" onmouseout="this.style.background='rgba(124,108,246,0.12)'">Modifica</span>
                 <form action="{% url 'delete_misurazione' e.id %}" method="post" style="display:inline;" onsubmit="return confirm('Eliminare questa misurazione?');">
@@ -111,6 +116,10 @@
                     <div style="display: flex; flex-direction: column; gap: 5px;">
                         <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">BODY FAT (%)</span>
                         <input type="number" step="0.1" name="body_fat_pct" value="{{ e.body_fat_pct|default_if_none:''|stringformat:'s' }}" min="0" max="100" class="tracer-input" style="width: 90px;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 180px;">
+                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">NOTE</span>
+                        <input type="text" name="note" value="{{ e.note }}" placeholder="Opzionale, max 100 caratteri" maxlength="100" class="tracer-input" style="width: 100%;">
                     </div>
                     <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
                     <button type="button" onclick="toggleMetricEdit('{{ e.id }}')" style="color: #838a9e; font-size: 12.5px; font-weight: 600; padding: 8px 10px; background: transparent; border: none; cursor: pointer;" onmouseover="this.style.color='#c7cbd6'" onmouseout="this.style.color='#838a9e'">Annulla</button>

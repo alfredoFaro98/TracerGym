@@ -1728,6 +1728,10 @@ def save_misurazione(request):
                 except ValueError:
                     pass
 
+        note_val = request.POST.get('note')
+        if note_val:
+            entry.note = note_val.strip()[:100]
+
         if request.POST.get('clear_ora') == '1':
             entry.orario = None
         else:
