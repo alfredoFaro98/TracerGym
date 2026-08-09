@@ -61,6 +61,7 @@ urlpatterns = [
     path('water/storico/', views.water_history, name='water_history'),
     path('integratori/', views.integratori, name='integratori'),
     path('integratori/add/', views.add_integratore_entry, name='add_integratore_entry'),
+    path('integratori/add-range/', views.add_integratore_range, name='add_integratore_range'),
     path('integratori/<int:entry_id>/delete/', views.delete_integratore_entry, name='delete_integratore_entry'),
     path('integratori/<int:entry_id>/edit/', views.edit_integratore_entry, name='edit_integratore_entry'),
     path('misurazioni/', views.misurazioni, name='misurazioni'),

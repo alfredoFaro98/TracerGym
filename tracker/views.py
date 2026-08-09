@@ -1585,6 +1585,42 @@ def add_integratore_entry(request):
 
 
 @login_required
+def add_integratore_range(request):
+    """Inserimento multiplo: stessa quantita' dello stesso integratore per
+    ogni giorno di un intervallo (es. creatina 5g/die dal 1 al 30 del mese)."""
+    if request.method == 'POST':
+        tipo = request.POST.get('tipo')
+        quantita_g = request.POST.get('quantita_g')
+        data_inizio_str = request.POST.get('data_inizio')
+        data_fine_str = request.POST.get('data_fine')
+        ora_str = request.POST.get('ora')
+
+        if (tipo in dict(IntegratoreEntry.TIPO_CHOICES)
+                and quantita_g and quantita_g.isdigit() and int(quantita_g) > 0
+                and data_inizio_str and data_fine_str):
+            try:
+                data_inizio = date.fromisoformat(data_inizio_str)
+                data_fine = date.fromisoformat(data_fine_str)
+            except ValueError:
+                data_inizio = data_fine = None
+
+            if data_inizio and data_fine and data_inizio <= data_fine and (data_fine - data_inizio).days < 366:
+                nuove = []
+                giorno = data_inizio
+                while giorno <= data_fine:
+                    nuove.append(IntegratoreEntry(
+                        utente=request.user,
+                        tipo=tipo,
+                        quantita_g=int(quantita_g),
+                        data=giorno,
+                        creato_il=_combine_water_datetime(giorno, ora_str),
+                    ))
+                    giorno += timedelta(days=1)
+                IntegratoreEntry.objects.bulk_create(nuove)
+    return redirect(request.POST.get('next') or 'integratori')
+
+
+@login_required
 def delete_integratore_entry(request, entry_id):
     entry = get_object_or_404(IntegratoreEntry, id=entry_id, utente=request.user)
     if request.method == 'POST':
