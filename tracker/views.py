@@ -1519,6 +1519,16 @@ def set_day_water_goal(request):
 def integratori(request):
     entries = IntegratoreEntry.objects.filter(utente=request.user).order_by('-data', '-creato_il')
 
+    filter_data_str = request.GET.get('data', '').strip()
+    filter_date = None
+    if filter_data_str:
+        try:
+            filter_date = date.fromisoformat(filter_data_str)
+        except ValueError:
+            filter_date = None
+    if filter_date:
+        entries = entries.filter(data=filter_date)
+
     days = []
     for day, grp in groupby(entries, key=lambda e: e.data):
         day_entries = list(grp)
@@ -1563,6 +1573,8 @@ def integratori(request):
         'tipo_choices': IntegratoreEntry.TIPO_CHOICES,
         'selected_year': year_int,
         'heatmap_data_json': json.dumps(heatmap_data),
+        'filter_active': filter_date is not None,
+        'filter_date_str': filter_date.isoformat() if filter_date else '',
     })
 
 

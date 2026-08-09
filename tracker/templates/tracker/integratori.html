@@ -124,12 +124,28 @@
         <div style="font-size: 10.5px; color: #565b6e; text-align: center; padding: 10px 0 4px;">Colore in base a quanti integratori (su 3) sono stati assunti quel giorno</div>
     </div>
 
+    <!-- Filtro per data -->
+    <div class="tracer-card" style="padding: 14px 20px; margin-bottom: 24px;">
+        <form method="get" style="display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap;">
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+                <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">CERCA PER DATA</span>
+                <input type="date" name="data" value="{{ filter_date_str }}" class="tracer-input" style="width: 170px;">
+            </div>
+            <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13px;">Cerca</button>
+            {% if filter_active %}
+            <a href="{% url 'integratori' %}" style="padding: 10px 16px; font-size: 13px; background: transparent; border: 1px solid #1c1c2c; border-radius: 8px; color: #787890; text-decoration: none;">Mostra tutte</a>
+            {% endif %}
+        </form>
+    </div>
+
     <!-- Assunzioni per giorno -->
     <div class="tracer-card" style="overflow: hidden;">
         {% if not days %}
         <div style="padding: 52px 24px; text-align: center;">
             <div style="font-size: 26px; margin-bottom: 10px; opacity: .4;">💊</div>
-            <div style="font-size: 13.5px; color: #7d8296; font-weight: 500;">Ancora nessuna assunzione registrata</div>
+            <div style="font-size: 13.5px; color: #7d8296; font-weight: 500;">
+                {% if filter_active %}Nessuna assunzione registrata per questa data.{% else %}Ancora nessuna assunzione registrata{% endif %}
+            </div>
         </div>
         {% else %}
         {% for day in days %}
@@ -137,7 +153,7 @@
         <div style="padding: 16px 20px; border-bottom: 1px solid #16162a;">
             <div onclick="toggleDay('{{ day_key }}')" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; cursor: pointer; user-select: none;">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <svg id="day-chevron-{{ day_key }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    <svg id="day-chevron-{{ day_key }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;{% if filter_active %} transform: rotate(90deg);{% endif %}"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     <span style="font-size: 13.5px; font-weight: 700; color: #f0f0f3;">{{ day.data|date:"l d F Y"|capfirst }}</span>
                     <span style="font-size: 11.5px; color: #7d8296;">{{ day.entries|length }} assunzion{{ day.entries|length|pluralize:"e,i" }}</span>
                 </div>
@@ -148,7 +164,7 @@
                 </div>
             </div>
 
-            <div id="day-body-{{ day_key }}" style="display: none; flex-direction: column; gap: 6px; margin-top: 12px;">
+            <div id="day-body-{{ day_key }}" style="display: {% if filter_active %}flex{% else %}none{% endif %}; flex-direction: column; gap: 6px; margin-top: 12px;">
                 {% for e in day.entries %}
                 <div>
                     <div id="integratore-view-{{ e.id }}" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.05); border-radius: 9px; padding: 9px 14px; flex-wrap: wrap;">
