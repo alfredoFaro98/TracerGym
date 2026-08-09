@@ -815,6 +815,16 @@ function toggleBarraAdd(e) {
         warmupWrap.style.display = 'flex';
     });
 })();
+// La serie di avviamento ha di norma un recupero piu' breve delle altre: alla
+// spunta della casella proponiamo 40s nel campo recupero dello stesso form
+// (form principale o riga di modifica), ma da li' in poi il campo resta
+// libero, si puo' cambiare senza che si sovrascriva di nuovo.
+document.addEventListener('change', function(e) {
+    if (e.target.type !== 'checkbox' || e.target.name !== 'avviamento' || !e.target.checked) return;
+    var form = e.target.closest('form');
+    var restInput = form && form.querySelector('input[name="rest_time"]');
+    if (restInput) restInput.value = '40';
+});
 function toggleBarraEdit(e, id) {
     e.preventDefault();
     var cb = document.getElementById('barra-check-' + id);
