@@ -305,6 +305,11 @@ def session_detail(request, session_id):
                 except InvalidOperation:
                     warmup_weight = None
         warmup_reps = request.POST.get('avviamento_default_reps') or reps
+        warmup_rest_raw = request.POST.get('avviamento_default_rest')
+        try:
+            warmup_rest = int(warmup_rest_raw) if warmup_rest_raw else 40
+        except ValueError:
+            warmup_rest = 40
         extra_warmup = 1 if warmup_weight is not None else 0
 
         # Inserisce le nuove serie subito dopo le serie esistenti dello stesso esercizio
@@ -334,7 +339,7 @@ def session_detail(request, session_id):
                 reps=warmup_reps,
                 durata=durata,
                 weight=warmup_weight,
-                rest_time=rest_time,
+                rest_time=warmup_rest,
                 per_lato=per_lato,
                 avviamento=True,
                 a_cedimento=False,
