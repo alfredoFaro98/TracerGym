@@ -596,7 +596,16 @@ def edit_set(request, set_id):
 def duplicate_session(request, session_id):
     original = get_object_or_404(WorkoutSession, id=session_id, utente=request.user)
     if request.method == 'POST':
-        new_session = WorkoutSession.objects.create(utente=request.user)
+        new_session = WorkoutSession.objects.create(
+            utente=request.user,
+            note=original.note,
+            luogo=original.luogo,
+            orario=original.orario,
+            durata_minuti=original.durata_minuti,
+            peso_kg=original.peso_kg,
+            altezza_cm=original.altezza_cm,
+            compagni_allenamento=original.compagni_allenamento,
+        )
         for s in original.sets.filter(circuit__isnull=True).order_by('order', 'id'):
             WorkoutSet.objects.create(
                 session=new_session, exercise=s.exercise,
