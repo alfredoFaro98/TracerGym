@@ -31,6 +31,7 @@ class WorkoutSession(models.Model):
     note = models.TextField(blank=True, null=True)
     luogo = models.CharField(max_length=150, blank=True, default='')
     orario = models.TimeField(null=True, blank=True)
+    orario_fine = models.TimeField(null=True, blank=True)
     durata_minuti = models.PositiveIntegerField(null=True, blank=True)
     peso_kg = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     altezza_cm = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)

@@ -601,6 +601,7 @@ def duplicate_session(request, session_id):
             note=original.note,
             luogo=original.luogo,
             orario=original.orario,
+            orario_fine=original.orario_fine,
             durata_minuti=original.durata_minuti,
             peso_kg=original.peso_kg,
             altezza_cm=original.altezza_cm,
@@ -651,6 +652,16 @@ def edit_session_date(request, session_id):
                 pass
         else:
             session.orario = None
+
+        orario_fine_str = request.POST.get('orario_fine')
+        if orario_fine_str:
+            try:
+                hh, mm = orario_fine_str.split(':')
+                session.orario_fine = dt_time(int(hh), int(mm))
+            except (ValueError, AttributeError):
+                pass
+        else:
+            session.orario_fine = None
 
         durata_str = request.POST.get('durata_minuti')
         session.durata_minuti = int(durata_str) if durata_str and durata_str.isdigit() else None
@@ -805,6 +816,7 @@ def _export_session_dict(session):
         'note': session.note or '',
         'luogo': session.luogo or '',
         'orario': session.orario.strftime('%H:%M') if session.orario else None,
+        'orario_fine': session.orario_fine.strftime('%H:%M') if session.orario_fine else None,
         'durata_minuti': session.durata_minuti,
         'peso_kg': float(session.peso_kg) if session.peso_kg is not None else None,
         'altezza_cm': float(session.altezza_cm) if session.altezza_cm is not None else None,
@@ -877,10 +889,16 @@ def import_sessions(request):
                 if orario_str:
                     orario = dt_time.fromisoformat(orario_str)
 
+                orario_fine = None
+                orario_fine_str = item.get('orario_fine')
+                if orario_fine_str:
+                    orario_fine = dt_time.fromisoformat(orario_fine_str)
+
                 session = WorkoutSession.objects.create(
                     utente=request.user, data=session_date, note=note,
                     luogo=item.get('luogo') or '',
                     orario=orario,
+                    orario_fine=orario_fine,
                     durata_minuti=item.get('durata_minuti'),
                     peso_kg=item.get('peso_kg'),
                     altezza_cm=item.get('altezza_cm'),
