@@ -1138,9 +1138,11 @@ def exercise_weight_history(request):
     # luogo indicato finiscono tutte in un'unica linea "Senza palestra".
     day_max = {}
     for r in rows:
-        total = float(r['weight'] or 0) + float(r['barra_kg'] or 0)
-        if r['per_lato']:
-            total *= 2
+        weight = float(r['weight'] or 0)
+        barra = float(r['barra_kg'] or 0)
+        # "Per lato" raddoppia solo il peso caricato, la sbarra e' un pezzo
+        # solo e va contata una volta sola indipendentemente dal lato.
+        total = (weight * 2 if r['per_lato'] else weight) + barra
         luogo = (r['session__luogo'] or '').strip()
         d = r['session__data'].strftime('%Y-%m-%d')
         key = (luogo, d)
