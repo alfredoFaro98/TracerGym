@@ -1733,6 +1733,10 @@ def misurazioni(request):
         'peso': [{'date': e.data.strftime('%d/%m/%Y'), 'value': float(e.peso_kg)} for e in chart_entries if e.peso_kg is not None],
         'altezza': [{'date': e.data.strftime('%d/%m/%Y'), 'value': float(e.altezza_cm)} for e in chart_entries if e.altezza_cm is not None],
         'body_fat': [{'date': e.data.strftime('%d/%m/%Y'), 'value': float(e.body_fat_pct)} for e in chart_entries if e.body_fat_pct is not None],
+        'vita': [{'date': e.data.strftime('%d/%m/%Y'), 'value': float(e.vita_cm)} for e in chart_entries if e.vita_cm is not None],
+        'torace': [{'date': e.data.strftime('%d/%m/%Y'), 'value': float(e.torace_cm)} for e in chart_entries if e.torace_cm is not None],
+        'braccia': [{'date': e.data.strftime('%d/%m/%Y'), 'value': float(e.braccia_cm)} for e in chart_entries if e.braccia_cm is not None],
+        'cosce': [{'date': e.data.strftime('%d/%m/%Y'), 'value': float(e.cosce_cm)} for e in chart_entries if e.cosce_cm is not None],
     }
 
     return render(request, 'tracker/misurazioni.html', {
@@ -1754,7 +1758,7 @@ def save_misurazione(request):
 
         # Un campo lasciato vuoto non tocca il valore gia' salvato per quel giorno
         # (evita che il form rapido "+", sempre vuoto, azzeri dati inseriti in precedenza).
-        for field in ('peso_kg', 'altezza_cm', 'body_fat_pct'):
+        for field in ('peso_kg', 'altezza_cm', 'body_fat_pct', 'vita_cm', 'torace_cm', 'braccia_cm', 'cosce_cm'):
             val = request.POST.get(field)
             if val:
                 try:

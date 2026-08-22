@@ -107,6 +107,10 @@ class BodyMetric(models.Model):
     peso_kg = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     altezza_cm = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
     body_fat_pct = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
+    vita_cm = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
+    torace_cm = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
+    braccia_cm = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
+    cosce_cm = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
     note = models.CharField(max_length=100, blank=True, default='')
 
     class Meta:
