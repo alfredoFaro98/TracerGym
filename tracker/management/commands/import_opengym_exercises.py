@@ -132,10 +132,9 @@ class Command(BaseCommand):
         base = Path(options['opengym_path'])
         exdb_path = base / 'frontend' / 'src' / 'lib' / 'exercises-data.js'
         instr_it_path = base / 'frontend' / 'src' / 'instr' / 'it.js'
-        img_dir = base / 'media' / 'img'
         gif_dir = base / 'media' / 'gif'
 
-        for p in (exdb_path, instr_it_path, img_dir, gif_dir):
+        for p in (exdb_path, instr_it_path, gif_dir):
             if not p.exists():
                 raise CommandError(f'Non trovo {p} — controlla --opengym-path.')
 
