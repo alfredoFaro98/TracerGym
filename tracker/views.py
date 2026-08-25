@@ -1418,7 +1418,7 @@ def toggle_profile_visibility(request):
 
 
 def _combine_water_datetime(entry_data, ora_str):
-    ora = timezone.now().time()
+    ora = timezone.localtime().time()
     if ora_str:
         try:
             hh, mm = ora_str.split(':')
@@ -1434,7 +1434,7 @@ def add_water_entry(request):
     if request.method == 'POST':
         quantita_ml = request.POST.get('quantita_ml')
         if quantita_ml and quantita_ml.isdigit() and int(quantita_ml) > 0:
-            entry_data = timezone.now().date()
+            entry_data = timezone.localdate()
             data_str = request.POST.get('data')
             if data_str:
                 try:
@@ -1457,7 +1457,7 @@ def add_water_entry_ajax(request):
     if not (quantita_ml and quantita_ml.isdigit() and int(quantita_ml) > 0):
         return JsonResponse({'error': 'Quantità non valida.'}, status=400)
 
-    today = timezone.now().date()
+    today = timezone.localdate()
     creato_il = _combine_water_datetime(today, request.POST.get('ora'))
     entry = WaterEntry.objects.create(utente=request.user, quantita_ml=int(quantita_ml), data=today, creato_il=creato_il)
 
@@ -1469,7 +1469,7 @@ def add_water_entry_ajax(request):
 
     return JsonResponse({
         'ok': True,
-        'entry': {'id': entry.id, 'quantita_ml': entry.quantita_ml, 'ora': entry.creato_il.strftime('%H:%M')},
+        'entry': {'id': entry.id, 'quantita_ml': entry.quantita_ml, 'ora': timezone.localtime(entry.creato_il).strftime('%H:%M')},
         'total_ml': total_ml,
         'total_l': round(total_ml / 1000, 2),
         'goal_ml': goal_ml,
