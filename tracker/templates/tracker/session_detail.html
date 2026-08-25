@@ -173,18 +173,18 @@
                     <input type="checkbox" name="aggiungi_avviamento_default" id="warmup-check" style="width: 15px; height: 15px; accent-color: #7c6cf6; flex-shrink: 0; cursor: pointer;">
                     <span style="font-size: 12.5px; color: #c7cbd6;">+ Avviamento automatico (metà peso)</span>
                 </label>
-                <div id="warmup-preview-wrap" style="display:none; gap: 10px;">
-                    <div style="display: flex; flex-direction: column; gap: 6px;">
-                        <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RIP. AVVIAMENTO</span>
-                        <input type="number" name="avviamento_default_reps" id="warmup-reps-input" class="tracer-input" min="1" style="width: 90px;">
+                <div id="warmup-preview-wrap" style="display:none; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;">
+                    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">RIP. AVVIAMENTO</span>
+                        <input type="number" name="avviamento_default_reps" id="warmup-reps-input" class="tracer-input" min="1">
                     </div>
-                    <div style="display: flex; flex-direction: column; gap: 6px;">
-                        <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">PESO AVVIAMENTO (KG)</span>
-                        <input type="number" step="0.5" name="avviamento_default_peso" id="warmup-preview-input" class="tracer-input" min="0" style="width: 110px;">
+                    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">PESO AVVIAMENTO (KG)</span>
+                        <input type="number" step="0.5" name="avviamento_default_peso" id="warmup-preview-input" class="tracer-input" min="0">
                     </div>
-                    <div style="display: flex; flex-direction: column; gap: 6px;">
-                        <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RECUPERO AVVIAMENTO (S)</span>
-                        <input type="number" name="avviamento_default_rest" id="warmup-rest-input" class="tracer-input" min="0" style="width: 90px;">
+                    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">RECUPERO AVVIAMENTO (S)</span>
+                        <input type="number" name="avviamento_default_rest" id="warmup-rest-input" class="tracer-input" min="0">
                     </div>
                 </div>
 
@@ -823,7 +823,7 @@ function toggleBarraAdd(e) {
         warmupWeightInput.value = half;
         warmupRepsInput.value = repsInput.value;
         warmupRestInput.value = '40';
-        warmupWrap.style.display = 'flex';
+        warmupWrap.style.display = 'grid';
     });
 })();
 function toggleBarraEdit(e, id) {
