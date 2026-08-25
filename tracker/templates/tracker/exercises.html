@@ -38,9 +38,32 @@
         border: 1px solid rgba(255,255,255,0.08);
         color: #c7cbd6;
         white-space: nowrap;
+        cursor: pointer;
+        user-select: none;
     }
     .filter-tab:hover { background: rgba(255,255,255,0.09); }
     .filter-tab.active { background: rgba(124,108,246,0.22); border-color: #7c6cf6; color: #ffffff; }
+
+    .ex-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 10px; }
+    .ex-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 16px;
+        background: #14141b;
+        border-radius: 12px;
+        border: 1px solid transparent;
+        transition: all .12s;
+    }
+    .ex-card:hover {
+        background: rgba(124,108,246,0.14);
+        border-color: rgba(124,108,246,0.45);
+        box-shadow: 0 0 0 1px rgba(124,108,246,0.2);
+        transform: translateY(-1px);
+    }
+    .ex-thumb, .ex-thumb-fallback { width: 44px; height: 44px; border-radius: 8px; flex-shrink: 0; }
+    .ex-thumb { object-fit: cover; background: #0a0a12; }
+    .ex-thumb-fallback { background: #1c1c2c; color: #7d8296; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; }
 
     .page-container .btn-primary-gradient,
     #edit-modal .btn-primary-gradient,
@@ -57,8 +80,8 @@
     <!-- Header -->
     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
         <div>
-            <h1 style="font-size: 21px; font-weight: 700; color: #f0f0f3; letter-spacing: -0.4px; margin-bottom: 3px;">Catalogo Esercizi</h1>
-            <p style="font-size: 12px; color: #484860;">{{ total_count }} esercizi nel database{% if total_media_bytes is not None %} &middot; {{ total_media_bytes|filesizeformat }} di immagini caricate{% endif %}</p>
+            <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 30px; font-weight: 700; color: #ffffff; letter-spacing: -0.4px; margin-bottom: 4px;">Esercizi</h1>
+            <p style="font-size: 14px; color: #7d8296;">{{ total_count }} esercizi con animazioni{% if total_media_bytes is not None %} &middot; {{ total_media_bytes|filesizeformat }} di immagini caricate{% endif %}</p>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
             <a href="{% url 'export_exercises_json' %}" style="height: 34px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 1px solid #1c1c2c; border-radius: 8px; color: #787890; font-size: 12px; font-weight: 600; text-decoration: none; transition: all .12s;" onmouseover="this.style.borderColor='#3a3a5a';this.style.color='#f0f0f3'" onmouseout="this.style.borderColor='#1c1c2c';this.style.color='#787890'">
@@ -126,48 +149,57 @@
         </div>
     </div>
 
-    <!-- Filtri per gruppo muscolare + ricerca -->
-    <div class="tracer-card" style="padding: 18px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
-        <div style="display: flex; gap: 8px; flex-wrap: wrap; flex: 1; min-width: 0;">
-            <a href="{% url 'exercises_list' %}" class="filter-tab{% if not selected_tag %} active{% endif %}">Tutti</a>
-            {% for tag in tags %}
-            <a href="?tag={{ tag.nome }}" class="filter-tab{% if selected_tag == tag.nome %} active{% endif %}">{{ tag.nome }}</a>
-            {% endfor %}
-        </div>
-        <div style="position: relative; flex-shrink: 0;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); pointer-events: none;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <input id="search-input" type="text" placeholder="Cerca esercizio…" class="tracer-input" style="width: 220px; padding: 9px 14px 9px 34px; font-size: 13px;" oninput="filterExercises(this.value)">
-        </div>
+    <!-- Ricerca -->
+    <div style="position: relative; margin-bottom: 28px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); pointer-events: none;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input id="search-input" type="text" placeholder="Cerca esercizio…" class="tracer-input" style="width: 100%; box-sizing: border-box; padding: 14px 16px 14px 42px; font-size: 14px; border-radius: 12px;" oninput="filterExercises(this.value)">
+    </div>
+
+    <!-- Filtro per gruppo muscolare -->
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+        <span class="filter-tab active" data-filter="muscle" data-value="">Tutti</span>
+        {% for tag in tags %}
+        <span class="filter-tab" data-filter="muscle" data-value="{{ tag.id }}">{{ tag.nome }}</span>
+        {% endfor %}
+    </div>
+
+    <!-- Filtro per attrezzatura -->
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
+        <span class="filter-tab active" data-filter="equip" data-value="">Qualsiasi attrezzo</span>
+        <span class="filter-tab" data-filter="equip" data-value="corpo">Corpo libero</span>
+        <span class="filter-tab" data-filter="equip" data-value="manubrio">Manubrio</span>
+        <span class="filter-tab" data-filter="equip" data-value="cavi">Cavi</span>
+        <span class="filter-tab" data-filter="equip" data-value="bilanciere">Bilanciere</span>
+        <span class="filter-tab" data-filter="equip" data-value="macchine">Macchine</span>
+        <span class="filter-tab" data-filter="equip" data-value="elastico">Elastico</span>
+        <span class="filter-tab" data-filter="equip" data-value="kettlebell">Kettlebell</span>
+        <span class="filter-tab" data-filter="equip" data-value="cardio">Cardio</span>
+        <span class="filter-tab" data-filter="equip" data-value="altro">Altro</span>
     </div>
 
     <!-- Esercizi -->
-    {% if selected_tag %}
-
-    <div class="tracer-card" style="overflow: hidden;">
-        <div style="padding: 12px 18px; border-bottom: 1px solid #16162a; display: flex; align-items: center; justify-content: space-between;">
-            <span style="font-size: 11px; font-weight: 700; color: #838a9e; text-transform: uppercase; letter-spacing: 1px;">{{ selected_tag }}</span>
-            <span style="font-size: 10px; color: #303048; font-family: 'JetBrains Mono', monospace;">{{ exercises|length }} esercizi</span>
-        </div>
+    <div id="ex-grid" class="ex-grid" style="margin-top: 4px;">
         {% for exercise in exercises %}
         {% with img=exercise.images.all|first %}
-        <div class="ex-row" data-name="{{ exercise.nome|lower }}" style="display: flex; align-items: center; justify-content: space-between; padding: 9px 18px 9px {% if img %}50px{% else %}18px{% endif %}; border-bottom: 1px solid #0d0d14; transition: background .1s; position: relative;" onmouseover="this.style.background='#12121c'" onmouseout="this.style.background='transparent'">
+        <div class="ex-card" data-name="{{ exercise.nome|lower }}" data-tags=",{% for t in exercise.tags.all %}{{ t.id }},{% endfor %}" data-tipologia="{{ exercise.tipologia|lower }}">
             {% if img %}
-            <img src="{{ img.immagine.url }}" style="position: absolute; top: 6px; bottom: 6px; left: 8px; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 6px;">
+            <img class="ex-thumb" src="{{ img.immagine.url }}">
+            {% else %}
+            <div class="ex-thumb-fallback">{{ exercise.nome|first|upper }}</div>
             {% endif %}
-            <div class="ex-name-btn" data-ex-id="{{ exercise.id }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 13px; color: #e0e0f0; transition: color .1s;">{{ exercise.nome }}</span>
+            <div class="ex-name-btn" data-ex-id="{{ exercise.id }}" style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; overflow: hidden;">
+                <span style="font-size: 14.5px; font-weight: 600; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ exercise.nome }}</span>
                 {% if exercise.tipologia %}
-                <span style="font-size: 10px; padding: 2px 7px; border-radius: 4px;" class="{% if 'bilanciere' in exercise.tipologia|lower %}tipo-bilanciere{% elif 'manubrio' in exercise.tipologia|lower %}tipo-manubrio{% elif 'cavi' in exercise.tipologia|lower %}tipo-cavi{% elif 'macchine' in exercise.tipologia|lower %}tipo-macchine{% elif 'corpo' in exercise.tipologia|lower %}tipo-corpo{% else %}tipo-default{% endif %}">{{ exercise.tipologia }}</span>
+                <span style="font-size: 11px; align-self: flex-start; padding: 1px 7px; border-radius: 4px;" class="{% if 'bilanciere' in exercise.tipologia|lower %}tipo-bilanciere{% elif 'manubrio' in exercise.tipologia|lower %}tipo-manubrio{% elif 'cavi' in exercise.tipologia|lower %}tipo-cavi{% elif 'macchine' in exercise.tipologia|lower %}tipo-macchine{% elif 'corpo' in exercise.tipologia|lower %}tipo-corpo{% else %}tipo-default{% endif %}">{{ exercise.tipologia }}</span>
                 {% endif %}
             </div>
             {% if user.is_superuser %}
-            <div style="display: flex; gap: 5px; flex-shrink: 0; margin-left: 12px;">
-                <button type="button" data-edit-btn data-ex-id="{{ exercise.id }}" data-ex-nome="{{ exercise.nome }}" data-ex-tipologia="{{ exercise.tipologia }}" data-ex-carrucole="{{ exercise.carrucole|default_if_none:'' }}" data-ex-tag="{{ selected_tag }}" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(124,108,246,.12); border: 1px solid rgba(124,108,246,.28); border-radius: 5px; color: #a996ff; cursor: pointer;">
+            <div style="display: flex; gap: 5px; flex-shrink: 0;">
+                <button type="button" data-edit-btn data-ex-id="{{ exercise.id }}" data-ex-nome="{{ exercise.nome }}" data-ex-tipologia="{{ exercise.tipologia }}" data-ex-carrucole="{{ exercise.carrucole|default_if_none:'' }}" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(124,108,246,.12); border: 1px solid rgba(124,108,246,.28); border-radius: 5px; color: #a996ff; cursor: pointer;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </button>
                 <form method="post" action="{% url 'delete_exercise_admin' exercise.id %}" data-confirm-nome="{{ exercise.nome }}" style="margin: 0;">
                     {% csrf_token %}
-                    <input type="hidden" name="tag" value="{{ selected_tag }}">
                     <button type="submit" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(248,113,113,.12); border: 1px solid rgba(248,113,113,.22); border-radius: 6px; color: #f87171; transition: all .12s; cursor: pointer;" onmouseover="this.style.background='rgba(248,113,113,.22)'" onmouseout="this.style.background='rgba(248,113,113,.12)'">
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                     </button>
@@ -177,52 +209,10 @@
         </div>
         {% endwith %}
         {% empty %}
-        <div style="padding: 30px; text-align: center; color: #2c2c42; font-size: 13px;">Nessun esercizio in questo gruppo.</div>
+        <div style="padding: 30px; text-align: center; color: #2c2c42; font-size: 13px;">Nessun esercizio nel database.</div>
         {% endfor %}
     </div>
-
-    {% else %}
-
-    <div id="groups-container" style="display: flex; flex-direction: column; gap: 16px;">
-        {% for group in tag_groups %}
-        <div class="group-card tracer-card" style="overflow: hidden;">
-            <div class="group-header" style="padding: 12px 18px; border-bottom: 1px solid #16162a; display: flex; align-items: center; justify-content: space-between;">
-                <span style="font-size: 11px; font-weight: 700; color: #838a9e; text-transform: uppercase; letter-spacing: 1px;">{% if group.tag %}{{ group.tag.nome }}{% else %}Senza gruppo{% endif %}</span>
-                <span style="font-size: 10px; color: #303048; font-family: 'JetBrains Mono', monospace;">{{ group.exercises|length }}</span>
-            </div>
-            {% for exercise in group.exercises %}
-            {% with img=exercise.images.all|first %}
-            <div class="ex-row" data-name="{{ exercise.nome|lower }}" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 18px 8px {% if img %}46px{% else %}18px{% endif %}; border-bottom: 1px solid #0a0a12; transition: background .1s; position: relative;" onmouseover="this.style.background='#12121c'" onmouseout="this.style.background='transparent'">
-                {% if img %}
-                <img src="{{ img.immagine.url }}" style="position: absolute; top: 6px; bottom: 6px; left: 8px; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 6px;">
-                {% endif %}
-                <div class="ex-name-btn" data-ex-id="{{ exercise.id }}" style="flex: 1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0;">
-                    <span style="font-size: 12.5px; color: #c0c0d8; transition: color .1s;">{{ exercise.nome }}</span>
-                    {% if exercise.tipologia %}
-                    <span style="font-size: 10px; padding: 1px 7px; border-radius: 4px;" class="{% if 'bilanciere' in exercise.tipologia|lower %}tipo-bilanciere{% elif 'manubrio' in exercise.tipologia|lower %}tipo-manubrio{% elif 'cavi' in exercise.tipologia|lower %}tipo-cavi{% elif 'macchine' in exercise.tipologia|lower %}tipo-macchine{% elif 'corpo' in exercise.tipologia|lower %}tipo-corpo{% else %}tipo-default{% endif %}">{{ exercise.tipologia }}</span>
-                    {% endif %}
-                </div>
-                {% if user.is_superuser %}
-                <div style="display: flex; gap: 5px; flex-shrink: 0; margin-left: 10px;">
-                    <button type="button" data-edit-btn data-ex-id="{{ exercise.id }}" data-ex-nome="{{ exercise.nome }}" data-ex-tipologia="{{ exercise.tipologia }}" data-ex-carrucole="{{ exercise.carrucole|default_if_none:'' }}" data-ex-tag="" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: rgba(124,108,246,.12); border: 1px solid rgba(124,108,246,.28); border-radius: 5px; color: #a996ff; cursor: pointer;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    </button>
-                    <form method="post" action="{% url 'delete_exercise_admin' exercise.id %}" data-confirm-nome="{{ exercise.nome }}" style="margin: 0;">
-                        {% csrf_token %}
-                        <button type="submit" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: rgba(248,113,113,.12); border: 1px solid rgba(248,113,113,.22); border-radius: 6px; color: #f87171; cursor: pointer; transition: all .12s;" onmouseover="this.style.background='rgba(248,113,113,.22)'" onmouseout="this.style.background='rgba(248,113,113,.12)'">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                        </button>
-                    </form>
-                </div>
-                {% endif %}
-            </div>
-            {% endwith %}
-            {% endfor %}
-        </div>
-        {% endfor %}
-    </div>
-
-    {% endif %}
+    <div id="ex-empty-msg" style="display: none; padding: 30px; text-align: center; color: #484860; font-size: 13px;">Nessun esercizio corrisponde ai filtri.</div>
 
 </div>
 
@@ -255,7 +245,6 @@
         <div class="modal-title">Modifica Esercizio</div>
         <form id="edit-form" method="post" action="" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 14px;">
             {% csrf_token %}
-            <input type="hidden" name="tag" id="edit-tag">
             <div>
                 <label class="modal-label">Nome</label>
                 <input type="text" name="nome" id="edit-nome" class="tracer-input" required style="width: 100%;">
@@ -304,13 +293,11 @@
     var IS_ADMIN = {{ user.is_superuser|yesno:"true,false" }};
 
     var exerciseTagMap = {
-        {% for group in tag_groups %}{% for ex in group.exercises %}{{ ex.id }}:[{% for t in ex.tags.all %}{{ t.id }},{% endfor %}],{% endfor %}{% endfor %}
-        {% if exercises %}{% for ex in exercises %}{{ ex.id }}:[{% for t in ex.tags.all %}{{ t.id }},{% endfor %}],{% endfor %}{% endif %}
+        {% for ex in exercises %}{{ ex.id }}:[{% for t in ex.tags.all %}{{ t.id }},{% endfor %}],{% endfor %}
     };
 
     var exerciseData = {
-        {% for group in tag_groups %}{% for ex in group.exercises %}"{{ ex.id }}":{"nome":"{{ ex.nome|escapejs }}","tipologia":"{{ ex.tipologia|escapejs }}","images":[{% for img in ex.images.all %}{"id":{{ img.id }},"url":"{{ img.immagine.url }}"},{% endfor %}]},{% endfor %}{% endfor %}
-        {% if exercises %}{% for ex in exercises %}"{{ ex.id }}":{"nome":"{{ ex.nome|escapejs }}","tipologia":"{{ ex.tipologia|escapejs }}","images":[{% for img in ex.images.all %}{"id":{{ img.id }},"url":"{{ img.immagine.url }}"},{% endfor %}]},{% endfor %}{% endif %}
+        {% for ex in exercises %}"{{ ex.id }}":{"nome":"{{ ex.nome|escapejs }}","tipologia":"{{ ex.tipologia|escapejs }}","images":[{% for img in ex.images.all %}{"id":{{ img.id }},"url":"{{ img.immagine.url }}"},{% endfor %}]},{% endfor %}
     };
 
     var addImgUrlTpl = '{% url "add_exercise_image" 0 %}'.replace('/0/', '/__ID__/');
@@ -369,7 +356,7 @@
                 wrap.style.cssText = 'position:relative;display:inline-block;';
                 var imgEl = document.createElement('img');
                 imgEl.src = img.url;
-                imgEl.style.cssText = 'width:120px;height:90px;object-fit:cover;border-radius:7px;border:1px solid #1c1c2c;display:block;';
+                imgEl.style.cssText = 'width:260px;height:260px;object-fit:contain;background:#0a0a12;border-radius:10px;border:1px solid #1c1c2c;display:block;';
                 wrap.appendChild(imgEl);
                 if (IS_ADMIN) {
                     var form = document.createElement('form');
@@ -413,7 +400,6 @@
             document.getElementById('edit-form').action = editUrlTpl.replace('__ID__', id);
             document.getElementById('edit-nome').value = d.exNome;
             document.getElementById('edit-tipologia').value = d.exTipologia;
-            document.getElementById('edit-tag').value = d.exTag;
             var activeTags = exerciseTagMap[parseInt(id)] || [];
             document.querySelectorAll('#edit-tags input[type=checkbox]').forEach(function(cb) {
                 cb.checked = activeTags.indexOf(parseInt(cb.dataset.tagId)) !== -1;
@@ -442,16 +428,55 @@
         document.getElementById('edit-modal').classList.remove('open');
     }
 
-    /* ---- Search ---- */
-    function filterExercises(query) {
-        var q = query.toLowerCase().trim();
-        document.querySelectorAll('.ex-row').forEach(function(row) {
-            row.style.display = (!q || row.dataset.name.indexOf(q) !== -1) ? '' : 'none';
-        });
-        document.querySelectorAll('.group-card').forEach(function(card) {
-            card.style.display = card.querySelectorAll('.ex-row:not([style*="display: none"])').length ? '' : 'none';
-        });
+    /* ---- Filtri: ricerca + muscolo + attrezzatura, tutti client-side ---- */
+    var filterState = { search: '', muscle: '', equip: '' };
+
+    function equipBucket(tipologia) {
+        var t = tipologia || '';
+        if (t.indexOf('cardio') !== -1) return 'cardio';
+        if (t.indexOf('bilanciere') !== -1) return 'bilanciere';
+        if (t.indexOf('manubrio') !== -1) return 'manubrio';
+        if (t.indexOf('cavi') !== -1) return 'cavi';
+        if (t.indexOf('smith') !== -1 || t.indexOf('macchin') !== -1 || t.indexOf('hammer') !== -1) return 'macchine';
+        if (t.indexOf('elastico') !== -1) return 'elastico';
+        if (t.indexOf('kettlebell') !== -1) return 'kettlebell';
+        if (t.indexOf('corpo libero') !== -1 || t.indexOf('assistito') !== -1) return 'corpo';
+        return 'altro';
     }
+    document.querySelectorAll('.ex-card').forEach(function(card) {
+        card.dataset.equip = equipBucket(card.dataset.tipologia);
+    });
+
+    function applyFilters() {
+        var q = filterState.search;
+        var visibleCount = 0;
+        document.querySelectorAll('.ex-card').forEach(function(card) {
+            var matchesSearch = !q || card.dataset.name.indexOf(q) !== -1;
+            var matchesMuscle = !filterState.muscle || card.dataset.tags.indexOf(',' + filterState.muscle + ',') !== -1;
+            var matchesEquip = !filterState.equip || card.dataset.equip === filterState.equip;
+            var visible = matchesSearch && matchesMuscle && matchesEquip;
+            card.style.display = visible ? '' : 'none';
+            if (visible) visibleCount++;
+        });
+        document.getElementById('ex-empty-msg').style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+
+    function filterExercises(query) {
+        filterState.search = query.toLowerCase().trim();
+        applyFilters();
+    }
+
+    document.querySelectorAll('.filter-tab[data-filter]').forEach(function(pill) {
+        pill.addEventListener('click', function() {
+            var group = pill.dataset.filter;
+            document.querySelectorAll('.filter-tab[data-filter="' + group + '"]').forEach(function(p) {
+                p.classList.remove('active');
+            });
+            pill.classList.add('active');
+            filterState[group] = pill.dataset.value;
+            applyFilters();
+        });
+    });
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') { closeExModal(); closeEdit(); }

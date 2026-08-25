@@ -992,42 +992,19 @@ def export_session(request, session_id):
 
 @login_required
 def exercises_list(request):
+    # Griglia unica filtrabile via pillole lato client (muscolo + attrezzatura + ricerca):
+    # renderizziamo sempre il catalogo intero, la vista non fa più branching per tag.
     tags = Tag.objects.all().order_by('nome')
     selected_tag = request.GET.get('tag', '')
     error = request.GET.get('error', '')
     total_count = Exercise.objects.count()
-
-    if selected_tag:
-        exercises = Exercise.objects.filter(tags__nome=selected_tag).prefetch_related('tags', 'images').order_by('nome')
-        tag_groups = None
-    else:
-        exercises = None
-        # Un'unica query per tutti gli esercizi (con i loro tag/immagini prefetchati),
-        # poi raggruppati in Python: evita una query separata per ogni tag.
-        all_exercises = list(Exercise.objects.prefetch_related('tags', 'images').order_by('nome'))
-        by_tag = {}
-        untagged = []
-        for ex in all_exercises:
-            ex_tags = list(ex.tags.all())
-            if not ex_tags:
-                untagged.append(ex)
-            for tag in ex_tags:
-                by_tag.setdefault(tag.id, []).append(ex)
-
-        tag_groups = []
-        for tag in tags:
-            tag_exercises = by_tag.get(tag.id, [])
-            if tag_exercises:
-                tag_groups.append({'tag': tag, 'exercises': tag_exercises})
-        if untagged:
-            tag_groups.append({'tag': None, 'exercises': untagged})
+    exercises = Exercise.objects.prefetch_related('tags', 'images').order_by('nome')
 
     total_media_bytes = _total_exercise_media_bytes() if request.user.is_superuser else None
 
     return render(request, 'tracker/exercises.html', {
         'tags': tags,
         'exercises': exercises,
-        'tag_groups': tag_groups,
         'selected_tag': selected_tag,
         'error': error,
         'total_count': total_count,
