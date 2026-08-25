@@ -1192,8 +1192,11 @@ def exercise_suggestions(request):
             default=1,
             output_field=IntegerField(),
         )
-    ).order_by('priority', 'nome')[:20]
-    results = list(qs.values_list('nome', flat=True))
+    ).order_by('priority', 'nome')[:20].prefetch_related('images')
+    results = []
+    for ex in qs:
+        images = list(ex.images.all())
+        results.append({'nome': ex.nome, 'image_url': images[0].immagine.url if images else None})
     return JsonResponse({'results': results})
 
 

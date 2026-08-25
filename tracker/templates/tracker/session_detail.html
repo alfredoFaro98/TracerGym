@@ -451,6 +451,33 @@
     background: #141428;
     color: #f0f0f3;
 }
+#ex-preview {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    width: 168px;
+    background: #17171f;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    box-shadow: 0 16px 36px rgba(0,0,0,0.5);
+    padding: 10px;
+    flex-direction: column;
+    gap: 8px;
+    box-sizing: border-box;
+}
+#ex-preview img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+}
+#ex-preview span {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
+}
 .exercise-group { transition: opacity .15s; }
 .exercise-group.dnd-over { outline: 1px solid rgba(240,136,62,.35); border-radius: 4px; }
 .drag-handle:hover { color: #5a5a78 !important; }
@@ -855,6 +882,14 @@ function toggleBarraEdit(e, id) {
     dropdown.style.display = 'none';
     document.body.appendChild(dropdown);
 
+    var preview = document.createElement('div');
+    preview.id = 'ex-preview';
+    var previewImg = document.createElement('img');
+    var previewName = document.createElement('span');
+    preview.appendChild(previewImg);
+    preview.appendChild(previewName);
+    document.body.appendChild(preview);
+
     var activeInput = null;
     var items = [];
     var activeIdx = -1;
@@ -871,6 +906,20 @@ function toggleBarraEdit(e, id) {
         markValid(activeInput, true);
         hide();
     }
+
+    function showPreview(item) {
+        if (!item || !item.image_url) { hidePreview(); return; }
+        previewImg.src = item.image_url;
+        previewName.textContent = item.nome;
+        var dr = dropdown.getBoundingClientRect();
+        var left = dr.right + 12;
+        if (left + 168 > window.innerWidth) left = dr.left - 168 - 12;
+        preview.style.top = dr.top + 'px';
+        preview.style.left = Math.max(4, left) + 'px';
+        preview.style.display = 'flex';
+    }
+
+    function hidePreview() { preview.style.display = 'none'; }
 
     function attach(input) {
         input.addEventListener('input', function() {
@@ -891,6 +940,7 @@ function toggleBarraEdit(e, id) {
         });
         input.addEventListener('blur', function() {
             setTimeout(hide, 150);
+            hidePreview();
         });
         // Blocca submit se esercizio non valido
         var form = input.closest('form');
@@ -921,7 +971,7 @@ function toggleBarraEdit(e, id) {
                 // Se il testo corrisponde esattamente (case-insensitive) segna come valido
                 if (activeInput) {
                     var val = activeInput.value.trim().toLowerCase();
-                    var exact = items.some(function(n) { return n.toLowerCase() === val; });
+                    var exact = items.some(function(item) { return item.nome.toLowerCase() === val; });
                     if (exact) markValid(activeInput, true);
                 }
                 render();
@@ -931,13 +981,15 @@ function toggleBarraEdit(e, id) {
     function render() {
         if (!items.length || !activeInput) { hide(); return; }
         dropdown.innerHTML = '';
-        items.forEach(function(nome) {
+        items.forEach(function(item) {
             var el = document.createElement('div');
             el.className = 'ex-item';
-            el.textContent = nome;
+            el.textContent = item.nome;
+            el.addEventListener('mouseenter', function() { showPreview(item); });
+            el.addEventListener('mouseleave', hidePreview);
             el.addEventListener('mousedown', function(e) {
                 e.preventDefault();
-                selectItem(nome);
+                selectItem(item.nome);
             });
             dropdown.appendChild(el);
         });
@@ -952,7 +1004,7 @@ function toggleBarraEdit(e, id) {
         dropdown.style.width = r.width + 'px';
     }
 
-    function hide() { dropdown.style.display = 'none'; activeIdx = -1; }
+    function hide() { dropdown.style.display = 'none'; activeIdx = -1; hidePreview(); }
 
     function onKeydown(e) {
         if (dropdown.style.display === 'none') return;
@@ -965,13 +1017,14 @@ function toggleBarraEdit(e, id) {
             activeIdx = Math.max(activeIdx - 1, -1);
         } else if (e.key === 'Enter' && activeIdx >= 0) {
             e.preventDefault();
-            selectItem(items[activeIdx]);
+            selectItem(items[activeIdx].nome);
             return;
         } else if (e.key === 'Escape') {
             hide(); return;
         } else { return; }
         els.forEach(function(el, i) { el.classList.toggle('ex-active', i === activeIdx); });
-        if (activeIdx >= 0) els[activeIdx].scrollIntoView({ block: 'nearest' });
+        if (activeIdx >= 0) { els[activeIdx].scrollIntoView({ block: 'nearest' }); showPreview(items[activeIdx]); }
+        else hidePreview();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
