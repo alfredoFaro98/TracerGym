@@ -1,8 +1,20 @@
 from django.contrib import admin
-from .models import Tag, Exercise, WorkoutSession, WorkoutSet
+from .models import Tag, Exercise, ExerciseImage, WorkoutSession, WorkoutSet
 
 admin.site.register(Tag)
-admin.site.register(Exercise)
+
+
+class ExerciseImageInline(admin.TabularInline):
+    model = ExerciseImage
+    extra = 0
+
+
+@admin.register(Exercise)
+class ExerciseAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'tipologia', 'target_muscle', 'origine')
+    list_filter = ('origine', 'tags')
+    search_fields = ('nome', 'target_muscle')
+    inlines = [ExerciseImageInline]
 
 class WorkoutSetInline(admin.TabularInline):
     model = WorkoutSet

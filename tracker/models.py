@@ -16,11 +16,28 @@ class Tag(models.Model):
         return self.nome
 
 class Exercise(models.Model):
+    ORIGINE_CHOICES = [
+        ('personale', 'Personale'),
+        ('opengym', 'openGym'),
+    ]
+
     # Catalogo degli esercizi
     nome = models.CharField(max_length=100)
     tipologia = models.CharField(max_length=120, blank=True, default='')
     carrucole = models.PositiveIntegerField(null=True, blank=True)
     tags = models.ManyToManyField(Tag, related_name='exercises')
+
+    # Muscolo target e secondari (utile per gli esercizi importati da openGym,
+    # ma disponibile a chiunque voglia compilarlo anche sui propri).
+    target_muscle = models.CharField(max_length=60, blank=True, default='')
+    secondary_muscles = models.JSONField(blank=True, default=list)
+    instructions_en = models.JSONField(blank=True, default=list)
+    instructions_it = models.JSONField(blank=True, default=list)
+
+    # Provenienza dell'esercizio (import_opengym_exercises usa external_id per
+    # essere ri-eseguibile senza duplicare le righe).
+    origine = models.CharField(max_length=20, choices=ORIGINE_CHOICES, default='personale')
+    external_id = models.CharField(max_length=30, blank=True, null=True, unique=True)
 
     def __str__(self):
         return self.nome
@@ -157,6 +174,7 @@ class ExerciseImage(models.Model):
     exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE, related_name='images')
     immagine = models.ImageField(upload_to='exercises/')
     ordine = models.PositiveIntegerField(default=0)
+    is_gif = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['ordine', 'id']
