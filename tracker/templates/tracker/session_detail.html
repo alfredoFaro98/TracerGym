@@ -406,6 +406,15 @@
                     {% endfor %}
                 </div>
             </div>
+            <div>
+                <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;">
+                    <input type="checkbox" id="new-ex-carrucole-check" style="width: 15px; height: 15px; accent-color: #7c6cf6; cursor: pointer;">
+                    <span style="font-size: 12.5px; color: #c7cbd6;">Carrucole</span>
+                </label>
+                <div id="new-ex-carrucole-wrap" style="display:none; margin-top: 8px;">
+                    <input type="number" id="new-ex-carrucole" class="tracer-input" min="0" step="1" placeholder="Numero di carrucole" style="width: 140px;">
+                </div>
+            </div>
             <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
                 <button type="button" onclick="closeNewExModal()" class="modal-cancel-btn">Annulla</button>
                 <button type="submit" id="new-ex-submit" class="btn-primary-gradient" style="padding: 0 20px; height: 34px; font-size: 12px; font-weight: 600;">Crea esercizio</button>
@@ -1242,13 +1251,23 @@ if (new URLSearchParams(window.location.search).get('pdf') === '1') {
     var tipologiaInput = document.getElementById('new-ex-tipologia');
     var errorBox = document.getElementById('new-ex-error');
     var submitBtn = document.getElementById('new-ex-submit');
+    var carrucoleCheck = document.getElementById('new-ex-carrucole-check');
+    var carrucoleWrap = document.getElementById('new-ex-carrucole-wrap');
+    var carrucoleInput = document.getElementById('new-ex-carrucole');
     var newExTarget = null; // input "ESERCIZIO" da riempire dopo la creazione
+
+    carrucoleCheck.addEventListener('change', function() {
+        carrucoleWrap.style.display = carrucoleCheck.checked ? 'block' : 'none';
+        if (!carrucoleCheck.checked) carrucoleInput.value = '';
+    });
 
     window.openNewExModal = function(inputId) {
         newExTarget = document.getElementById(inputId);
         nomeInput.value = newExTarget ? newExTarget.value.trim() : '';
         tipologiaInput.value = '';
         modal.querySelectorAll('input[type=checkbox]').forEach(function(cb) { cb.checked = false; });
+        carrucoleWrap.style.display = 'none';
+        carrucoleInput.value = '';
         errorBox.style.display = 'none';
         modal.classList.add('open');
         setTimeout(function() { nomeInput.focus(); }, 50);
@@ -1264,11 +1283,15 @@ if (new URLSearchParams(window.location.search).get('pdf') === '1') {
         errorBox.style.display = 'none';
         if (!nome) return;
 
-        var tagIds = Array.from(modal.querySelectorAll('input[type=checkbox]:checked')).map(function(cb) { return cb.value; });
+        var tagIds = Array.from(modal.querySelectorAll('input[name="new-ex-tags"]:checked')).map(function(cb) { return cb.value; });
         var body = new URLSearchParams();
         body.set('nome', nome);
         body.set('tipologia', tipologiaInput.value.trim());
         tagIds.forEach(function(id) { body.append('tags', id); });
+        if (carrucoleCheck.checked) {
+            body.set('has_carrucole', 'on');
+            body.set('carrucole', carrucoleInput.value.trim());
+        }
 
         submitBtn.disabled = true;
         fetch('{% url "add_exercise_ajax" %}', {

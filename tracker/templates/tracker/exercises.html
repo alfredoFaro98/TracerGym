@@ -103,6 +103,15 @@
                         {% endfor %}
                     </div>
                 </div>
+                <div>
+                    <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;">
+                        <input type="checkbox" name="has_carrucole" id="add-carrucole-check" style="width: 15px; height: 15px; accent-color: #7c6cf6; cursor: pointer;" onchange="document.getElementById('add-carrucole-wrap').style.display=this.checked?'block':'none'; if(!this.checked) document.getElementById('add-carrucole-input').value='';">
+                        <span style="font-size: 12.5px; color: #c7cbd6;">Carrucole</span>
+                    </label>
+                    <div id="add-carrucole-wrap" style="display:none; margin-top: 8px;">
+                        <input type="number" name="carrucole" id="add-carrucole-input" class="tracer-input" min="0" step="1" placeholder="Numero di carrucole" style="width: 140px;">
+                    </div>
+                </div>
             </form>
         </div>
     </div>
@@ -139,7 +148,7 @@
             </div>
             {% if user.is_superuser %}
             <div style="display: flex; gap: 5px; flex-shrink: 0; margin-left: 12px;">
-                <button type="button" data-edit-btn data-ex-id="{{ exercise.id }}" data-ex-nome="{{ exercise.nome }}" data-ex-tipologia="{{ exercise.tipologia }}" data-ex-tag="{{ selected_tag }}" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(124,108,246,.12); border: 1px solid rgba(124,108,246,.28); border-radius: 5px; color: #a996ff; cursor: pointer;">
+                <button type="button" data-edit-btn data-ex-id="{{ exercise.id }}" data-ex-nome="{{ exercise.nome }}" data-ex-tipologia="{{ exercise.tipologia }}" data-ex-carrucole="{{ exercise.carrucole|default_if_none:'' }}" data-ex-tag="{{ selected_tag }}" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(124,108,246,.12); border: 1px solid rgba(124,108,246,.28); border-radius: 5px; color: #a996ff; cursor: pointer;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </button>
                 <form method="post" action="{% url 'delete_exercise_admin' exercise.id %}" data-confirm-nome="{{ exercise.nome }}" style="margin: 0;">
@@ -176,7 +185,7 @@
                 </div>
                 {% if user.is_superuser %}
                 <div style="display: flex; gap: 5px; flex-shrink: 0; margin-left: 10px;">
-                    <button type="button" data-edit-btn data-ex-id="{{ exercise.id }}" data-ex-nome="{{ exercise.nome }}" data-ex-tipologia="{{ exercise.tipologia }}" data-ex-tag="" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: rgba(124,108,246,.12); border: 1px solid rgba(124,108,246,.28); border-radius: 5px; color: #a996ff; cursor: pointer;">
+                    <button type="button" data-edit-btn data-ex-id="{{ exercise.id }}" data-ex-nome="{{ exercise.nome }}" data-ex-tipologia="{{ exercise.tipologia }}" data-ex-carrucole="{{ exercise.carrucole|default_if_none:'' }}" data-ex-tag="" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: rgba(124,108,246,.12); border: 1px solid rgba(124,108,246,.28); border-radius: 5px; color: #a996ff; cursor: pointer;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </button>
                     <form method="post" action="{% url 'delete_exercise_admin' exercise.id %}" data-confirm-nome="{{ exercise.nome }}" style="margin: 0;">
@@ -243,6 +252,15 @@
                         <span style="font-size: 11px; color: #c7cbd6;">{{ tag.nome }}</span>
                     </label>
                     {% endfor %}
+                </div>
+            </div>
+            <div>
+                <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;">
+                    <input type="checkbox" name="has_carrucole" id="edit-carrucole-check" style="width: 15px; height: 15px; accent-color: #7c6cf6; cursor: pointer;" onchange="document.getElementById('edit-carrucole-wrap').style.display=this.checked?'block':'none'; if(!this.checked) document.getElementById('edit-carrucole-input').value='';">
+                    <span style="font-size: 12.5px; color: #c7cbd6;">Carrucole</span>
+                </label>
+                <div id="edit-carrucole-wrap" style="display:none; margin-top: 8px;">
+                    <input type="number" name="carrucole" id="edit-carrucole-input" class="tracer-input" min="0" step="1" placeholder="Numero di carrucole" style="width: 140px;">
                 </div>
             </div>
             <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
@@ -342,6 +360,11 @@
             document.querySelectorAll('#edit-tags input[type=checkbox]').forEach(function(cb) {
                 cb.checked = activeTags.indexOf(parseInt(cb.dataset.tagId)) !== -1;
             });
+            var carrucoleCheck = document.getElementById('edit-carrucole-check');
+            var carrucoleInput = document.getElementById('edit-carrucole-input');
+            carrucoleCheck.checked = d.exCarrucole !== '';
+            carrucoleInput.value = d.exCarrucole || '';
+            document.getElementById('edit-carrucole-wrap').style.display = carrucoleCheck.checked ? 'block' : 'none';
             document.getElementById('edit-modal').classList.add('open');
         }
     });

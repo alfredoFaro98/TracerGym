@@ -29,6 +29,16 @@ def _record_site_visit():
         SiteVisit.objects.get_or_create(data=today, defaults={'conteggio': 1})
 
 
+def _parse_carrucole(request):
+    """Numero di carrucole per un esercizio, solo se la checkbox è flaggata."""
+    if request.POST.get('has_carrucole') != 'on':
+        return None
+    try:
+        return int(request.POST.get('carrucole', ''))
+    except ValueError:
+        return None
+
+
 class TracerLoginView(LoginView):
     template_name = 'tracker/login.html'
     redirect_authenticated_user = True
@@ -1011,7 +1021,7 @@ def add_exercise(request):
                 error_msg = f'Esiste già un esercizio chiamato "{nome}".'
                 separator = '&' if '?' in next_url else '?'
                 return redirect(f'{next_url}{separator}{urlencode({"error": error_msg})}')
-            exercise = Exercise.objects.create(nome=nome, tipologia=tipologia)
+            exercise = Exercise.objects.create(nome=nome, tipologia=tipologia, carrucole=_parse_carrucole(request))
             if tag_ids:
                 exercise.tags.set(tag_ids)
     return redirect(next_url)
@@ -1035,7 +1045,7 @@ def add_exercise_ajax(request):
     if Exercise.objects.filter(nome__iexact=nome).exists():
         return JsonResponse({'error': f'Esiste già un esercizio chiamato "{nome}".'}, status=409)
 
-    exercise = Exercise.objects.create(nome=nome, tipologia=tipologia)
+    exercise = Exercise.objects.create(nome=nome, tipologia=tipologia, carrucole=_parse_carrucole(request))
     if tag_ids:
         exercise.tags.set(tag_ids)
     return JsonResponse({'id': exercise.id, 'nome': exercise.nome})
@@ -1053,6 +1063,7 @@ def edit_exercise_admin(request, exercise_id):
         if nome:
             exercise.nome = nome
         exercise.tipologia = tipologia
+        exercise.carrucole = _parse_carrucole(request)
         exercise.save()
         exercise.tags.set(tag_ids)
     tag = request.POST.get('tag', '')

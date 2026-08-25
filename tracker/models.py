@@ -19,6 +19,7 @@ class Exercise(models.Model):
     # Catalogo degli esercizi
     nome = models.CharField(max_length=100)
     tipologia = models.CharField(max_length=120, blank=True, default='')
+    carrucole = models.PositiveIntegerField(null=True, blank=True)
     tags = models.ManyToManyField(Tag, related_name='exercises')
 
     def __str__(self):
