@@ -150,9 +150,9 @@
         </div>
         {% for exercise in exercises %}
         {% with img=exercise.images.all|first %}
-        <div class="ex-row" data-name="{{ exercise.nome|lower }}" style="display: flex; align-items: center; justify-content: space-between; padding: 9px 18px 9px {% if img %}54px{% else %}18px{% endif %}; border-bottom: 1px solid #0d0d14; transition: background .1s; position: relative;" onmouseover="this.style.background='#12121c'" onmouseout="this.style.background='transparent'">
+        <div class="ex-row" data-name="{{ exercise.nome|lower }}" style="display: flex; align-items: center; justify-content: space-between; padding: 9px 18px 9px {% if img %}50px{% else %}18px{% endif %}; border-bottom: 1px solid #0d0d14; transition: background .1s; position: relative;" onmouseover="this.style.background='#12121c'" onmouseout="this.style.background='transparent'">
             {% if img %}
-            <img src="{{ img.immagine.url }}" style="position: absolute; top: 0; bottom: 0; left: 0; width: 44px; object-fit: cover;">
+            <img src="{{ img.immagine.url }}" style="position: absolute; top: 6px; bottom: 6px; left: 8px; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 6px;">
             {% endif %}
             <div class="ex-name-btn" data-ex-id="{{ exercise.id }}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px;">
                 <span style="font-size: 13px; color: #e0e0f0; transition: color .1s;">{{ exercise.nome }}</span>
@@ -192,9 +192,9 @@
             </div>
             {% for exercise in group.exercises %}
             {% with img=exercise.images.all|first %}
-            <div class="ex-row" data-name="{{ exercise.nome|lower }}" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 18px 8px {% if img %}48px{% else %}18px{% endif %}; border-bottom: 1px solid #0a0a12; transition: background .1s; position: relative;" onmouseover="this.style.background='#12121c'" onmouseout="this.style.background='transparent'">
+            <div class="ex-row" data-name="{{ exercise.nome|lower }}" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 18px 8px {% if img %}46px{% else %}18px{% endif %}; border-bottom: 1px solid #0a0a12; transition: background .1s; position: relative;" onmouseover="this.style.background='#12121c'" onmouseout="this.style.background='transparent'">
                 {% if img %}
-                <img src="{{ img.immagine.url }}" style="position: absolute; top: 0; bottom: 0; left: 0; width: 40px; object-fit: cover;">
+                <img src="{{ img.immagine.url }}" style="position: absolute; top: 6px; bottom: 6px; left: 8px; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 6px;">
                 {% endif %}
                 <div class="ex-name-btn" data-ex-id="{{ exercise.id }}" style="flex: 1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0;">
                     <span style="font-size: 12.5px; color: #c0c0d8; transition: color .1s;">{{ exercise.nome }}</span>
