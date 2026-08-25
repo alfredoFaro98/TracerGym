@@ -62,7 +62,19 @@
         transform: translateY(-1px);
     }
     .ex-thumb, .ex-thumb-fallback { width: 44px; height: 44px; border-radius: 8px; flex-shrink: 0; }
-    .ex-thumb { object-fit: cover; background: #0a0a12; }
+    .ex-thumb {
+        object-fit: cover;
+        background: #0a0a12;
+        position: relative;
+        transition: transform .18s ease, box-shadow .18s ease;
+        transform-origin: left center;
+    }
+    .ex-thumb:hover {
+        transform: scale(3.2);
+        z-index: 20;
+        cursor: zoom-in;
+        box-shadow: 0 10px 30px rgba(0,0,0,.55);
+    }
     .ex-thumb-fallback { background: #1c1c2c; color: #7d8296; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; }
 
     .page-container .btn-primary-gradient,
@@ -183,7 +195,7 @@
         {% with img=exercise.images.all|first %}
         <div class="ex-card" data-name="{{ exercise.nome|lower }}" data-tags=",{% for t in exercise.tags.all %}{{ t.id }},{% endfor %}" data-tipologia="{{ exercise.tipologia|lower }}">
             {% if img %}
-            <img class="ex-thumb" src="{{ img.immagine.url }}">
+            <img class="ex-thumb" src="{{ img.immagine.url }}" loading="lazy">
             {% else %}
             <div class="ex-thumb-fallback">{{ exercise.nome|first|upper }}</div>
             {% endif %}
