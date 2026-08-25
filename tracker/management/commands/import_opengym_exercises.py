@@ -164,9 +164,12 @@ class Command(BaseCommand):
             return get_tag(BP_TO_TAG.get(bp, bp.capitalize()))
 
         def copy_media(filename, src_dir):
+            # move, non copy: niente bisogno di spazio disco doppio durante l'import
+            # (rilevante su hosting con quota stretta, es. PythonAnywhere).
             dest = dest_dir / filename
-            if not dest.exists():
-                shutil.copyfile(src_dir / filename, dest)
+            src = src_dir / filename
+            if not dest.exists() and src.exists():
+                shutil.move(str(src), str(dest))
             return f'exercises/{filename}'
 
         created = updated = images_copied = 0
