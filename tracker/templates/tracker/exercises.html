@@ -45,6 +45,7 @@
     .filter-tab.active { background: rgba(124,108,246,0.22); border-color: #7c6cf6; color: #ffffff; }
 
     .ex-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 10px; }
+    .ex-grid .no-media { order: 1; }
     .ex-card {
         display: flex;
         align-items: center;
@@ -193,7 +194,7 @@
     <div id="ex-grid" class="ex-grid" style="margin-top: 4px;">
         {% for exercise in exercises %}
         {% with img=exercise.images.all|first %}
-        <div class="ex-card" data-name="{{ exercise.nome|lower }}" data-tags=",{% for t in exercise.tags.all %}{{ t.id }},{% endfor %}" data-tipologia="{{ exercise.tipologia|lower }}">
+        <div class="ex-card{% if not img %} no-media{% endif %}" data-name="{{ exercise.nome|lower }}" data-tags=",{% for t in exercise.tags.all %}{{ t.id }},{% endfor %}" data-tipologia="{{ exercise.tipologia|lower }}">
             {% if img %}
             <img class="ex-thumb" src="{{ img.immagine.url }}" loading="lazy">
             {% else %}
@@ -225,6 +226,11 @@
         {% endfor %}
     </div>
     <div id="ex-empty-msg" style="display: none; padding: 30px; text-align: center; color: #484860; font-size: 13px;">Nessun esercizio corrisponde ai filtri.</div>
+
+    <div style="margin-top: 24px; text-align: center; font-size: 11px; color: #40405a;">
+        Immagini e animazioni degli esercizi da
+        <a href="https://github.com/hasaneyldrm/exercises-dataset" target="_blank" rel="noopener" style="color: #565b6e;">hasaneyldrm/exercises-dataset</a>
+    </div>
 
 </div>
 
