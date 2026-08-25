@@ -19,6 +19,7 @@ from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, User
 
 
 REMEMBER_ME_SECONDS = 60 * 60 * 24 * 30  # 30 giorni
+MAX_EXERCISE_IMAGE_BYTES = 8 * 1024 * 1024  # 8 MB
 
 
 def _record_site_visit():
@@ -37,6 +38,13 @@ def _parse_carrucole(request):
         return int(request.POST.get('carrucole', ''))
     except ValueError:
         return None
+
+
+def _check_exercise_image_size(image_file):
+    """None se ok, altrimenti il messaggio d'errore da mostrare all'utente."""
+    if image_file and image_file.size > MAX_EXERCISE_IMAGE_BYTES:
+        return f'L\'immagine supera il limite di {MAX_EXERCISE_IMAGE_BYTES // (1024 * 1024)} MB.'
+    return None
 
 
 def _total_exercise_media_bytes():
@@ -432,6 +440,7 @@ def _build_session_context(session):
         'circuit_items': circuit_items,
         'total_rest_label': _format_rest_duration(total_rest_seconds),
         'tags': Tag.objects.all().order_by('nome'),
+        'max_image_mb': MAX_EXERCISE_IMAGE_BYTES // (1024 * 1024),
     }
 
 def register(request):
@@ -1017,6 +1026,7 @@ def exercises_list(request):
         'error': error,
         'total_count': total_count,
         'total_media_bytes': total_media_bytes,
+        'max_image_mb': MAX_EXERCISE_IMAGE_BYTES // (1024 * 1024),
     })
 
 
@@ -1030,16 +1040,20 @@ def add_exercise(request):
         tipologia = request.POST.get('tipologia', '').strip()
         tag_ids = request.POST.getlist('tags')
         if nome:
+            from urllib.parse import urlencode
+            separator = '&' if '?' in next_url else '?'
             if Exercise.objects.filter(nome__iexact=nome).exists():
-                from urllib.parse import urlencode
                 error_msg = f'Esiste già un esercizio chiamato "{nome}".'
-                separator = '&' if '?' in next_url else '?'
                 return redirect(f'{next_url}{separator}{urlencode({"error": error_msg})}')
+            image_file = request.FILES.get('immagine')
+            size_error = _check_exercise_image_size(image_file)
+            if size_error:
+                return redirect(f'{next_url}{separator}{urlencode({"error": size_error})}')
             exercise = Exercise.objects.create(nome=nome, tipologia=tipologia, carrucole=_parse_carrucole(request))
             if tag_ids:
                 exercise.tags.set(tag_ids)
-            if request.FILES.get('immagine'):
-                ExerciseImage.objects.create(exercise=exercise, immagine=request.FILES['immagine'])
+            if image_file:
+                ExerciseImage.objects.create(exercise=exercise, immagine=image_file)
     return redirect(next_url)
 
 
@@ -1060,12 +1074,16 @@ def add_exercise_ajax(request):
         return JsonResponse({'error': 'Il nome è obbligatorio.'}, status=400)
     if Exercise.objects.filter(nome__iexact=nome).exists():
         return JsonResponse({'error': f'Esiste già un esercizio chiamato "{nome}".'}, status=409)
+    image_file = request.FILES.get('immagine')
+    size_error = _check_exercise_image_size(image_file)
+    if size_error:
+        return JsonResponse({'error': size_error}, status=400)
 
     exercise = Exercise.objects.create(nome=nome, tipologia=tipologia, carrucole=_parse_carrucole(request))
     if tag_ids:
         exercise.tags.set(tag_ids)
-    if request.FILES.get('immagine'):
-        ExerciseImage.objects.create(exercise=exercise, immagine=request.FILES['immagine'])
+    if image_file:
+        ExerciseImage.objects.create(exercise=exercise, immagine=image_file)
     return JsonResponse({'id': exercise.id, 'nome': exercise.nome})
 
 
@@ -1074,7 +1092,13 @@ def edit_exercise_admin(request, exercise_id):
     if not request.user.is_superuser:
         return redirect('dashboard')
     exercise = get_object_or_404(Exercise, id=exercise_id)
+    tag = request.POST.get('tag', '')
     if request.method == 'POST':
+        image_file = request.FILES.get('immagine')
+        size_error = _check_exercise_image_size(image_file)
+        if size_error:
+            from urllib.parse import urlencode
+            return redirect(f"{reverse('exercises_list')}?{urlencode({'error': size_error, 'tag': tag})}")
         nome = request.POST.get('nome', '').strip()
         tipologia = request.POST.get('tipologia', '').strip()
         tag_ids = request.POST.getlist('tags')
@@ -1084,9 +1108,8 @@ def edit_exercise_admin(request, exercise_id):
         exercise.carrucole = _parse_carrucole(request)
         exercise.save()
         exercise.tags.set(tag_ids)
-        if request.FILES.get('immagine'):
-            ExerciseImage.objects.create(exercise=exercise, immagine=request.FILES['immagine'], ordine=exercise.images.count())
-    tag = request.POST.get('tag', '')
+        if image_file:
+            ExerciseImage.objects.create(exercise=exercise, immagine=image_file, ordine=exercise.images.count())
     return redirect(f"{reverse('exercises_list')}{'?tag=' + tag if tag else ''}")
 
 
@@ -1095,11 +1118,17 @@ def add_exercise_image(request, exercise_id):
     if not request.user.is_superuser:
         return redirect('dashboard')
     exercise = get_object_or_404(Exercise, id=exercise_id)
+    next_url = request.POST.get('next', reverse('exercises_list'))
     if request.method == 'POST' and request.FILES.get('immagine'):
         img = request.FILES['immagine']
+        size_error = _check_exercise_image_size(img)
+        if size_error:
+            from urllib.parse import urlencode
+            separator = '&' if '?' in next_url else '?'
+            return redirect(f'{next_url}{separator}{urlencode({"error": size_error})}')
         ordine = exercise.images.count()
         ExerciseImage.objects.create(exercise=exercise, immagine=img, ordine=ordine)
-    return redirect(request.POST.get('next', reverse('exercises_list')))
+    return redirect(next_url)
 
 
 @login_required

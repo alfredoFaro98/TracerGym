@@ -416,8 +416,10 @@
                 </div>
             </div>
             <div>
-                <label class="modal-label">Immagine (opzionale)</label>
+                <label class="modal-label">Immagine (opzionale, max {{ max_image_mb }} MB)</label>
                 <input type="file" id="new-ex-immagine" accept="image/*" style="font-size: 12px; color: #a0a0c0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 6px 10px; cursor: pointer; width: 100%; box-sizing: border-box;">
+                <span id="new-ex-immagine-error" style="display:none; font-size: 11px; color: #f85149; margin-top: 5px;"></span>
+                <img id="new-ex-immagine-preview" style="display:none; margin-top: 8px; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: #0a0a12;">
             </div>
             <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
                 <button type="button" onclick="closeNewExModal()" class="modal-cancel-btn">Annulla</button>
@@ -1314,11 +1316,29 @@ if (new URLSearchParams(window.location.search).get('pdf') === '1') {
     var carrucoleWrap = document.getElementById('new-ex-carrucole-wrap');
     var carrucoleInput = document.getElementById('new-ex-carrucole');
     var immagineInput = document.getElementById('new-ex-immagine');
+    var immaginePreview = document.getElementById('new-ex-immagine-preview');
+    var immagineError = document.getElementById('new-ex-immagine-error');
+    var MAX_IMAGE_BYTES = {{ max_image_mb }} * 1024 * 1024;
     var newExTarget = null; // input "ESERCIZIO" da riempire dopo la creazione
 
     carrucoleCheck.addEventListener('change', function() {
         carrucoleWrap.style.display = carrucoleCheck.checked ? 'block' : 'none';
         if (!carrucoleCheck.checked) carrucoleInput.value = '';
+    });
+
+    immagineInput.addEventListener('change', function() {
+        immagineError.style.display = 'none';
+        immaginePreview.style.display = 'none';
+        var file = immagineInput.files[0];
+        if (!file) return;
+        if (file.size > MAX_IMAGE_BYTES) {
+            immagineError.textContent = 'File troppo pesante (' + (file.size / (1024 * 1024)).toFixed(1) + ' MB): il limite è {{ max_image_mb }} MB.';
+            immagineError.style.display = 'block';
+            immagineInput.value = '';
+            return;
+        }
+        immaginePreview.src = URL.createObjectURL(file);
+        immaginePreview.style.display = 'block';
     });
 
     window.openNewExModal = function(inputId) {
@@ -1329,6 +1349,8 @@ if (new URLSearchParams(window.location.search).get('pdf') === '1') {
         carrucoleWrap.style.display = 'none';
         carrucoleInput.value = '';
         immagineInput.value = '';
+        immaginePreview.style.display = 'none';
+        immagineError.style.display = 'none';
         errorBox.style.display = 'none';
         modal.classList.add('open');
         setTimeout(function() { nomeInput.focus(); }, 50);

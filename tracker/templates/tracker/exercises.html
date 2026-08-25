@@ -117,8 +117,10 @@
                     </div>
                 </div>
                 <div>
-                    <label style="display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Immagine (opzionale)</label>
-                    <input type="file" name="immagine" accept="image/*" style="font-size: 12px; color: #a0a0c0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 6px 10px; cursor: pointer; width: 100%; max-width: 320px; box-sizing: border-box;">
+                    <label style="display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Immagine (opzionale, max {{ max_image_mb }} MB)</label>
+                    <input type="file" name="immagine" id="add-immagine" accept="image/*" style="font-size: 12px; color: #a0a0c0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 6px 10px; cursor: pointer; width: 100%; max-width: 320px; box-sizing: border-box;">
+                    <span id="add-immagine-error" style="display:none; font-size: 11px; color: #f85149; margin-top: 5px;"></span>
+                    <img id="add-immagine-preview" style="display:none; margin-top: 8px; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: #0a0a12;">
                 </div>
             </form>
         </div>
@@ -274,7 +276,9 @@
             <div>
                 <label class="modal-label">Aggiungi immagine (opzionale)</label>
                 <input type="file" name="immagine" id="edit-immagine" accept="image/*" style="font-size: 12px; color: #a0a0c0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 6px 10px; cursor: pointer; width: 100%; box-sizing: border-box;">
-                <span style="display: block; font-size: 10.5px; color: #565b6e; margin-top: 5px;">Per gestire o eliminare le immagini esistenti, clicca sul nome dell'esercizio nell'elenco.</span>
+                <span style="display: block; font-size: 10.5px; color: #565b6e; margin-top: 5px;">Per gestire o eliminare le immagini esistenti, clicca sul nome dell'esercizio nell'elenco. Max {{ max_image_mb }} MB.</span>
+                <span id="edit-immagine-error" style="display:none; font-size: 11px; color: #f85149; margin-top: 5px;"></span>
+                <img id="edit-immagine-preview" style="display:none; margin-top: 8px; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: #0a0a12;">
             </div>
             <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
                 <button type="button" onclick="closeEdit()" class="modal-cancel-btn">Annulla</button>
@@ -301,6 +305,31 @@
     var delImgUrlTpl = '{% url "delete_exercise_image" 0 %}'.replace('/0/', '/__ID__/');
     var editUrlTpl   = '{% url "edit_exercise_admin" 0 %}'.replace('/0/', '/__ID__/');
     var csrfToken    = '{{ csrf_token }}';
+    var MAX_IMAGE_BYTES = {{ max_image_mb }} * 1024 * 1024;
+
+    /* ---- Anteprima + limite di peso sui campi immagine ---- */
+    function wireImagePreview(inputId, previewId, errorId) {
+        var input = document.getElementById(inputId);
+        var preview = document.getElementById(previewId);
+        var errorEl = document.getElementById(errorId);
+        if (!input) return;
+        input.addEventListener('change', function() {
+            errorEl.style.display = 'none';
+            preview.style.display = 'none';
+            var file = input.files[0];
+            if (!file) return;
+            if (file.size > MAX_IMAGE_BYTES) {
+                errorEl.textContent = 'File troppo pesante (' + (file.size / (1024 * 1024)).toFixed(1) + ' MB): il limite è {{ max_image_mb }} MB.';
+                errorEl.style.display = 'block';
+                input.value = '';
+                return;
+            }
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = 'block';
+        });
+    }
+    wireImagePreview('add-immagine', 'add-immagine-preview', 'add-immagine-error');
+    wireImagePreview('edit-immagine', 'edit-immagine-preview', 'edit-immagine-error');
 
     /* ---- Exercise detail modal ---- */
     function openExModal(id) {
@@ -379,6 +408,8 @@
             carrucoleInput.value = d.exCarrucole || '';
             document.getElementById('edit-carrucole-wrap').style.display = carrucoleCheck.checked ? 'block' : 'none';
             document.getElementById('edit-immagine').value = '';
+            document.getElementById('edit-immagine-preview').style.display = 'none';
+            document.getElementById('edit-immagine-error').style.display = 'none';
             document.getElementById('edit-modal').classList.add('open');
         }
     });
