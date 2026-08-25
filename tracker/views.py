@@ -1038,6 +1038,8 @@ def add_exercise(request):
             exercise = Exercise.objects.create(nome=nome, tipologia=tipologia, carrucole=_parse_carrucole(request))
             if tag_ids:
                 exercise.tags.set(tag_ids)
+            if request.FILES.get('immagine'):
+                ExerciseImage.objects.create(exercise=exercise, immagine=request.FILES['immagine'])
     return redirect(next_url)
 
 
@@ -1082,6 +1084,8 @@ def edit_exercise_admin(request, exercise_id):
         exercise.carrucole = _parse_carrucole(request)
         exercise.save()
         exercise.tags.set(tag_ids)
+        if request.FILES.get('immagine'):
+            ExerciseImage.objects.create(exercise=exercise, immagine=request.FILES['immagine'], ordine=exercise.images.count())
     tag = request.POST.get('tag', '')
     return redirect(f"{reverse('exercises_list')}{'?tag=' + tag if tag else ''}")
 

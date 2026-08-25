@@ -82,7 +82,7 @@
     <div id="add-form" style="display: none; margin-bottom: 20px;">
         <div class="tracer-card" style="padding: 20px 24px;">
             <div style="font-size: 11px; font-weight: 700; color: #838a9e; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;">Nuovo Esercizio</div>
-            <form method="post" action="{% url 'add_exercise' %}" style="display: flex; flex-direction: column; gap: 14px;">
+            <form method="post" action="{% url 'add_exercise' %}" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 14px;">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.get_full_path }}">
                 <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;">
@@ -115,6 +115,10 @@
                     <div id="add-carrucole-wrap" style="display:none; margin-top: 8px;">
                         <input type="number" name="carrucole" id="add-carrucole-input" class="tracer-input" min="0" step="1" placeholder="Numero di carrucole" style="width: 140px;">
                     </div>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Immagine (opzionale)</label>
+                    <input type="file" name="immagine" accept="image/*" style="font-size: 12px; color: #a0a0c0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 6px 10px; cursor: pointer; width: 100%; max-width: 320px; box-sizing: border-box;">
                 </div>
             </form>
         </div>
@@ -236,7 +240,7 @@
 <div id="edit-modal" onclick="if(event.target===this) closeEdit();">
     <div id="edit-modal-box">
         <div class="modal-title">Modifica Esercizio</div>
-        <form id="edit-form" method="post" action="" style="display: flex; flex-direction: column; gap: 14px;">
+        <form id="edit-form" method="post" action="" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 14px;">
             {% csrf_token %}
             <input type="hidden" name="tag" id="edit-tag">
             <div>
@@ -266,6 +270,11 @@
                 <div id="edit-carrucole-wrap" style="display:none; margin-top: 8px;">
                     <input type="number" name="carrucole" id="edit-carrucole-input" class="tracer-input" min="0" step="1" placeholder="Numero di carrucole" style="width: 140px;">
                 </div>
+            </div>
+            <div>
+                <label class="modal-label">Aggiungi immagine (opzionale)</label>
+                <input type="file" name="immagine" id="edit-immagine" accept="image/*" style="font-size: 12px; color: #a0a0c0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 6px 10px; cursor: pointer; width: 100%; box-sizing: border-box;">
+                <span style="display: block; font-size: 10.5px; color: #565b6e; margin-top: 5px;">Per gestire o eliminare le immagini esistenti, clicca sul nome dell'esercizio nell'elenco.</span>
             </div>
             <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
                 <button type="button" onclick="closeEdit()" class="modal-cancel-btn">Annulla</button>
@@ -369,6 +378,7 @@
             carrucoleCheck.checked = d.exCarrucole !== '';
             carrucoleInput.value = d.exCarrucole || '';
             document.getElementById('edit-carrucole-wrap').style.display = carrucoleCheck.checked ? 'block' : 'none';
+            document.getElementById('edit-immagine').value = '';
             document.getElementById('edit-modal').classList.add('open');
         }
     });
