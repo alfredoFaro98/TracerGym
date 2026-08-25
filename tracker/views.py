@@ -40,9 +40,15 @@ def _parse_carrucole(request):
         return None
 
 
-def _check_exercise_image_size(image_file):
-    """None se ok, altrimenti il messaggio d'errore da mostrare all'utente."""
-    if image_file and image_file.size > MAX_EXERCISE_IMAGE_BYTES:
+def _validate_exercise_image(image_file, exercise=None):
+    """None se ok, altrimenti il messaggio d'errore da mostrare all'utente.
+    Un esercizio può avere una sola immagine: se `exercise` ne ha già una,
+    l'upload va rifiutato (va prima eliminata dalla galleria)."""
+    if not image_file:
+        return None
+    if exercise is not None and exercise.images.exists():
+        return 'Puoi caricare una sola immagine per esercizio. Eliminala prima di caricarne un\'altra.'
+    if image_file.size > MAX_EXERCISE_IMAGE_BYTES:
         return f'L\'immagine supera il limite di {MAX_EXERCISE_IMAGE_BYTES // (1024 * 1024)} MB.'
     return None
 
@@ -1046,7 +1052,7 @@ def add_exercise(request):
                 error_msg = f'Esiste già un esercizio chiamato "{nome}".'
                 return redirect(f'{next_url}{separator}{urlencode({"error": error_msg})}')
             image_file = request.FILES.get('immagine')
-            size_error = _check_exercise_image_size(image_file)
+            size_error = _validate_exercise_image(image_file)
             if size_error:
                 return redirect(f'{next_url}{separator}{urlencode({"error": size_error})}')
             exercise = Exercise.objects.create(nome=nome, tipologia=tipologia, carrucole=_parse_carrucole(request))
@@ -1075,7 +1081,7 @@ def add_exercise_ajax(request):
     if Exercise.objects.filter(nome__iexact=nome).exists():
         return JsonResponse({'error': f'Esiste già un esercizio chiamato "{nome}".'}, status=409)
     image_file = request.FILES.get('immagine')
-    size_error = _check_exercise_image_size(image_file)
+    size_error = _validate_exercise_image(image_file)
     if size_error:
         return JsonResponse({'error': size_error}, status=400)
 
@@ -1095,7 +1101,7 @@ def edit_exercise_admin(request, exercise_id):
     tag = request.POST.get('tag', '')
     if request.method == 'POST':
         image_file = request.FILES.get('immagine')
-        size_error = _check_exercise_image_size(image_file)
+        size_error = _validate_exercise_image(image_file, exercise=exercise)
         if size_error:
             from urllib.parse import urlencode
             return redirect(f"{reverse('exercises_list')}?{urlencode({'error': size_error, 'tag': tag})}")
@@ -1121,7 +1127,7 @@ def add_exercise_image(request, exercise_id):
     next_url = request.POST.get('next', reverse('exercises_list'))
     if request.method == 'POST' and request.FILES.get('immagine'):
         img = request.FILES['immagine']
-        size_error = _check_exercise_image_size(img)
+        size_error = _validate_exercise_image(img, exercise=exercise)
         if size_error:
             from urllib.parse import urlencode
             separator = '&' if '?' in next_url else '?'

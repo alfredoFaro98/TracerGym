@@ -234,6 +234,7 @@
             <input type="file" name="immagine" accept="image/*" required style="flex: 1; font-size: 12px; color: #a0a0c0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 6px 10px; cursor: pointer;">
             <button type="submit" class="btn-primary-gradient" style="height: 34px; padding: 0 16px; font-size: 12px; white-space: nowrap;">Aggiungi</button>
         </form>
+        <div id="ex-upload-limit-msg" style="display:none; font-size: 11.5px; color: #7d8296; border-top: 1px solid rgba(255,255,255,0.07); padding-top: 16px; margin-top: 16px;">Ogni esercizio può avere una sola immagine. Eliminala per poterne caricare un'altra.</div>
         {% endif %}
     </div>
 </div>
@@ -273,13 +274,14 @@
                     <input type="number" name="carrucole" id="edit-carrucole-input" class="tracer-input" min="0" step="1" placeholder="Numero di carrucole" style="width: 140px;">
                 </div>
             </div>
-            <div>
+            <div id="edit-immagine-wrap">
                 <label class="modal-label">Aggiungi immagine (opzionale)</label>
                 <input type="file" name="immagine" id="edit-immagine" accept="image/*" style="font-size: 12px; color: #a0a0c0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 6px 10px; cursor: pointer; width: 100%; box-sizing: border-box;">
-                <span style="display: block; font-size: 10.5px; color: #565b6e; margin-top: 5px;">Per gestire o eliminare le immagini esistenti, clicca sul nome dell'esercizio nell'elenco. Max {{ max_image_mb }} MB.</span>
+                <span style="display: block; font-size: 10.5px; color: #565b6e; margin-top: 5px;">Max {{ max_image_mb }} MB.</span>
                 <span id="edit-immagine-error" style="display:none; font-size: 11px; color: #f85149; margin-top: 5px;"></span>
                 <img id="edit-immagine-preview" style="display:none; margin-top: 8px; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: #0a0a12;">
             </div>
+            <div id="edit-immagine-limit-msg" style="display:none; font-size: 10.5px; color: #565b6e;">Questo esercizio ha già un'immagine. Per sostituirla, eliminala prima dalla scheda dell'esercizio (clicca sul nome nell'elenco).</div>
             <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
                 <button type="button" onclick="closeEdit()" class="modal-cancel-btn">Annulla</button>
                 <button type="submit" class="btn-primary-gradient" style="padding: 0 20px; height: 34px; font-size: 12px; font-weight: 600;">Salva</button>
@@ -373,7 +375,11 @@
 
         if (IS_ADMIN) {
             var uploadForm = document.getElementById('ex-upload-form');
+            var limitMsg = document.getElementById('ex-upload-limit-msg');
             if (uploadForm) {
+                var hasImage = d.images.length > 0;
+                uploadForm.style.display = hasImage ? 'none' : 'flex';
+                if (limitMsg) limitMsg.style.display = hasImage ? 'block' : 'none';
                 uploadForm.action = addImgUrlTpl.replace('__ID__', id);
                 uploadForm.querySelector('input[type=file]').value = '';
             }
@@ -410,6 +416,9 @@
             document.getElementById('edit-immagine').value = '';
             document.getElementById('edit-immagine-preview').style.display = 'none';
             document.getElementById('edit-immagine-error').style.display = 'none';
+            var hasImage = ((exerciseData[id] || {}).images || []).length > 0;
+            document.getElementById('edit-immagine-wrap').style.display = hasImage ? 'none' : 'block';
+            document.getElementById('edit-immagine-limit-msg').style.display = hasImage ? 'block' : 'none';
             document.getElementById('edit-modal').classList.add('open');
         }
     });
