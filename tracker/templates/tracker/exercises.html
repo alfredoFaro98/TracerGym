@@ -42,8 +42,12 @@
     .filter-tab:hover { background: rgba(255,255,255,0.09); }
     .filter-tab.active { background: rgba(124,108,246,0.22); border-color: #7c6cf6; color: #ffffff; }
 
-    .page-container .btn-primary-gradient { background: #7c6cf6; }
-    .page-container .btn-primary-gradient:hover { background: #8b7bf7; opacity: 1; }
+    .page-container .btn-primary-gradient,
+    #edit-modal .btn-primary-gradient,
+    #ex-modal .btn-primary-gradient { background: #7c6cf6; }
+    .page-container .btn-primary-gradient:hover,
+    #edit-modal .btn-primary-gradient:hover,
+    #ex-modal .btn-primary-gradient:hover { background: #8b7bf7; opacity: 1; }
 </style>
 {% endblock %}
 
