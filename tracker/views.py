@@ -19,7 +19,7 @@ from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, User
 
 
 REMEMBER_ME_SECONDS = 60 * 60 * 24 * 30  # 30 giorni
-MAX_EXERCISE_IMAGE_BYTES = 8 * 1024 * 1024  # 8 MB
+MAX_EXERCISE_IMAGE_BYTES = 2 * 1024 * 1024  # 2 MB
 
 
 def _record_site_visit():
