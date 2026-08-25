@@ -39,6 +39,17 @@ def _parse_carrucole(request):
         return None
 
 
+def _total_exercise_media_bytes():
+    """Peso totale su disco delle immagini esercizi (ignora file mancanti)."""
+    total = 0
+    for img in ExerciseImage.objects.all():
+        try:
+            total += img.immagine.size
+        except (FileNotFoundError, OSError):
+            pass
+    return total
+
+
 class TracerLoginView(LoginView):
     template_name = 'tracker/login.html'
     redirect_authenticated_user = True
@@ -996,6 +1007,8 @@ def exercises_list(request):
         if untagged:
             tag_groups.append({'tag': None, 'exercises': untagged})
 
+    total_media_bytes = _total_exercise_media_bytes() if request.user.is_superuser else None
+
     return render(request, 'tracker/exercises.html', {
         'tags': tags,
         'exercises': exercises,
@@ -1003,6 +1016,7 @@ def exercises_list(request):
         'selected_tag': selected_tag,
         'error': error,
         'total_count': total_count,
+        'total_media_bytes': total_media_bytes,
     })
 
 
@@ -1048,6 +1062,8 @@ def add_exercise_ajax(request):
     exercise = Exercise.objects.create(nome=nome, tipologia=tipologia, carrucole=_parse_carrucole(request))
     if tag_ids:
         exercise.tags.set(tag_ids)
+    if request.FILES.get('immagine'):
+        ExerciseImage.objects.create(exercise=exercise, immagine=request.FILES['immagine'])
     return JsonResponse({'id': exercise.id, 'nome': exercise.nome})
 
 

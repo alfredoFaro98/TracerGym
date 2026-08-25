@@ -58,7 +58,7 @@
     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
         <div>
             <h1 style="font-size: 21px; font-weight: 700; color: #f0f0f3; letter-spacing: -0.4px; margin-bottom: 3px;">Catalogo Esercizi</h1>
-            <p style="font-size: 12px; color: #484860;">{{ total_count }} esercizi nel database</p>
+            <p style="font-size: 12px; color: #484860;">{{ total_count }} esercizi nel database{% if total_media_bytes is not None %} &middot; {{ total_media_bytes|filesizeformat }} di immagini caricate{% endif %}</p>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
             <a href="{% url 'export_exercises_json' %}" style="height: 34px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 1px solid #1c1c2c; border-radius: 8px; color: #787890; font-size: 12px; font-weight: 600; text-decoration: none; transition: all .12s;" onmouseover="this.style.borderColor='#3a3a5a';this.style.color='#f0f0f3'" onmouseout="this.style.borderColor='#1c1c2c';this.style.color='#787890'">
