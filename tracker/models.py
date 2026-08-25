@@ -194,3 +194,35 @@ class SiteVisit(models.Model):
 
     def __str__(self):
         return f"{self.data}: {self.conteggio} visite"
+
+
+class WeekdayPlan(models.Model):
+    # Cosa allena l'utente di default in un dato giorno della settimana
+    # (0=Lunedì ... 6=Domenica, stessa convenzione di date.weekday()).
+    # Si ripete ogni settimana finché non viene cambiato o sovrascritto
+    # per una data specifica da DayPlanOverride.
+    utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='weekday_plans')
+    giorno_settimana = models.PositiveSmallIntegerField()
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE, null=True, blank=True)
+    riposo = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('utente', 'giorno_settimana')
+
+    def __str__(self):
+        return f"{self.utente.username} - giorno {self.giorno_settimana}"
+
+
+class DayPlanOverride(models.Model):
+    # Eccezione per una singola data: ha priorità sul WeekdayPlan di quel
+    # giorno della settimana (es. "di solito è gambe ma oggi riposo").
+    utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='day_plan_overrides')
+    data = models.DateField()
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE, null=True, blank=True)
+    riposo = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('utente', 'data')
+
+    def __str__(self):
+        return f"{self.utente.username} - {self.data}"

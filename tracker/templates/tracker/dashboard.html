@@ -66,8 +66,9 @@
         </div>
     </div>
 
-    <!-- Acqua -->
-    <div class="tracer-card" style="padding: 22px 26px; border-radius: 18px; margin-bottom: 24px;">
+    <!-- Acqua + Settimana -->
+    <div style="display: flex; gap: 20px; margin-bottom: 24px; flex-wrap: wrap; align-items: stretch;">
+    <div class="tracer-card" style="flex: 1.6; min-width: 320px; padding: 22px 26px; border-radius: 18px;">
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 14px;">
             <div style="display: flex; align-items: center; gap: 12px;">
                 <span style="font-size: 22px;">💧</span>
@@ -146,6 +147,34 @@
         <div style="margin-top: 14px; text-align: right;">
             <a href="{% url 'water_history' %}" style="font-size: 12px; font-weight: 600; color: #9d8ffb; text-decoration: none;">Vedi storico →</a>
         </div>
+    </div>
+
+    <!-- Settimana -->
+    <div class="tracer-card" id="week-plan-card" style="flex: 1; min-width: 270px; padding: 20px 22px; border-radius: 18px; display: flex; flex-direction: column; position: relative;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+            <button type="button" id="week-prev-btn" class="week-nav-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <span id="week-label" style="font-size: 11px; font-weight: 700; color: #9d8ffb; text-transform: uppercase; letter-spacing: 0.08em;">Questa settimana</span>
+            <button type="button" id="week-next-btn" class="week-nav-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+        </div>
+        <div id="week-strip" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 16px;"></div>
+        <div id="today-plan-card" style="margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; cursor: pointer;"></div>
+        <div id="plan-popover" style="display: none; position: absolute; bottom: 20px; left: 22px; right: 22px; background: #16161f; border: 1px solid rgba(124,108,246,0.25); border-radius: 12px; box-shadow: 0 12px 30px rgba(0,0,0,0.5); padding: 14px; z-index: 40;">
+            <div style="font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;">Imposta il giorno</div>
+            <div id="plan-popover-options" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;"></div>
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: #c7cbd6; cursor: pointer; margin-bottom: 10px;">
+                <input type="checkbox" id="plan-apply-weekday" style="accent-color: #7c6cf6;">
+                Ripeti ogni <span id="plan-weekday-name"></span>
+            </label>
+            <div style="display: flex; justify-content: space-between; gap: 8px;">
+                <button type="button" id="plan-clear-btn" style="font-size: 11.5px; color: #f87171; background: none; border: none; cursor: pointer; padding: 4px;">Cancella</button>
+                <button type="button" id="plan-close-btn" style="font-size: 11.5px; color: #787890; background: none; border: 1px solid #1c1c2c; border-radius: 6px; padding: 6px 12px; cursor: pointer;">Chiudi</button>
+            </div>
+        </div>
+    </div>
     </div>
 
     <!-- Sessions List -->
@@ -342,6 +371,56 @@
         padding: 0;
     }
     .water-pill:hover .water-pill-x { opacity: 1; transform: scale(1); }
+
+    .week-nav-btn {
+        background: none;
+        border: none;
+        color: #7d8296;
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        transition: color .12s;
+    }
+    .week-nav-btn:hover { color: #f0f0f3; }
+
+    .week-day-cell {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 0;
+        cursor: pointer;
+    }
+    .week-day-label { font-size: 9.5px; font-weight: 700; color: #565b6e; text-transform: uppercase; letter-spacing: .04em; }
+    .week-day-label.is-today { color: #9d8ffb; }
+    .week-day-number {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #c7cbd6;
+    }
+    .week-day-cell.is-today .week-day-number { background: #7c6cf6; color: #fff; font-weight: 700; }
+    .week-day-dot { width: 4px; height: 4px; border-radius: 50%; background: #565b6e; }
+    .week-day-dot.is-empty { background: transparent; }
+
+    .plan-option-btn {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        color: #c7cbd6;
+        transition: all .12s;
+    }
+    .plan-option-btn:hover { background: rgba(255,255,255,0.09); }
+    .plan-option-btn.active { background: rgba(124,108,246,0.22); border-color: #7c6cf6; color: #ffffff; }
 
     .page-container .btn-primary-gradient {
         background: #7c6cf6;
@@ -601,6 +680,137 @@
             label: { position: "top", height: 0, offset: { x: 0, y: 0 } }
         });
         updateMobileLabel();
+</script>
+
+<!-- Widget "Settimana" (routine pianificata per giorno) -->
+<script>
+(function() {
+    var PLAN_TAGS = {{ plan_tags_json|safe }};
+    var weekData = {{ week_plan_json|safe }};
+    var LABEL_COMPLETO = {'Lun': 'Lunedì', 'Mar': 'Martedì', 'Mer': 'Mercoledì', 'Gio': 'Giovedì', 'Ven': 'Venerdì', 'Sab': 'Sabato', 'Dom': 'Domenica'};
+
+    var strip = document.getElementById('week-strip');
+    var todayCard = document.getElementById('today-plan-card');
+    var popover = document.getElementById('plan-popover');
+    var popoverOptions = document.getElementById('plan-popover-options');
+    var weekLabel = document.getElementById('week-label');
+    var applyWeekdayCheckbox = document.getElementById('plan-apply-weekday');
+    var weekdayNameSpan = document.getElementById('plan-weekday-name');
+    var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+    var selectedDate = null;
+
+    function findDay(dateStr) {
+        return weekData.days.filter(function(d) { return d.data === dateStr; })[0];
+    }
+
+    function planLabel(day) {
+        if (!day.plan.configured) return 'Nessun piano';
+        return day.plan.riposo ? 'Riposo' : day.plan.tag_nome;
+    }
+
+    function renderStrip() {
+        strip.innerHTML = '';
+        weekData.days.forEach(function(day) {
+            var cell = document.createElement('div');
+            cell.className = 'week-day-cell' + (day.is_today ? ' is-today' : '');
+            var dotClass = 'week-day-dot' + (day.has_session ? '' : ' is-empty');
+            cell.innerHTML =
+                '<span class="week-day-label' + (day.is_today ? ' is-today' : '') + '">' + day.label + '</span>' +
+                '<span class="week-day-number">' + day.numero + '</span>' +
+                '<span class="' + dotClass + '"></span>';
+            cell.addEventListener('click', function() { openPopoverFor(day.data); });
+            strip.appendChild(cell);
+        });
+        var d1 = weekData.monday.split('-'), d2 = weekData.sunday.split('-');
+        var hasToday = weekData.days.some(function(d) { return d.is_today; });
+        weekLabel.textContent = hasToday ? 'Questa settimana' : (d1[2] + '/' + d1[1] + ' – ' + d2[2] + '/' + d2[1]);
+    }
+
+    function renderTodayCard() {
+        var todayEntry = weekData.days.filter(function(d) { return d.is_today; })[0];
+        var entry = todayEntry || weekData.days[0];
+        selectedDate = entry.data;
+        var icon = entry.plan.configured && entry.plan.riposo ? '🌙' : '🏋️';
+        todayCard.innerHTML =
+            '<span style="font-size:16px;flex-shrink:0;">' + icon + '</span>' +
+            '<div style="flex:1;min-width:0;">' +
+                '<div style="font-size:9.5px;font-weight:700;color:#7d8296;text-transform:uppercase;letter-spacing:.08em;">' + (todayEntry ? 'Oggi' : entry.label) + '</div>' +
+                '<div style="font-size:14px;font-weight:700;color:#f0f0f3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + planLabel(entry) + '</div>' +
+            '</div>' +
+            '<span style="color:#7d8296;font-size:18px;line-height:1;flex-shrink:0;">+</span>';
+    }
+
+    function renderPopoverOptions() {
+        var day = findDay(selectedDate);
+        popoverOptions.innerHTML = '';
+        PLAN_TAGS.forEach(function(tag) {
+            var isActive = day.plan.configured && !day.plan.riposo && day.plan.tag_id === tag.id;
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'plan-option-btn' + (isActive ? ' active' : '');
+            btn.textContent = tag.nome;
+            btn.addEventListener('click', function() { savePlan({tag_id: tag.id}); });
+            popoverOptions.appendChild(btn);
+        });
+        var restBtn = document.createElement('button');
+        restBtn.type = 'button';
+        restBtn.className = 'plan-option-btn' + (day.plan.configured && day.plan.riposo ? ' active' : '');
+        restBtn.textContent = 'Riposo';
+        restBtn.addEventListener('click', function() { savePlan({riposo: '1'}); });
+        popoverOptions.appendChild(restBtn);
+        weekdayNameSpan.textContent = LABEL_COMPLETO[day.label];
+    }
+
+    function openPopoverFor(dateStr) {
+        selectedDate = dateStr;
+        renderPopoverOptions();
+        popover.style.display = 'block';
+    }
+
+    function savePlan(extra) {
+        var body = new FormData();
+        body.append('csrfmiddlewaretoken', csrfToken);
+        body.append('data', selectedDate);
+        body.append('apply_weekday', applyWeekdayCheckbox.checked ? '1' : '0');
+        Object.keys(extra).forEach(function(k) { body.append(k, extra[k]); });
+        fetch('{% url "set_day_plan" %}', {method: 'POST', body: body})
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (!data.ok) { alert(data.error || 'Errore, riprova.'); return; }
+                var day = findDay(selectedDate);
+                if (day) day.plan = data.plan;
+                applyWeekdayCheckbox.checked = false;
+                renderStrip();
+                renderTodayCard();
+                popover.style.display = 'none';
+            })
+            .catch(function() { alert('Errore di rete, riprova.'); });
+    }
+
+    function loadWeek(mondayStr) {
+        fetch('{% url "week_plan_data" %}?monday=' + mondayStr)
+            .then(function(r) { return r.json(); })
+            .then(function(data) { weekData = data; renderStrip(); renderTodayCard(); });
+    }
+
+    function shiftMonday(deltaDays) {
+        var parts = weekData.monday.split('-').map(Number);
+        var d = new Date(parts[0], parts[1] - 1, parts[2]);
+        d.setDate(d.getDate() + deltaDays);
+        var mm = String(d.getMonth() + 1).padStart(2, '0');
+        var dd = String(d.getDate()).padStart(2, '0');
+        loadWeek(d.getFullYear() + '-' + mm + '-' + dd);
+    }
+
+    todayCard.addEventListener('click', function() { openPopoverFor(selectedDate); });
+    document.getElementById('plan-close-btn').addEventListener('click', function() { popover.style.display = 'none'; });
+    document.getElementById('plan-clear-btn').addEventListener('click', function() { savePlan({clear: '1'}); });
+    document.getElementById('week-prev-btn').addEventListener('click', function() { shiftMonday(-7); });
+    document.getElementById('week-next-btn').addEventListener('click', function() { shiftMonday(7); });
+
+    renderStrip();
+    renderTodayCard();
+})();
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>

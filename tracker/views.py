@@ -15,7 +15,7 @@ from decimal import Decimal, InvalidOperation
 from datetime import datetime, date, timedelta, time as dt_time
 from django.utils import timezone
 from django.contrib.auth.models import User
-from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal, IntegratoreEntry, SiteVisit
+from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal, IntegratoreEntry, SiteVisit, WeekdayPlan, DayPlanOverride
 
 
 REMEMBER_ME_SECONDS = 60 * 60 * 24 * 30  # 30 giorni
@@ -187,11 +187,15 @@ def dashboard(request):
     default_exercise = last_set.exercise.nome if last_set else ''
 
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
-    today = timezone.now().date()
+    today = timezone.localdate()
     water_entries_today = WaterEntry.objects.filter(utente=request.user, data=today).order_by('-creato_il')
     water_today_ml = sum(e.quantita_ml for e in water_entries_today)
     today_goal_override = WaterGoal.objects.filter(utente=request.user, data=today).first()
     water_goal_ml = today_goal_override.obiettivo_ml if today_goal_override else profile.obiettivo_acqua_ml
+
+    week_monday = today - timedelta(days=today.weekday())
+    week_plan_json = json.dumps(_week_plan_payload(request.user, week_monday))
+    plan_tags_json = json.dumps([{'id': t.id, 'nome': t.nome} for t in Tag.objects.all().order_by('nome')])
 
     return render(request, 'tracker/dashboard.html', {
         'sessions': sessions,
@@ -208,12 +212,107 @@ def dashboard(request):
         'water_today_l': water_today_ml / 1000,
         'water_goal_l': water_goal_ml / 1000,
         'water_progress_pct': min(100, round(water_today_ml / water_goal_ml * 100)) if water_goal_ml else 0,
+        'week_plan_json': week_plan_json,
+        'plan_tags_json': plan_tags_json,
     })
+
+GIORNI_SETTIMANA = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom']
+
+
+def _effective_day_plan(user, giorno):
+    """Piano del giorno: l'eccezione su quella data ha priorità sul default
+    settimanale; se nessuno dei due è impostato, il giorno non è configurato."""
+    override = DayPlanOverride.objects.filter(utente=user, data=giorno).select_related('tag').first()
+    if override:
+        return {'tag': override.tag, 'riposo': override.riposo, 'configured': True}
+    default = WeekdayPlan.objects.filter(utente=user, giorno_settimana=giorno.weekday()).select_related('tag').first()
+    if default:
+        return {'tag': default.tag, 'riposo': default.riposo, 'configured': True}
+    return {'tag': None, 'riposo': False, 'configured': False}
+
+
+def _week_plan_payload(user, monday):
+    today = timezone.localdate()
+    has_session_dates = set(
+        WorkoutSession.objects.filter(utente=user, data__gte=monday, data__lte=monday + timedelta(days=6))
+        .values_list('data', flat=True)
+    )
+    days = []
+    for i in range(7):
+        giorno = monday + timedelta(days=i)
+        plan = _effective_day_plan(user, giorno)
+        days.append({
+            'data': giorno.strftime('%Y-%m-%d'),
+            'label': GIORNI_SETTIMANA[i],
+            'numero': giorno.day,
+            'is_today': giorno == today,
+            'has_session': giorno in has_session_dates,
+            'plan': {
+                'configured': plan['configured'],
+                'riposo': plan['riposo'],
+                'tag_id': plan['tag'].id if plan['tag'] else None,
+                'tag_nome': plan['tag'].nome if plan['tag'] else None,
+            },
+        })
+    return {'monday': monday.strftime('%Y-%m-%d'), 'sunday': (monday + timedelta(days=6)).strftime('%Y-%m-%d'), 'days': days}
+
+
+@login_required
+def week_plan_data(request):
+    monday_str = request.GET.get('monday', '')
+    today = timezone.localdate()
+    try:
+        monday = date.fromisoformat(monday_str) if monday_str else today
+    except ValueError:
+        monday = today
+    monday -= timedelta(days=monday.weekday())
+    return JsonResponse(_week_plan_payload(request.user, monday))
+
+
+@login_required
+def set_day_plan(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Metodo non valido.'}, status=405)
+    try:
+        giorno = date.fromisoformat(request.POST.get('data', ''))
+    except ValueError:
+        return JsonResponse({'error': 'Data non valida.'}, status=400)
+
+    riposo = request.POST.get('riposo') == '1'
+    tag_id = request.POST.get('tag_id')
+    tag = None
+    if not riposo and tag_id:
+        tag = Tag.objects.filter(id=tag_id).first()
+        if not tag:
+            return JsonResponse({'error': 'Tag non valido.'}, status=400)
+
+    if request.POST.get('clear') == '1':
+        DayPlanOverride.objects.filter(utente=request.user, data=giorno).delete()
+    else:
+        DayPlanOverride.objects.update_or_create(
+            utente=request.user, data=giorno, defaults={'tag': tag, 'riposo': riposo}
+        )
+        if request.POST.get('apply_weekday') == '1':
+            WeekdayPlan.objects.update_or_create(
+                utente=request.user, giorno_settimana=giorno.weekday(), defaults={'tag': tag, 'riposo': riposo}
+            )
+
+    plan = _effective_day_plan(request.user, giorno)
+    return JsonResponse({
+        'ok': True,
+        'plan': {
+            'configured': plan['configured'],
+            'riposo': plan['riposo'],
+            'tag_id': plan['tag'].id if plan['tag'] else None,
+            'tag_nome': plan['tag'].nome if plan['tag'] else None,
+        },
+    })
+
 
 @login_required
 def weekly_sessions_data(request):
     monday_str = request.GET.get('monday', '')
-    today = timezone.now().date()
+    today = timezone.localdate()
 
     try:
         monday = date.fromisoformat(monday_str) if monday_str else today - timedelta(days=today.weekday())
