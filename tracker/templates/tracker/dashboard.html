@@ -33,7 +33,7 @@
         </div>
         <!-- Desktop Heatmap -->
         <div class="desktop-only heatmap-scroll-wrap">
-            <div id="year-heatmap" style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; width: 100%; min-width: 920px;"></div>
+            <div id="year-heatmap" style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 8px; width: 100%; min-width: 920px;"></div>
         </div>
 
         <!-- Mobile: Mini Heatmap + Metriche -->
@@ -577,7 +577,7 @@
                 monthCol.appendChild(label);
 
                 var grid = document.createElement('div');
-                grid.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(' + cols + ',auto);gap:2px;width:100%;';
+                grid.style.cssText = 'display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-template-rows:repeat(' + cols + ',auto);gap:2px;width:100%;';
 
                 for (var i = 0; i < cols * 7; i++) {
                     var dayNum = i - firstWeekday + 1;
