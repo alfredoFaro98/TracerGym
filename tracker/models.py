@@ -46,6 +46,7 @@ class WorkoutSession(models.Model):
     # Singola sessione di allenamento (giornata)
     utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='workout_sessions')
     data = models.DateField(default=timezone.now)
+    nome = models.CharField(max_length=50, blank=True, default='')
     note = models.TextField(blank=True, null=True)
     luogo = models.CharField(max_length=150, blank=True, default='')
     orario = models.TimeField(null=True, blank=True)

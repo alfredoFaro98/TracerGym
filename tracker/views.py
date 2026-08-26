@@ -15,7 +15,7 @@ from decimal import Decimal, InvalidOperation
 from datetime import datetime, date, timedelta, time as dt_time
 from django.utils import timezone
 from django.contrib.auth.models import User
-from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal, IntegratoreEntry, SiteVisit, WeekdayPlan, DayPlanOverride
+from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal, IntegratoreEntry, SiteVisit
 
 
 REMEMBER_ME_SECONDS = 60 * 60 * 24 * 30  # 30 giorni
@@ -92,6 +92,7 @@ def _delete_blank_sessions(user):
         utente=user,
         sets__isnull=True,
         circuits__isnull=True,
+        nome='',
         luogo='',
         orario__isnull=True,
         durata_minuti__isnull=True,
@@ -194,8 +195,7 @@ def dashboard(request):
     water_goal_ml = today_goal_override.obiettivo_ml if today_goal_override else profile.obiettivo_acqua_ml
 
     week_monday = today - timedelta(days=today.weekday())
-    week_plan_json = json.dumps(_week_plan_payload(request.user, week_monday))
-    plan_tags_json = json.dumps([{'id': t.id, 'nome': t.nome} for t in Tag.objects.all().order_by('nome')])
+    week_training_data = _week_training_payload(request.user, week_monday)
 
     return render(request, 'tracker/dashboard.html', {
         'sessions': sessions,
@@ -212,53 +212,75 @@ def dashboard(request):
         'water_today_l': water_today_ml / 1000,
         'water_goal_l': water_goal_ml / 1000,
         'water_progress_pct': min(100, round(water_today_ml / water_goal_ml * 100)) if water_goal_ml else 0,
-        'week_plan_json': week_plan_json,
-        'plan_tags_json': plan_tags_json,
+        'week_training_data': week_training_data,
     })
 
 GIORNI_SETTIMANA = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom']
 
 
-def _effective_day_plan(user, giorno):
-    """Piano del giorno: l'eccezione su quella data ha priorità sul default
-    settimanale; se nessuno dei due è impostato, il giorno non è configurato."""
-    override = DayPlanOverride.objects.filter(utente=user, data=giorno).select_related('tag').first()
-    if override:
-        return {'tag': override.tag, 'riposo': override.riposo, 'configured': True}
-    default = WeekdayPlan.objects.filter(utente=user, giorno_settimana=giorno.weekday()).select_related('tag').first()
-    if default:
-        return {'tag': default.tag, 'riposo': default.riposo, 'configured': True}
-    return {'tag': None, 'riposo': False, 'configured': False}
+def _muscle_label(name):
+    return (name or '').strip().title()
 
 
-def _week_plan_payload(user, monday):
+def _day_summary(day_sessions):
+    """Muscoli lavorati e riepilogo sessioni per un singolo giorno, ricavati
+    dai dati reali (nessuna astrazione di 'piano' separata): per ogni serie
+    usa i muscoli compilati a mano su WorkoutSet, altrimenti ripiega sul
+    muscolo target/secondari dell'esercizio."""
+    muscle_display = {}
+    sessions_out = []
+    for s in day_sessions:
+        sets = list(s.sets.all())
+        for ws in sets:
+            names = [m.nome for m in ws.muscles.all()]
+            if not names:
+                if ws.exercise.target_muscle:
+                    names.append(ws.exercise.target_muscle)
+                names.extend(ws.exercise.secondary_muscles or [])
+            for n in names:
+                key = (n or '').strip().lower()
+                if key and key not in muscle_display:
+                    muscle_display[key] = _muscle_label(n)
+        sessions_out.append({
+            'id': s.id,
+            'nome': s.nome,
+            'orario': s.orario.strftime('%H:%M') if s.orario else None,
+            'sets_count': len(sets),
+        })
+    return sorted(muscle_display.values()), sessions_out
+
+
+def _week_training_payload(user, monday):
     today = timezone.localdate()
-    has_session_dates = set(
-        WorkoutSession.objects.filter(utente=user, data__gte=monday, data__lte=monday + timedelta(days=6))
-        .values_list('data', flat=True)
+    sunday = monday + timedelta(days=6)
+    sessions_qs = (
+        WorkoutSession.objects.filter(utente=user, data__gte=monday, data__lte=sunday)
+        .prefetch_related('sets__muscles', 'sets__exercise')
+        .order_by('data', 'orario', 'id')
     )
+    by_date = {}
+    for s in sessions_qs:
+        by_date.setdefault(s.data, []).append(s)
+
     days = []
     for i in range(7):
         giorno = monday + timedelta(days=i)
-        plan = _effective_day_plan(user, giorno)
+        day_sessions = by_date.get(giorno, [])
+        muscles, sessions_out = _day_summary(day_sessions)
         days.append({
             'data': giorno.strftime('%Y-%m-%d'),
             'label': GIORNI_SETTIMANA[i],
             'numero': giorno.day,
             'is_today': giorno == today,
-            'has_session': giorno in has_session_dates,
-            'plan': {
-                'configured': plan['configured'],
-                'riposo': plan['riposo'],
-                'tag_id': plan['tag'].id if plan['tag'] else None,
-                'tag_nome': plan['tag'].nome if plan['tag'] else None,
-            },
+            'has_session': bool(day_sessions),
+            'muscles': muscles,
+            'sessions': sessions_out,
         })
-    return {'monday': monday.strftime('%Y-%m-%d'), 'sunday': (monday + timedelta(days=6)).strftime('%Y-%m-%d'), 'days': days}
+    return {'monday': monday.strftime('%Y-%m-%d'), 'sunday': sunday.strftime('%Y-%m-%d'), 'days': days}
 
 
 @login_required
-def week_plan_data(request):
+def week_training_data(request):
     monday_str = request.GET.get('monday', '')
     today = timezone.localdate()
     try:
@@ -266,47 +288,7 @@ def week_plan_data(request):
     except ValueError:
         monday = today
     monday -= timedelta(days=monday.weekday())
-    return JsonResponse(_week_plan_payload(request.user, monday))
-
-
-@login_required
-def set_day_plan(request):
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Metodo non valido.'}, status=405)
-    try:
-        giorno = date.fromisoformat(request.POST.get('data', ''))
-    except ValueError:
-        return JsonResponse({'error': 'Data non valida.'}, status=400)
-
-    riposo = request.POST.get('riposo') == '1'
-    tag_id = request.POST.get('tag_id')
-    tag = None
-    if not riposo and tag_id:
-        tag = Tag.objects.filter(id=tag_id).first()
-        if not tag:
-            return JsonResponse({'error': 'Tag non valido.'}, status=400)
-
-    if request.POST.get('clear') == '1':
-        DayPlanOverride.objects.filter(utente=request.user, data=giorno).delete()
-    else:
-        DayPlanOverride.objects.update_or_create(
-            utente=request.user, data=giorno, defaults={'tag': tag, 'riposo': riposo}
-        )
-        if request.POST.get('apply_weekday') == '1':
-            WeekdayPlan.objects.update_or_create(
-                utente=request.user, giorno_settimana=giorno.weekday(), defaults={'tag': tag, 'riposo': riposo}
-            )
-
-    plan = _effective_day_plan(request.user, giorno)
-    return JsonResponse({
-        'ok': True,
-        'plan': {
-            'configured': plan['configured'],
-            'riposo': plan['riposo'],
-            'tag_id': plan['tag'].id if plan['tag'] else None,
-            'tag_nome': plan['tag'].nome if plan['tag'] else None,
-        },
-    })
+    return JsonResponse(_week_training_payload(request.user, monday))
 
 
 @login_required
@@ -386,7 +368,14 @@ def weekly_sessions_data(request):
 @login_required
 def create_session(request):
     _delete_blank_sessions(request.user)
-    session = WorkoutSession.objects.create(utente=request.user)
+    kwargs = {'utente': request.user}
+    data_param = request.POST.get('data') or request.GET.get('data')
+    if data_param:
+        try:
+            kwargs['data'] = date.fromisoformat(data_param)
+        except ValueError:
+            pass
+    session = WorkoutSession.objects.create(**kwargs)
     return redirect('session_detail', session_id=session.id)
 
 @login_required
@@ -733,6 +722,7 @@ def duplicate_session(request, session_id):
     if request.method == 'POST':
         new_session = WorkoutSession.objects.create(
             utente=request.user,
+            nome=original.nome,
             note=original.note,
             luogo=original.luogo,
             orario=original.orario,
@@ -776,6 +766,7 @@ def edit_session_date(request, session_id):
         if new_date:
             session.data = new_date
 
+        session.nome = (request.POST.get('nome') or '').strip()[:50]
         session.luogo = (request.POST.get('luogo') or '').strip()
 
         orario_str = request.POST.get('orario')

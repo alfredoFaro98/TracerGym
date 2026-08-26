@@ -161,20 +161,9 @@
             </button>
         </div>
         <div id="week-strip" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 16px;"></div>
-        <div id="today-plan-card" style="margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; cursor: pointer;"></div>
-        <div id="plan-popover" style="display: none; position: absolute; bottom: 20px; left: 22px; right: 22px; background: #16161f; border: 1px solid rgba(124,108,246,0.25); border-radius: 12px; box-shadow: 0 12px 30px rgba(0,0,0,0.5); padding: 14px; z-index: 40;">
-            <div style="font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;">Imposta il giorno</div>
-            <div id="plan-popover-options" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;"></div>
-            <label style="display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: #c7cbd6; cursor: pointer; margin-bottom: 10px;">
-                <input type="checkbox" id="plan-apply-weekday" style="accent-color: #7c6cf6;">
-                Ripeti ogni <span id="plan-weekday-name"></span>
-            </label>
-            <div style="display: flex; justify-content: space-between; gap: 8px;">
-                <button type="button" id="plan-clear-btn" style="font-size: 11.5px; color: #f87171; background: none; border: none; cursor: pointer; padding: 4px;">Cancella</button>
-                <button type="button" id="plan-close-btn" style="font-size: 11.5px; color: #787890; background: none; border: 1px solid #1c1c2c; border-radius: 6px; padding: 6px 12px; cursor: pointer;">Chiudi</button>
-            </div>
-        </div>
+        <div id="day-detail-panel" style="margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px;"></div>
     </div>
+    {{ week_training_data|json_script:"week-training-data" }}
     </div>
 
     <!-- Sessions List -->
@@ -405,22 +394,9 @@
         color: #c7cbd6;
     }
     .week-day-cell.is-today .week-day-number { background: #7c6cf6; color: #fff; font-weight: 700; }
+    .week-day-cell.is-selected .week-day-number { box-shadow: 0 0 0 2px #7c6cf6; }
     .week-day-dot { width: 4px; height: 4px; border-radius: 50%; background: #565b6e; }
     .week-day-dot.is-empty { background: transparent; }
-
-    .plan-option-btn {
-        padding: 6px 12px;
-        border-radius: 8px;
-        font-size: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.08);
-        color: #c7cbd6;
-        transition: all .12s;
-    }
-    .plan-option-btn:hover { background: rgba(255,255,255,0.09); }
-    .plan-option-btn.active { background: rgba(124,108,246,0.22); border-color: #7c6cf6; color: #ffffff; }
 
     .page-container .btn-primary-gradient {
         background: #7c6cf6;
@@ -682,43 +658,37 @@
         updateMobileLabel();
 </script>
 
-<!-- Widget "Settimana" (routine pianificata per giorno) -->
+<!-- Widget "Settimana" (muscoli lavorati per giorno, dati reali) -->
 <script>
 (function() {
-    var PLAN_TAGS = {{ plan_tags_json|safe }};
-    var weekData = {{ week_plan_json|safe }};
-    var LABEL_COMPLETO = {'Lun': 'Lunedì', 'Mar': 'Martedì', 'Mer': 'Mercoledì', 'Gio': 'Giovedì', 'Ven': 'Venerdì', 'Sab': 'Sabato', 'Dom': 'Domenica'};
+    var weekData = JSON.parse(document.getElementById('week-training-data').textContent);
+    var CREATE_SESSION_URL = '{% url "create_session" %}';
 
     var strip = document.getElementById('week-strip');
-    var todayCard = document.getElementById('today-plan-card');
-    var popover = document.getElementById('plan-popover');
-    var popoverOptions = document.getElementById('plan-popover-options');
+    var detailPanel = document.getElementById('day-detail-panel');
     var weekLabel = document.getElementById('week-label');
-    var applyWeekdayCheckbox = document.getElementById('plan-apply-weekday');
-    var weekdayNameSpan = document.getElementById('plan-weekday-name');
-    var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
     var selectedDate = null;
+
+    function esc(s) {
+        return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
 
     function findDay(dateStr) {
         return weekData.days.filter(function(d) { return d.data === dateStr; })[0];
     }
 
-    function planLabel(day) {
-        if (!day.plan.configured) return 'Nessun piano';
-        return day.plan.riposo ? 'Riposo' : day.plan.tag_nome;
-    }
-
     function renderStrip() {
         strip.innerHTML = '';
         weekData.days.forEach(function(day) {
+            var cls = 'week-day-cell' + (day.is_today ? ' is-today' : '') + (day.data === selectedDate ? ' is-selected' : '');
             var cell = document.createElement('div');
-            cell.className = 'week-day-cell' + (day.is_today ? ' is-today' : '');
+            cell.className = cls;
             var dotClass = 'week-day-dot' + (day.has_session ? '' : ' is-empty');
             cell.innerHTML =
                 '<span class="week-day-label' + (day.is_today ? ' is-today' : '') + '">' + day.label + '</span>' +
                 '<span class="week-day-number">' + day.numero + '</span>' +
                 '<span class="' + dotClass + '"></span>';
-            cell.addEventListener('click', function() { openPopoverFor(day.data); });
+            cell.addEventListener('click', function() { selectDay(day.data); });
             strip.appendChild(cell);
         });
         var d1 = weekData.monday.split('-'), d2 = weekData.sunday.split('-');
@@ -726,71 +696,67 @@
         weekLabel.textContent = hasToday ? 'Questa settimana' : (d1[2] + '/' + d1[1] + ' – ' + d2[2] + '/' + d2[1]);
     }
 
-    function renderTodayCard() {
-        var todayEntry = weekData.days.filter(function(d) { return d.is_today; })[0];
-        var entry = todayEntry || weekData.days[0];
-        selectedDate = entry.data;
-        var icon = entry.plan.configured && entry.plan.riposo ? '🌙' : '🏋️';
-        todayCard.innerHTML =
-            '<span style="font-size:16px;flex-shrink:0;">' + icon + '</span>' +
+    function muscleChips(day) {
+        if (!day.muscles.length) {
+            return '<div style="font-size:11.5px;color:#7d8296;">Nessun gruppo muscolare registrato</div>';
+        }
+        return '<div style="display:flex;flex-wrap:wrap;gap:4px;">' +
+            day.muscles.map(function(m) { return '<span class="badge-tag badge-tag-default">' + esc(m) + '</span>'; }).join('') +
+            '</div>';
+    }
+
+    function renderDayDetail(dateStr) {
+        var day = findDay(dateStr);
+        if (!day) return;
+        var titleLabel = day.is_today ? 'Oggi' : day.label;
+        var sessions = day.sessions;
+
+        if (!sessions.length) {
+            detailPanel.innerHTML =
+                '<span style="font-size:16px;flex-shrink:0;">🗓️</span>' +
+                '<div style="flex:1;min-width:0;">' +
+                    '<div style="font-size:9.5px;font-weight:700;color:#7d8296;text-transform:uppercase;letter-spacing:.08em;">' + titleLabel + '</div>' +
+                    '<div style="font-size:13px;font-weight:600;color:#9ba0b3;">Nessun allenamento</div>' +
+                '</div>' +
+                '<a href="' + CREATE_SESSION_URL + '?data=' + dateStr + '" title="Crea sessione" style="color:#7d8296;font-size:18px;line-height:1;flex-shrink:0;text-decoration:none;">+</a>';
+            return;
+        }
+
+        var actionHtml;
+        if (sessions.length === 1) {
+            actionHtml = '<a href="/session/' + sessions[0].id + '/" style="font-size:11.5px;font-weight:700;color:#a996ff;text-decoration:none;flex-shrink:0;white-space:nowrap;">Modifica</a>';
+        } else {
+            actionHtml = '<div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;">' +
+                sessions.map(function(s) {
+                    var label = s.nome || s.orario || 'Sessione';
+                    return '<a href="/session/' + s.id + '/" style="font-size:11px;font-weight:600;color:#a996ff;text-decoration:none;white-space:nowrap;">' + esc(label) + '</a>';
+                }).join('') +
+            '</div>';
+        }
+
+        detailPanel.innerHTML =
+            '<span style="font-size:16px;flex-shrink:0;">🏋️</span>' +
             '<div style="flex:1;min-width:0;">' +
-                '<div style="font-size:9.5px;font-weight:700;color:#7d8296;text-transform:uppercase;letter-spacing:.08em;">' + (todayEntry ? 'Oggi' : entry.label) + '</div>' +
-                '<div style="font-size:14px;font-weight:700;color:#f0f0f3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + planLabel(entry) + '</div>' +
+                '<div style="font-size:9.5px;font-weight:700;color:#7d8296;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;">' + titleLabel + '</div>' +
+                muscleChips(day) +
             '</div>' +
-            '<span style="color:#7d8296;font-size:18px;line-height:1;flex-shrink:0;">+</span>';
+            actionHtml;
     }
 
-    function renderPopoverOptions() {
-        var day = findDay(selectedDate);
-        popoverOptions.innerHTML = '';
-        PLAN_TAGS.forEach(function(tag) {
-            var isActive = day.plan.configured && !day.plan.riposo && day.plan.tag_id === tag.id;
-            var btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'plan-option-btn' + (isActive ? ' active' : '');
-            btn.textContent = tag.nome;
-            btn.addEventListener('click', function() { savePlan({tag_id: tag.id}); });
-            popoverOptions.appendChild(btn);
-        });
-        var restBtn = document.createElement('button');
-        restBtn.type = 'button';
-        restBtn.className = 'plan-option-btn' + (day.plan.configured && day.plan.riposo ? ' active' : '');
-        restBtn.textContent = 'Riposo';
-        restBtn.addEventListener('click', function() { savePlan({riposo: '1'}); });
-        popoverOptions.appendChild(restBtn);
-        weekdayNameSpan.textContent = LABEL_COMPLETO[day.label];
-    }
-
-    function openPopoverFor(dateStr) {
+    function selectDay(dateStr) {
         selectedDate = dateStr;
-        renderPopoverOptions();
-        popover.style.display = 'block';
-    }
-
-    function savePlan(extra) {
-        var body = new FormData();
-        body.append('csrfmiddlewaretoken', csrfToken);
-        body.append('data', selectedDate);
-        body.append('apply_weekday', applyWeekdayCheckbox.checked ? '1' : '0');
-        Object.keys(extra).forEach(function(k) { body.append(k, extra[k]); });
-        fetch('{% url "set_day_plan" %}', {method: 'POST', body: body})
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                if (!data.ok) { alert(data.error || 'Errore, riprova.'); return; }
-                var day = findDay(selectedDate);
-                if (day) day.plan = data.plan;
-                applyWeekdayCheckbox.checked = false;
-                renderStrip();
-                renderTodayCard();
-                popover.style.display = 'none';
-            })
-            .catch(function() { alert('Errore di rete, riprova.'); });
+        renderStrip();
+        renderDayDetail(dateStr);
     }
 
     function loadWeek(mondayStr) {
-        fetch('{% url "week_plan_data" %}?monday=' + mondayStr)
+        fetch('{% url "week_training_data" %}?monday=' + mondayStr)
             .then(function(r) { return r.json(); })
-            .then(function(data) { weekData = data; renderStrip(); renderTodayCard(); });
+            .then(function(data) {
+                weekData = data;
+                var todayEntry = weekData.days.filter(function(d) { return d.is_today; })[0];
+                selectDay((todayEntry || weekData.days[0]).data);
+            });
     }
 
     function shiftMonday(deltaDays) {
@@ -802,14 +768,11 @@
         loadWeek(d.getFullYear() + '-' + mm + '-' + dd);
     }
 
-    todayCard.addEventListener('click', function() { openPopoverFor(selectedDate); });
-    document.getElementById('plan-close-btn').addEventListener('click', function() { popover.style.display = 'none'; });
-    document.getElementById('plan-clear-btn').addEventListener('click', function() { savePlan({clear: '1'}); });
     document.getElementById('week-prev-btn').addEventListener('click', function() { shiftMonday(-7); });
     document.getElementById('week-next-btn').addEventListener('click', function() { shiftMonday(7); });
 
-    renderStrip();
-    renderTodayCard();
+    var initialToday = weekData.days.filter(function(d) { return d.is_today; })[0];
+    selectDay((initialToday || weekData.days[0]).data);
 })();
 </script>
 
