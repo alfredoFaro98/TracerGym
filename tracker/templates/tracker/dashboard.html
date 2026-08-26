@@ -122,7 +122,7 @@
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.get_full_path }}">
                 <div>
-                    <label style="display: block; font-size: 9.5px; font-weight: 700; color: #34344e; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Obiettivo giornaliero (ml)</label>
+                    <label style="display: block; font-size: 9.5px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Obiettivo giornaliero (ml)</label>
                     <input type="number" name="obiettivo_ml" value="{{ water_goal_ml }}" class="tracer-input" style="width: 110px;" min="100" step="50">
                 </div>
                 <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12px;">Salva</button>
