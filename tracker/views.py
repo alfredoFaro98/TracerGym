@@ -1359,6 +1359,24 @@ def user_list(request):
     return render(request, 'tracker/user_list.html', {'users_data': users_data})
 
 
+def _week_streak(user):
+    """Settimane consecutive (lun-dom) con almeno una sessione, contando
+    all'indietro dalla settimana corrente. Se la settimana in corso non ha
+    ancora una sessione non interrompe lo streak (potrebbe ancora allenarsi
+    entro domenica): si parte semplicemente dall'ultima settimana completa."""
+    today = timezone.localdate()
+    session_dates = WorkoutSession.objects.filter(utente=user).values_list('data', flat=True)
+    weeks_with_session = set(d - timedelta(days=d.weekday()) for d in session_dates)
+
+    current_monday = today - timedelta(days=today.weekday())
+    week = current_monday if current_monday in weeks_with_session else current_monday - timedelta(days=7)
+    streak = 0
+    while week in weeks_with_session:
+        streak += 1
+        week -= timedelta(days=7)
+    return streak
+
+
 @login_required
 def user_profile(request, username):
     target_user = get_object_or_404(User, username=username)
@@ -1397,6 +1415,13 @@ def user_profile(request, username):
         dt = datetime.strptime(d_str, '%Y-%m-%d')
         heatmap_data.append({'date': int(time.mktime(dt.timetuple())), 'value': count})
 
+    body_weight_json = '[]'
+    if is_own:
+        weight_entries = BodyMetric.objects.filter(utente=target_user, peso_kg__isnull=False).order_by('data')
+        body_weight_json = json.dumps([
+            {'date': e.data.strftime('%d/%m/%Y'), 'value': float(e.peso_kg)} for e in weight_entries
+        ])
+
     return render(request, 'tracker/user_profile.html', {
         'target_user': target_user,
         'profile': profile,
@@ -1405,9 +1430,11 @@ def user_profile(request, username):
         'sessions': sessions[:20],
         'total_sessions': sessions.count(),
         'total_sets': total_sets,
+        'week_streak': _week_streak(target_user),
         'top_exercises': top_exercises,
         'heatmap_data_json': json.dumps(heatmap_data),
         'selected_year': year_int,
+        'body_weight_json': body_weight_json,
     })
 
 

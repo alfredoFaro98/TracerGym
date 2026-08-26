@@ -6,6 +6,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cal-heatmap/3.6.2/cal-heatmap.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cal-heatmap/3.6.2/cal-heatmap.css">
+{% if is_own %}<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -61,7 +62,27 @@
             <div style="font-size: 22px; font-weight: 700; color: #a070e0; font-family: 'JetBrains Mono', monospace;">{{ total_sets }}</div>
             <div style="font-size: 10.5px; color: #404058; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Serie totali</div>
         </div>
+        <div class="tracer-card" style="padding: 16px; text-align: center;">
+            <div style="font-size: 22px; font-weight: 700; color: #60a060; font-family: 'JetBrains Mono', monospace;">{{ week_streak }}</div>
+            <div style="font-size: 10.5px; color: #404058; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Settimane di fila</div>
+        </div>
     </div>
+
+    {% if is_own %}
+    <!-- Andamento peso corporeo (solo tuo, non visibile agli altri) -->
+    <div class="tracer-card" style="margin-bottom: 20px; overflow: hidden;">
+        <div style="padding: 12px 16px; border-bottom: 1px solid #16162a; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 10.5px; font-weight: 700; color: #3a3a52; text-transform: uppercase; letter-spacing: 1px;">Andamento peso corporeo</div>
+            <a href="{% url 'misurazioni' %}" style="font-size: 11.5px; font-weight: 600; color: #9d8ffb; text-decoration: none;">Vedi tutte le misurazioni →</a>
+        </div>
+        <div style="padding: 16px; min-height: 80px; display: flex; align-items: center; justify-content: center;">
+            <span id="bw-placeholder" style="font-size: 12px; color: #404058;">Nessuna misurazione del peso registrata</span>
+            <div style="width:100%; display:none;" id="bw-chart-wrap">
+                <canvas id="bw-canvas" style="max-height: 200px;"></canvas>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Top esercizi -->
     {% if top_exercises %}
@@ -91,7 +112,7 @@
         </div>
         <!-- Desktop Heatmap -->
         <div class="desktop-only heatmap-scroll-wrap">
-            <div id="year-heatmap" style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; width: 100%; min-width: 920px;"></div>
+            <div id="year-heatmap" style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 8px; width: 100%; min-width: 920px;"></div>
         </div>
 
         <!-- Mobile: Mini Heatmap -->
@@ -171,14 +192,12 @@
     .ch-tooltip::after { border-top-color: #15151c !important; }
 
     .heatmap-scroll-wrap {
+        /* Layout a blocco (non flex): con flex + justify-content:center e
+        overflow-x:auto, arrotondamenti di sub-pixel fanno comparire una
+        scrollbar fantasma anche quando il contenuto entra per intero. */
         width: 100%;
         overflow-x: auto;
         overflow-y: visible;
-        display: flex;
-        justify-content: center;
-    }
-    @media (max-width: 1300px) {
-        .heatmap-scroll-wrap { justify-content: flex-start; }
     }
     .heatmap-scroll-wrap::-webkit-scrollbar { height: 4px; }
     .heatmap-scroll-wrap::-webkit-scrollbar-track { background: transparent; }
@@ -236,7 +255,7 @@
             monthCol.appendChild(label);
 
             var grid = document.createElement('div');
-            grid.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(' + cols + ',auto);gap:2px;width:100%;';
+            grid.style.cssText = 'display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-template-rows:repeat(' + cols + ',auto);gap:2px;width:100%;';
 
             for (var i = 0; i < cols * 7; i++) {
                 var dayNum = i - firstWeekday + 1;
@@ -311,6 +330,72 @@
         label: { position: "top", height: 0, offset: { x: 0, y: 0 } }
     });
     updateMobileLabel();
+
+    {% if is_own %}
+    (function() {
+        var points = {{ body_weight_json|safe }};
+        var placeholder = document.getElementById('bw-placeholder');
+        var chartWrap = document.getElementById('bw-chart-wrap');
+        var canvas = document.getElementById('bw-canvas');
+        if (!points.length) return;
+
+        placeholder.style.display = 'none';
+        chartWrap.style.display = 'block';
+
+        var ctx = canvas.getContext('2d');
+        var fade = ctx.createLinearGradient(0, 0, 0, 200);
+        fade.addColorStop(0, 'rgba(96,160,96,.35)');
+        fade.addColorStop(1, 'rgba(96,160,96,0)');
+
+        new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: points.map(function(p) { return p.date; }),
+                datasets: [{
+                    label: 'Peso',
+                    data: points.map(function(p) { return p.value; }),
+                    borderColor: '#60a060',
+                    backgroundColor: fade,
+                    pointBackgroundColor: '#60a060',
+                    pointBorderColor: '#111117',
+                    pointBorderWidth: 2,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.35,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#15151c',
+                        borderColor: 'rgba(255,255,255,.08)',
+                        borderWidth: 1,
+                        padding: 10,
+                        callbacks: {
+                            label: function(c) { return c.parsed.y + ' kg'; }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#e4e4ec', font: { size: 11 }, maxTicksLimit: 6 },
+                        grid: { display: false },
+                        border: { display: false }
+                    },
+                    y: {
+                        ticks: { color: '#e4e4ec', font: { size: 12 } },
+                        grid: { color: 'rgba(255,255,255,.06)' },
+                        border: { display: false }
+                    }
+                }
+            }
+        });
+    })();
+    {% endif %}
 </script>
 {% endif %}
 {% endblock %}
