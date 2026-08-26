@@ -226,12 +226,19 @@ def _day_summary(day_sessions):
     """Muscoli lavorati e riepilogo sessioni per un singolo giorno, ricavati
     dai dati reali (nessuna astrazione di 'piano' separata): per ogni serie
     usa i muscoli compilati a mano su WorkoutSet, altrimenti ripiega sul
-    muscolo target/secondari dell'esercizio."""
+    muscolo target/secondari dell'esercizio. Molti esercizi personali (creati
+    prima del catalogo openGym) non hanno il muscolo compilato: in quel caso
+    mostriamo comunque qualcosa di utile, cioè gli esercizi fatti quel giorno
+    (stesso dato già mostrato nello Storico Allenamenti)."""
     muscle_display = {}
+    exercise_display = {}
     sessions_out = []
     for s in day_sessions:
         sets = list(s.sets.all())
         for ws in sets:
+            key_ex = ws.exercise_id
+            if key_ex not in exercise_display:
+                exercise_display[key_ex] = ws.exercise.nome
             names = [m.nome for m in ws.muscles.all()]
             if not names:
                 if ws.exercise.target_muscle:
@@ -247,7 +254,7 @@ def _day_summary(day_sessions):
             'orario': s.orario.strftime('%H:%M') if s.orario else None,
             'sets_count': len(sets),
         })
-    return sorted(muscle_display.values()), sessions_out
+    return sorted(muscle_display.values()), sorted(exercise_display.values()), sessions_out
 
 
 def _week_training_payload(user, monday):
@@ -266,7 +273,7 @@ def _week_training_payload(user, monday):
     for i in range(7):
         giorno = monday + timedelta(days=i)
         day_sessions = by_date.get(giorno, [])
-        muscles, sessions_out = _day_summary(day_sessions)
+        muscles, exercises, sessions_out = _day_summary(day_sessions)
         days.append({
             'data': giorno.strftime('%Y-%m-%d'),
             'label': GIORNI_SETTIMANA[i],
@@ -274,6 +281,7 @@ def _week_training_payload(user, monday):
             'is_today': giorno == today,
             'has_session': bool(day_sessions),
             'muscles': muscles,
+            'esercizi': exercises,
             'sessions': sessions_out,
         })
     return {'monday': monday.strftime('%Y-%m-%d'), 'sunday': sunday.strftime('%Y-%m-%d'), 'days': days}
