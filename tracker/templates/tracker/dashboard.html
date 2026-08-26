@@ -444,15 +444,12 @@
     .ch-tooltip::after { border-top-color: #15151c !important; }
 
     .heatmap-scroll-wrap {
+        /* Layout a blocco (non flex): con flex + justify-content:center e
+        overflow-x:auto, arrotondamenti di sub-pixel fanno comparire una
+        scrollbar fantasma anche quando il contenuto entra per intero. */
         width: 100%;
         overflow-x: auto;
         overflow-y: visible;
-        display: flex;
-        justify-content: center;
-    }
-    /* su schermi medi allinea a sinistra così lo scroll parte dall'inizio */
-    @media (max-width: 1300px) {
-        .heatmap-scroll-wrap { justify-content: flex-start; }
     }
     .heatmap-scroll-wrap::-webkit-scrollbar { height: 4px; }
     .heatmap-scroll-wrap::-webkit-scrollbar-track { background: transparent; }
