@@ -703,9 +703,11 @@
         if (!items.length) {
             return '<div style="font-size:11.5px;color:#7d8296;">Nessun dato registrato</div>';
         }
-        return '<div style="display:flex;flex-wrap:wrap;gap:4px;">' +
-            items.map(function(m) { return '<span class="badge-tag badge-tag-default">' + esc(m) + '</span>'; }).join('') +
-            '</div>';
+        var shown = items.slice(0, 3);
+        var rest = items.length - shown.length;
+        var html = shown.map(function(m) { return '<span class="badge-tag badge-tag-default" style="white-space:nowrap;flex-shrink:0;">' + esc(m) + '</span>'; }).join('');
+        if (rest > 0) html += '<span class="badge-tag badge-tag-default" style="white-space:nowrap;flex-shrink:0;">+' + rest + '</span>';
+        return '<div style="display:flex;flex-wrap:nowrap;overflow:hidden;gap:4px;">' + html + '</div>';
     }
 
     function renderDayDetail(dateStr) {
