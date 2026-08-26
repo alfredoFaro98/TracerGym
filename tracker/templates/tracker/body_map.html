@@ -1046,10 +1046,15 @@
       document.getElementById('muscleDesc').textContent = d.desc;
 
       const list = document.getElementById('exerciseList');
+      const MAX_EXERCISES_SHOWN = 6;
       if (d.exercises && d.exercises.length > 0) {
-        list.innerHTML = d.exercises.map((ex, i) =>
+        const shown = d.exercises.slice(0, MAX_EXERCISES_SHOWN);
+        const rest = d.exercises.length - shown.length;
+        list.innerHTML = shown.map((ex, i) =>
           `<div class="exercise-item" style="transition-delay:${i * 30}ms"><div class="exercise-pip"></div><span>${ex}</span></div>`
-        ).join('');
+        ).join('') + (rest > 0
+          ? `<div class="exercise-item" style="transition-delay:${shown.length * 30}ms; color: var(--text-muted); font-style: italic;">+${rest} altri nel catalogo</div>`
+          : '');
       } else {
           list.innerHTML = `<div class="exercise-item" style="transition-delay:0ms; color: var(--text-muted); font-style: italic;">Nessun esercizio specifico nel database</div>`;
       }
