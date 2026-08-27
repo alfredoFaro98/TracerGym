@@ -16,7 +16,7 @@ from decimal import Decimal, InvalidOperation
 from datetime import datetime, date, timedelta, time as dt_time
 from django.utils import timezone
 from django.contrib.auth.models import User
-from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal, IntegratoreEntry, SiteVisit, MacroEntry
+from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal, IntegratoreEntry, SiteVisit, MacroEntry, MacroGoal
 
 
 REMEMBER_ME_SECONDS = 60 * 60 * 24 * 30  # 30 giorni
@@ -198,12 +198,13 @@ def dashboard(request):
     week_monday = today - timedelta(days=today.weekday())
     week_training_data = _week_training_payload(request.user, week_monday)
 
+    macro_goal_override = MacroGoal.objects.filter(utente=request.user, data=today).first()
     macro_goals = {
-        'kcal': profile.obiettivo_kcal,
-        'proteine_g': profile.obiettivo_proteine_g,
-        'carboidrati_g': profile.obiettivo_carboidrati_g,
-        'grassi_g': profile.obiettivo_grassi_g,
-    }
+        'kcal': macro_goal_override.kcal,
+        'proteine_g': macro_goal_override.proteine_g,
+        'carboidrati_g': macro_goal_override.carboidrati_g,
+        'grassi_g': macro_goal_override.grassi_g,
+    } if macro_goal_override else _macro_default_goals(profile)
     macro_today_totals = _macro_day_totals(MacroEntry.objects.filter(utente=request.user, data=today))
     macro_today_progress = {
         k: min(100, round(macro_today_totals[k] / macro_goals[k] * 100)) if macro_goals[k] else 0
@@ -2035,17 +2036,35 @@ def _macro_day_totals(day_entries):
     }
 
 
-@login_required
-def macro(request):
-    profile, _ = UserProfile.objects.get_or_create(user=request.user)
-    goals = {
+def _macro_default_goals(profile):
+    return {
         'kcal': profile.obiettivo_kcal,
         'proteine_g': profile.obiettivo_proteine_g,
         'carboidrati_g': profile.obiettivo_carboidrati_g,
         'grassi_g': profile.obiettivo_grassi_g,
     }
 
+
+def _macro_goals_map(utente, year=None):
+    """Obiettivi impostati per singola giornata (override rispetto al
+    default), stesso schema di _water_goals_map per l'acqua."""
+    qs = MacroGoal.objects.filter(utente=utente)
+    if year:
+        qs = qs.filter(data__year=year)
+    return {
+        g.data: {'kcal': g.kcal, 'proteine_g': g.proteine_g, 'carboidrati_g': g.carboidrati_g, 'grassi_g': g.grassi_g}
+        for g in qs
+    }
+
+
+@login_required
+def macro(request):
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    default_goals = _macro_default_goals(profile)
+    goals_by_date = _macro_goals_map(request.user)
+
     today = timezone.localdate()
+    goals = goals_by_date.get(today, default_goals)
     today_totals = _macro_day_totals(MacroEntry.objects.filter(utente=request.user, data=today))
     today_progress = {
         k: min(100, round(today_totals[k] / goals[k] * 100)) if goals[k] else 0
@@ -2062,11 +2081,13 @@ def macro(request):
     for day, grp in groupby(entries, key=lambda e: e.data):
         day_entries = list(grp)
         totals = _macro_day_totals(day_entries)
+        day_goals = goals_by_date.get(day, default_goals)
         days.append({
             'data': day,
             'entries': day_entries,
             'totals': totals,
-            'reached': bool(goals['kcal']) and totals['kcal'] >= goals['kcal'],
+            'goals': day_goals,
+            'reached': bool(day_goals['kcal']) and totals['kcal'] >= day_goals['kcal'],
         })
 
     chart_data = {'kcal': [], 'proteine_g': [], 'carboidrati_g': [], 'grassi_g': []}
@@ -2082,6 +2103,7 @@ def macro(request):
 
     return render(request, 'tracker/macro.html', {
         'days': page,
+        'default_goals': default_goals,
         'goals': goals,
         'today_totals': today_totals,
         'today_progress': today_progress,
@@ -2159,4 +2181,34 @@ def set_macro_goal(request):
             if val and val.isdigit() and int(val) > 0:
                 setattr(profile, field, int(val))
         profile.save()
+    return redirect(request.POST.get('next') or 'macro')
+
+
+def _macro_goal_int(post, name):
+    val = post.get(name)
+    return int(val) if val and val.isdigit() else 0
+
+
+@login_required
+def set_day_macro_goal(request):
+    """Obiettivo macro per una singola giornata (override rispetto al
+    default), stesso meccanismo di set_day_water_goal per l'acqua."""
+    if request.method == 'POST':
+        kcal = request.POST.get('kcal')
+        data_str = request.POST.get('data')
+        if kcal and kcal.isdigit() and int(kcal) > 0 and data_str:
+            try:
+                data = date.fromisoformat(data_str)
+            except ValueError:
+                data = None
+            if data:
+                MacroGoal.objects.update_or_create(
+                    utente=request.user, data=data,
+                    defaults={
+                        'kcal': int(kcal),
+                        'proteine_g': _macro_goal_int(request.POST, 'proteine_g'),
+                        'carboidrati_g': _macro_goal_int(request.POST, 'carboidrati_g'),
+                        'grassi_g': _macro_goal_int(request.POST, 'grassi_g'),
+                    },
+                )
     return redirect(request.POST.get('next') or 'macro')

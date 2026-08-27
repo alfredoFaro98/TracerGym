@@ -143,6 +143,24 @@ class MacroEntry(models.Model):
         return f"{self.utente.username} - {self.kcal}kcal ({self.data})"
 
 
+class MacroGoal(models.Model):
+    # Obiettivo macro specifico per una giornata (override rispetto al
+    # default su UserProfile), stessa idea di WaterGoal per l'acqua.
+    utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='macro_goals')
+    data = models.DateField(default=timezone.now)
+    kcal = models.PositiveIntegerField()
+    proteine_g = models.PositiveIntegerField(default=0)
+    carboidrati_g = models.PositiveIntegerField(default=0)
+    grassi_g = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['-data']
+        unique_together = ('utente', 'data')
+
+    def __str__(self):
+        return f"{self.utente.username} - {self.data} - {self.kcal}kcal"
+
+
 class BodyMetric(models.Model):
     # Misurazioni corporee dell'utente per una data giornata (una sola voce per giorno)
     utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='body_metrics')

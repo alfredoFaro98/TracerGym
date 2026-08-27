@@ -62,25 +62,26 @@
     <!-- Obiettivi (nascosto) -->
     <div id="goal-form" style="display: none; margin-bottom: 24px;">
         <div class="tracer-card" style="padding: 18px 20px;">
-            <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 12px;">Obiettivi giornalieri</div>
+            <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 2px;">Obiettivi di default</div>
+            <div style="font-size: 11.5px; color: #7d8296; margin-bottom: 12px;">Valgono per ogni giorno, a meno che tu non imposti un obiettivo diverso per una giornata specifica (🎯 accanto alla data nello storico).</div>
             <form action="{% url 'set_macro_goal' %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{% url 'macro' %}">
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">KCAL</span>
-                    <input type="number" name="obiettivo_kcal" value="{{ goals.kcal }}" min="1" class="tracer-input" style="width: 110px;">
+                    <input type="number" name="obiettivo_kcal" value="{{ default_goals.kcal }}" min="1" class="tracer-input" style="width: 110px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">PROTEINE (G)</span>
-                    <input type="number" id="goal-proteine-input" name="obiettivo_proteine_g" value="{{ goals.proteine_g }}" min="1" class="tracer-input" style="width: 100px;">
+                    <input type="number" id="goal-proteine-input" name="obiettivo_proteine_g" value="{{ default_goals.proteine_g }}" min="1" class="tracer-input" style="width: 100px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">CARBOIDRATI (G)</span>
-                    <input type="number" name="obiettivo_carboidrati_g" value="{{ goals.carboidrati_g }}" min="1" class="tracer-input" style="width: 100px;">
+                    <input type="number" name="obiettivo_carboidrati_g" value="{{ default_goals.carboidrati_g }}" min="1" class="tracer-input" style="width: 100px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">GRASSI (G)</span>
-                    <input type="number" name="obiettivo_grassi_g" value="{{ goals.grassi_g }}" min="1" class="tracer-input" style="width: 100px;">
+                    <input type="number" name="obiettivo_grassi_g" value="{{ default_goals.grassi_g }}" min="1" class="tracer-input" style="width: 100px;">
                 </div>
                 {% if ultimo_peso %}
                 <button type="button" onclick="suggestProtein()" style="padding: 10px 14px; font-size: 12.5px; font-weight: 600; background: rgba(240,168,117,0.12); border: 1px solid rgba(240,168,117,0.25); border-radius: 8px; color: #f0a875; cursor: pointer; white-space: nowrap;">Suggerisci da peso corporeo</button>
@@ -170,14 +171,30 @@
                     <span style="font-size: 11.5px; color: #7d8296;">{{ day.entries|length }} voc{{ day.entries|length|pluralize:"e,i" }}</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                    <span style="background: rgba(124,108,246,0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;">{{ day.totals.kcal }} <span style="color: #8f96b8; font-weight: 500;">/ {{ goals.kcal }} kcal</span></span>
+                    <span style="background: rgba(124,108,246,0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;">{{ day.totals.kcal }} <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goals.kcal }} kcal</span></span>
                     <span style="font-size: 11px; color: #9ba0b3; white-space: nowrap;">P {{ day.totals.proteine_g|floatformat:"-1" }}g · C {{ day.totals.carboidrati_g|floatformat:"-1" }}g · G {{ day.totals.grassi_g|floatformat:"-1" }}g</span>
                     {% if day.reached %}
                     <span title="Obiettivo raggiunto" style="color: #4ade80; font-size: 15px; font-weight: 700;">✓</span>
                     {% else %}
                     <span title="Obiettivo non raggiunto" style="color: #f87171; font-size: 13px; font-weight: 700;">✕</span>
                     {% endif %}
+                    <span onclick="event.stopPropagation(); toggleDayGoalForm('{{ day_key }}')" title="Imposta obiettivo di questo giorno" style="cursor: pointer; font-size: 14px; padding: 4px; border-radius: 6px; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">🎯</span>
                 </div>
+            </div>
+
+            <div id="day-goal-form-{{ day_key }}" style="display: none; margin-top: 10px;" onclick="event.stopPropagation();">
+                <form action="{% url 'set_day_macro_goal' %}" method="post" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                    {% csrf_token %}
+                    <input type="hidden" name="data" value="{{ day_key }}">
+                    <input type="hidden" name="next" value="{% url 'macro' %}">
+                    <span style="font-size: 11px; color: #7d8296;">Obiettivo di questo giorno:</span>
+                    <input type="number" name="kcal" value="{{ day.goals.kcal }}" min="1" placeholder="kcal" class="tracer-input" style="width: 90px; padding: 7px 9px; font-size: 12px;">
+                    <input type="number" name="proteine_g" value="{{ day.goals.proteine_g }}" min="0" placeholder="prot. g" class="tracer-input" style="width: 80px; padding: 7px 9px; font-size: 12px;">
+                    <input type="number" name="carboidrati_g" value="{{ day.goals.carboidrati_g }}" min="0" placeholder="carb. g" class="tracer-input" style="width: 80px; padding: 7px 9px; font-size: 12px;">
+                    <input type="number" name="grassi_g" value="{{ day.goals.grassi_g }}" min="0" placeholder="grassi g" class="tracer-input" style="width: 80px; padding: 7px 9px; font-size: 12px;">
+                    <button type="submit" class="btn-primary-gradient" style="padding: 7px 14px; font-size: 12px;">Salva</button>
+                    <button type="button" onclick="toggleDayGoalForm('{{ day_key }}')" style="padding: 7px 12px; font-size: 12px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #787890; cursor: pointer;">Annulla</button>
+                </form>
             </div>
 
             <div id="day-body-{{ day_key }}" style="display: none; flex-direction: column; gap: 6px; margin-top: 12px;">
@@ -326,6 +343,10 @@ function toggleDay(dayKey) {
     var visible = body.style.display === 'flex';
     body.style.display = visible ? 'none' : 'flex';
     if (chevron) chevron.style.transform = visible ? 'rotate(0deg)' : 'rotate(90deg)';
+}
+function toggleDayGoalForm(dayKey) {
+    var el = document.getElementById('day-goal-form-' + dayKey);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 function toggleMacroEdit(id) {
     var view = document.getElementById('macro-view-' + id);
