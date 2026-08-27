@@ -25,6 +25,7 @@ in_circuit: True per le serie dentro un circuito (niente checkbox di selezione,
             {% if set.weight %} × <b>{{ set.weight }}</b> kg{% endif %}{% if set.barra_kg %} <span style="font-size: 11px; color: #a0c878;">+{{ set.barra_kg }} sbarra</span>{% endif %}{% if set.per_lato %} <span style="font-size: 11.5px; font-weight: 600; color: #f0a875;">/ lato</span>{% endif %}
         {% endif %}
         {% if set.rest_time %} · {{ set.rest_time }}s{% endif %}
+        {% if set.carrucole %} · <span style="font-size: 11px; color: #6a9fd8;">{{ set.carrucole }} carrucol{{ set.carrucole|pluralize:"a,e" }}</span>{% endif %}
         </span>
         <div style="flex: 1;"></div>
         <span onclick="toggleEditRow('{{ set.id }}')" style="font-size: 12px; font-weight: 600; color: #a996ff; padding: 6px 12px; border-radius: 7px; background: rgba(124,108,246,0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(124,108,246,0.22)'" onmouseout="this.style.background='rgba(124,108,246,0.12)'">Modifica</span>
@@ -85,6 +86,16 @@ in_circuit: True per le serie dentro un circuito (niente checkbox di selezione,
                 <div style="display: flex; flex-direction: column; gap: 5px;">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">SBARRA (KG)</span>
                     <input type="number" step="any" name="barra_kg" id="barra-input-{{ set.id }}" value="{{ set.barra_kg|default_if_none:''|stringformat:'s' }}" class="tracer-input" style="width: 70px;" min="0">
+                </div>
+            </div>
+            <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;" onclick="toggleCarrucoleEdit(event, '{{ set.id }}')">
+                <input type="checkbox" id="carrucole-check-{{ set.id }}" {% if set.carrucole %}checked{% endif %} style="width: 13px; height: 13px; accent-color: #7c6cf6; cursor: pointer;">
+                <span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">+Carrucole</span>
+            </label>
+            <div id="carrucole-wrap-{{ set.id }}" data-carrucole-show="{% if set.carrucole %}1{% else %}0{% endif %}" style="display:none; align-items: flex-end; gap: 6px;">
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">CARRUCOLE</span>
+                    <input type="number" step="1" name="carrucole" id="carrucole-input-{{ set.id }}" value="{{ set.carrucole|default_if_none:''|stringformat:'s' }}" class="tracer-input" style="width: 60px;" min="0">
                 </div>
             </div>
             <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>

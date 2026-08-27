@@ -31,16 +31,6 @@ def _record_site_visit():
         SiteVisit.objects.get_or_create(data=today, defaults={'conteggio': 1})
 
 
-def _parse_carrucole(request):
-    """Numero di carrucole per un esercizio, solo se la checkbox è flaggata."""
-    if request.POST.get('has_carrucole') != 'on':
-        return None
-    try:
-        return int(request.POST.get('carrucole', ''))
-    except ValueError:
-        return None
-
-
 def _validate_exercise_image(image_file, exercise=None):
     """None se ok, altrimenti il messaggio d'errore da mostrare all'utente.
     Un esercizio può avere una sola immagine: se `exercise` ne ha già una,
@@ -345,6 +335,7 @@ def weekly_sessions_data(request):
         if ws.durata: entry['durata'] = ws.durata
         if ws.a_cedimento: entry['a_cedimento'] = True
         if ws.barra_kg is not None: entry['barra_kg'] = float(ws.barra_kg)
+        if ws.carrucole: entry['carrucole'] = ws.carrucole
         if ws.per_lato: entry['per_lato'] = True
         if ws.rest_time: entry['rest_time'] = ws.rest_time
         return entry
@@ -420,6 +411,7 @@ def session_detail(request, session_id):
         a_cedimento = request.POST.get('a_cedimento') == 'on'
         richiamo = request.POST.get('richiamo') == 'on'
         barra_kg = request.POST.get('barra_kg') or None
+        carrucole = request.POST.get('carrucole') or None
         circuit_id = request.POST.get('circuit_id') or None
         add_default_warmup = request.POST.get('aggiungi_avviamento_default') == 'on'
 
@@ -495,6 +487,7 @@ def session_detail(request, session_id):
                 a_cedimento=False,
                 richiamo=False,
                 barra_kg=barra_kg,
+                carrucole=carrucole,
                 circuit=circuit,
             )
         base_order += extra_warmup
@@ -513,6 +506,7 @@ def session_detail(request, session_id):
                 a_cedimento=a_cedimento,
                 richiamo=richiamo,
                 barra_kg=barra_kg,
+                carrucole=carrucole,
                 circuit=circuit,
             )
         url = reverse('session_detail', kwargs={'session_id': session.id})
@@ -616,7 +610,7 @@ def import_circuit(request, session_id):
                     reps=s.reps, durata=s.durata, weight=s.weight,
                     rest_time=s.rest_time, per_lato=s.per_lato,
                     avviamento=s.avviamento, a_cedimento=s.a_cedimento,
-                    richiamo=s.richiamo, barra_kg=s.barra_kg,
+                    richiamo=s.richiamo, barra_kg=s.barra_kg, carrucole=s.carrucole,
                     order=base_order + i,
                 )
             url = reverse('session_detail', kwargs={'session_id': session_id})
@@ -713,6 +707,7 @@ def duplicate_set(request, set_id):
             a_cedimento=original.a_cedimento,
             richiamo=original.richiamo,
             barra_kg=original.barra_kg,
+            carrucole=original.carrucole,
             order=original.order + 1,
             circuit=original.circuit,
         )
@@ -740,6 +735,7 @@ def edit_set(request, set_id):
         workout_set.a_cedimento = request.POST.get('a_cedimento') == 'on'
         workout_set.richiamo = request.POST.get('richiamo') == 'on'
         workout_set.barra_kg = request.POST.get('barra_kg') or None
+        workout_set.carrucole = request.POST.get('carrucole') or None
         workout_set.save()
     return JsonResponse({'ok': True, 'html': _render_set_row(request, workout_set)})
 
@@ -766,7 +762,7 @@ def duplicate_session(request, session_id):
                 rest_time=s.rest_time, per_lato=s.per_lato,
                 avviamento=s.avviamento, a_cedimento=s.a_cedimento,
                 richiamo=s.richiamo,
-                barra_kg=s.barra_kg, order=s.order,
+                barra_kg=s.barra_kg, carrucole=s.carrucole, order=s.order,
             )
         for c in original.circuits.order_by('order', 'id'):
             new_circuit = Circuit.objects.create(
@@ -780,7 +776,7 @@ def duplicate_session(request, session_id):
                     rest_time=s.rest_time, per_lato=s.per_lato,
                     avviamento=s.avviamento, a_cedimento=s.a_cedimento,
                     richiamo=s.richiamo,
-                    barra_kg=s.barra_kg, order=s.order, circuit=new_circuit,
+                    barra_kg=s.barra_kg, carrucole=s.carrucole, order=s.order, circuit=new_circuit,
                 )
         return redirect('session_detail', session_id=new_session.id)
     return redirect('session_detail', session_id=session_id)
@@ -948,6 +944,7 @@ def _export_set_dict(s):
         'a_cedimento': s.a_cedimento,
         'richiamo': s.richiamo,
         'barra_kg': float(s.barra_kg) if s.barra_kg is not None else None,
+        'carrucole': s.carrucole,
         'durata': s.durata,
         'order': s.order,
     }
@@ -1003,6 +1000,7 @@ def _import_set_kwargs(s):
         a_cedimento=bool(s.get('a_cedimento', False)),
         richiamo=bool(s.get('richiamo', False)),
         barra_kg=s.get('barra_kg'),
+        carrucole=s.get('carrucole'),
         durata=s.get('durata'),
     )
 
@@ -1149,7 +1147,7 @@ def add_exercise(request):
             size_error = _validate_exercise_image(image_file)
             if size_error:
                 return redirect(f'{next_url}{separator}{urlencode({"error": size_error})}')
-            exercise = Exercise.objects.create(nome=nome, tipologia=tipologia, carrucole=_parse_carrucole(request))
+            exercise = Exercise.objects.create(nome=nome, tipologia=tipologia)
             if tag_ids:
                 exercise.tags.set(tag_ids)
             if image_file:
@@ -1179,7 +1177,7 @@ def add_exercise_ajax(request):
     if size_error:
         return JsonResponse({'error': size_error}, status=400)
 
-    exercise = Exercise.objects.create(nome=nome, tipologia=tipologia, carrucole=_parse_carrucole(request))
+    exercise = Exercise.objects.create(nome=nome, tipologia=tipologia)
     if tag_ids:
         exercise.tags.set(tag_ids)
     if image_file:
@@ -1205,7 +1203,6 @@ def edit_exercise_admin(request, exercise_id):
         if nome:
             exercise.nome = nome
         exercise.tipologia = tipologia
-        exercise.carrucole = _parse_carrucole(request)
         exercise.save()
         exercise.tags.set(tag_ids)
         if image_file:
@@ -1533,7 +1530,7 @@ def import_session_from_user(request, username, session_id):
             reps=s.reps, durata=s.durata, weight=scaled_weight(s.weight),
             rest_time=s.rest_time, per_lato=s.per_lato,
             avviamento=s.avviamento, a_cedimento=s.a_cedimento, richiamo=s.richiamo,
-            barra_kg=s.barra_kg, order=s.order,
+            barra_kg=s.barra_kg, carrucole=s.carrucole, order=s.order,
         )
     for c in original.circuits.order_by('order', 'id'):
         new_circuit = Circuit.objects.create(
@@ -1546,7 +1543,7 @@ def import_session_from_user(request, username, session_id):
                 reps=s.reps, durata=s.durata, weight=scaled_weight(s.weight),
                 rest_time=s.rest_time, per_lato=s.per_lato,
                 avviamento=s.avviamento, a_cedimento=s.a_cedimento, richiamo=s.richiamo,
-                barra_kg=s.barra_kg, order=s.order, circuit=new_circuit,
+                barra_kg=s.barra_kg, carrucole=s.carrucole, order=s.order, circuit=new_circuit,
             )
 
     return redirect('session_detail', session_id=new_session.id)

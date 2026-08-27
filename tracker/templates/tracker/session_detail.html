@@ -173,6 +173,15 @@
                     <input type="number" step="any" name="barra_kg" id="barra-input-add" class="tracer-input" placeholder="20" min="0" style="width: 80px;">
                 </div>
 
+                <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;" onclick="toggleCarrucoleAdd(event)" title="Numero di carrucole della macchina in questa palestra (puo' cambiare da palestra a palestra).">
+                    <input type="checkbox" id="carrucole-check-add" style="width: 15px; height: 15px; accent-color: #7c6cf6; cursor: pointer;">
+                    <span style="font-size: 12.5px; color: #c7cbd6;">+Carrucole</span>
+                </label>
+                <div id="carrucole-wrap-add" style="display:none;">
+                    <span style="display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296; margin-bottom: 6px;">CARRUCOLE</span>
+                    <input type="number" step="1" name="carrucole" id="carrucole-input-add" class="tracer-input" placeholder="2" min="0" style="width: 80px;">
+                </div>
+
                 <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;" title="Inserisce automaticamente una serie di avviamento in più, prima di queste. Il peso viene proposto a metà di quello inserito sopra, ma puoi modificarlo.">
                     <input type="checkbox" name="aggiungi_avviamento_default" id="warmup-check" style="width: 15px; height: 15px; accent-color: #7c6cf6; flex-shrink: 0; cursor: pointer;">
                     <span style="font-size: 12.5px; color: #c7cbd6;">+ Avviamento automatico (metà peso)</span>
@@ -414,15 +423,6 @@
                         <span style="font-size: 11px; color: #c7cbd6;">{{ tag.nome }}</span>
                     </label>
                     {% endfor %}
-                </div>
-            </div>
-            <div>
-                <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;">
-                    <input type="checkbox" id="new-ex-carrucole-check" style="width: 15px; height: 15px; accent-color: #7c6cf6; cursor: pointer;">
-                    <span style="font-size: 12.5px; color: #c7cbd6;">Carrucole</span>
-                </label>
-                <div id="new-ex-carrucole-wrap" style="display:none; margin-top: 8px;">
-                    <input type="number" id="new-ex-carrucole" class="tracer-input" min="0" step="1" placeholder="Numero di carrucole" style="width: 140px;">
                 </div>
             </div>
             <div>
@@ -749,6 +749,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('[data-barra-show="1"]').forEach(function(el) {
         el.style.display = 'flex';
     });
+    document.querySelectorAll('[data-carrucole-show="1"]').forEach(function(el) {
+        el.style.display = 'flex';
+    });
 
     // La striscia sopra puo' arrivare gia' tutta espansa (stato ricordato da
     // una modifica/duplica precedente, o dal link ?open=): la label del
@@ -869,6 +872,15 @@ function toggleBarraAdd(e) {
     if (cb.checked && !input.value) input.value = '20';
     else if (!cb.checked) input.value = '';
 }
+function toggleCarrucoleAdd(e) {
+    e.preventDefault();
+    var cb = document.getElementById('carrucole-check-add');
+    cb.checked = !cb.checked;
+    var wrap = document.getElementById('carrucole-wrap-add');
+    var input = document.getElementById('carrucole-input-add');
+    wrap.style.display = cb.checked ? 'block' : 'none';
+    if (!cb.checked) input.value = '';
+}
 (function() {
     var warmupCheck = document.getElementById('warmup-check');
     var warmupWrap = document.getElementById('warmup-preview-wrap');
@@ -903,6 +915,15 @@ function toggleBarraEdit(e, id) {
     wrap.style.display = cb.checked ? 'flex' : 'none';
     if (cb.checked && !input.value) input.value = '20';
     else if (!cb.checked) input.value = '';
+}
+function toggleCarrucoleEdit(e, id) {
+    e.preventDefault();
+    var cb = document.getElementById('carrucole-check-' + id);
+    cb.checked = !cb.checked;
+    var wrap = document.getElementById('carrucole-wrap-' + id);
+    var input = document.getElementById('carrucole-input-' + id);
+    wrap.style.display = cb.checked ? 'flex' : 'none';
+    if (!cb.checked) input.value = '';
 }
 // --- Autocomplete esercizi ---
 (function() {
@@ -1253,6 +1274,8 @@ function toggleBarraEdit(e, id) {
         if (exInput && window.__attachExerciseAutocomplete) window.__attachExerciseAutocomplete(exInput);
         var barraWrap = wrapEl.querySelector('[data-barra-show="1"]');
         if (barraWrap) barraWrap.style.display = 'flex';
+        var carrucoleWrap = wrapEl.querySelector('[data-carrucole-show="1"]');
+        if (carrucoleWrap) carrucoleWrap.style.display = 'flex';
     }
 
     function updateCountBadge(groupEl, delta) {
@@ -1446,19 +1469,11 @@ if (new URLSearchParams(window.location.search).get('pdf') === '1') {
     var tipologiaInput = document.getElementById('new-ex-tipologia');
     var errorBox = document.getElementById('new-ex-error');
     var submitBtn = document.getElementById('new-ex-submit');
-    var carrucoleCheck = document.getElementById('new-ex-carrucole-check');
-    var carrucoleWrap = document.getElementById('new-ex-carrucole-wrap');
-    var carrucoleInput = document.getElementById('new-ex-carrucole');
     var immagineInput = document.getElementById('new-ex-immagine');
     var immaginePreview = document.getElementById('new-ex-immagine-preview');
     var immagineError = document.getElementById('new-ex-immagine-error');
     var MAX_IMAGE_BYTES = {{ max_image_mb }} * 1024 * 1024;
     var newExTarget = null; // input "ESERCIZIO" da riempire dopo la creazione
-
-    carrucoleCheck.addEventListener('change', function() {
-        carrucoleWrap.style.display = carrucoleCheck.checked ? 'block' : 'none';
-        if (!carrucoleCheck.checked) carrucoleInput.value = '';
-    });
 
     immagineInput.addEventListener('change', function() {
         immagineError.style.display = 'none';
@@ -1480,8 +1495,6 @@ if (new URLSearchParams(window.location.search).get('pdf') === '1') {
         nomeInput.value = newExTarget ? newExTarget.value.trim() : '';
         tipologiaInput.value = '';
         modal.querySelectorAll('input[type=checkbox]').forEach(function(cb) { cb.checked = false; });
-        carrucoleWrap.style.display = 'none';
-        carrucoleInput.value = '';
         immagineInput.value = '';
         immaginePreview.style.display = 'none';
         immagineError.style.display = 'none';
@@ -1505,10 +1518,6 @@ if (new URLSearchParams(window.location.search).get('pdf') === '1') {
         body.set('nome', nome);
         body.set('tipologia', tipologiaInput.value.trim());
         tagIds.forEach(function(id) { body.append('tags', id); });
-        if (carrucoleCheck.checked) {
-            body.set('has_carrucole', 'on');
-            body.set('carrucole', carrucoleInput.value.trim());
-        }
         if (immagineInput.files[0]) {
             body.set('immagine', immagineInput.files[0]);
         }
