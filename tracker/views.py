@@ -168,14 +168,16 @@ def dashboard(request):
     now = timezone.now()
     this_month_sessions = all_sessions.filter(data__year=now.year, data__month=now.month).count()
 
-    exercises_qs = Exercise.objects.prefetch_related('tags').order_by('nome')
+    exercises_qs = Exercise.objects.prefetch_related('tags', 'images').order_by('nome')
     exercises_data = []
     for ex in exercises_qs:
+        images = list(ex.images.all())
         exercises_data.append({
             'id': ex.id,
             'nome': ex.nome,
             'tipologia': ex.tipologia or '',
             'tags': [t.nome.lower() for t in ex.tags.all()],
+            'image_url': images[0].immagine.url if images else None,
         })
     
     last_set = (

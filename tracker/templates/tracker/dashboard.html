@@ -323,6 +323,10 @@
                 <input type="text" id="wc-input" placeholder="Cerca esercizio…"
                        class="tracer-input" style="padding: 5px 10px; height: 30px; font-size: 12px; width: 100%; border-radius: 6px;" autocomplete="off">
                 <div id="wc-dropdown" style="display:none; position:absolute; top:calc(100% + 3px); left:0; right:0; background:#13131e; border:1px solid #1c1c2c; border-radius:6px; z-index:200; max-height:180px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,.5);"></div>
+                <div id="wc-preview" style="display:none; position:fixed; z-index:10000; width:168px; background:#17171f; border:1px solid rgba(255,255,255,0.1); border-radius:12px; box-shadow:0 16px 36px rgba(0,0,0,0.5); padding:10px; flex-direction:column; gap:8px; box-sizing:border-box;">
+                    <img style="width:100%; height:120px; object-fit:cover; border-radius:8px; display:block;">
+                    <span style="font-size:11.5px; font-weight:700; color:#fff; line-height:1.3;"></span>
+                </div>
             </div>
         </div>
         <div id="wc-body" style="padding: 16px 20px; display: flex; align-items: center; justify-content: center; min-height: 80px;">
@@ -849,15 +853,39 @@
     var chartInst  = null;
     var fetchTimer = null;
 
+    var preview    = document.getElementById('wc-preview');
+    var previewImg = preview.querySelector('img');
+    var previewName = preview.querySelector('span');
+
+    function showPreview(item, anchorEl) {
+        if (!item || !item.image_url) { hidePreview(); return; }
+        previewImg.src = item.image_url;
+        previewName.textContent = item.nome;
+        var r = anchorEl.getBoundingClientRect();
+        var left = r.right + 12;
+        if (left + 168 > window.innerWidth) left = r.left - 168 - 12;
+        preview.style.top = r.top + 'px';
+        preview.style.left = Math.max(4, left) + 'px';
+        preview.style.display = 'flex';
+    }
+    function hidePreview() { preview.style.display = 'none'; }
+
     /* --- dropdown --- */
     function showDropdown(q) {
         var results = q
             ? EXERCISES.filter(function(e) { return e.nome.toLowerCase().indexOf(q.toLowerCase()) !== -1; }).slice(0, 10)
             : [];
-        if (!results.length) { dropdown.style.display = 'none'; return; }
-        dropdown.innerHTML = results.map(function(e) {
-            return '<div data-name="' + e.nome.replace(/"/g, '&quot;') + '" style="padding:8px 12px; font-size:12.5px; color:#f0f0f3; cursor:pointer; border-bottom:1px solid #1c1c2c;" onmouseover="this.style.background=\'rgba(124,108,246,.12)\'" onmouseout="this.style.background=\'transparent\'">' + e.nome + '</div>';
-        }).join('');
+        if (!results.length) { dropdown.style.display = 'none'; hidePreview(); return; }
+        dropdown.innerHTML = '';
+        results.forEach(function(e) {
+            var el = document.createElement('div');
+            el.dataset.name = e.nome;
+            el.style.cssText = 'padding:8px 12px; font-size:12.5px; color:#f0f0f3; cursor:pointer; border-bottom:1px solid #1c1c2c;';
+            el.textContent = e.nome;
+            el.addEventListener('mouseover', function() { el.style.background = 'rgba(124,108,246,.12)'; showPreview(e, el); });
+            el.addEventListener('mouseout', function() { el.style.background = 'transparent'; hidePreview(); });
+            dropdown.appendChild(el);
+        });
         dropdown.style.display = 'block';
     }
 
@@ -866,6 +894,7 @@
         if (!item) return;
         input.value = item.dataset.name;
         dropdown.style.display = 'none';
+        hidePreview();
         loadChart(item.dataset.name);
     });
 
@@ -876,7 +905,7 @@
     });
 
     input.addEventListener('blur', function() {
-        setTimeout(function() { dropdown.style.display = 'none'; }, 150);
+        setTimeout(function() { dropdown.style.display = 'none'; hidePreview(); }, 150);
     });
 
     input.addEventListener('keydown', function(e) {
