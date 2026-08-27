@@ -35,7 +35,7 @@
                     <span style="color: #9ba0b3;">{{ today_totals.proteine_g|floatformat:"-1" }} / {{ goals.proteine_g }} g</span>
                 </div>
                 <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
-                    <div style="height: 100%; width: {{ today_progress.proteine_g }}%; background: #f0a875; border-radius: 4px; transition: width .3s;"></div>
+                    <div style="height: 100%; width: {{ today_progress.proteine_g }}%; background: #6a9fd8; border-radius: 4px; transition: width .3s;"></div>
                 </div>
             </div>
             <div>
@@ -44,7 +44,7 @@
                     <span style="color: #9ba0b3;">{{ today_totals.carboidrati_g|floatformat:"-1" }} / {{ goals.carboidrati_g }} g</span>
                 </div>
                 <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
-                    <div style="height: 100%; width: {{ today_progress.carboidrati_g }}%; background: #6a9fd8; border-radius: 4px; transition: width .3s;"></div>
+                    <div style="height: 100%; width: {{ today_progress.carboidrati_g }}%; background: #4ade80; border-radius: 4px; transition: width .3s;"></div>
                 </div>
             </div>
             <div>
@@ -53,7 +53,7 @@
                     <span style="color: #9ba0b3;">{{ today_totals.grassi_g|floatformat:"-1" }} / {{ goals.grassi_g }} g</span>
                 </div>
                 <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
-                    <div style="height: 100%; width: {{ today_progress.grassi_g }}%; background: #4ade80; border-radius: 4px; transition: width .3s;"></div>
+                    <div style="height: 100%; width: {{ today_progress.grassi_g }}%; background: #f0a875; border-radius: 4px; transition: width .3s;"></div>
                 </div>
             </div>
         </div>
@@ -84,7 +84,7 @@
                     <input type="number" name="obiettivo_grassi_g" value="{{ default_goals.grassi_g }}" min="1" class="tracer-input" style="width: 100px;">
                 </div>
                 {% if ultimo_peso %}
-                <button type="button" onclick="suggestProtein()" style="padding: 10px 14px; font-size: 12.5px; font-weight: 600; background: rgba(240,168,117,0.12); border: 1px solid rgba(240,168,117,0.25); border-radius: 8px; color: #f0a875; cursor: pointer; white-space: nowrap;">Suggerisci da peso corporeo</button>
+                <button type="button" onclick="suggestProtein()" style="padding: 10px 14px; font-size: 12.5px; font-weight: 600; background: rgba(106,159,216,0.12); border: 1px solid rgba(106,159,216,0.25); border-radius: 8px; color: #6a9fd8; cursor: pointer; white-space: nowrap;">Suggerisci da peso corporeo</button>
                 {% endif %}
                 <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13px;">Salva</button>
                 <button type="button" onclick="toggleGoalForm()" style="padding: 10px 16px; font-size: 13px; background: transparent; border: 1px solid #1c1c2c; border-radius: 8px; color: #787890; cursor: pointer;">Annulla</button>
@@ -214,9 +214,9 @@
                 <div>
                     <div id="macro-view-{{ e.id }}" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.05); border-radius: 9px; padding: 9px 14px; flex-wrap: wrap;">
                         <span style="font-size: 13.5px; color: #ffffff;"><b>{{ e.kcal }}</b> kcal</span>
-                        {% if e.proteine_g %}<span style="font-size: 12px; color: #f0a875;">P {{ e.proteine_g|floatformat:"-1" }}g</span>{% endif %}
-                        {% if e.carboidrati_g %}<span style="font-size: 12px; color: #6a9fd8;">C {{ e.carboidrati_g|floatformat:"-1" }}g</span>{% endif %}
-                        {% if e.grassi_g %}<span style="font-size: 12px; color: #4ade80;">G {{ e.grassi_g|floatformat:"-1" }}g</span>{% endif %}
+                        {% if e.proteine_g %}<span style="font-size: 12px; color: #6a9fd8;">P {{ e.proteine_g|floatformat:"-1" }}g</span>{% endif %}
+                        {% if e.carboidrati_g %}<span style="font-size: 12px; color: #4ade80;">C {{ e.carboidrati_g|floatformat:"-1" }}g</span>{% endif %}
+                        {% if e.grassi_g %}<span style="font-size: 12px; color: #f0a875;">G {{ e.grassi_g|floatformat:"-1" }}g</span>{% endif %}
                         <span style="font-size: 12px; color: #7d8296;">{{ e.creato_il|date:"H:i" }}</span>
                         {% if e.nota %}<span style="font-size: 12px; color: #9ba0b3; font-style: italic;">📝 {{ e.nota }}</span>{% endif %}
                         <div style="flex: 1;"></div>
@@ -372,7 +372,7 @@ function toggleMacroEdit(id) {
     var CHART_DATA = {{ chart_data_json|safe }};
     var UNITS = { kcal: 'kcal', proteine_g: 'g', carboidrati_g: 'g', grassi_g: 'g' };
     var LABELS = { kcal: 'Kcal', proteine_g: 'Proteine', carboidrati_g: 'Carboidrati', grassi_g: 'Grassi' };
-    var COLORS = { kcal: '#8b7bf7', proteine_g: '#f0a875', carboidrati_g: '#6a9fd8', grassi_g: '#4ade80' };
+    var COLORS = { kcal: '#8b7bf7', proteine_g: '#6a9fd8', carboidrati_g: '#4ade80', grassi_g: '#f0a875' };
     var placeholder = document.getElementById('metric-placeholder');
     var chartWrap = document.getElementById('metric-chart-wrap');
     var canvas = document.getElementById('metric-canvas');
