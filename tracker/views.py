@@ -2101,6 +2101,7 @@ def add_macro_entry(request):
                 proteine_g=_macro_int(request.POST, 'proteine_g'),
                 carboidrati_g=_macro_int(request.POST, 'carboidrati_g'),
                 grassi_g=_macro_int(request.POST, 'grassi_g'),
+                nota=(request.POST.get('nota') or '').strip()[:100],
                 data=entry_data,
                 creato_il=creato_il,
             )
@@ -2127,6 +2128,7 @@ def edit_macro_entry(request, entry_id):
         entry.proteine_g = _macro_int(request.POST, 'proteine_g')
         entry.carboidrati_g = _macro_int(request.POST, 'carboidrati_g')
         entry.grassi_g = _macro_int(request.POST, 'grassi_g')
+        entry.nota = (request.POST.get('nota') or '').strip()[:100]
         if data_str:
             try:
                 entry.data = date.fromisoformat(data_str)

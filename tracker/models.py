@@ -132,6 +132,7 @@ class MacroEntry(models.Model):
     proteine_g = models.PositiveIntegerField(default=0)
     carboidrati_g = models.PositiveIntegerField(default=0)
     grassi_g = models.PositiveIntegerField(default=0)
+    nota = models.CharField(max_length=100, blank=True, default='')
     data = models.DateField(default=timezone.now)
     creato_il = models.DateTimeField(default=timezone.now)
 
