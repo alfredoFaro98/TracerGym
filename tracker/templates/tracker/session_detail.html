@@ -210,6 +210,12 @@
                     <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
                         <span style="font-size: 12.5px; color: #7d8296; white-space: nowrap;">{{ exercise_groups|length }} esercizi · {{ session.sets.count }} serie</span>
                         <button id="toggle-all-btn" data-count="{{ exercise_groups|length }}" onclick="toggleAllGroups(this)" style="padding: 0; background: transparent; border: none; color: #a996ff; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: color .12s; white-space: nowrap;" onmouseover="this.style.color='#c2b6ff'" onmouseout="this.style.color='#a996ff'">Espandi tutto</button>
+                        <button id="edit-all-btn" onclick="startEditAll()" style="padding: 0; background: transparent; border: none; color: #a996ff; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: color .12s; white-space: nowrap;" onmouseover="this.style.color='#c2b6ff'" onmouseout="this.style.color='#a996ff'">Modifica tutto</button>
+                        <span id="edit-all-actions" style="display: none; align-items: center; gap: 10px;">
+                            <span id="edit-all-status" style="font-size: 12px; color: #7d8296; white-space: nowrap;"></span>
+                            <button type="button" onclick="saveAllRows()" style="padding: 5px 12px; font-size: 12.5px; font-weight: 600; background: rgba(74,222,128,0.14); border: none; border-radius: 7px; color: #4ade80; cursor: pointer; white-space: nowrap;">Salva tutto</button>
+                            <button type="button" onclick="cancelEditAll()" style="padding: 5px 12px; font-size: 12.5px; font-weight: 600; background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; color: #c7cbd6; cursor: pointer; white-space: nowrap;">Annulla tutto</button>
+                        </span>
                     </div>
                 </div>
 
@@ -1283,6 +1289,116 @@ function toggleBarraEdit(e, id) {
                 alert('Si è verificato un errore, riprova.');
             });
     });
+
+    // --- Modifica in blocco: espande tutto e apre tutti i form di modifica,
+    // poi "Salva tutto" lancia in parallelo lo stesso salvataggio AJAX per
+    // riga usato per il salvataggio singolo. ---
+    function startEditAll() {
+        var toggleBtn = document.getElementById('toggle-all-btn');
+        if (toggleBtn) {
+            var count = parseInt(toggleBtn.dataset.count);
+            var openSet = getOpenSet(OPEN_EX_KEY);
+            for (var i = 1; i <= count; i++) {
+                var groupEl = document.getElementById('group-' + i);
+                if (groupEl) { groupEl.style.display = 'flex'; openSet.add(groupEl.dataset.exId); }
+            }
+            saveOpenSet(OPEN_EX_KEY, openSet);
+            toggleBtn.textContent = 'Comprimi tutto';
+        }
+
+        var circuitOpenSet = getOpenSet(OPEN_CIRCUITS_KEY);
+        document.querySelectorAll('[id^="circuit-body-"]').forEach(function(el) {
+            el.style.display = 'flex';
+            circuitOpenSet.add(el.id.replace('circuit-body-', ''));
+        });
+        saveOpenSet(OPEN_CIRCUITS_KEY, circuitOpenSet);
+
+        document.querySelectorAll('.set-row-wrap').forEach(function(wrap) {
+            var setId = wrap.dataset.setId;
+            var editRow = document.getElementById('edit-row-' + setId);
+            var dataRow = document.getElementById('row-' + setId);
+            if (editRow) editRow.style.display = 'block';
+            if (dataRow) dataRow.style.opacity = '0.5';
+            wrap.style.outline = '';
+        });
+
+        document.getElementById('edit-all-btn').style.display = 'none';
+        document.getElementById('edit-all-actions').style.display = 'flex';
+        var status = document.getElementById('edit-all-status');
+        status.textContent = '';
+        status.style.color = '#7d8296';
+    }
+
+    function exitEditAllMode() {
+        document.getElementById('edit-all-btn').style.display = 'inline';
+        document.getElementById('edit-all-actions').style.display = 'none';
+    }
+
+    function cancelEditAll() {
+        document.querySelectorAll('.set-row-wrap').forEach(function(wrap) {
+            var setId = wrap.dataset.setId;
+            var editRow = document.getElementById('edit-row-' + setId);
+            var dataRow = document.getElementById('row-' + setId);
+            if (editRow) editRow.style.display = 'none';
+            if (dataRow) dataRow.style.opacity = '1';
+            wrap.style.outline = '';
+        });
+        exitEditAllMode();
+    }
+
+    function saveAllRows() {
+        var wraps = Array.from(document.querySelectorAll('.set-row-wrap')).filter(function(wrap) {
+            var editRow = document.getElementById('edit-row-' + wrap.dataset.setId);
+            return editRow && editRow.style.display === 'block';
+        });
+        var status = document.getElementById('edit-all-status');
+        if (!wraps.length) { cancelEditAll(); return; }
+
+        var total = wraps.length, done = 0, failed = 0;
+        status.style.color = '#7d8296';
+        status.textContent = 'Salvataggio 0/' + total + '…';
+
+        wraps.forEach(function(wrap) {
+            var form = wrap.querySelector('form[data-ajax-row="edit"]');
+            if (!form) { done++; return; }
+            fetch(form.action, { method: 'POST', body: new FormData(form) })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    done++;
+                    if (data.ok) {
+                        var newWrap = htmlToElement(data.html);
+                        wrap.replaceWith(newWrap);
+                        initRow(newWrap);
+                    } else {
+                        failed++;
+                        wrap.style.outline = '2px solid #f87171';
+                    }
+                    status.textContent = 'Salvataggio ' + done + '/' + total + '…';
+                    if (done === total) finishSaveAll(failed);
+                })
+                .catch(function() {
+                    done++; failed++;
+                    wrap.style.outline = '2px solid #f87171';
+                    status.textContent = 'Salvataggio ' + done + '/' + total + '…';
+                    if (done === total) finishSaveAll(failed);
+                });
+        });
+
+        function finishSaveAll(failedCount) {
+            if (failedCount > 0) {
+                status.style.color = '#f87171';
+                status.textContent = failedCount + ' riga/e non salvata/e (bordo rosso)';
+            } else {
+                status.style.color = '#4ade80';
+                status.textContent = 'Salvato';
+                setTimeout(exitEditAllMode, 900);
+            }
+        }
+    }
+
+    window.startEditAll = startEditAll;
+    window.saveAllRows = saveAllRows;
+    window.cancelEditAll = cancelEditAll;
 })();
 
 function toggleDateEdit() {
