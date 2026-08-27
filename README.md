@@ -4,6 +4,8 @@ Un workout tracker personale, costruito un pezzo alla volta attorno a come si al
 
 Non è pensato per "gamificare" l'allenamento o inondarti di statistiche. È pensato per essere il quaderno digitale che tieni in palestra: veloce da aggiornare tra una serie e l'altra, capace di ricordare tutto quello che scrivi, e onesto sui limiti di quello che non sa ancora fare.
 
+![Login di Tracer](screenreadme/login.png)
+
 ---
 
 ## Indice
@@ -36,6 +38,8 @@ Ogni esercizio che scrivi viene raggruppato automaticamente: espandendolo vedi t
 Una sessione, oltre alle serie, può portare con sé il contorno che la rende un ricordo e non solo un log: dove ti sei allenato, a che ora, quanto è durata, il tuo peso corporeo quel giorno, il nome che le dai, e con chi.
 
 ## Funzionalità
+
+![Dashboard di Tracer](screenreadme/home.png)
 
 ### Allenamenti
 
