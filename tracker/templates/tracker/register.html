@@ -5,23 +5,23 @@
 {% block content %}
 <div style="flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; height: 100vh;">
     <!-- Sfondo radiale -->
-    <div style="position: absolute; width: 700px; height: 700px; background: radial-gradient(circle, rgba(240,136,62,.055) 0%, transparent 65%); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none;"></div>
-    
-    <div class="page-enter responsive-card-width" style="width: 360px; background: #0d0d14; border: 1px solid #1e1e2c; border-radius: 14px; padding: 32px; z-index: 1;">
+    <div style="position: absolute; width: 700px; height: 700px; background: radial-gradient(circle, color-mix(in srgb, var(--cta-1) 5.5%, transparent) 0%, transparent 65%); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none;"></div>
+
+    <div class="page-enter responsive-card-width" style="width: 360px; background: var(--surface); border: 1px solid #1e1e2c; border-radius: 14px; padding: 32px; z-index: 1;">
         
         <!-- Logo -->
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 26px;">
-            <div style="width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg, #f0883e, #c85c1a); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #fff;">T</div>
+            <div style="width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg, var(--cta-1), var(--cta-2)); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #fff;">T</div>
             <div>
-                <div style="font-size: 16px; font-weight: 700; color: #f0f0f3;">Tracer</div>
-                <div style="font-size: 9.5px; color: #f0f0f3; font-weight: 600; letter-spacing: 1px;">WORKOUT TRACKER</div>
+                <div style="font-size: 16px; font-weight: 700; color: var(--label);">Tracer</div>
+                <div style="font-size: 9.5px; color: var(--label); font-weight: 600; letter-spacing: 1px;">WORKOUT TRACKER</div>
             </div>
         </div>
 
         <!-- Mode tabs -->
-        <div style="display: flex; gap: 4px; padding: 4px; background: #09090f; border: 1px solid #17171f; border-radius: 8px; margin-bottom: 22px;">
-            <a href="{% url 'login' %}" style="flex: 1; padding: 7px; border-radius: 5px; text-align: center; background: transparent; color: #f0f0f3; font-size: 13px;">Accedi</a>
-            <div style="flex: 1; padding: 7px; border-radius: 5px; text-align: center; background: #1c1c2c; color: #f0f0f3; font-size: 13px; font-weight: 600;">Registrati</div>
+        <div style="display: flex; gap: 4px; padding: 4px; background: var(--bg-el); border: 1px solid #17171f; border-radius: 8px; margin-bottom: 22px;">
+            <a href="{% url 'login' %}" style="flex: 1; padding: 7px; border-radius: 5px; text-align: center; background: transparent; color: var(--label); font-size: 13px;">Accedi</a>
+            <div style="flex: 1; padding: 7px; border-radius: 5px; text-align: center; background: #1c1c2c; color: var(--label); font-size: 13px; font-weight: 600;">Registrati</div>
         </div>
 
         <!-- Form -->
@@ -30,10 +30,10 @@
             
             {% for field in form %}
             <div>
-                <label style="display: block; font-size: 10px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">{{ field.label }}</label>
+                <label style="display: block; font-size: 10px; font-weight: 700; color: var(--label); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">{{ field.label }}</label>
                 {{ field }}
                 {% if field.errors %}
-                <div style="font-size: 11px; color: #f85149; margin-top: 4px;">{{ field.errors.0 }}</div>
+                <div style="font-size: 11px; color: var(--red); margin-top: 4px;">{{ field.errors.0 }}</div>
                 {% endif %}
             </div>
             {% endfor %}

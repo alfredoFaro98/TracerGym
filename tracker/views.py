@@ -1563,6 +1563,31 @@ def toggle_profile_visibility(request):
     return redirect('user_profile', username=request.user.username)
 
 
+@login_required
+def impostazioni(request):
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    return render(request, 'tracker/impostazioni.html', {
+        'temi': UserProfile.TEMA_CHOICES,
+        'accents': UserProfile.ACCENT_CHOICES,
+        'tema_corrente': profile.tema,
+        'accent_corrente': profile.accent,
+    })
+
+
+@login_required
+def set_appearance(request):
+    if request.method == 'POST':
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        tema = request.POST.get('tema')
+        accent = request.POST.get('accent')
+        if tema and tema in dict(UserProfile.TEMA_CHOICES):
+            profile.tema = tema
+        if accent and accent in dict(UserProfile.ACCENT_CHOICES):
+            profile.accent = accent
+        profile.save()
+    return redirect(request.POST.get('next') or 'impostazioni')
+
+
 def _combine_water_datetime(entry_data, ora_str):
     ora = timezone.localtime().time()
     if ora_str:

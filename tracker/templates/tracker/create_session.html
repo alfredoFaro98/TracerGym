@@ -5,14 +5,14 @@
 {% block content %}
 <div class="page-container" style="display: flex;">
     <div class="responsive-card-width" style="width: 460px;">
-        <a href="{% url 'dashboard' %}" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; margin-bottom: 22px; background: transparent; border: 1px solid #1c1c2c; border-radius: 7px; color: #f0f0f3; font-size: 12px; font-weight: 500;">
+        <a href="{% url 'dashboard' %}" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; margin-bottom: 22px; background: transparent; border: 1px solid #1c1c2c; border-radius: 7px; color: var(--label); font-size: 12px; font-weight: 500;">
             ⬅ Dashboard
         </a>
 
-        <h1 style="font-size: 21px; font-weight: 700; color: #f0f0f3; letter-spacing: -0.4px; margin-bottom: 4px;">
+        <h1 style="font-size: 21px; font-weight: 700; color: var(--label); letter-spacing: -0.4px; margin-bottom: 4px;">
             Nuovo Allenamento
         </h1>
-        <p style="font-size: 12.5px; color: #f0f0f3; margin-bottom: 24px;">
+        <p style="font-size: 12.5px; color: var(--label); margin-bottom: 24px;">
             {% now "l d F Y" %}
         </p>
 

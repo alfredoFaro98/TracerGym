@@ -5,7 +5,7 @@
 {% block content %}
 <div class="page-container">
     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 20px;">
-        <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: #f0f0f3; margin: 0;">🍽️ Alimentazione</h1>
+        <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: var(--label); margin: 0;">🍽️ Alimentazione</h1>
         <div style="display: flex; gap: 8px;">
             <button type="button" onclick="toggleGoalForm()" class="water-quick-btn" title="Modifica obiettivo default" style="height: 40px;">
                 🎯 Modifica obiettivo default
@@ -14,60 +14,60 @@
                 🚫 Segna giorno
             </button>
             <button type="button" onclick="toggleNewEntryForm()" class="dash-add-btn" title="Aggiungi voce" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--on-acc)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </button>
         </div>
     </div>
 
     <!-- Oggi -->
     <div class="tracer-card" style="padding: 20px 22px; margin-bottom: 24px;">
-        <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 14px;">Oggi</div>
+        <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: var(--label-3); text-transform: uppercase; margin-bottom: 14px;">Oggi</div>
         <div style="display: flex; flex-direction: column; gap: 12px;">
             <div>
                 <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px;">
-                    <span style="color: #f0f0f3; font-weight: 600;">Calorie</span>
-                    <span style="color: #c7cbd6;"><b style="color: #f0f0f3;">{{ today_totals.kcal }}</b> / {{ goals.kcal }} kcal</span>
+                    <span style="color: var(--label); font-weight: 600;">Calorie</span>
+                    <span style="color: var(--label-2);"><b style="color: var(--label);">{{ today_totals.kcal }}</b> / {{ goals.kcal }} kcal</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <span title="{% if today_reached.kcal %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 13px; font-weight: 700; color: {% if today_reached.kcal %}#4ade80{% else %}#f87171{% endif %};">{% if today_reached.kcal %}✓{% else %}✕{% endif %}</span>
-                    <div style="flex: 1; height: 10px; background: rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden;">
-                        <div style="height: 100%; width: {{ today_progress.kcal }}%; background: #7c6cf6; border-radius: 6px; transition: width .3s;"></div>
+                    <span title="{% if today_reached.kcal %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 13px; font-weight: 700; color: {% if today_reached.kcal %}var(--green){% else %}var(--red){% endif %};">{% if today_reached.kcal %}✓{% else %}✕{% endif %}</span>
+                    <div style="flex: 1; height: 10px; background: var(--overlay-hover); border-radius: 6px; overflow: hidden;">
+                        <div style="height: 100%; width: {{ today_progress.kcal }}%; background: var(--acc); border-radius: 6px; transition: width .3s;"></div>
                     </div>
                 </div>
             </div>
             <div>
                 <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
-                    <span style="color: #c7cbd6;">Proteine</span>
-                    <span style="color: #9ba0b3;">{{ today_totals.proteine_g|floatformat:"-1" }} / {{ goals.proteine_g }} g</span>
+                    <span style="color: var(--label-2);">Proteine</span>
+                    <span style="color: var(--label-3);">{{ today_totals.proteine_g|floatformat:"-1" }} / {{ goals.proteine_g }} g</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <span title="{% if today_reached.proteine_g %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: {% if today_reached.proteine_g %}#4ade80{% else %}#f87171{% endif %};">{% if today_reached.proteine_g %}✓{% else %}✕{% endif %}</span>
-                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
-                        <div style="height: 100%; width: {{ today_progress.proteine_g }}%; background: #6a9fd8; border-radius: 4px; transition: width .3s;"></div>
+                    <span title="{% if today_reached.proteine_g %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: {% if today_reached.proteine_g %}var(--green){% else %}var(--red){% endif %};">{% if today_reached.proteine_g %}✓{% else %}✕{% endif %}</span>
+                    <div style="flex: 1; height: 6px; background: var(--overlay-hover); border-radius: 4px; overflow: hidden;">
+                        <div style="height: 100%; width: {{ today_progress.proteine_g }}%; background: var(--blue); border-radius: 4px; transition: width .3s;"></div>
                     </div>
                 </div>
             </div>
             <div>
                 <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
-                    <span style="color: #c7cbd6;">Carboidrati</span>
-                    <span style="color: #9ba0b3;">{{ today_totals.carboidrati_g|floatformat:"-1" }} / {{ goals.carboidrati_g }} g</span>
+                    <span style="color: var(--label-2);">Carboidrati</span>
+                    <span style="color: var(--label-3);">{{ today_totals.carboidrati_g|floatformat:"-1" }} / {{ goals.carboidrati_g }} g</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <span title="{% if today_reached.carboidrati_g %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: {% if today_reached.carboidrati_g %}#4ade80{% else %}#f87171{% endif %};">{% if today_reached.carboidrati_g %}✓{% else %}✕{% endif %}</span>
-                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
-                        <div style="height: 100%; width: {{ today_progress.carboidrati_g }}%; background: #4ade80; border-radius: 4px; transition: width .3s;"></div>
+                    <span title="{% if today_reached.carboidrati_g %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: {% if today_reached.carboidrati_g %}var(--green){% else %}var(--red){% endif %};">{% if today_reached.carboidrati_g %}✓{% else %}✕{% endif %}</span>
+                    <div style="flex: 1; height: 6px; background: var(--overlay-hover); border-radius: 4px; overflow: hidden;">
+                        <div style="height: 100%; width: {{ today_progress.carboidrati_g }}%; background: var(--green); border-radius: 4px; transition: width .3s;"></div>
                     </div>
                 </div>
             </div>
             <div>
                 <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
-                    <span style="color: #c7cbd6;">Grassi</span>
-                    <span style="color: #9ba0b3;">{{ today_totals.grassi_g|floatformat:"-1" }} / {{ goals.grassi_g }} g</span>
+                    <span style="color: var(--label-2);">Grassi</span>
+                    <span style="color: var(--label-3);">{{ today_totals.grassi_g|floatformat:"-1" }} / {{ goals.grassi_g }} g</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <span title="{% if today_reached.grassi_g %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: {% if today_reached.grassi_g %}#4ade80{% else %}#f87171{% endif %};">{% if today_reached.grassi_g %}✓{% else %}✕{% endif %}</span>
-                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
-                        <div style="height: 100%; width: {{ today_progress.grassi_g }}%; background: #f0a875; border-radius: 4px; transition: width .3s;"></div>
+                    <span title="{% if today_reached.grassi_g %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: {% if today_reached.grassi_g %}var(--green){% else %}var(--red){% endif %};">{% if today_reached.grassi_g %}✓{% else %}✕{% endif %}</span>
+                    <div style="flex: 1; height: 6px; background: var(--overlay-hover); border-radius: 4px; overflow: hidden;">
+                        <div style="height: 100%; width: {{ today_progress.grassi_g }}%; background: var(--orange); border-radius: 4px; transition: width .3s;"></div>
                     </div>
                 </div>
             </div>
@@ -77,32 +77,32 @@
     <!-- Obiettivi (nascosto) -->
     <div id="goal-form" style="display: none; margin-bottom: 24px;">
         <div class="tracer-card" style="padding: 18px 20px;">
-            <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 2px;">Obiettivi di default</div>
-            <div style="font-size: 11.5px; color: #7d8296; margin-bottom: 12px;">Valgono per ogni giorno, a meno che tu non imposti un obiettivo diverso per una giornata specifica (🎯 accanto alla data nello storico).</div>
+            <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: var(--label-3); text-transform: uppercase; margin-bottom: 2px;">Obiettivi di default</div>
+            <div style="font-size: 11.5px; color: var(--label-3); margin-bottom: 12px;">Valgono per ogni giorno, a meno che tu non imposti un obiettivo diverso per una giornata specifica (🎯 accanto alla data nello storico).</div>
             <form action="{% url 'set_macro_goal' %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{% url 'macro' %}">
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">KCAL</span>
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">KCAL</span>
                     <input type="number" name="obiettivo_kcal" value="{{ default_goals.kcal }}" min="1" class="tracer-input" style="width: 110px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">PROTEINE (G)</span>
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">PROTEINE (G)</span>
                     <input type="number" id="goal-proteine-input" name="obiettivo_proteine_g" value="{{ default_goals.proteine_g }}" min="1" class="tracer-input" style="width: 100px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">CARBOIDRATI (G)</span>
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">CARBOIDRATI (G)</span>
                     <input type="number" name="obiettivo_carboidrati_g" value="{{ default_goals.carboidrati_g }}" min="1" class="tracer-input" style="width: 100px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">GRASSI (G)</span>
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">GRASSI (G)</span>
                     <input type="number" name="obiettivo_grassi_g" value="{{ default_goals.grassi_g }}" min="1" class="tracer-input" style="width: 100px;">
                 </div>
                 {% if ultimo_peso %}
-                <button type="button" onclick="suggestProtein()" style="padding: 10px 14px; font-size: 12.5px; font-weight: 600; background: rgba(106,159,216,0.12); border: 1px solid rgba(106,159,216,0.25); border-radius: 8px; color: #6a9fd8; cursor: pointer; white-space: nowrap;">Suggerisci da peso corporeo</button>
+                <button type="button" onclick="suggestProtein()" style="padding: 10px 14px; font-size: 12.5px; font-weight: 600; background: rgba(106,159,216,0.12); border: 1px solid rgba(106,159,216,0.25); border-radius: 8px; color: var(--blue); cursor: pointer; white-space: nowrap;">Suggerisci da peso corporeo</button>
                 {% endif %}
                 <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13px;">Salva</button>
-                <button type="button" onclick="toggleGoalForm()" style="padding: 10px 16px; font-size: 13px; background: transparent; border: 1px solid #1c1c2c; border-radius: 8px; color: #787890; cursor: pointer;">Annulla</button>
+                <button type="button" onclick="toggleGoalForm()" style="padding: 10px 16px; font-size: 13px; background: transparent; border: 1px solid var(--sep); border-radius: 8px; color: var(--label-4); cursor: pointer;">Annulla</button>
             </form>
         </div>
     </div>
@@ -110,41 +110,41 @@
     <!-- Nuova voce -->
     <div id="new-entry-form" style="display: none; margin-bottom: 24px;">
         <div class="tracer-card" style="padding: 18px 20px;">
-            <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 4px;">Nuova voce</div>
-            <div style="font-size: 11.5px; color: #7d8296; margin-bottom: 12px;">Logga un pasto o il totale della giornata. Proteine/carboidrati/grassi sono facoltativi.</div>
+            <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: var(--label-3); text-transform: uppercase; margin-bottom: 4px;">Nuova voce</div>
+            <div style="font-size: 11.5px; color: var(--label-3); margin-bottom: 12px;">Logga un pasto o il totale della giornata. Proteine/carboidrati/grassi sono facoltativi.</div>
             <form action="{% url 'add_macro_entry' %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{% url 'macro' %}">
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">DATA</span>
                     <input type="date" name="data" value="{% now 'Y-m-d' %}" class="tracer-input" style="width: 150px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">ORARIO</span>
                     <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input" style="width: 110px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">KCAL</span>
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">KCAL</span>
                     <input type="number" name="kcal" placeholder="es. 600" min="1" class="tracer-input" style="width: 100px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">PROTEINE (G)</span>
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">PROTEINE (G)</span>
                     <input type="number" name="proteine_g" placeholder="Opz." min="0" step="0.1" class="tracer-input" style="width: 90px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">CARBOIDRATI (G)</span>
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">CARBOIDRATI (G)</span>
                     <input type="number" name="carboidrati_g" placeholder="Opz." min="0" step="0.1" class="tracer-input" style="width: 90px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">GRASSI (G)</span>
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">GRASSI (G)</span>
                     <input type="number" name="grassi_g" placeholder="Opz." min="0" step="0.1" class="tracer-input" style="width: 90px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 160px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">NOTA</span>
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">NOTA</span>
                     <input type="text" name="nota" placeholder="Es. Pranzo" maxlength="100" class="tracer-input" style="width: 100%;">
                 </div>
                 <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13px;">Aggiungi</button>
-                <button type="button" onclick="toggleNewEntryForm()" style="padding: 10px 16px; font-size: 13px; background: transparent; border: 1px solid #1c1c2c; border-radius: 8px; color: #787890; cursor: pointer;">Annulla</button>
+                <button type="button" onclick="toggleNewEntryForm()" style="padding: 10px 16px; font-size: 13px; background: transparent; border: 1px solid var(--sep); border-radius: 8px; color: var(--label-4); cursor: pointer;">Annulla</button>
             </form>
         </div>
     </div>
@@ -152,17 +152,17 @@
     <!-- Segna giorno non tracciato/parziale -->
     <div id="day-status-form" style="display: none; margin-bottom: 24px;">
         <div class="tracer-card" style="padding: 18px 20px;">
-            <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 4px;">Segna giorno</div>
-            <div style="font-size: 11.5px; color: #7d8296; margin-bottom: 12px;">Usalo per un giorno di cui non hai loggato nulla (o solo in parte), cosi' viene escluso dall'andamento invece di sembrare "zero calorie".</div>
+            <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: var(--label-3); text-transform: uppercase; margin-bottom: 4px;">Segna giorno</div>
+            <div style="font-size: 11.5px; color: var(--label-3); margin-bottom: 12px;">Usalo per un giorno di cui non hai loggato nulla (o solo in parte), cosi' viene escluso dall'andamento invece di sembrare "zero calorie".</div>
             <form action="{% url 'set_macro_day_status' %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{% url 'macro' %}">
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">DATA</span>
                     <input type="date" name="data" value="{% now 'Y-m-d' %}" class="tracer-input" style="width: 150px;" required>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">STATO</span>
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">STATO</span>
                     <select name="stato" class="tracer-input" style="width: 190px;">
                         <option value="non_tracciato">🚫 Non tracciato</option>
                         <option value="parziale">⚠️ Tracciato parzialmente</option>
@@ -170,15 +170,15 @@
                     </select>
                 </div>
                 <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13px;">Salva</button>
-                <button type="button" onclick="toggleDayStatusForm()" style="padding: 10px 16px; font-size: 13px; background: transparent; border: 1px solid #1c1c2c; border-radius: 8px; color: #787890; cursor: pointer;">Annulla</button>
+                <button type="button" onclick="toggleDayStatusForm()" style="padding: 10px 16px; font-size: 13px; background: transparent; border: 1px solid var(--sep); border-radius: 8px; color: var(--label-4); cursor: pointer;">Annulla</button>
             </form>
         </div>
     </div>
 
     <!-- Grafico andamento -->
     <div class="tracer-card" style="overflow: visible; margin-bottom: 24px;">
-        <div style="padding: 18px 22px; border-bottom: 1px solid #16162a; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <div style="font-size: 11px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap;">Andamento</div>
+        <div style="padding: 18px 22px; border-bottom: 1px solid var(--sep); display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--label); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap;">Andamento</div>
             <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                 <button type="button" class="metric-tab" data-metric="kcal" onclick="selectMetric('kcal')">Kcal</button>
                 <button type="button" class="metric-tab" data-metric="proteine_g" onclick="selectMetric('proteine_g')">Proteine</button>
@@ -187,7 +187,7 @@
             </div>
         </div>
         <div style="padding: 16px 20px; display: flex; align-items: center; justify-content: center; min-height: 80px;">
-            <span id="metric-placeholder" style="font-size: 12px; color: #7d8296;">Nessun dato registrato per questa metrica</span>
+            <span id="metric-placeholder" style="font-size: 12px; color: var(--label-3);">Nessun dato registrato per questa metrica</span>
             <div style="width:100%; display:none;" id="metric-chart-wrap">
                 <canvas id="metric-canvas" style="max-height: 240px;"></canvas>
             </div>
@@ -199,33 +199,33 @@
         {% if not days %}
         <div style="padding: 52px 24px; text-align: center;">
             <div style="font-size: 26px; margin-bottom: 10px; opacity: .4;">🍽️</div>
-            <div style="font-size: 13.5px; color: #7d8296; font-weight: 500;">Ancora nessuna voce registrata</div>
+            <div style="font-size: 13.5px; color: var(--label-3); font-weight: 500;">Ancora nessuna voce registrata</div>
         </div>
         {% else %}
         {% for day in days %}
         {% with day_key=day.data|date:"Y-m-d" %}
-        <div style="padding: 16px 20px; border-bottom: 1px solid #16162a; {% if day.status %}background: rgba(248,113,113,0.04);{% endif %}">
+        <div style="padding: 16px 20px; border-bottom: 1px solid var(--sep); {% if day.status %}background: rgba(248,113,113,0.04);{% endif %}">
             <div onclick="toggleDay('{{ day_key }}')" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; cursor: pointer; user-select: none;">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <svg id="day-chevron-{{ day_key }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                    <span style="font-size: 13.5px; font-weight: 700; color: #f0f0f3;">{{ day.data|date:"l d F Y"|capfirst }}</span>
-                    <span style="font-size: 11.5px; color: #7d8296;">{{ day.entries|length }} voc{{ day.entries|length|pluralize:"e,i" }}</span>
+                    <svg id="day-chevron-{{ day_key }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--label-3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    <span style="font-size: 13.5px; font-weight: 700; color: var(--label);">{{ day.data|date:"l d F Y"|capfirst }}</span>
+                    <span style="font-size: 11.5px; color: var(--label-3);">{{ day.entries|length }} voc{{ day.entries|length|pluralize:"e,i" }}</span>
                     {% if day.status == 'non_tracciato' %}
-                    <span style="background: rgba(248,113,113,0.14); color: #f87171; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap;">🚫 NON TRACCIATO</span>
+                    <span style="background: rgba(248,113,113,0.14); color: var(--red); font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap;">🚫 NON TRACCIATO</span>
                     {% elif day.status == 'parziale' %}
-                    <span style="background: rgba(240,168,117,0.14); color: #f0a875; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap;">⚠️ PARZIALE</span>
+                    <span style="background: rgba(240,168,117,0.14); color: var(--orange); font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap;">⚠️ PARZIALE</span>
                     {% endif %}
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                    <span style="background: rgba(124,108,246,0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;">{{ day.totals.kcal }} <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goals.kcal }} kcal</span></span>
-                    <span style="font-size: 11px; color: #9ba0b3; white-space: nowrap;">P {{ day.totals.proteine_g|floatformat:"-1" }}g · C {{ day.totals.carboidrati_g|floatformat:"-1" }}g · G {{ day.totals.grassi_g|floatformat:"-1" }}g</span>
+                    <span style="background: rgba(124,108,246,0.14); color: var(--acc); font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;">{{ day.totals.kcal }} <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goals.kcal }} kcal</span></span>
+                    <span style="font-size: 11px; color: var(--label-3); white-space: nowrap;">P {{ day.totals.proteine_g|floatformat:"-1" }}g · C {{ day.totals.carboidrati_g|floatformat:"-1" }}g · G {{ day.totals.grassi_g|floatformat:"-1" }}g</span>
                     {% if day.reached %}
-                    <span title="Obiettivo raggiunto" style="color: #4ade80; font-size: 15px; font-weight: 700;">✓</span>
+                    <span title="Obiettivo raggiunto" style="color: var(--green); font-size: 15px; font-weight: 700;">✓</span>
                     {% else %}
-                    <span title="Obiettivo non raggiunto" style="color: #f87171; font-size: 13px; font-weight: 700;">✕</span>
+                    <span title="Obiettivo non raggiunto" style="color: var(--red); font-size: 13px; font-weight: 700;">✕</span>
                     {% endif %}
-                    <span onclick="event.stopPropagation(); toggleDayGoalForm('{{ day_key }}')" title="Imposta obiettivo di questo giorno" style="cursor: pointer; font-size: 14px; padding: 4px; border-radius: 6px; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">🎯</span>
-                    <select onclick="event.stopPropagation();" onchange="event.stopPropagation(); submitDayStatus('{{ day_key }}', this.value);" title="Stato di tracciamento del giorno" style="font-size: 11px; font-weight: 600; padding: 4px 6px; border-radius: 6px; background: #15151c; border: 1px solid #1c1c2c; color: #9ba0b3; cursor: pointer;">
+                    <span onclick="event.stopPropagation(); toggleDayGoalForm('{{ day_key }}')" title="Imposta obiettivo di questo giorno" style="cursor: pointer; font-size: 14px; padding: 4px; border-radius: 6px; transition: background .12s;" onmouseover="this.style.background='var(--overlay-hover)'" onmouseout="this.style.background='transparent'">🎯</span>
+                    <select onclick="event.stopPropagation();" onchange="event.stopPropagation(); submitDayStatus('{{ day_key }}', this.value);" title="Stato di tracciamento del giorno" style="font-size: 11px; font-weight: 600; padding: 4px 6px; border-radius: 6px; background: var(--surface-3); border: 1px solid var(--sep); color: var(--label-3); cursor: pointer;">
                         <option value="" {% if not day.status %}selected{% endif %}>✓ Tracciato</option>
                         <option value="parziale" {% if day.status == 'parziale' %}selected{% endif %}>⚠️ Parziale</option>
                         <option value="non_tracciato" {% if day.status == 'non_tracciato' %}selected{% endif %}>🚫 Non tracciato</option>
@@ -238,80 +238,80 @@
                     {% csrf_token %}
                     <input type="hidden" name="data" value="{{ day_key }}">
                     <input type="hidden" name="next" value="{% url 'macro' %}">
-                    <span style="font-size: 11px; color: #7d8296; width: 100%;">Obiettivo di questo giorno:</span>
+                    <span style="font-size: 11px; color: var(--label-3); width: 100%;">Obiettivo di questo giorno:</span>
                     <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">KCAL</span>
+                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">KCAL</span>
                         <input type="number" name="kcal" value="{{ day.goals.kcal }}" min="1" class="tracer-input" style="width: 90px; padding: 7px 9px; font-size: 12px;">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">PROTEINE (G)</span>
+                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">PROTEINE (G)</span>
                         <input type="number" name="proteine_g" value="{{ day.goals.proteine_g }}" min="0" class="tracer-input" style="width: 80px; padding: 7px 9px; font-size: 12px;">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">CARBOIDRATI (G)</span>
+                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">CARBOIDRATI (G)</span>
                         <input type="number" name="carboidrati_g" value="{{ day.goals.carboidrati_g }}" min="0" class="tracer-input" style="width: 80px; padding: 7px 9px; font-size: 12px;">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">GRASSI (G)</span>
+                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">GRASSI (G)</span>
                         <input type="number" name="grassi_g" value="{{ day.goals.grassi_g }}" min="0" class="tracer-input" style="width: 80px; padding: 7px 9px; font-size: 12px;">
                     </div>
                     <button type="submit" class="btn-primary-gradient" style="padding: 7px 14px; font-size: 12px;">Salva</button>
-                    <button type="button" onclick="toggleDayGoalForm('{{ day_key }}')" style="padding: 7px 12px; font-size: 12px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #787890; cursor: pointer;">Annulla</button>
+                    <button type="button" onclick="toggleDayGoalForm('{{ day_key }}')" style="padding: 7px 12px; font-size: 12px; background: transparent; border: 1px solid var(--sep); border-radius: 6px; color: var(--label-4); cursor: pointer;">Annulla</button>
                 </form>
             </div>
 
             <div id="day-body-{{ day_key }}" style="display: none; flex-direction: column; gap: 6px; margin-top: 12px;">
                 {% for e in day.entries %}
                 <div>
-                    <div id="macro-view-{{ e.id }}" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.05); border-radius: 9px; padding: 9px 14px; flex-wrap: wrap;">
-                        <span style="font-size: 13.5px; color: #ffffff;"><b>{{ e.kcal }}</b> kcal</span>
-                        {% if e.proteine_g %}<span style="font-size: 12px; color: #6a9fd8;">P {{ e.proteine_g|floatformat:"-1" }}g</span>{% endif %}
-                        {% if e.carboidrati_g %}<span style="font-size: 12px; color: #4ade80;">C {{ e.carboidrati_g|floatformat:"-1" }}g</span>{% endif %}
-                        {% if e.grassi_g %}<span style="font-size: 12px; color: #f0a875;">G {{ e.grassi_g|floatformat:"-1" }}g</span>{% endif %}
-                        <span style="font-size: 12px; color: #7d8296;">{{ e.creato_il|date:"H:i" }}</span>
-                        {% if e.nota %}<span style="font-size: 12px; color: #9ba0b3; font-style: italic;">📝 {{ e.nota }}</span>{% endif %}
+                    <div id="macro-view-{{ e.id }}" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.025); border: 1px solid var(--hairline); border-radius: 9px; padding: 9px 14px; flex-wrap: wrap;">
+                        <span style="font-size: 13.5px; color: var(--label);"><b>{{ e.kcal }}</b> kcal</span>
+                        {% if e.proteine_g %}<span style="font-size: 12px; color: var(--blue);">P {{ e.proteine_g|floatformat:"-1" }}g</span>{% endif %}
+                        {% if e.carboidrati_g %}<span style="font-size: 12px; color: var(--green);">C {{ e.carboidrati_g|floatformat:"-1" }}g</span>{% endif %}
+                        {% if e.grassi_g %}<span style="font-size: 12px; color: var(--orange);">G {{ e.grassi_g|floatformat:"-1" }}g</span>{% endif %}
+                        <span style="font-size: 12px; color: var(--label-3);">{{ e.creato_il|date:"H:i" }}</span>
+                        {% if e.nota %}<span style="font-size: 12px; color: var(--label-3); font-style: italic;">📝 {{ e.nota }}</span>{% endif %}
                         <div style="flex: 1;"></div>
-                        <span onclick="toggleMacroEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: #a996ff; padding: 6px 12px; border-radius: 7px; background: rgba(124,108,246,0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(124,108,246,0.22)'" onmouseout="this.style.background='rgba(124,108,246,0.12)'">Modifica</span>
+                        <span onclick="toggleMacroEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: var(--acc); padding: 6px 12px; border-radius: 7px; background: var(--acc-soft); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='var(--acc-soft)'" onmouseout="this.style.background='var(--acc-soft)'">Modifica</span>
                         <form action="{% url 'delete_macro_entry' e.id %}" method="post" style="display:inline;" onsubmit="return confirm('Eliminare questa voce?');">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="{% url 'macro' %}">
-                            <button type="submit" style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
+                            <button type="submit" style="font-size: 12px; font-weight: 600; color: var(--red); padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
                         </form>
                     </div>
-                    <div id="macro-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(124,108,246,0.06); border: 1px solid rgba(124,108,246,0.3); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
+                    <div id="macro-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(124,108,246,0.06); border: 1px solid var(--acc-line); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
                         <form action="{% url 'edit_macro_entry' e.id %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="{% url 'macro' %}">
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">KCAL</span>
+                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">KCAL</span>
                                 <input type="number" name="kcal" value="{{ e.kcal }}" class="tracer-input" style="width: 90px;" min="1">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">PROTEINE (G)</span>
+                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">PROTEINE (G)</span>
                                 <input type="number" name="proteine_g" value="{{ e.proteine_g }}" class="tracer-input" style="width: 80px;" min="0" step="0.1">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">CARBOIDRATI (G)</span>
+                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">CARBOIDRATI (G)</span>
                                 <input type="number" name="carboidrati_g" value="{{ e.carboidrati_g }}" class="tracer-input" style="width: 80px;" min="0" step="0.1">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">GRASSI (G)</span>
+                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">GRASSI (G)</span>
                                 <input type="number" name="grassi_g" value="{{ e.grassi_g }}" class="tracer-input" style="width: 80px;" min="0" step="0.1">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
+                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">DATA</span>
                                 <input type="date" name="data" value="{{ e.data|date:'Y-m-d' }}" class="tracer-input" style="width: 150px;">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
+                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">ORARIO</span>
                                 <input type="time" name="ora" value="{{ e.creato_il|date:'H:i' }}" class="tracer-input" style="width: 100px;">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px;">
-                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">NOTA</span>
+                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">NOTA</span>
                                 <input type="text" name="nota" value="{{ e.nota }}" placeholder="Es. Pranzo" maxlength="100" class="tracer-input" style="width: 100%;">
                             </div>
                             <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
-                            <button type="button" onclick="toggleMacroEdit('{{ e.id }}')" style="color: #838a9e; font-size: 12.5px; font-weight: 600; padding: 8px 10px; background: transparent; border: none; cursor: pointer;" onmouseover="this.style.color='#c7cbd6'" onmouseout="this.style.color='#838a9e'">Annulla</button>
+                            <button type="button" onclick="toggleMacroEdit('{{ e.id }}')" style="color: var(--label-3); font-size: 12.5px; font-weight: 600; padding: 8px 10px; background: transparent; border: none; cursor: pointer;" onmouseover="this.style.color='var(--label-2)'" onmouseout="this.style.color='var(--label-3)'">Annulla</button>
                         </form>
                     </div>
                 </div>
@@ -322,13 +322,13 @@
         {% endfor %}
 
         {% if days.has_other_pages %}
-        <div style="display: flex; justify-content: center; gap: 8px; padding: 16px; border-top: 1px solid #16162a;">
+        <div style="display: flex; justify-content: center; gap: 8px; padding: 16px; border-top: 1px solid var(--sep);">
             {% if days.has_previous %}
-                <a href="?page={{ days.previous_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Precedente</a>
+                <a href="?page={{ days.previous_page_number }}" style="padding: 5px 10px; background: var(--sep); color: var(--label); border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Precedente</a>
             {% endif %}
-            <span style="font-size: 12px; color: #7d8296; align-self: center;">Pagina {{ days.number }} di {{ days.paginator.num_pages }}</span>
+            <span style="font-size: 12px; color: var(--label-3); align-self: center;">Pagina {{ days.number }} di {{ days.paginator.num_pages }}</span>
             {% if days.has_next %}
-                <a href="?page={{ days.next_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Successiva</a>
+                <a href="?page={{ days.next_page_number }}" style="padding: 5px 10px; background: var(--sep); color: var(--label); border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Successiva</a>
             {% endif %}
         </div>
         {% endif %}
@@ -338,20 +338,20 @@
 
 <style>
 .dash-add-btn {
-    background: #7c6cf6;
-    color: #fff;
+    background: var(--acc);
+    color: var(--on-acc);
     border: none;
     transition: background .15s, box-shadow .15s;
-    box-shadow: 0 8px 20px rgba(124,108,246,.35);
+    box-shadow: 0 8px 20px var(--acc-line);
 }
-.dash-add-btn:hover { background: #8b7bf7; }
+.dash-add-btn:hover { background: var(--acc-2); }
 
 .water-quick-btn {
     padding: 8px 14px;
-    background: rgba(124,108,246,0.12);
-    border: 1px solid rgba(124,108,246,0.2);
+    background: var(--acc-soft);
+    border: 1px solid var(--acc-line);
     border-radius: 8px;
-    color: #b7bdf0;
+    color: var(--acc);
     font-size: 12.5px;
     font-weight: 600;
     cursor: pointer;
@@ -359,28 +359,28 @@
     font-family: inherit;
     white-space: nowrap;
 }
-.water-quick-btn:hover { background: rgba(124,108,246,0.22); }
+.water-quick-btn:hover { background: var(--acc-soft); }
 
-.page-container .btn-primary-gradient { background: #7c6cf6; }
-.page-container .btn-primary-gradient:hover { background: #8b7bf7; opacity: 1; }
+.page-container .btn-primary-gradient { background: var(--acc); }
+.page-container .btn-primary-gradient:hover { background: var(--acc-2); opacity: 1; }
 
 .metric-tab {
     padding: 6px 14px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: var(--overlay-hover);
+    border: 1px solid var(--hairline-2);
     border-radius: 7px;
-    color: #c7cbd6;
+    color: var(--label-2);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     transition: all .12s;
     font-family: inherit;
 }
-.metric-tab:hover { background: rgba(255,255,255,0.09); }
+.metric-tab:hover { background: var(--overlay-hover); }
 .metric-tab.active {
-    background: rgba(124,108,246,0.16);
-    border-color: rgba(124,108,246,0.4);
-    color: #b7bdf0;
+    background: var(--acc-soft);
+    border-color: var(--acc-line);
+    color: var(--acc);
 }
 </style>
 
@@ -442,7 +442,7 @@ function toggleMacroEdit(id) {
     var CHART_DATA = {{ chart_data_json|safe }};
     var UNITS = { kcal: 'kcal', proteine_g: 'g', carboidrati_g: 'g', grassi_g: 'g' };
     var LABELS = { kcal: 'Kcal', proteine_g: 'Proteine', carboidrati_g: 'Carboidrati', grassi_g: 'Grassi' };
-    var COLORS = { kcal: '#8b7bf7', proteine_g: '#6a9fd8', carboidrati_g: '#4ade80', grassi_g: '#f0a875' };
+    var COLORS = { kcal: tracerToken('--acc'), proteine_g: tracerToken('--blue'), carboidrati_g: tracerToken('--green'), grassi_g: tracerToken('--orange') };
     var placeholder = document.getElementById('metric-placeholder');
     var chartWrap = document.getElementById('metric-chart-wrap');
     var canvas = document.getElementById('metric-canvas');
@@ -487,7 +487,7 @@ function toggleMacroEdit(id) {
                     borderColor: color,
                     backgroundColor: fade,
                     pointBackgroundColor: color,
-                    pointBorderColor: '#111117',
+                    pointBorderColor: tracerToken('--surface-3'),
                     pointBorderWidth: 2,
                     pointRadius: 4,
                     pointHoverRadius: 6,
@@ -501,8 +501,8 @@ function toggleMacroEdit(id) {
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: '#15151c',
-                        borderColor: 'rgba(255,255,255,.08)',
+                        backgroundColor: tracerToken('--surface-3'),
+                        borderColor: tracerToken('--hairline-2'),
                         borderWidth: 1,
                         padding: 10,
                         callbacks: {
@@ -512,13 +512,13 @@ function toggleMacroEdit(id) {
                 },
                 scales: {
                     x: {
-                        ticks: { color: '#e4e4ec', font: { size: 12 }, maxTicksLimit: 8 },
+                        ticks: { color: tracerToken('--label-2'), font: { size: 12 }, maxTicksLimit: 8 },
                         grid: { display: false },
                         border: { display: false }
                     },
                     y: {
-                        ticks: { color: '#e4e4ec', font: { size: 12.5 } },
-                        grid: { color: 'rgba(255,255,255,.06)' },
+                        ticks: { color: tracerToken('--label-2'), font: { size: 12.5 } },
+                        grid: { color: tracerToken('--hairline') },
                         border: { display: false }
                     }
                 }
