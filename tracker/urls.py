@@ -70,6 +70,7 @@ urlpatterns = [
     path('misurazioni/<int:entry_id>/delete/', views.delete_misurazione, name='delete_misurazione'),
     path('macro/', views.macro, name='macro'),
     path('macro/add/', views.add_macro_entry, name='add_macro_entry'),
+    path('macro/add-ajax/', views.add_macro_entry_ajax, name='add_macro_entry_ajax'),
     path('macro/<int:entry_id>/delete/', views.delete_macro_entry, name='delete_macro_entry'),
     path('macro/<int:entry_id>/edit/', views.edit_macro_entry, name='edit_macro_entry'),
     path('macro/goal/', views.set_macro_goal, name='set_macro_goal'),

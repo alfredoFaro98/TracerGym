@@ -198,6 +198,18 @@ def dashboard(request):
     week_monday = today - timedelta(days=today.weekday())
     week_training_data = _week_training_payload(request.user, week_monday)
 
+    macro_goals = {
+        'kcal': profile.obiettivo_kcal,
+        'proteine_g': profile.obiettivo_proteine_g,
+        'carboidrati_g': profile.obiettivo_carboidrati_g,
+        'grassi_g': profile.obiettivo_grassi_g,
+    }
+    macro_today_totals = _macro_day_totals(MacroEntry.objects.filter(utente=request.user, data=today))
+    macro_today_progress = {
+        k: min(100, round(macro_today_totals[k] / macro_goals[k] * 100)) if macro_goals[k] else 0
+        for k in macro_goals
+    }
+
     return render(request, 'tracker/dashboard.html', {
         'sessions': sessions,
         'total_sessions_count': all_sessions.count(),
@@ -214,6 +226,9 @@ def dashboard(request):
         'water_goal_l': water_goal_ml / 1000,
         'water_progress_pct': min(100, round(water_today_ml / water_goal_ml * 100)) if water_goal_ml else 0,
         'week_training_data': week_training_data,
+        'macro_goals': macro_goals,
+        'macro_today_totals': macro_today_totals,
+        'macro_today_progress': macro_today_progress,
     })
 
 GIORNI_SETTIMANA = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom']
@@ -2090,6 +2105,33 @@ def add_macro_entry(request):
                 creato_il=creato_il,
             )
     return redirect(request.POST.get('next') or 'macro')
+
+
+@login_required
+def add_macro_entry_ajax(request):
+    """Usata dal widget Alimentazione in Dashboard: aggiunge una voce di
+    oggi (solo kcal) senza ricaricare la pagina, restituendo i nuovi totali."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Metodo non valido.'}, status=405)
+
+    kcal = request.POST.get('kcal')
+    if not (kcal and kcal.isdigit() and int(kcal) > 0):
+        return JsonResponse({'error': 'Kcal non valide.'}, status=400)
+
+    today = timezone.localdate()
+    MacroEntry.objects.create(utente=request.user, kcal=int(kcal), data=today, creato_il=timezone.now())
+
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    goals = {
+        'kcal': profile.obiettivo_kcal,
+        'proteine_g': profile.obiettivo_proteine_g,
+        'carboidrati_g': profile.obiettivo_carboidrati_g,
+        'grassi_g': profile.obiettivo_grassi_g,
+    }
+    totals = _macro_day_totals(MacroEntry.objects.filter(utente=request.user, data=today))
+    progress = {k: min(100, round(totals[k] / goals[k] * 100)) if goals[k] else 0 for k in goals}
+
+    return JsonResponse({'ok': True, 'totals': totals, 'goals': goals, 'progress': progress})
 
 
 @login_required
