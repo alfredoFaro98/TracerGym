@@ -1,0 +1,33 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<p>Imposta la sede su <strong>{{ sessions.count }}</strong> sessioni selezionate (solo le tue).</p>
+
+<ul>
+{% for session in sessions %}
+    <li>{{ session }}</li>
+{% endfor %}
+</ul>
+
+<form method="post">
+    {% csrf_token %}
+    {% for session in sessions %}
+    <input type="hidden" name="{{ action_checkbox_name }}" value="{{ session.pk }}">
+    {% endfor %}
+    <input type="hidden" name="action" value="set_luogo">
+
+    <fieldset class="module aligned">
+        <div class="form-row">
+            {{ form.luogo.errors }}
+            <label for="{{ form.luogo.id_for_label }}">{{ form.luogo.label }}:</label>
+            {{ form.luogo }}
+        </div>
+    </fieldset>
+
+    <div class="submit-row">
+        <input type="submit" name="apply" value="Applica" class="default">
+        <a href="#" class="button cancel-link" onclick="window.history.back(); return false;">Annulla</a>
+    </div>
+</form>
+{% endblock %}
