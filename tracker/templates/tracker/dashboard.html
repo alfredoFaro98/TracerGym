@@ -131,9 +131,9 @@
         </div>
 
         <!-- Aggiunte di oggi -->
-        <div id="water-pills" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px;">
+        <div id="water-pills" style="display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 10px; margin-top: 14px; padding-bottom: 6px;">
             {% for e in water_entries_today %}
-            <form action="{% url 'delete_water_entry' e.id %}" method="post" class="water-pill" style="position: relative; display: inline-flex;" onsubmit="return confirm('Eliminare questa aggiunta?');">
+            <form action="{% url 'delete_water_entry' e.id %}" method="post" class="water-pill" style="position: relative; display: inline-flex; flex-shrink: 0; white-space: nowrap;" onsubmit="return confirm('Eliminare questa aggiunta?');">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.get_full_path }}">
                 <span style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: rgba(124,108,246,0.12); border: 1px solid rgba(124,108,246,0.2); border-radius: 20px; color: #b7bdf0; font-size: 11.5px; font-weight: 600;">
@@ -506,6 +506,10 @@
     .heatmap-scroll-wrap::-webkit-scrollbar-track { background: transparent; }
     .heatmap-scroll-wrap::-webkit-scrollbar-thumb { background: #1c1c2c; border-radius: 2px; }
 
+    #water-pills::-webkit-scrollbar { height: 4px; }
+    #water-pills::-webkit-scrollbar-track { background: transparent; }
+    #water-pills::-webkit-scrollbar-thumb { background: #1c1c2c; border-radius: 2px; }
+
     @media (max-width: 768px) {
         .filter-form { flex-wrap: nowrap !important; width: 100%; }
         .filter-form input[type="month"] { width: 95px !important; min-width: 95px !important; flex-shrink: 0; }
@@ -535,7 +539,7 @@
                 form.action = DELETE_URL_TPL.replace('__ID__', entry.id);
                 form.method = 'post';
                 form.className = 'water-pill';
-                form.style.cssText = 'position: relative; display: inline-flex;';
+                form.style.cssText = 'position: relative; display: inline-flex; flex-shrink: 0; white-space: nowrap;';
                 form.addEventListener('submit', function(e) {
                     if (!confirm('Eliminare questa aggiunta?')) e.preventDefault();
                 });
