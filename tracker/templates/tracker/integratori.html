@@ -35,11 +35,13 @@
                 <input type="hidden" name="next" value="{% url 'integratori' %}">
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">TIPO</span>
-                    <select name="tipo" class="tracer-input" style="width: 150px;">
+                    <select name="tipo" class="tracer-input" style="width: 150px;" onchange="toggleTipoAltro(this, 'tipo-altro-new')">
                         {% for value, label in tipo_choices %}
                         <option value="{{ value }}">{{ label }}</option>
                         {% endfor %}
+                        <option value="__altro__">Altro…</option>
                     </select>
+                    <input type="text" id="tipo-altro-new" name="tipo_altro" maxlength="20" placeholder="Nome (max 20)" class="tracer-input" style="width: 150px; display: none;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
@@ -69,11 +71,13 @@
                 <input type="hidden" name="next" value="{% url 'integratori' %}">
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">TIPO</span>
-                    <select name="tipo" class="tracer-input" style="width: 150px;">
+                    <select name="tipo" class="tracer-input" style="width: 150px;" onchange="toggleTipoAltro(this, 'tipo-altro-range')">
                         {% for value, label in tipo_choices %}
                         <option value="{{ value }}">{{ label }}</option>
                         {% endfor %}
+                        <option value="__altro__">Altro…</option>
                     </select>
+                    <input type="text" id="tipo-altro-range" name="tipo_altro" maxlength="20" placeholder="Nome (max 20)" class="tracer-input" style="width: 150px; display: none;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DAL</span>
@@ -121,7 +125,7 @@
                 <div id="mobile-cal-heatmap" style="overflow: visible; position: relative;"></div>
             </div>
         </div>
-        <div style="font-size: 10.5px; color: #565b6e; text-align: center; padding: 10px 0 4px;">Colore in base a quanti integratori (su 3) sono stati assunti quel giorno</div>
+        <div style="font-size: 10.5px; color: #565b6e; text-align: center; padding: 10px 0 4px;">Colore in base a quanti integratori diversi sono stati assunti quel giorno</div>
     </div>
 
     <!-- Filtro per data -->
@@ -158,9 +162,9 @@
                     <span style="font-size: 11.5px; color: #7d8296;">{{ day.entries|length }} assunzion{{ day.entries|length|pluralize:"e,i" }}</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                    {% if day.totals.creatina %}<span style="background: rgba(124,108,246,0.14); color: #b7bdf0; font-size: 11.5px; font-weight: 700; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">Creatina {{ day.totals.creatina }}g</span>{% endif %}
-                    {% if day.totals.aminoacidi %}<span style="background: rgba(45,212,191,0.14); color: #6ee0d0; font-size: 11.5px; font-weight: 700; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">Aminoacidi {{ day.totals.aminoacidi }}g</span>{% endif %}
-                    {% if day.totals.proteine %}<span style="background: rgba(240,168,117,0.14); color: #f0a875; font-size: 11.5px; font-weight: 700; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">Proteine {{ day.totals.proteine }}g</span>{% endif %}
+                    {% for b in day.totals_badges %}
+                    <span style="background: {{ b.bg }}; color: {{ b.fg }}; font-size: 11.5px; font-weight: 700; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">{{ b.label }} {{ b.valore }}g</span>
+                    {% endfor %}
                 </div>
             </div>
 
@@ -185,11 +189,13 @@
                             <input type="hidden" name="next" value="{% url 'integratori' %}">
                             <div style="display: flex; flex-direction: column; gap: 5px;">
                                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">TIPO</span>
-                                <select name="tipo" class="tracer-input" style="width: 140px;">
+                                <select name="tipo" class="tracer-input" style="width: 140px;" onchange="toggleTipoAltro(this, 'tipo-altro-edit-{{ e.id }}')">
                                     {% for value, label in tipo_choices %}
                                     <option value="{{ value }}" {% if value == e.tipo %}selected{% endif %}>{{ label }}</option>
                                     {% endfor %}
+                                    <option value="__altro__" {% if e.tipo not in tipo_values %}selected{% endif %}>Altro…</option>
                                 </select>
+                                <input type="text" id="tipo-altro-edit-{{ e.id }}" name="tipo_altro" maxlength="20" placeholder="Nome (max 20)" class="tracer-input" style="width: 140px; margin-top: 5px; {% if e.tipo not in tipo_values %}display: block;{% else %}display: none;{% endif %}" value="{% if e.tipo not in tipo_values %}{{ e.tipo }}{% endif %}">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
                                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">GRAMMI</span>
@@ -217,11 +223,13 @@
                             {% csrf_token %}
                             <input type="hidden" name="data" value="{{ day_key }}">
                             <input type="hidden" name="next" value="{% url 'integratori' %}">
-                            <select name="tipo" class="tracer-input" style="width: 130px; padding: 8px 10px; font-size: 12.5px;">
+                            <select name="tipo" class="tracer-input" style="width: 130px; padding: 8px 10px; font-size: 12.5px;" onchange="toggleTipoAltro(this, 'tipo-altro-dayadd-{{ day_key }}')">
                                 {% for value, label in tipo_choices %}
                                 <option value="{{ value }}">{{ label }}</option>
                                 {% endfor %}
+                                <option value="__altro__">Altro…</option>
                             </select>
+                            <input type="text" id="tipo-altro-dayadd-{{ day_key }}" name="tipo_altro" maxlength="20" placeholder="Nome (max 20)" class="tracer-input" style="width: 120px; padding: 8px 10px; font-size: 12.5px; display: none;">
                             <input type="number" name="quantita_g" placeholder="g" min="1" class="tracer-input" style="width: 80px; padding: 8px 10px; font-size: 12.5px;">
                             <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input" style="width: 100px; padding: 8px 10px; font-size: 12.5px;">
                             <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Aggiungi</button>
@@ -309,6 +317,14 @@
 .heatmap-scroll-wrap::-webkit-scrollbar-thumb { background: #1c1c2c; border-radius: 2px; }
 </style>
 <script>
+function toggleTipoAltro(select, inputId) {
+    var input = document.getElementById(inputId);
+    if (!input) return;
+    var show = select.value === '__altro__';
+    input.style.display = show ? 'block' : 'none';
+    if (show) input.focus();
+}
+
 var OPEN_DAYS_KEY = 'open_integratori_days';
 function getOpenDays() {
     try { return new Set(JSON.parse(sessionStorage.getItem(OPEN_DAYS_KEY) || '[]')); }
@@ -425,15 +441,7 @@ function buildYearHeatmap() {
                 tip.setAttribute('data-hmtip', '1');
                 tip.style.cssText = 'position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:#15151c;color:#fff;font-size:11px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;z-index:20;box-shadow:0 6px 16px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);transition:opacity .1s;';
                 var tipText = dayNum + ' ' + MONTH_NAMES_IT_SHORT[m] + ' ' + YEAR + ' — ';
-                if (!info) {
-                    tipText += 'nessuna assunzione';
-                } else {
-                    var parts = [];
-                    if (info.creatina) parts.push('Creatina ' + info.creatina + 'g');
-                    if (info.aminoacidi) parts.push('Aminoacidi ' + info.aminoacidi + 'g');
-                    if (info.proteine) parts.push('Proteine ' + info.proteine + 'g');
-                    tipText += parts.length ? parts.join(', ') : 'nessuna assunzione';
-                }
+                tipText += (info && info.dettaglio) ? info.dettaglio : 'nessuna assunzione';
                 tip.textContent = tipText;
                 cell.appendChild(tip);
             } else {

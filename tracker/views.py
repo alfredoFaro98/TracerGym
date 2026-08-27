@@ -10,6 +10,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
 from itertools import groupby
+from collections import defaultdict
 import time
 from decimal import Decimal, InvalidOperation
 from datetime import datetime, date, timedelta, time as dt_time
@@ -1720,6 +1721,41 @@ def set_day_water_goal(request):
     return redirect(request.POST.get('next') or 'water_history')
 
 
+TIPO_COLORS = {
+    'creatina': ('rgba(124,108,246,0.14)', '#b7bdf0'),
+    'aminoacidi': ('rgba(45,212,191,0.14)', '#6ee0d0'),
+    'proteine': ('rgba(240,168,117,0.14)', '#f0a875'),
+}
+DEFAULT_TIPO_COLOR = ('rgba(139,148,158,0.14)', '#c7cbd6')
+
+
+def _tipo_label(tipo):
+    return dict(IntegratoreEntry.TIPO_CHOICES).get(tipo, tipo)
+
+
+def _clean_tipo(post):
+    """Il tipo puo' essere uno dei 3 predefiniti oppure, se e' stato scelto
+    'Altro', il testo libero (max 20 caratteri, stesso limite del campo)
+    inserito in tipo_altro."""
+    tipo = (post.get('tipo') or '').strip()
+    if tipo == '__altro__':
+        tipo = (post.get('tipo_altro') or '').strip()
+    return tipo[:20]
+
+
+def _totals_badges(totals):
+    """Trasforma un dict {tipo: grammi} in una lista di badge pronti per il
+    template, con colore dedicato per i 3 tipi predefiniti e un colore
+    neutro per qualunque integratore personalizzato."""
+    badges = []
+    for tipo, valore in totals.items():
+        if valore <= 0:
+            continue
+        bg, fg = TIPO_COLORS.get(tipo, DEFAULT_TIPO_COLOR)
+        badges.append({'label': _tipo_label(tipo), 'valore': valore, 'bg': bg, 'fg': fg})
+    return badges
+
+
 @login_required
 def integratori(request):
     entries = IntegratoreEntry.objects.filter(utente=request.user).order_by('-data', '-creato_il')
@@ -1737,13 +1773,13 @@ def integratori(request):
     days = []
     for day, grp in groupby(entries, key=lambda e: e.data):
         day_entries = list(grp)
-        totals = {tipo: 0 for tipo, _ in IntegratoreEntry.TIPO_CHOICES}
+        totals = defaultdict(int)
         for e in day_entries:
             totals[e.tipo] += e.quantita_g
         days.append({
             'data': day,
             'entries': day_entries,
-            'totals': totals,
+            'totals_badges': _totals_badges(totals),
         })
 
     paginator = Paginator(days, 14)
@@ -1758,24 +1794,23 @@ def integratori(request):
 
     year_totals = {}
     for e in IntegratoreEntry.objects.filter(utente=request.user, data__year=year_int):
-        day_totals = year_totals.setdefault(e.data, {tipo: 0 for tipo, _ in IntegratoreEntry.TIPO_CHOICES})
+        day_totals = year_totals.setdefault(e.data, defaultdict(int))
         day_totals[e.tipo] += e.quantita_g
 
     heatmap_data = []
     for d, totals in year_totals.items():
-        tipi_assunti = sum(1 for v in totals.values() if v > 0)
+        parts = [f'{_tipo_label(tipo)} {valore}g' for tipo, valore in totals.items() if valore > 0]
         timestamp = int(time.mktime(datetime(d.year, d.month, d.day).timetuple()))
         heatmap_data.append({
             'date': timestamp,
-            'value': tipi_assunti,
-            'creatina': totals['creatina'],
-            'aminoacidi': totals['aminoacidi'],
-            'proteine': totals['proteine'],
+            'value': len(parts),
+            'dettaglio': ', '.join(parts),
         })
 
     return render(request, 'tracker/integratori.html', {
         'days': page,
         'tipo_choices': IntegratoreEntry.TIPO_CHOICES,
+        'tipo_values': [v for v, _ in IntegratoreEntry.TIPO_CHOICES],
         'selected_year': year_int,
         'heatmap_data_json': json.dumps(heatmap_data),
         'filter_active': filter_date is not None,
@@ -1786,9 +1821,9 @@ def integratori(request):
 @login_required
 def add_integratore_entry(request):
     if request.method == 'POST':
-        tipo = request.POST.get('tipo')
+        tipo = _clean_tipo(request.POST)
         quantita_g = request.POST.get('quantita_g')
-        if tipo in dict(IntegratoreEntry.TIPO_CHOICES) and quantita_g and quantita_g.isdigit() and int(quantita_g) > 0:
+        if tipo and quantita_g and quantita_g.isdigit() and int(quantita_g) > 0:
             entry_data = timezone.now().date()
             data_str = request.POST.get('data')
             if data_str:
@@ -1806,13 +1841,13 @@ def add_integratore_range(request):
     """Inserimento multiplo: stessa quantita' dello stesso integratore per
     ogni giorno di un intervallo (es. creatina 5g/die dal 1 al 30 del mese)."""
     if request.method == 'POST':
-        tipo = request.POST.get('tipo')
+        tipo = _clean_tipo(request.POST)
         quantita_g = request.POST.get('quantita_g')
         data_inizio_str = request.POST.get('data_inizio')
         data_fine_str = request.POST.get('data_fine')
         ora_str = request.POST.get('ora')
 
-        if (tipo in dict(IntegratoreEntry.TIPO_CHOICES)
+        if (tipo
                 and quantita_g and quantita_g.isdigit() and int(quantita_g) > 0
                 and data_inizio_str and data_fine_str):
             try:
@@ -1849,11 +1884,11 @@ def delete_integratore_entry(request, entry_id):
 def edit_integratore_entry(request, entry_id):
     entry = get_object_or_404(IntegratoreEntry, id=entry_id, utente=request.user)
     if request.method == 'POST':
-        tipo = request.POST.get('tipo')
+        tipo = _clean_tipo(request.POST)
         quantita_g = request.POST.get('quantita_g')
         data_str = request.POST.get('data')
         ora_str = request.POST.get('ora')
-        if tipo in dict(IntegratoreEntry.TIPO_CHOICES):
+        if tipo:
             entry.tipo = tipo
         if quantita_g and quantita_g.isdigit() and int(quantita_g) > 0:
             entry.quantita_g = int(quantita_g)
