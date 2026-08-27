@@ -248,7 +248,7 @@ def _day_summary(day_sessions):
     exercise_display = {}
     sessions_out = []
     for s in day_sessions:
-        sets = list(s.sets.all())
+        sets = list(s.sets.all().order_by('order', 'id'))
         for ws in sets:
             key_ex = ws.exercise_id
             if key_ex not in exercise_display:
@@ -268,7 +268,7 @@ def _day_summary(day_sessions):
             'orario': s.orario.strftime('%H:%M') if s.orario else None,
             'sets_count': len(sets),
         })
-    return sorted(muscle_display.values()), sorted(exercise_display.values()), sessions_out
+    return list(muscle_display.values()), list(exercise_display.values()), sessions_out
 
 
 def _week_training_payload(user, monday):
