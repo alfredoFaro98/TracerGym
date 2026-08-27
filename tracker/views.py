@@ -202,6 +202,10 @@ def dashboard(request):
         k: min(100, round(macro_today_totals[k] / macro_goals[k] * 100)) if macro_goals[k] else 0
         for k in macro_goals
     }
+    macro_today_reached = {
+        k: macro_today_totals[k] >= macro_goals[k] if macro_goals[k] else True
+        for k in macro_goals
+    }
 
     return render(request, 'tracker/dashboard.html', {
         'sessions': sessions,
@@ -222,6 +226,7 @@ def dashboard(request):
         'macro_goals': macro_goals,
         'macro_today_totals': macro_today_totals,
         'macro_today_progress': macro_today_progress,
+        'macro_today_reached': macro_today_reached,
     })
 
 GIORNI_SETTIMANA = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom']
