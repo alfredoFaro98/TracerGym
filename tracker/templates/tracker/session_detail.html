@@ -749,6 +749,20 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('[data-barra-show="1"]').forEach(function(el) {
         el.style.display = 'flex';
     });
+
+    // La striscia sopra puo' arrivare gia' tutta espansa (stato ricordato da
+    // una modifica/duplica precedente, o dal link ?open=): la label del
+    // bottone deve rispecchiarlo invece di restare sempre "Espandi tutto".
+    var toggleAllBtn = document.getElementById('toggle-all-btn');
+    if (toggleAllBtn) {
+        var groupCount = parseInt(toggleAllBtn.dataset.count);
+        var allGroupsOpen = groupCount > 0;
+        for (var gi = 1; gi <= groupCount; gi++) {
+            var groupEl = document.getElementById('group-' + gi);
+            if (!groupEl || groupEl.style.display !== 'flex') { allGroupsOpen = false; break; }
+        }
+        toggleAllBtn.textContent = allGroupsOpen ? 'Comprimi tutto' : 'Espandi tutto';
+    }
 });
 function toggleCircuit(id) {
     var body = document.getElementById('circuit-body-' + id);
