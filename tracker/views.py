@@ -2075,6 +2075,10 @@ def macro(request):
         k: min(100, round(today_totals[k] / goals[k] * 100)) if goals[k] else 0
         for k in goals
     }
+    today_reached = {
+        k: today_totals[k] >= goals[k] if goals[k] else True
+        for k in goals
+    }
 
     ultimo_peso = (
         BodyMetric.objects.filter(utente=request.user, peso_kg__isnull=False)
@@ -2124,6 +2128,7 @@ def macro(request):
         'goals': goals,
         'today_totals': today_totals,
         'today_progress': today_progress,
+        'today_reached': today_reached,
         'ultimo_peso': ultimo_peso,
         'chart_data_json': json.dumps(chart_data),
     })

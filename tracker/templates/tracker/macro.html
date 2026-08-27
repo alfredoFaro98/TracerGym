@@ -28,8 +28,11 @@
                     <span style="color: #f0f0f3; font-weight: 600;">Calorie</span>
                     <span style="color: #c7cbd6;"><b style="color: #f0f0f3;">{{ today_totals.kcal }}</b> / {{ goals.kcal }} kcal</span>
                 </div>
-                <div style="width: 100%; height: 10px; background: rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden;">
-                    <div style="height: 100%; width: {{ today_progress.kcal }}%; background: #7c6cf6; border-radius: 6px; transition: width .3s;"></div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span title="{% if today_reached.kcal %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 13px; font-weight: 700; color: {% if today_reached.kcal %}#4ade80{% else %}#f87171{% endif %};">{% if today_reached.kcal %}✓{% else %}✕{% endif %}</span>
+                    <div style="flex: 1; height: 10px; background: rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden;">
+                        <div style="height: 100%; width: {{ today_progress.kcal }}%; background: #7c6cf6; border-radius: 6px; transition: width .3s;"></div>
+                    </div>
                 </div>
             </div>
             <div>
@@ -37,8 +40,11 @@
                     <span style="color: #c7cbd6;">Proteine</span>
                     <span style="color: #9ba0b3;">{{ today_totals.proteine_g|floatformat:"-1" }} / {{ goals.proteine_g }} g</span>
                 </div>
-                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
-                    <div style="height: 100%; width: {{ today_progress.proteine_g }}%; background: #6a9fd8; border-radius: 4px; transition: width .3s;"></div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span title="{% if today_reached.proteine_g %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: {% if today_reached.proteine_g %}#4ade80{% else %}#f87171{% endif %};">{% if today_reached.proteine_g %}✓{% else %}✕{% endif %}</span>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
+                        <div style="height: 100%; width: {{ today_progress.proteine_g }}%; background: #6a9fd8; border-radius: 4px; transition: width .3s;"></div>
+                    </div>
                 </div>
             </div>
             <div>
@@ -46,8 +52,11 @@
                     <span style="color: #c7cbd6;">Carboidrati</span>
                     <span style="color: #9ba0b3;">{{ today_totals.carboidrati_g|floatformat:"-1" }} / {{ goals.carboidrati_g }} g</span>
                 </div>
-                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
-                    <div style="height: 100%; width: {{ today_progress.carboidrati_g }}%; background: #4ade80; border-radius: 4px; transition: width .3s;"></div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span title="{% if today_reached.carboidrati_g %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: {% if today_reached.carboidrati_g %}#4ade80{% else %}#f87171{% endif %};">{% if today_reached.carboidrati_g %}✓{% else %}✕{% endif %}</span>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
+                        <div style="height: 100%; width: {{ today_progress.carboidrati_g }}%; background: #4ade80; border-radius: 4px; transition: width .3s;"></div>
+                    </div>
                 </div>
             </div>
             <div>
@@ -55,8 +64,11 @@
                     <span style="color: #c7cbd6;">Grassi</span>
                     <span style="color: #9ba0b3;">{{ today_totals.grassi_g|floatformat:"-1" }} / {{ goals.grassi_g }} g</span>
                 </div>
-                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
-                    <div style="height: 100%; width: {{ today_progress.grassi_g }}%; background: #f0a875; border-radius: 4px; transition: width .3s;"></div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span title="{% if today_reached.grassi_g %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: {% if today_reached.grassi_g %}#4ade80{% else %}#f87171{% endif %};">{% if today_reached.grassi_g %}✓{% else %}✕{% endif %}</span>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
+                        <div style="height: 100%; width: {{ today_progress.grassi_g }}%; background: #f0a875; border-radius: 4px; transition: width .3s;"></div>
+                    </div>
                 </div>
             </div>
         </div>
