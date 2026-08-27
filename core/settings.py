@@ -92,6 +92,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'tracker.context_processors.app_version',
                 'tracker.context_processors.site_visits',
+                'tracker.context_processors.appearance',
             ],
         },
     },

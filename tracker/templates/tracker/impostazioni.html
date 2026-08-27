@@ -1,0 +1,119 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Impostazioni - Workout Tracker{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div style="margin-bottom: 20px;">
+        <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: var(--label); margin: 0;">⚙️ Impostazioni</h1>
+    </div>
+
+    <form action="{% url 'set_appearance' %}" method="post" id="appearance-form">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{% url 'impostazioni' %}">
+        <input type="hidden" name="tema" id="tema-input" value="{{ tema_corrente }}">
+        <input type="hidden" name="accent" id="accent-input" value="{{ accent_corrente }}">
+
+        <!-- Tema -->
+        <div class="tracer-card" style="padding: 20px 22px; margin-bottom: 20px;">
+            <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: var(--label-3); text-transform: uppercase; margin-bottom: 4px;">Tema</div>
+            <div style="font-size: 11.5px; color: var(--label-3); margin-bottom: 16px;">Sceglie sfondi, testo e bordi dell'app.</div>
+            <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+                {% for value, label in temi %}
+                <label class="theme-swatch theme-swatch-{{ value }}{% if value == tema_corrente %} is-selected{% endif %}" style="cursor: pointer; width: 150px;">
+                    <input type="radio" name="tema-radio" value="{{ value }}" {% if value == tema_corrente %}checked{% endif %} style="position: absolute; opacity: 0; pointer-events: none;" onchange="selectTema('{{ value }}')">
+                    <div class="theme-swatch-preview">
+                        <span class="ts-dot ts-dot-1"></span>
+                        <span class="ts-dot ts-dot-2"></span>
+                        <span class="ts-line"></span>
+                        <span class="ts-line short"></span>
+                    </div>
+                    <div class="theme-swatch-label" style="padding: 10px 12px; font-size: 12.5px; font-weight: 600;">{{ label }}</div>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Accent -->
+        <div class="tracer-card" style="padding: 20px 22px;">
+            <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: var(--label-3); text-transform: uppercase; margin-bottom: 4px;">Colore accent</div>
+            <div style="font-size: 11.5px; color: var(--label-3); margin-bottom: 16px;">Il colore di bottoni, stati attivi, link e progress bar. Indipendente dal tema.</div>
+            <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+                {% for value, label in accents %}
+                <label class="accent-swatch{% if value == accent_corrente %} is-selected{% endif %}" style="cursor: pointer;">
+                    <input type="radio" name="accent-radio" value="{{ value }}" {% if value == accent_corrente %}checked{% endif %} style="position: absolute; opacity: 0; pointer-events: none;" onchange="selectAccent('{{ value }}')">
+                    <span class="accent-swatch-dot accent-swatch-dot-{{ value }}"></span>
+                    <span style="font-size: 12.5px; font-weight: 600;">{{ label }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+.theme-swatch {
+    border-radius: var(--r);
+    border: 1px solid var(--sep);
+    overflow: hidden;
+    transition: border-color var(--fast), box-shadow var(--fast);
+}
+.theme-swatch.is-selected {
+    border-color: var(--acc);
+    box-shadow: 0 0 0 1px var(--acc);
+}
+.theme-swatch-preview {
+    height: 64px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+}
+.ts-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.ts-dot-1 { background: #ff5f57; }
+.ts-dot-2 { background: #febc2e; margin-left: 4px; }
+.ts-line { height: 6px; border-radius: 3px; width: 70%; margin-top: auto; }
+.ts-line.short { width: 45%; }
+
+.theme-swatch-scuro_classico .theme-swatch-preview { background: #080809; }
+.theme-swatch-scuro_classico .ts-line { background: #0d0d14; border: 1px solid #191926; }
+
+.theme-swatch-scuro_ios .theme-swatch-preview { background: #000000; }
+.theme-swatch-scuro_ios .ts-line { background: #1c1c1e; border: 1px solid rgba(84,84,88,.60); }
+
+.theme-swatch-chiaro .theme-swatch-preview { background: #f2f2f7; }
+.theme-swatch-chiaro .ts-line { background: #ffffff; border: 1px solid rgba(60,60,67,.29); }
+
+.theme-swatch-label { color: var(--label); background: var(--surface); }
+
+.accent-swatch {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: var(--r);
+    border: 1px solid var(--sep);
+    background: var(--surface);
+    transition: border-color var(--fast), box-shadow var(--fast);
+}
+.accent-swatch.is-selected {
+    border-color: var(--acc);
+    box-shadow: 0 0 0 1px var(--acc);
+}
+.accent-swatch-dot { width: 18px; height: 18px; border-radius: 50%; display: inline-block; }
+.accent-swatch-dot-viola { background: #7c6cf6; }
+.accent-swatch-dot-verde { background: #30d158; }
+</style>
+
+<script>
+function selectTema(value) {
+    document.getElementById('tema-input').value = value;
+    document.getElementById('appearance-form').submit();
+}
+function selectAccent(value) {
+    document.getElementById('accent-input').value = value;
+    document.getElementById('appearance-form').submit();
+}
+</script>
+{% endblock %}

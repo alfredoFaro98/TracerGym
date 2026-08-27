@@ -5,8 +5,8 @@
 {% block content %}
 <div class="page-container">
     <div style="margin-bottom: 24px;">
-        <h1 style="font-size: 17px; font-weight: 700; color: #f0f0f3; margin: 0 0 4px;">Atleti</h1>
-        <div style="font-size: 12px; color: #f0f0f3;">
+        <h1 style="font-size: 17px; font-weight: 700; color: var(--label); margin: 0 0 4px;">Atleti</h1>
+        <div style="font-size: 12px; color: var(--label);">
             {% if user.is_superuser %}
                 {{ users_data|length }} utent{% if users_data|length == 1 %}e{% else %}i{% endif %} registrat{% if users_data|length == 1 %}o{% else %}i{% endif %}
             {% else %}
@@ -16,32 +16,32 @@
     </div>
 
     {% if not users_data %}
-    <div style="background: #0d0d14; border: 1px dashed #1c1c2e; border-radius: 12px; padding: 52px 24px; text-align: center;">
+    <div style="background: var(--surface); border: 1px dashed #1c1c2e; border-radius: 12px; padding: 52px 24px; text-align: center;">
         <div style="font-size: 26px; margin-bottom: 10px; opacity: .4;">〇</div>
-        <div style="font-size: 13.5px; color: #f0f0f3; font-weight: 500;">Nessun atleta ha ancora reso pubblico il suo profilo</div>
+        <div style="font-size: 13.5px; color: var(--label); font-weight: 500;">Nessun atleta ha ancora reso pubblico il suo profilo</div>
     </div>
     {% else %}
     <div class="tracer-card" style="overflow: hidden;">
         {% for item in users_data %}
-        <a href="{% url 'user_profile' item.user.username %}" style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-bottom: 1px solid #0e0e1e; text-decoration: none; transition: background .12s; flex-wrap: wrap;" onmouseover="this.style.background='#0f0f1c'" onmouseout="this.style.background='transparent'">
+        <a href="{% url 'user_profile' item.user.username %}" style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-bottom: 1px solid #0e0e1e; text-decoration: none; transition: background .12s; flex-wrap: wrap;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background='transparent'">
             <div style="width: 36px; height: 36px; border-radius: 10px; background: #1c1c2c; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #a0a0c0; flex-shrink: 0;">
                 {{ item.user.username|make_list|first|upper }}
             </div>
             <div style="flex: 1 1 160px; min-width: 0;">
                 <div style="font-size: 13px; font-weight: 600; color: #e8e8f8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ item.user.username }}</div>
-                <div style="font-size: 11px; color: #f0f0f3; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <div style="font-size: 11px; color: var(--label); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                     Membro dal {{ item.user.date_joined|date:"d M Y" }}{% if user.is_superuser %} &middot; Ultimo accesso {% if item.user.last_login %}{{ item.user.last_login|date:"d M Y H:i" }}{% else %}mai{% endif %}{% endif %}
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0; margin-left: auto;">
                 <div style="width: 64px; display: flex; justify-content: flex-end;">
                     {% if not item.is_public %}
-                    <span style="padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; background: rgba(124,108,246,0.12); border: 1px solid rgba(124,108,246,0.2); color: #b7bdf0; white-space: nowrap;">privato</span>
+                    <span style="padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; background: color-mix(in srgb, var(--acc) 12%, transparent); border: 1px solid color-mix(in srgb, var(--acc) 20%, transparent); color: var(--acc); white-space: nowrap;">privato</span>
                     {% endif %}
                 </div>
                 <div style="width: 54px; text-align: right;">
-                    <div style="font-size: 13px; font-weight: 700; color: #9d8ffb; font-family: 'JetBrains Mono', monospace;">{{ item.session_count }}</div>
-                    <div style="font-size: 10px; color: #f0f0f3; white-space: nowrap;">session{% if item.session_count == 1 %}e{% else %}i{% endif %}</div>
+                    <div style="font-size: 13px; font-weight: 700; color: var(--acc); font-family: 'JetBrains Mono', monospace;">{{ item.session_count }}</div>
+                    <div style="font-size: 10px; color: var(--label); white-space: nowrap;">session{% if item.session_count == 1 %}e{% else %}i{% endif %}</div>
                 </div>
             </div>
         </a>
