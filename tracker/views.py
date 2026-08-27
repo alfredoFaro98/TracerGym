@@ -16,7 +16,7 @@ from decimal import Decimal, InvalidOperation
 from datetime import datetime, date, timedelta, time as dt_time
 from django.utils import timezone
 from django.contrib.auth.models import User
-from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal, IntegratoreEntry, SiteVisit
+from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal, IntegratoreEntry, SiteVisit, MacroEntry
 
 
 REMEMBER_ME_SECONDS = 60 * 60 * 24 * 30  # 30 giorni
@@ -1996,3 +1996,142 @@ def delete_misurazione(request, entry_id):
     if request.method == 'POST':
         entry.delete()
     return redirect(request.POST.get('next') or 'misurazioni')
+
+
+def _macro_int(post, name):
+    val = post.get(name)
+    return int(val) if val and val.isdigit() else 0
+
+
+def _macro_day_totals(day_entries):
+    return {
+        'kcal': sum(e.kcal for e in day_entries),
+        'proteine_g': sum(e.proteine_g for e in day_entries),
+        'carboidrati_g': sum(e.carboidrati_g for e in day_entries),
+        'grassi_g': sum(e.grassi_g for e in day_entries),
+    }
+
+
+@login_required
+def macro(request):
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    goals = {
+        'kcal': profile.obiettivo_kcal,
+        'proteine_g': profile.obiettivo_proteine_g,
+        'carboidrati_g': profile.obiettivo_carboidrati_g,
+        'grassi_g': profile.obiettivo_grassi_g,
+    }
+
+    today = timezone.localdate()
+    today_totals = _macro_day_totals(MacroEntry.objects.filter(utente=request.user, data=today))
+    today_progress = {
+        k: min(100, round(today_totals[k] / goals[k] * 100)) if goals[k] else 0
+        for k in goals
+    }
+
+    ultimo_peso = (
+        BodyMetric.objects.filter(utente=request.user, peso_kg__isnull=False)
+        .order_by('-data').values_list('peso_kg', flat=True).first()
+    )
+
+    entries = MacroEntry.objects.filter(utente=request.user).order_by('-data', '-creato_il')
+    days = []
+    for day, grp in groupby(entries, key=lambda e: e.data):
+        day_entries = list(grp)
+        totals = _macro_day_totals(day_entries)
+        days.append({
+            'data': day,
+            'entries': day_entries,
+            'totals': totals,
+            'reached': bool(goals['kcal']) and totals['kcal'] >= goals['kcal'],
+        })
+
+    chart_data = {'kcal': [], 'proteine_g': [], 'carboidrati_g': [], 'grassi_g': []}
+    for d in sorted(days, key=lambda x: x['data']):
+        date_str = d['data'].strftime('%d/%m/%Y')
+        for metric in chart_data:
+            if d['totals'][metric]:
+                chart_data[metric].append({'date': date_str, 'value': d['totals'][metric]})
+
+    paginator = Paginator(days, 14)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+
+    return render(request, 'tracker/macro.html', {
+        'days': page,
+        'goals': goals,
+        'today_totals': today_totals,
+        'today_progress': today_progress,
+        'ultimo_peso': ultimo_peso,
+        'chart_data_json': json.dumps(chart_data),
+    })
+
+
+@login_required
+def add_macro_entry(request):
+    if request.method == 'POST':
+        kcal = request.POST.get('kcal')
+        if kcal and kcal.isdigit() and int(kcal) > 0:
+            entry_data = timezone.localdate()
+            data_str = request.POST.get('data')
+            if data_str:
+                try:
+                    entry_data = date.fromisoformat(data_str)
+                except ValueError:
+                    pass
+            creato_il = _combine_water_datetime(entry_data, request.POST.get('ora'))
+            MacroEntry.objects.create(
+                utente=request.user,
+                kcal=int(kcal),
+                proteine_g=_macro_int(request.POST, 'proteine_g'),
+                carboidrati_g=_macro_int(request.POST, 'carboidrati_g'),
+                grassi_g=_macro_int(request.POST, 'grassi_g'),
+                data=entry_data,
+                creato_il=creato_il,
+            )
+    return redirect(request.POST.get('next') or 'macro')
+
+
+@login_required
+def delete_macro_entry(request, entry_id):
+    entry = get_object_or_404(MacroEntry, id=entry_id, utente=request.user)
+    if request.method == 'POST':
+        entry.delete()
+    return redirect(request.POST.get('next') or 'macro')
+
+
+@login_required
+def edit_macro_entry(request, entry_id):
+    entry = get_object_or_404(MacroEntry, id=entry_id, utente=request.user)
+    if request.method == 'POST':
+        kcal = request.POST.get('kcal')
+        data_str = request.POST.get('data')
+        ora_str = request.POST.get('ora')
+        if kcal and kcal.isdigit() and int(kcal) > 0:
+            entry.kcal = int(kcal)
+        entry.proteine_g = _macro_int(request.POST, 'proteine_g')
+        entry.carboidrati_g = _macro_int(request.POST, 'carboidrati_g')
+        entry.grassi_g = _macro_int(request.POST, 'grassi_g')
+        if data_str:
+            try:
+                entry.data = date.fromisoformat(data_str)
+            except ValueError:
+                pass
+        if ora_str:
+            entry.creato_il = _combine_water_datetime(entry.data, ora_str)
+        elif data_str:
+            entry.creato_il = _combine_water_datetime(entry.data, entry.creato_il.strftime('%H:%M'))
+        entry.save()
+    return redirect(request.POST.get('next') or 'macro')
+
+
+@login_required
+def set_macro_goal(request):
+    if request.method == 'POST':
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        for field in ('obiettivo_kcal', 'obiettivo_proteine_g', 'obiettivo_carboidrati_g', 'obiettivo_grassi_g'):
+            val = request.POST.get(field)
+            if val and val.isdigit() and int(val) > 0:
+                setattr(profile, field, int(val))
+        profile.save()
+    return redirect(request.POST.get('next') or 'macro')

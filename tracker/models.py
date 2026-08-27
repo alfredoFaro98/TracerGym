@@ -66,6 +66,10 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     is_public = models.BooleanField(default=False)
     obiettivo_acqua_ml = models.PositiveIntegerField(default=2000)
+    obiettivo_kcal = models.PositiveIntegerField(default=2200)
+    obiettivo_proteine_g = models.PositiveIntegerField(default=140)
+    obiettivo_carboidrati_g = models.PositiveIntegerField(default=250)
+    obiettivo_grassi_g = models.PositiveIntegerField(default=70)
 
     def __str__(self):
         return f"Profilo di {self.user.username}"
@@ -117,6 +121,26 @@ class IntegratoreEntry(models.Model):
 
     def __str__(self):
         return f"{self.utente.username} - {self.get_tipo_display()} {self.quantita_g}g ({self.data})"
+
+
+class MacroEntry(models.Model):
+    # Voce di alimentazione (kcal + macro) in una giornata. Le altre 3 sono
+    # facoltative: si puo' loggare solo le kcal se non si conosce la
+    # scomposizione in macro di quel pasto.
+    utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='macro_entries')
+    kcal = models.PositiveIntegerField()
+    proteine_g = models.PositiveIntegerField(default=0)
+    carboidrati_g = models.PositiveIntegerField(default=0)
+    grassi_g = models.PositiveIntegerField(default=0)
+    data = models.DateField(default=timezone.now)
+    creato_il = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['-data', '-creato_il']
+
+    def __str__(self):
+        return f"{self.utente.username} - {self.kcal}kcal ({self.data})"
+
 
 class BodyMetric(models.Model):
     # Misurazioni corporee dell'utente per una data giornata (una sola voce per giorno)
