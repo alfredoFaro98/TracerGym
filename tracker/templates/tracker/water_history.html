@@ -10,38 +10,38 @@
 
 {% block content %}
 <div class="page-container">
-    <a href="{% url 'dashboard' %}" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--label-4); text-decoration: none; margin-bottom: 20px; transition: color .12s;" onmouseover="this.style.color='var(--label-2)'" onmouseout="this.style.color='var(--label-4)'">
+    <a href="{% url 'dashboard' %}" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #787890; text-decoration: none; margin-bottom: 20px; transition: color .12s;" onmouseover="this.style.color='#c7cbd6'" onmouseout="this.style.color='#787890'">
         ← Dashboard
     </a>
 
     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 20px;">
-        <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: var(--label); margin: 0;">💧 Storico Acqua</h1>
+        <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: #f0f0f3; margin: 0;">💧 Storico Acqua</h1>
         <button type="button" onclick="toggleNewEntryForm()" class="dash-add-btn" title="Aggiungi bevuta" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--on-acc)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
     </div>
 
     <!-- Nuova bevuta (qualsiasi giorno, anche senza entry esistenti) -->
     <div id="new-entry-form" style="display: none; margin-bottom: 24px;">
         <div class="tracer-card" style="padding: 18px 20px;">
-            <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: var(--label-3); text-transform: uppercase; margin-bottom: 12px;">Nuova bevuta</div>
+            <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 12px;">Nuova bevuta</div>
             <form action="{% url 'add_water_entry' %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{% url 'water_history' %}">
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">DATA</span>
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
                     <input type="date" name="data" value="{% now 'Y-m-d' %}" class="tracer-input" style="width: 150px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">ORARIO</span>
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
                     <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input" style="width: 110px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">ML</span>
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ML</span>
                     <input type="number" name="quantita_ml" placeholder="es. 250" min="1" class="tracer-input" style="width: 110px;">
                 </div>
                 <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13px;">Aggiungi</button>
-                <button type="button" onclick="toggleNewEntryForm()" style="padding: 10px 16px; font-size: 13px; background: transparent; border: 1px solid var(--sep); border-radius: 8px; color: var(--label-4); cursor: pointer;">Annulla</button>
+                <button type="button" onclick="toggleNewEntryForm()" style="padding: 10px 16px; font-size: 13px; background: transparent; border: 1px solid #1c1c2c; border-radius: 8px; color: #787890; cursor: pointer;">Annulla</button>
             </form>
         </div>
     </div>
@@ -49,11 +49,11 @@
     <!-- Heatmap annuale -->
     <div class="tracer-card" style="padding: 24px 26px 6px; margin-bottom: 24px;">
         <div style="display: flex; align-items: center; justify-content: center; gap: 20px; padding-bottom: 18px;">
-            <button type="button" onclick="changeYear(-1)" style="background:none;border:none;color:var(--label-3);cursor:pointer;padding:4px;display:flex;">
+            <button type="button" onclick="changeYear(-1)" style="background:none;border:none;color:#9ba0b3;cursor:pointer;padding:4px;display:flex;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
             </button>
-            <span style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: var(--label);">{{ selected_year }}</span>
-            <button type="button" onclick="changeYear(1)" style="background:none;border:none;color:var(--label-3);cursor:pointer;padding:4px;display:flex;">
+            <span style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: #f0f0f3;">{{ selected_year }}</span>
+            <button type="button" onclick="changeYear(1)" style="background:none;border:none;color:#9ba0b3;cursor:pointer;padding:4px;display:flex;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </button>
         </div>
@@ -62,15 +62,15 @@
         </div>
         <div class="mobile-only">
             <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 10px;">
-                <button type="button" onclick="mobileCalPrev()" style="background:none;border:none;color:var(--label);font-size:16px;cursor:pointer;padding:4px 10px;">&#8592;</button>
-                <span id="mobile-month-label" style="font-size: 11px; font-weight: 700; color: var(--label); text-transform: uppercase; letter-spacing: 1px; min-width: 80px; text-align: center;"></span>
-                <button type="button" onclick="mobileCalNext()" style="background:none;border:none;color:var(--label);font-size:16px;cursor:pointer;padding:4px 10px;">&#8594;</button>
+                <button type="button" onclick="mobileCalPrev()" style="background:none;border:none;color:#f0f0f3;font-size:16px;cursor:pointer;padding:4px 10px;">&#8592;</button>
+                <span id="mobile-month-label" style="font-size: 11px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px; min-width: 80px; text-align: center;"></span>
+                <button type="button" onclick="mobileCalNext()" style="background:none;border:none;color:#f0f0f3;font-size:16px;cursor:pointer;padding:4px 10px;">&#8594;</button>
             </div>
             <div style="display: flex; justify-content: center; width: 100%;">
                 <div id="mobile-cal-heatmap" style="overflow: visible; position: relative;"></div>
             </div>
         </div>
-        <div style="font-size: 10.5px; color: var(--label-4); text-align: center; padding: 10px 0 4px;">Colore in base alla % dell'obiettivo di quel giorno (default {{ water_goal_ml }} ml, sovrascrivibile per singolo giorno)</div>
+        <div style="font-size: 10.5px; color: #565b6e; text-align: center; padding: 10px 0 4px;">Colore in base alla % dell'obiettivo di quel giorno (default {{ water_goal_ml }} ml, sovrascrivibile per singolo giorno)</div>
     </div>
 
     <!-- Bevute per giorno -->
@@ -78,26 +78,26 @@
         {% if not days %}
         <div style="padding: 52px 24px; text-align: center;">
             <div style="font-size: 26px; margin-bottom: 10px; opacity: .4;">💧</div>
-            <div style="font-size: 13.5px; color: var(--label-3); font-weight: 500;">Ancora nessuna bevuta registrata</div>
+            <div style="font-size: 13.5px; color: #7d8296; font-weight: 500;">Ancora nessuna bevuta registrata</div>
         </div>
         {% else %}
         {% for day in days %}
         {% with day_key=day.data|date:"Y-m-d" %}
-        <div style="padding: 16px 20px; border-bottom: 1px solid var(--sep);">
+        <div style="padding: 16px 20px; border-bottom: 1px solid #16162a;">
             <div onclick="toggleDay('{{ day_key }}')" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; cursor: pointer; user-select: none;">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <svg id="day-chevron-{{ day_key }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--label-3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                    <span style="font-size: 13.5px; font-weight: 700; color: var(--label);">{{ day.data|date:"l d F Y"|capfirst }}</span>
-                    <span style="font-size: 11.5px; color: var(--label-3);">{{ day.entries|length }} bevut{{ day.entries|length|pluralize:"a,e" }}</span>
+                    <svg id="day-chevron-{{ day_key }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    <span style="font-size: 13.5px; font-weight: 700; color: #f0f0f3;">{{ day.data|date:"l d F Y"|capfirst }}</span>
+                    <span style="font-size: 11.5px; color: #7d8296;">{{ day.entries|length }} bevut{{ day.entries|length|pluralize:"a,e" }}</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="background: var(--acc-soft); color: var(--acc); font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;">{{ day.total_l|floatformat:"-2" }} L <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goal_l|floatformat:"-2" }} L</span></span>
+                    <span style="background: rgba(124,108,246,0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;">{{ day.total_l|floatformat:"-2" }} L <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goal_l|floatformat:"-2" }} L</span></span>
                     {% if day.reached %}
-                    <span title="Obiettivo raggiunto" style="color: var(--green); font-size: 15px; font-weight: 700;">✓</span>
+                    <span title="Obiettivo raggiunto" style="color: #4ade80; font-size: 15px; font-weight: 700;">✓</span>
                     {% else %}
-                    <span title="Obiettivo non raggiunto" style="color: var(--red); font-size: 13px; font-weight: 700;">✕</span>
+                    <span title="Obiettivo non raggiunto" style="color: #f87171; font-size: 13px; font-weight: 700;">✕</span>
                     {% endif %}
-                    <span onclick="event.stopPropagation(); toggleDayGoalForm('{{ day_key }}')" title="Imposta obiettivo di questo giorno" style="cursor: pointer; font-size: 14px; padding: 4px; border-radius: 6px; transition: background .12s;" onmouseover="this.style.background='var(--overlay-hover)'" onmouseout="this.style.background='transparent'">🎯</span>
+                    <span onclick="event.stopPropagation(); toggleDayGoalForm('{{ day_key }}')" title="Imposta obiettivo di questo giorno" style="cursor: pointer; font-size: 14px; padding: 4px; border-radius: 6px; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">🎯</span>
                 </div>
             </div>
 
@@ -106,46 +106,46 @@
                     {% csrf_token %}
                     <input type="hidden" name="data" value="{{ day_key }}">
                     <input type="hidden" name="next" value="{% url 'water_history' %}">
-                    <span style="font-size: 11px; color: var(--label-3);">Obiettivo di questo giorno:</span>
+                    <span style="font-size: 11px; color: #7d8296;">Obiettivo di questo giorno:</span>
                     <input type="number" name="obiettivo_ml" value="{{ day.goal_ml }}" min="100" step="50" class="tracer-input" style="width: 100px; padding: 7px 9px; font-size: 12px;">
-                    <span style="font-size: 11px; color: var(--label-3);">ml</span>
+                    <span style="font-size: 11px; color: #7d8296;">ml</span>
                     <button type="submit" class="btn-primary-gradient" style="padding: 7px 14px; font-size: 12px;">Salva</button>
-                    <button type="button" onclick="toggleDayGoalForm('{{ day_key }}')" style="padding: 7px 12px; font-size: 12px; background: transparent; border: 1px solid var(--sep); border-radius: 6px; color: var(--label-4); cursor: pointer;">Annulla</button>
+                    <button type="button" onclick="toggleDayGoalForm('{{ day_key }}')" style="padding: 7px 12px; font-size: 12px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #787890; cursor: pointer;">Annulla</button>
                 </form>
             </div>
 
             <div id="day-body-{{ day_key }}" style="display: none; flex-direction: column; gap: 6px; margin-top: 12px;">
                 {% for e in day.entries %}
                 <div>
-                    <div id="water-view-{{ e.id }}" style="display: flex; align-items: center; gap: 10px; background: var(--overlay-hover); border: 1px solid var(--hairline); border-radius: 9px; padding: 9px 14px; flex-wrap: wrap;">
-                        <span style="font-size: 13.5px; color: var(--label);"><b>{{ e.quantita_ml }}</b> ml</span>
-                        <span style="font-size: 12px; color: var(--label-3);">{{ e.creato_il|date:"H:i" }}</span>
+                    <div id="water-view-{{ e.id }}" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.05); border-radius: 9px; padding: 9px 14px; flex-wrap: wrap;">
+                        <span style="font-size: 13.5px; color: #ffffff;"><b>{{ e.quantita_ml }}</b> ml</span>
+                        <span style="font-size: 12px; color: #7d8296;">{{ e.creato_il|date:"H:i" }}</span>
                         <div style="flex: 1;"></div>
-                        <span onclick="toggleWaterEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: var(--acc); padding: 6px 12px; border-radius: 7px; background: var(--acc-soft); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='var(--acc-soft)'" onmouseout="this.style.background='var(--acc-soft)'">Modifica</span>
+                        <span onclick="toggleWaterEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: #a996ff; padding: 6px 12px; border-radius: 7px; background: rgba(124,108,246,0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(124,108,246,0.22)'" onmouseout="this.style.background='rgba(124,108,246,0.12)'">Modifica</span>
                         <form action="{% url 'delete_water_entry' e.id %}" method="post" style="display:inline;" onsubmit="return confirm('Eliminare questa aggiunta?');">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="{% url 'water_history' %}">
-                            <button type="submit" style="font-size: 12px; font-weight: 600; color: var(--red); padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
+                            <button type="submit" style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
                         </form>
                     </div>
-                    <div id="water-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(124,108,246,0.06); border: 1px solid var(--acc-line); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
+                    <div id="water-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(124,108,246,0.06); border: 1px solid rgba(124,108,246,0.3); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
                         <form action="{% url 'edit_water_entry' e.id %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="{% url 'water_history' %}">
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">ML</span>
+                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ML</span>
                                 <input type="number" name="quantita_ml" value="{{ e.quantita_ml }}" class="tracer-input" style="width: 80px;" min="1">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">DATA</span>
+                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
                                 <input type="date" name="data" value="{{ e.data|date:'Y-m-d' }}" class="tracer-input" style="width: 150px;">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">ORARIO</span>
+                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
                                 <input type="time" name="ora" value="{{ e.creato_il|date:'H:i' }}" class="tracer-input" style="width: 100px;">
                             </div>
                             <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
-                            <button type="button" onclick="toggleWaterEdit('{{ e.id }}')" style="color: var(--label-3); font-size: 12.5px; font-weight: 600; padding: 8px 10px; background: transparent; border: none; cursor: pointer;" onmouseover="this.style.color='var(--label-2)'" onmouseout="this.style.color='var(--label-3)'">Annulla</button>
+                            <button type="button" onclick="toggleWaterEdit('{{ e.id }}')" style="color: #838a9e; font-size: 12.5px; font-weight: 600; padding: 8px 10px; background: transparent; border: none; cursor: pointer;" onmouseover="this.style.color='#c7cbd6'" onmouseout="this.style.color='#838a9e'">Annulla</button>
                         </form>
                     </div>
                 </div>
@@ -161,7 +161,7 @@
                             <input type="number" name="quantita_ml" placeholder="ml" min="1" class="tracer-input" style="width: 90px; padding: 8px 10px; font-size: 12.5px;">
                             <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input" style="width: 100px; padding: 8px 10px; font-size: 12.5px;">
                             <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Aggiungi</button>
-                            <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" style="padding: 8px 12px; font-size: 12.5px; background: transparent; border: 1px solid var(--sep); border-radius: 6px; color: var(--label-4); cursor: pointer;">Annulla</button>
+                            <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" style="padding: 8px 12px; font-size: 12.5px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #787890; cursor: pointer;">Annulla</button>
                         </form>
                     </div>
                 </div>
@@ -172,13 +172,13 @@
         {% endif %}
 
         {% if days.has_other_pages %}
-        <div style="display: flex; justify-content: center; gap: 8px; padding: 16px; border-top: 1px solid var(--sep);">
+        <div style="display: flex; justify-content: center; gap: 8px; padding: 16px; border-top: 1px solid #16162a;">
             {% if days.has_previous %}
-                <a href="?page={{ days.previous_page_number }}" style="padding: 5px 10px; background: var(--sep); color: var(--label); border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Precedente</a>
+                <a href="?page={{ days.previous_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Precedente</a>
             {% endif %}
-            <span style="font-size: 12px; color: var(--label-3); align-self: center;">Pagina {{ days.number }} di {{ days.paginator.num_pages }}</span>
+            <span style="font-size: 12px; color: #7d8296; align-self: center;">Pagina {{ days.number }} di {{ days.paginator.num_pages }}</span>
             {% if days.has_next %}
-                <a href="?page={{ days.next_page_number }}" style="padding: 5px 10px; background: var(--sep); color: var(--label); border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Successiva</a>
+                <a href="?page={{ days.next_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Successiva</a>
             {% endif %}
         </div>
         {% endif %}
@@ -187,20 +187,20 @@
 
 <style>
 .dash-add-btn {
-    background: var(--acc);
-    color: var(--on-acc);
+    background: #7c6cf6;
+    color: #fff;
     border: none;
     transition: background .15s, box-shadow .15s;
-    box-shadow: 0 8px 20px var(--acc-line);
+    box-shadow: 0 8px 20px rgba(124,108,246,.35);
 }
-.dash-add-btn:hover { background: var(--acc-2); }
+.dash-add-btn:hover { background: #8b7bf7; }
 
 .water-quick-btn {
     padding: 8px 14px;
-    background: var(--acc-soft);
-    border: 1px solid var(--acc-line);
+    background: rgba(124,108,246,0.12);
+    border: 1px solid rgba(124,108,246,0.2);
     border-radius: 8px;
-    color: var(--acc);
+    color: #b7bdf0;
     font-size: 12.5px;
     font-weight: 600;
     cursor: pointer;
@@ -208,21 +208,21 @@
     font-family: inherit;
     white-space: nowrap;
 }
-.water-quick-btn:hover { background: var(--acc-soft); }
+.water-quick-btn:hover { background: rgba(124,108,246,0.22); }
 
 .page-container .btn-primary-gradient {
-    background: var(--acc);
+    background: #7c6cf6;
 }
-.page-container .btn-primary-gradient:hover { background: var(--acc-2); opacity: 1; }
+.page-container .btn-primary-gradient:hover { background: #8b7bf7; opacity: 1; }
 
 [data-hmcell]:hover [data-hmtip] { opacity: 1 !important; }
-.ch-domain-text { fill: var(--label-3); font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; }
+.ch-domain-text { fill: #a0a6af; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; }
 .ch-tooltip {
     position: absolute !important;
     z-index: 99999 !important;
-    background: var(--surface-3) !important;
-    color: var(--label) !important;
-    border: 1px solid var(--hairline-2) !important;
+    background: #15151c !important;
+    color: #f0f0f3 !important;
+    border: 1px solid rgba(255,255,255,.08) !important;
     border-radius: 6px !important;
     padding: 8px 12px !important;
     font-family: 'Space Grotesk', sans-serif !important;
@@ -230,7 +230,7 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
     pointer-events: none;
 }
-.ch-tooltip::after { border-top-color: var(--surface-3) !important; }
+.ch-tooltip::after { border-top-color: #15151c !important; }
 .heatmap-scroll-wrap {
     width: 100%;
     overflow-x: auto;
@@ -243,7 +243,7 @@
 }
 .heatmap-scroll-wrap::-webkit-scrollbar { height: 4px; }
 .heatmap-scroll-wrap::-webkit-scrollbar-track { background: transparent; }
-.heatmap-scroll-wrap::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+.heatmap-scroll-wrap::-webkit-scrollbar-thumb { background: #1c1c2c; border-radius: 2px; }
 </style>
 <script>
 var OPEN_DAYS_KEY = 'open_water_days';
@@ -322,13 +322,13 @@ var MONTH_NAMES_IT = ['GEN','FEB','MAR','APR','MAG','GIU','LUG','AGO','SET','OTT
 var MONTH_NAMES_IT_SHORT = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
 
 function heatmapLevelColor(ml, goalMl) {
-    if (!ml) return 'var(--overlay-hover)';
+    if (!ml) return 'rgba(255,255,255,0.05)';
     var ratio = goalMl > 0 ? ml / goalMl : 0;
-    if (ratio >= 1) return 'var(--acc)';
-    if (ratio >= 0.75) return 'color-mix(in srgb, var(--acc) 78%, transparent)';
-    if (ratio >= 0.5) return 'color-mix(in srgb, var(--acc) 55%, transparent)';
-    if (ratio >= 0.25) return 'var(--acc-line)';
-    return 'color-mix(in srgb, var(--acc) 18%, transparent)';
+    if (ratio >= 1) return 'rgba(124,108,246,1)';
+    if (ratio >= 0.75) return 'rgba(124,108,246,0.78)';
+    if (ratio >= 0.5) return 'rgba(124,108,246,0.55)';
+    if (ratio >= 0.25) return 'rgba(124,108,246,0.35)';
+    return 'rgba(124,108,246,0.18)';
 }
 
 function buildYearHeatmap() {
@@ -344,7 +344,7 @@ function buildYearHeatmap() {
         monthCol.style.cssText = 'display:flex;flex-direction:column;gap:8px;align-items:center;min-width:0;';
 
         var label = document.createElement('div');
-        label.style.cssText = 'font-size:10px;font-weight:600;color:var(--label-3);';
+        label.style.cssText = 'font-size:10px;font-weight:600;color:#a7abc0;';
         label.textContent = MONTH_NAMES_IT[m];
         monthCol.appendChild(label);
 
@@ -367,7 +367,7 @@ function buildYearHeatmap() {
                 var pct = dayGoalMl > 0 ? Math.round((ml / dayGoalMl) * 100) : 0;
                 var tip = document.createElement('div');
                 tip.setAttribute('data-hmtip', '1');
-                tip.style.cssText = 'position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:var(--surface-3);color:var(--label);font-size:11px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;z-index:20;box-shadow:0 6px 16px rgba(0,0,0,.4);border:1px solid var(--hairline-2);transition:opacity .1s;';
+                tip.style.cssText = 'position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:#15151c;color:#fff;font-size:11px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;z-index:20;box-shadow:0 6px 16px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);transition:opacity .1s;';
                 tip.textContent = dayNum + ' ' + MONTH_NAMES_IT_SHORT[m] + ' ' + YEAR + ' — ' + (ml === 0 ? 'nessuna bevuta' : (ml / 1000).toFixed(2) + 'L (' + pct + '% obiettivo)');
                 cell.appendChild(tip);
             } else {

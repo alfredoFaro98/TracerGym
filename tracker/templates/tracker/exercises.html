@@ -5,27 +5,27 @@
 {% block extra_head %}
 <style>
     .tipo-bilanciere { background: rgba(124,156,246,.12); color: #a8bdf8; border: 1px solid rgba(124,156,246,.28); }
-    .tipo-manubrio   { background: rgba(240,168,117,.12); color: var(--orange); border: 1px solid rgba(240,168,117,.28); }
+    .tipo-manubrio   { background: rgba(240,168,117,.12); color: #f0a875; border: 1px solid rgba(240,168,117,.28); }
     .tipo-cavi       { background: rgba(74,222,128,.12);  color: #7fdb9a; border: 1px solid rgba(74,222,128,.28); }
     .tipo-macchine   { background: rgba(183,140,247,.12); color: #c3a8fb; border: 1px solid rgba(183,140,247,.28); }
     .tipo-corpo      { background: rgba(94,207,214,.12);  color: #7fdce1; border: 1px solid rgba(94,207,214,.28); }
     .tipo-default    { background: rgba(120,120,144,.10); color: #9090a8; border: 1px solid rgba(120,120,144,.2); }
 
     .ex-name-btn { cursor: pointer; }
-    .ex-name-btn:hover { color: var(--label) !important; }
+    .ex-name-btn:hover { color: #fff !important; }
 
     #edit-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.6); align-items: center; justify-content: center; }
     #edit-modal.open { display: flex; }
-    #edit-modal-box { background: var(--surface-3); border: 1px solid var(--acc-soft); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 16px; padding: 24px; width: 100%; max-width: 480px; margin: 16px; }
+    #edit-modal-box { background: #111117; border: 1px solid rgba(124,108,246,0.18); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 16px; padding: 24px; width: 100%; max-width: 480px; margin: 16px; }
 
     #ex-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.75); align-items: center; justify-content: center; }
     #ex-modal.open { display: flex; }
-    #ex-modal-box { background: var(--surface-3); border: 1px solid var(--acc-soft); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 16px; padding: 24px; width: 100%; max-width: 580px; margin: 16px; max-height: 90vh; overflow-y: auto; }
+    #ex-modal-box { background: #111117; border: 1px solid rgba(124,108,246,0.18); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 16px; padding: 24px; width: 100%; max-width: 580px; margin: 16px; max-height: 90vh; overflow-y: auto; }
 
-    .modal-label { display: block; font-size: 10px; font-weight: 700; color: var(--label-3); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px; }
-    .modal-title { font-size: 11px; font-weight: 700; color: var(--label-3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 18px; }
-    .modal-cancel-btn { padding: 0 16px; height: 34px; background: var(--overlay-hover); border: 1px solid var(--hairline-2); border-radius: 8px; color: var(--label-2); font-size: 12px; font-weight: 600; cursor: pointer; transition: background .12s; }
-    .modal-cancel-btn:hover { background: var(--overlay-hover); }
+    .modal-label { display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px; }
+    .modal-title { font-size: 11px; font-weight: 700; color: #838a9e; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 18px; }
+    .modal-cancel-btn { padding: 0 16px; height: 34px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #c7cbd6; font-size: 12px; font-weight: 600; cursor: pointer; transition: background .12s; }
+    .modal-cancel-btn:hover { background: rgba(255,255,255,0.09); }
 
     .filter-tab {
         padding: 8px 14px;
@@ -34,15 +34,15 @@
         font-weight: 600;
         text-decoration: none;
         transition: all .12s;
-        background: var(--overlay-hover);
-        border: 1px solid var(--hairline-2);
-        color: var(--label-2);
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        color: #c7cbd6;
         white-space: nowrap;
         cursor: pointer;
         user-select: none;
     }
-    .filter-tab:hover { background: var(--overlay-hover); }
-    .filter-tab.active { background: var(--acc-soft); border-color: var(--acc); color: var(--label); }
+    .filter-tab:hover { background: rgba(255,255,255,0.09); }
+    .filter-tab.active { background: rgba(124,108,246,0.22); border-color: #7c6cf6; color: #ffffff; }
 
     .ex-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 10px; }
     .ex-grid .no-media { order: 1; }
@@ -51,23 +51,23 @@
         align-items: center;
         gap: 14px;
         padding: 12px 16px;
-        background: var(--surface-3);
+        background: #14141b;
         border-radius: 12px;
         border: 1px solid transparent;
         transition: all .12s;
         z-index: 0;
     }
     .ex-card:hover {
-        background: var(--acc-soft);
-        border-color: var(--acc-line);
-        box-shadow: 0 0 0 1px var(--acc-soft);
+        background: rgba(124,108,246,0.14);
+        border-color: rgba(124,108,246,0.45);
+        box-shadow: 0 0 0 1px rgba(124,108,246,0.2);
         transform: translateY(-1px);
         z-index: 30;
     }
     .ex-thumb, .ex-thumb-fallback { width: 44px; height: 44px; border-radius: 8px; flex-shrink: 0; }
     .ex-thumb {
         object-fit: cover;
-        background: var(--bg-el);
+        background: #0a0a12;
         position: relative;
         transition: transform .18s ease, box-shadow .18s ease;
         transform-origin: left center;
@@ -78,14 +78,14 @@
         cursor: zoom-in;
         box-shadow: 0 10px 30px rgba(0,0,0,.55);
     }
-    .ex-thumb-fallback { background: var(--sep); color: var(--label-3); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; }
+    .ex-thumb-fallback { background: #1c1c2c; color: #7d8296; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; }
 
     .page-container .btn-primary-gradient,
     #edit-modal .btn-primary-gradient,
-    #ex-modal .btn-primary-gradient { background: var(--acc); }
+    #ex-modal .btn-primary-gradient { background: #7c6cf6; }
     .page-container .btn-primary-gradient:hover,
     #edit-modal .btn-primary-gradient:hover,
-    #ex-modal .btn-primary-gradient:hover { background: var(--acc-2); opacity: 1; }
+    #ex-modal .btn-primary-gradient:hover { background: #8b7bf7; opacity: 1; }
 </style>
 {% endblock %}
 
@@ -95,11 +95,11 @@
     <!-- Header -->
     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
         <div>
-            <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 30px; font-weight: 700; color: var(--label); letter-spacing: -0.4px; margin-bottom: 4px;">Esercizi</h1>
-            <p style="font-size: 14px; color: var(--label-3);">{{ total_count }} esercizi con animazioni{% if total_media_bytes is not None %} &middot; {{ total_media_bytes|filesizeformat }} di immagini caricate{% endif %}</p>
+            <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 30px; font-weight: 700; color: #ffffff; letter-spacing: -0.4px; margin-bottom: 4px;">Esercizi</h1>
+            <p style="font-size: 14px; color: #7d8296;">{{ total_count }} esercizi con animazioni{% if total_media_bytes is not None %} &middot; {{ total_media_bytes|filesizeformat }} di immagini caricate{% endif %}</p>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
-            <a href="{% url 'export_exercises_json' %}" style="height: 34px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 1px solid var(--sep); border-radius: 8px; color: var(--label-4); font-size: 12px; font-weight: 600; text-decoration: none; transition: all .12s;" onmouseover="this.style.borderColor='#3a3a5a';this.style.color='var(--label)'" onmouseout="this.style.borderColor='var(--sep)';this.style.color='var(--label-4)'">
+            <a href="{% url 'export_exercises_json' %}" style="height: 34px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 1px solid #1c1c2c; border-radius: 8px; color: #787890; font-size: 12px; font-weight: 600; text-decoration: none; transition: all .12s;" onmouseover="this.style.borderColor='#3a3a5a';this.style.color='#f0f0f3'" onmouseout="this.style.borderColor='#1c1c2c';this.style.color='#787890'">
                 <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
                 Esporta JSON
             </a>
@@ -111,7 +111,7 @@
 
     <!-- Error -->
     {% if error %}
-    <div style="background: rgba(248,81,73,.08); border: 1px solid rgba(248,81,73,.2); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 12px; color: var(--red);">
+    <div style="background: rgba(248,81,73,.08); border: 1px solid rgba(248,81,73,.2); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 12px; color: #f85149;">
         {{ error }}
     </div>
     {% endif %}
@@ -119,37 +119,37 @@
     <!-- Add Form -->
     <div id="add-form" style="display: none; margin-bottom: 20px;">
         <div class="tracer-card" style="padding: 20px 24px;">
-            <div style="font-size: 11px; font-weight: 700; color: var(--label-3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;">Nuovo Esercizio</div>
+            <div style="font-size: 11px; font-weight: 700; color: #838a9e; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;">Nuovo Esercizio</div>
             <form method="post" action="{% url 'add_exercise' %}" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 14px;">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.get_full_path }}">
                 <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;">
                     <div style="flex: 1; min-width: 180px;">
-                        <label style="display: block; font-size: 10px; font-weight: 700; color: var(--label-3); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Nome</label>
+                        <label style="display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Nome</label>
                         <input type="text" name="nome" class="tracer-input" placeholder="Es. Curl con bilanciere" required style="width: 100%;">
                     </div>
                     <div style="flex: 1; min-width: 180px;">
-                        <label style="display: block; font-size: 10px; font-weight: 700; color: var(--label-3); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Tipologia</label>
+                        <label style="display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Tipologia</label>
                         <input type="text" name="tipologia" class="tracer-input" placeholder="Es. Esercizio con bilanciere" style="width: 100%;">
                     </div>
                     <button type="submit" class="btn-primary-gradient" style="height: 36px; padding: 0 20px; font-size: 12px; flex-shrink: 0;">Aggiungi</button>
                 </div>
                 <div>
-                    <label style="display: block; font-size: 10px; font-weight: 700; color: var(--label-3); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 8px;">Gruppo Muscolare</label>
+                    <label style="display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 8px;">Gruppo Muscolare</label>
                     <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                         {% for tag in tags %}
-                        <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 5px 10px; border: 1px solid var(--sep); border-radius: 6px; transition: border-color .12s;" onmouseover="this.style.borderColor='#3a3a5a'" onmouseout="this.style.borderColor='var(--sep)'">
-                            <input type="checkbox" name="tags" value="{{ tag.id }}" style="accent-color: var(--acc);">
+                        <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 5px 10px; border: 1px solid #1c1c2c; border-radius: 6px; transition: border-color .12s;" onmouseover="this.style.borderColor='#3a3a5a'" onmouseout="this.style.borderColor='#1c1c2c'">
+                            <input type="checkbox" name="tags" value="{{ tag.id }}" style="accent-color: #7c6cf6;">
                             <span style="font-size: 11px; color: #a0a0c0;">{{ tag.nome }}</span>
                         </label>
                         {% endfor %}
                     </div>
                 </div>
                 <div>
-                    <label style="display: block; font-size: 10px; font-weight: 700; color: var(--label-3); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Immagine (opzionale, max {{ max_image_mb }} MB)</label>
-                    <input type="file" name="immagine" id="add-immagine" accept="image/*" style="font-size: 12px; color: #a0a0c0; background: var(--overlay-hover); border: 1px solid var(--hairline-2); border-radius: 7px; padding: 6px 10px; cursor: pointer; width: 100%; max-width: 320px; box-sizing: border-box;">
-                    <span id="add-immagine-error" style="display:none; font-size: 11px; color: var(--red); margin-top: 5px;"></span>
-                    <img id="add-immagine-preview" style="display:none; margin-top: 8px; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: var(--bg-el);">
+                    <label style="display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Immagine (opzionale, max {{ max_image_mb }} MB)</label>
+                    <input type="file" name="immagine" id="add-immagine" accept="image/*" style="font-size: 12px; color: #a0a0c0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 6px 10px; cursor: pointer; width: 100%; max-width: 320px; box-sizing: border-box;">
+                    <span id="add-immagine-error" style="display:none; font-size: 11px; color: #f85149; margin-top: 5px;"></span>
+                    <img id="add-immagine-preview" style="display:none; margin-top: 8px; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: #0a0a12;">
                 </div>
             </form>
         </div>
@@ -157,7 +157,7 @@
 
     <!-- Ricerca -->
     <div style="position: relative; margin-bottom: 28px;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--label-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); pointer-events: none;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); pointer-events: none;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         <input id="search-input" type="text" placeholder="Cerca esercizio…" class="tracer-input" style="width: 100%; box-sizing: border-box; padding: 14px 16px 14px 42px; font-size: 14px; border-radius: 12px;" oninput="filterExercises(this.value)">
     </div>
 
@@ -194,19 +194,19 @@
             <div class="ex-thumb-fallback">{{ exercise.nome|first|upper }}</div>
             {% endif %}
             <div class="ex-name-btn" data-ex-id="{{ exercise.id }}" style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; overflow: hidden;">
-                <span style="font-size: 14.5px; font-weight: 600; color: var(--label); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ exercise.nome }}</span>
+                <span style="font-size: 14.5px; font-weight: 600; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ exercise.nome }}</span>
                 {% if exercise.tipologia %}
                 <span style="font-size: 11px; align-self: flex-start; padding: 1px 7px; border-radius: 4px;" class="{% if 'bilanciere' in exercise.tipologia|lower %}tipo-bilanciere{% elif 'manubrio' in exercise.tipologia|lower %}tipo-manubrio{% elif 'cavi' in exercise.tipologia|lower %}tipo-cavi{% elif 'macchine' in exercise.tipologia|lower %}tipo-macchine{% elif 'corpo' in exercise.tipologia|lower %}tipo-corpo{% else %}tipo-default{% endif %}">{{ exercise.tipologia }}</span>
                 {% endif %}
             </div>
             {% if user.is_superuser %}
             <div style="display: flex; gap: 5px; flex-shrink: 0;">
-                <button type="button" data-edit-btn data-ex-id="{{ exercise.id }}" data-ex-nome="{{ exercise.nome }}" data-ex-tipologia="{{ exercise.tipologia }}" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: var(--acc-soft); border: 1px solid var(--acc-line); border-radius: 5px; color: var(--acc); cursor: pointer;">
+                <button type="button" data-edit-btn data-ex-id="{{ exercise.id }}" data-ex-nome="{{ exercise.nome }}" data-ex-tipologia="{{ exercise.tipologia }}" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(124,108,246,.12); border: 1px solid rgba(124,108,246,.28); border-radius: 5px; color: #a996ff; cursor: pointer;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </button>
                 <form method="post" action="{% url 'delete_exercise_admin' exercise.id %}" data-confirm-nome="{{ exercise.nome }}" style="margin: 0;">
                     {% csrf_token %}
-                    <button type="submit" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(248,113,113,.12); border: 1px solid rgba(248,113,113,.22); border-radius: 6px; color: var(--red); transition: all .12s; cursor: pointer;" onmouseover="this.style.background='rgba(248,113,113,.22)'" onmouseout="this.style.background='rgba(248,113,113,.12)'">
+                    <button type="submit" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(248,113,113,.12); border: 1px solid rgba(248,113,113,.22); border-radius: 6px; color: #f87171; transition: all .12s; cursor: pointer;" onmouseover="this.style.background='rgba(248,113,113,.22)'" onmouseout="this.style.background='rgba(248,113,113,.12)'">
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                     </button>
                 </form>
@@ -215,10 +215,10 @@
         </div>
         {% endwith %}
         {% empty %}
-        <div style="padding: 30px; text-align: center; color: var(--label); font-size: 13px;">Nessun esercizio nel database.</div>
+        <div style="padding: 30px; text-align: center; color: #f0f0f3; font-size: 13px;">Nessun esercizio nel database.</div>
         {% endfor %}
     </div>
-    <div id="ex-empty-msg" style="display: none; padding: 30px; text-align: center; color: var(--label); font-size: 13px;">Nessun esercizio corrisponde ai filtri.</div>
+    <div id="ex-empty-msg" style="display: none; padding: 30px; text-align: center; color: #f0f0f3; font-size: 13px;">Nessun esercizio corrisponde ai filtri.</div>
 
 </div>
 
@@ -227,20 +227,20 @@
     <div id="ex-modal-box">
         <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px;">
             <div>
-                <div id="ex-modal-nome" style="font-size: 17px; font-weight: 700; color: var(--label);"></div>
+                <div id="ex-modal-nome" style="font-size: 17px; font-weight: 700; color: #f0f0f3;"></div>
                 <div id="ex-modal-meta" style="margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap;"></div>
             </div>
-            <button type="button" onclick="closeExModal()" style="background: var(--overlay-hover); border: 1px solid var(--hairline-2); border-radius: 8px; width: 28px; height: 28px; color: var(--label-2); cursor: pointer; font-size: 16px; line-height: 1; flex-shrink: 0; margin-left: 12px; transition: background .12s;" onmouseover="this.style.background='var(--overlay-hover)'" onmouseout="this.style.background='var(--overlay-hover)'">&times;</button>
+            <button type="button" onclick="closeExModal()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; width: 28px; height: 28px; color: #c7cbd6; cursor: pointer; font-size: 16px; line-height: 1; flex-shrink: 0; margin-left: 12px; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">&times;</button>
         </div>
         <div id="ex-modal-gallery" style="display: flex; flex-wrap: wrap; gap: 10px; min-height: 80px; margin-bottom: 4px;"></div>
         {% if user.is_superuser %}
-        <form id="ex-upload-form" method="post" enctype="multipart/form-data" style="display: flex; gap: 8px; align-items: center; border-top: 1px solid var(--hairline); padding-top: 16px; margin-top: 16px;">
+        <form id="ex-upload-form" method="post" enctype="multipart/form-data" style="display: flex; gap: 8px; align-items: center; border-top: 1px solid rgba(255,255,255,0.07); padding-top: 16px; margin-top: 16px;">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ request.get_full_path }}">
-            <input type="file" name="immagine" accept="image/*" required style="flex: 1; font-size: 12px; color: #a0a0c0; background: var(--overlay-hover); border: 1px solid var(--hairline-2); border-radius: 7px; padding: 6px 10px; cursor: pointer;">
+            <input type="file" name="immagine" accept="image/*" required style="flex: 1; font-size: 12px; color: #a0a0c0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 6px 10px; cursor: pointer;">
             <button type="submit" class="btn-primary-gradient" style="height: 34px; padding: 0 16px; font-size: 12px; white-space: nowrap;">Aggiungi</button>
         </form>
-        <div id="ex-upload-limit-msg" style="display:none; font-size: 11.5px; color: var(--label-3); border-top: 1px solid var(--hairline); padding-top: 16px; margin-top: 16px;">Ogni esercizio può avere una sola immagine. Eliminala per poterne caricare un'altra.</div>
+        <div id="ex-upload-limit-msg" style="display:none; font-size: 11.5px; color: #7d8296; border-top: 1px solid rgba(255,255,255,0.07); padding-top: 16px; margin-top: 16px;">Ogni esercizio può avere una sola immagine. Eliminala per poterne caricare un'altra.</div>
         {% endif %}
     </div>
 </div>
@@ -263,21 +263,21 @@
                 <label class="modal-label" style="margin-bottom: 8px;">Gruppo Muscolare</label>
                 <div style="display: flex; flex-wrap: wrap; gap: 8px;" id="edit-tags">
                     {% for tag in tags %}
-                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 5px 10px; border: 1px solid var(--hairline-2); border-radius: 6px; transition: border-color .12s;" onmouseover="this.style.borderColor='rgba(255,255,255,0.2)'" onmouseout="this.style.borderColor='var(--hairline-2)'">
-                        <input type="checkbox" name="tags" value="{{ tag.id }}" data-tag-id="{{ tag.id }}" style="accent-color: var(--acc);">
-                        <span style="font-size: 11px; color: var(--label-2);">{{ tag.nome }}</span>
+                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 5px 10px; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; transition: border-color .12s;" onmouseover="this.style.borderColor='rgba(255,255,255,0.2)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'">
+                        <input type="checkbox" name="tags" value="{{ tag.id }}" data-tag-id="{{ tag.id }}" style="accent-color: #7c6cf6;">
+                        <span style="font-size: 11px; color: #c7cbd6;">{{ tag.nome }}</span>
                     </label>
                     {% endfor %}
                 </div>
             </div>
             <div id="edit-immagine-wrap">
                 <label class="modal-label">Aggiungi immagine (opzionale)</label>
-                <input type="file" name="immagine" id="edit-immagine" accept="image/*" style="font-size: 12px; color: #a0a0c0; background: var(--overlay-hover); border: 1px solid var(--hairline-2); border-radius: 7px; padding: 6px 10px; cursor: pointer; width: 100%; box-sizing: border-box;">
-                <span style="display: block; font-size: 10.5px; color: var(--label-4); margin-top: 5px;">Max {{ max_image_mb }} MB.</span>
-                <span id="edit-immagine-error" style="display:none; font-size: 11px; color: var(--red); margin-top: 5px;"></span>
-                <img id="edit-immagine-preview" style="display:none; margin-top: 8px; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: var(--bg-el);">
+                <input type="file" name="immagine" id="edit-immagine" accept="image/*" style="font-size: 12px; color: #a0a0c0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 6px 10px; cursor: pointer; width: 100%; box-sizing: border-box;">
+                <span style="display: block; font-size: 10.5px; color: #565b6e; margin-top: 5px;">Max {{ max_image_mb }} MB.</span>
+                <span id="edit-immagine-error" style="display:none; font-size: 11px; color: #f85149; margin-top: 5px;"></span>
+                <img id="edit-immagine-preview" style="display:none; margin-top: 8px; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: #0a0a12;">
             </div>
-            <div id="edit-immagine-limit-msg" style="display:none; font-size: 10.5px; color: var(--label-4);">Questo esercizio ha già un'immagine. Per sostituirla, eliminala prima dalla scheda dell'esercizio (clicca sul nome nell'elenco).</div>
+            <div id="edit-immagine-limit-msg" style="display:none; font-size: 10.5px; color: #565b6e;">Questo esercizio ha già un'immagine. Per sostituirla, eliminala prima dalla scheda dell'esercizio (clicca sul nome nell'elenco).</div>
             <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
                 <button type="button" onclick="closeEdit()" class="modal-cancel-btn">Annulla</button>
                 <button type="submit" class="btn-primary-gradient" style="padding: 0 20px; height: 34px; font-size: 12px; font-weight: 600;">Salva</button>
@@ -346,21 +346,21 @@
         var gallery = document.getElementById('ex-modal-gallery');
         gallery.innerHTML = '';
         if (d.images.length === 0) {
-            gallery.innerHTML = '<span style="font-size:12px;color:var(--label-3);padding:20px 0;">Nessuna immagine ancora.</span>';
+            gallery.innerHTML = '<span style="font-size:12px;color:#7d8296;padding:20px 0;">Nessuna immagine ancora.</span>';
         } else {
             d.images.forEach(function(img) {
                 var wrap = document.createElement('div');
                 wrap.style.cssText = 'position:relative;display:inline-block;';
                 var imgEl = document.createElement('img');
                 imgEl.src = img.url;
-                imgEl.style.cssText = 'width:260px;height:260px;object-fit:contain;background:var(--bg-el);border-radius:10px;border:1px solid var(--sep);display:block;';
+                imgEl.style.cssText = 'width:260px;height:260px;object-fit:contain;background:#0a0a12;border-radius:10px;border:1px solid #1c1c2c;display:block;';
                 wrap.appendChild(imgEl);
                 if (IS_ADMIN) {
                     var form = document.createElement('form');
                     form.method = 'post';
                     form.action = delImgUrlTpl.replace('__ID__', img.id);
                     form.style.cssText = 'position:absolute;top:4px;right:4px;';
-                    form.innerHTML = '<input type="hidden" name="csrfmiddlewaretoken" value="' + csrfToken + '"><input type="hidden" name="next" value="' + window.location.pathname + window.location.search + '"><button type="submit" style="width:20px;height:20px;border-radius:4px;background:rgba(0,0,0,.7);border:none;color:var(--red);cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;" onclick="return confirm(\'Elimina immagine?\');">&times;</button>';
+                    form.innerHTML = '<input type="hidden" name="csrfmiddlewaretoken" value="' + csrfToken + '"><input type="hidden" name="next" value="' + window.location.pathname + window.location.search + '"><button type="submit" style="width:20px;height:20px;border-radius:4px;background:rgba(0,0,0,.7);border:none;color:#f87171;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;" onclick="return confirm(\'Elimina immagine?\');">&times;</button>';
                     wrap.appendChild(form);
                 }
                 gallery.appendChild(wrap);
