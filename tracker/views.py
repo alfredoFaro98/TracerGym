@@ -2094,7 +2094,9 @@ def macro(request):
             'entries': day_entries,
             'totals': totals,
             'goals': day_goals,
-            'reached': bool(day_goals['kcal']) and totals['kcal'] >= day_goals['kcal'],
+            'reached': bool(day_goals['kcal']) and all(
+                totals[k] >= day_goals[k] for k in day_goals if day_goals[k]
+            ),
             'status': statuses_by_day.get(day),
         })
 
