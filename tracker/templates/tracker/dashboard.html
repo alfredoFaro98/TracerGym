@@ -195,13 +195,7 @@
             </div>
         </div>
 
-        <form data-ajax-macro action="{% url 'add_macro_entry_ajax' %}" method="post" style="display: flex; gap: 6px; margin-top: auto;">
-            {% csrf_token %}
-            <input type="number" name="kcal" placeholder="kcal" min="1" class="tracer-input" style="width: 100%; padding: 8px 10px; font-size: 12.5px;">
-            <button type="submit" class="water-quick-btn" style="flex-shrink: 0;">+ Aggiungi</button>
-        </form>
-
-        <div style="margin-top: 12px; text-align: right;">
+        <div style="margin-top: auto; text-align: right;">
             <a href="{% url 'macro' %}" style="font-size: 12px; font-weight: 600; color: #9d8ffb; text-decoration: none;">Vedi tutto →</a>
         </div>
     </div>
@@ -571,33 +565,6 @@
                             if (bar) bar.style.width = data.progress_pct + '%';
                             if (pillsContainer) pillsContainer.insertBefore(buildPill(data.entry), pillsContainer.firstChild);
                             if (form.querySelector('input[name="quantita_ml"]:not([type="hidden"])')) form.reset();
-                        })
-                        .catch(function() {
-                            if (btn) btn.disabled = false;
-                            alert('Errore di rete, riprova.');
-                        });
-                });
-            });
-
-            document.querySelectorAll('form[data-ajax-macro]').forEach(function(form) {
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    var btn = form.querySelector('button[type="submit"]');
-                    if (btn) btn.disabled = true;
-                    fetch(form.action, { method: 'POST', body: new FormData(form) })
-                        .then(function(r) { return r.json(); })
-                        .then(function(data) {
-                            if (btn) btn.disabled = false;
-                            if (!data.ok) { alert(data.error || 'Errore, riprova.'); return; }
-                            document.getElementById('macro-kcal-label').textContent = data.totals.kcal;
-                            document.getElementById('macro-kcal-bar').style.width = data.progress.kcal + '%';
-                            document.getElementById('macro-p-label').textContent = data.totals.proteine_g + ' / ' + data.goals.proteine_g + ' g';
-                            document.getElementById('macro-p-bar').style.width = data.progress.proteine_g + '%';
-                            document.getElementById('macro-c-label').textContent = data.totals.carboidrati_g + ' / ' + data.goals.carboidrati_g + ' g';
-                            document.getElementById('macro-c-bar').style.width = data.progress.carboidrati_g + '%';
-                            document.getElementById('macro-g-label').textContent = data.totals.grassi_g + ' / ' + data.goals.grassi_g + ' g';
-                            document.getElementById('macro-g-bar').style.width = data.progress.grassi_g + '%';
-                            form.reset();
                         })
                         .catch(function() {
                             if (btn) btn.disabled = false;

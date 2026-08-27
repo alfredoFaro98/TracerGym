@@ -2108,33 +2108,6 @@ def add_macro_entry(request):
 
 
 @login_required
-def add_macro_entry_ajax(request):
-    """Usata dal widget Alimentazione in Dashboard: aggiunge una voce di
-    oggi (solo kcal) senza ricaricare la pagina, restituendo i nuovi totali."""
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Metodo non valido.'}, status=405)
-
-    kcal = request.POST.get('kcal')
-    if not (kcal and kcal.isdigit() and int(kcal) > 0):
-        return JsonResponse({'error': 'Kcal non valide.'}, status=400)
-
-    today = timezone.localdate()
-    MacroEntry.objects.create(utente=request.user, kcal=int(kcal), data=today, creato_il=timezone.now())
-
-    profile, _ = UserProfile.objects.get_or_create(user=request.user)
-    goals = {
-        'kcal': profile.obiettivo_kcal,
-        'proteine_g': profile.obiettivo_proteine_g,
-        'carboidrati_g': profile.obiettivo_carboidrati_g,
-        'grassi_g': profile.obiettivo_grassi_g,
-    }
-    totals = _macro_day_totals(MacroEntry.objects.filter(utente=request.user, data=today))
-    progress = {k: min(100, round(totals[k] / goals[k] * 100)) if goals[k] else 0 for k in goals}
-
-    return JsonResponse({'ok': True, 'totals': totals, 'goals': goals, 'progress': progress})
-
-
-@login_required
 def delete_macro_entry(request, entry_id):
     entry = get_object_or_404(MacroEntry, id=entry_id, utente=request.user)
     if request.method == 'POST':
