@@ -16,7 +16,7 @@ from decimal import Decimal, InvalidOperation
 from datetime import datetime, date, timedelta, time as dt_time
 from django.utils import timezone
 from django.contrib.auth.models import User
-from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal, IntegratoreEntry, SiteVisit, MacroEntry, MacroGoal
+from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal, IntegratoreEntry, SiteVisit, MacroEntry, MacroGoal, MacroDayStatus
 
 
 REMEMBER_ME_SECONDS = 60 * 60 * 24 * 30  # 30 giorni
@@ -2056,6 +2056,12 @@ def _macro_goals_map(utente, year=None):
     }
 
 
+def _macro_day_statuses_map(utente):
+    """Stato (non tracciato / parziale) impostato per singola giornata.
+    Assenza di chiave = giornata tracciata normalmente."""
+    return dict(MacroDayStatus.objects.filter(utente=utente).values_list('data', 'stato'))
+
+
 @login_required
 def macro(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
@@ -2076,9 +2082,16 @@ def macro(request):
     )
 
     entries = MacroEntry.objects.filter(utente=request.user).order_by('-data', '-creato_il')
+    entries_by_day = {day: list(grp) for day, grp in groupby(entries, key=lambda e: e.data)}
+    statuses_by_day = _macro_day_statuses_map(request.user)
+
+    # Un giorno compare nello storico se ha voci registrate OPPURE se e'
+    # stato marcato esplicitamente come non tracciato/parziale (cosi' si
+    # puo' segnalare un giorno "dimenticato" anche senza loggare nulla).
+    all_days = sorted(set(entries_by_day) | set(statuses_by_day), reverse=True)
     days = []
-    for day, grp in groupby(entries, key=lambda e: e.data):
-        day_entries = list(grp)
+    for day in all_days:
+        day_entries = entries_by_day.get(day, [])
         totals = _macro_day_totals(day_entries)
         day_goals = goals_by_date.get(day, default_goals)
         days.append({
@@ -2087,10 +2100,13 @@ def macro(request):
             'totals': totals,
             'goals': day_goals,
             'reached': bool(day_goals['kcal']) and totals['kcal'] >= day_goals['kcal'],
+            'status': statuses_by_day.get(day),
         })
 
     chart_data = {'kcal': [], 'proteine_g': [], 'carboidrati_g': [], 'grassi_g': []}
     for d in sorted(days, key=lambda x: x['data']):
+        if d['status']:
+            continue  # giorno non tracciato/parziale: escluso dall'andamento
         date_str = d['data'].strftime('%d/%m/%Y')
         for metric in chart_data:
             if d['totals'][metric]:
@@ -2210,4 +2226,26 @@ def set_day_macro_goal(request):
                         'grassi_g': _macro_goal_int(request.POST, 'grassi_g'),
                     },
                 )
+    return redirect(request.POST.get('next') or 'macro')
+
+
+@login_required
+def set_macro_day_status(request):
+    """Marca una giornata come non tracciata/parziale, o rimuove il flag
+    (stato vuoto = giornata tracciata normalmente)."""
+    if request.method == 'POST':
+        data_str = request.POST.get('data')
+        stato = request.POST.get('stato') or ''
+        if data_str:
+            try:
+                data = date.fromisoformat(data_str)
+            except ValueError:
+                data = None
+            if data:
+                if stato in dict(MacroDayStatus.STATO_CHOICES):
+                    MacroDayStatus.objects.update_or_create(
+                        utente=request.user, data=data, defaults={'stato': stato},
+                    )
+                else:
+                    MacroDayStatus.objects.filter(utente=request.user, data=data).delete()
     return redirect(request.POST.get('next') or 'macro')

@@ -160,6 +160,26 @@ class MacroGoal(models.Model):
         return f"{self.utente.username} - {self.data} - {self.kcal}kcal"
 
 
+class MacroDayStatus(models.Model):
+    # Segna una giornata come non tracciata / tracciata solo parzialmente,
+    # cosi' le analisi (medie, grafici) possono escluderla invece di
+    # confonderla con un giorno a zero calorie perche' non si e' mangiato.
+    # Assenza di record = giornata tracciata normalmente (stato di default).
+    STATO_CHOICES = [
+        ('non_tracciato', 'Non tracciato'),
+        ('parziale', 'Tracciato parzialmente'),
+    ]
+    utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='macro_day_statuses')
+    data = models.DateField()
+    stato = models.CharField(max_length=20, choices=STATO_CHOICES)
+
+    class Meta:
+        unique_together = ('utente', 'data')
+
+    def __str__(self):
+        return f"{self.utente.username} - {self.data} - {self.get_stato_display()}"
+
+
 class BodyMetric(models.Model):
     # Misurazioni corporee dell'utente per una data giornata (una sola voce per giorno)
     utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='body_metrics')

@@ -74,4 +74,5 @@ urlpatterns = [
     path('macro/<int:entry_id>/edit/', views.edit_macro_entry, name='edit_macro_entry'),
     path('macro/goal/', views.set_macro_goal, name='set_macro_goal'),
     path('macro/goal/giorno/', views.set_day_macro_goal, name='set_day_macro_goal'),
+    path('macro/stato-giorno/', views.set_macro_day_status, name='set_macro_day_status'),
 ]

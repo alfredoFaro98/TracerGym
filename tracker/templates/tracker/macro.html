@@ -10,6 +10,9 @@
             <button type="button" onclick="toggleGoalForm()" class="water-quick-btn" title="Modifica obiettivo default" style="height: 40px;">
                 🎯 Modifica obiettivo default
             </button>
+            <button type="button" onclick="toggleDayStatusForm()" class="water-quick-btn" title="Segna un giorno come non tracciato/parziale" style="height: 40px;">
+                🚫 Segna giorno
+            </button>
             <button type="button" onclick="toggleNewEntryForm()" class="dash-add-btn" title="Aggiungi voce" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </button>
@@ -134,6 +137,32 @@
         </div>
     </div>
 
+    <!-- Segna giorno non tracciato/parziale -->
+    <div id="day-status-form" style="display: none; margin-bottom: 24px;">
+        <div class="tracer-card" style="padding: 18px 20px;">
+            <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 4px;">Segna giorno</div>
+            <div style="font-size: 11.5px; color: #7d8296; margin-bottom: 12px;">Usalo per un giorno di cui non hai loggato nulla (o solo in parte), cosi' viene escluso dall'andamento invece di sembrare "zero calorie".</div>
+            <form action="{% url 'set_macro_day_status' %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'macro' %}">
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
+                    <input type="date" name="data" value="{% now 'Y-m-d' %}" class="tracer-input" style="width: 150px;" required>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">STATO</span>
+                    <select name="stato" class="tracer-input" style="width: 190px;">
+                        <option value="non_tracciato">🚫 Non tracciato</option>
+                        <option value="parziale">⚠️ Tracciato parzialmente</option>
+                        <option value="">✓ Tracciato normalmente</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13px;">Salva</button>
+                <button type="button" onclick="toggleDayStatusForm()" style="padding: 10px 16px; font-size: 13px; background: transparent; border: 1px solid #1c1c2c; border-radius: 8px; color: #787890; cursor: pointer;">Annulla</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Grafico andamento -->
     <div class="tracer-card" style="overflow: visible; margin-bottom: 24px;">
         <div style="padding: 18px 22px; border-bottom: 1px solid #16162a; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
@@ -163,12 +192,17 @@
         {% else %}
         {% for day in days %}
         {% with day_key=day.data|date:"Y-m-d" %}
-        <div style="padding: 16px 20px; border-bottom: 1px solid #16162a;">
+        <div style="padding: 16px 20px; border-bottom: 1px solid #16162a; {% if day.status %}background: rgba(248,113,113,0.04);{% endif %}">
             <div onclick="toggleDay('{{ day_key }}')" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; cursor: pointer; user-select: none;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <svg id="day-chevron-{{ day_key }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     <span style="font-size: 13.5px; font-weight: 700; color: #f0f0f3;">{{ day.data|date:"l d F Y"|capfirst }}</span>
                     <span style="font-size: 11.5px; color: #7d8296;">{{ day.entries|length }} voc{{ day.entries|length|pluralize:"e,i" }}</span>
+                    {% if day.status == 'non_tracciato' %}
+                    <span style="background: rgba(248,113,113,0.14); color: #f87171; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap;">🚫 NON TRACCIATO</span>
+                    {% elif day.status == 'parziale' %}
+                    <span style="background: rgba(240,168,117,0.14); color: #f0a875; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap;">⚠️ PARZIALE</span>
+                    {% endif %}
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                     <span style="background: rgba(124,108,246,0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;">{{ day.totals.kcal }} <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goals.kcal }} kcal</span></span>
@@ -179,6 +213,11 @@
                     <span title="Obiettivo non raggiunto" style="color: #f87171; font-size: 13px; font-weight: 700;">✕</span>
                     {% endif %}
                     <span onclick="event.stopPropagation(); toggleDayGoalForm('{{ day_key }}')" title="Imposta obiettivo di questo giorno" style="cursor: pointer; font-size: 14px; padding: 4px; border-radius: 6px; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">🎯</span>
+                    <select onclick="event.stopPropagation();" onchange="event.stopPropagation(); submitDayStatus('{{ day_key }}', this.value);" title="Stato di tracciamento del giorno" style="font-size: 11px; font-weight: 600; padding: 4px 6px; border-radius: 6px; background: #15151c; border: 1px solid #1c1c2c; color: #9ba0b3; cursor: pointer;">
+                        <option value="" {% if not day.status %}selected{% endif %}>✓ Tracciato</option>
+                        <option value="parziale" {% if day.status == 'parziale' %}selected{% endif %}>⚠️ Parziale</option>
+                        <option value="non_tracciato" {% if day.status == 'non_tracciato' %}selected{% endif %}>🚫 Non tracciato</option>
+                    </select>
                 </div>
             </div>
 
@@ -342,6 +381,25 @@ function toggleNewEntryForm() {
 function toggleGoalForm() {
     var el = document.getElementById('goal-form');
     el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+function toggleDayStatusForm() {
+    var el = document.getElementById('day-status-form');
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+function submitDayStatus(dayKey, stato) {
+    var form = document.createElement('form');
+    form.method = 'post';
+    form.action = "{% url 'set_macro_day_status' %}";
+    var fields = { csrfmiddlewaretoken: '{{ csrf_token }}', data: dayKey, stato: stato, next: "{% url 'macro' %}" };
+    for (var name in fields) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = fields[name];
+        form.appendChild(input);
+    }
+    document.body.appendChild(form);
+    form.submit();
 }
 {% if ultimo_peso %}
 function suggestProtein() {
