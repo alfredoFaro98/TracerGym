@@ -1921,11 +1921,6 @@ def edit_integratore_entry(request, entry_id):
 
 
 @login_required
-def guida(request):
-    return render(request, 'tracker/guida.html')
-
-
-@login_required
 def body_map(request):
     exercises_qs = Exercise.objects.prefetch_related('tags').order_by('nome')
     exercises_data = [
