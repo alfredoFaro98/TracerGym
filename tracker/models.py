@@ -129,9 +129,9 @@ class MacroEntry(models.Model):
     # scomposizione in macro di quel pasto.
     utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='macro_entries')
     kcal = models.PositiveIntegerField()
-    proteine_g = models.PositiveIntegerField(default=0)
-    carboidrati_g = models.PositiveIntegerField(default=0)
-    grassi_g = models.PositiveIntegerField(default=0)
+    proteine_g = models.DecimalField(max_digits=5, decimal_places=1, default=0)
+    carboidrati_g = models.DecimalField(max_digits=5, decimal_places=1, default=0)
+    grassi_g = models.DecimalField(max_digits=5, decimal_places=1, default=0)
     nota = models.CharField(max_length=100, blank=True, default='')
     data = models.DateField(default=timezone.now)
     creato_il = models.DateTimeField(default=timezone.now)

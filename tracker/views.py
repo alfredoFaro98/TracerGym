@@ -2013,17 +2013,25 @@ def delete_misurazione(request, entry_id):
     return redirect(request.POST.get('next') or 'misurazioni')
 
 
-def _macro_int(post, name):
+def _macro_decimal(post, name):
+    """I grammi di macro si possono inserire con una cifra decimale (es. da
+    un'etichetta nutrizionale: 23.5g proteine)."""
     val = post.get(name)
-    return int(val) if val and val.isdigit() else 0
+    if not val:
+        return 0
+    try:
+        return round(float(val), 1)
+    except ValueError:
+        return 0
 
 
 def _macro_day_totals(day_entries):
+    day_entries = list(day_entries)
     return {
         'kcal': sum(e.kcal for e in day_entries),
-        'proteine_g': sum(e.proteine_g for e in day_entries),
-        'carboidrati_g': sum(e.carboidrati_g for e in day_entries),
-        'grassi_g': sum(e.grassi_g for e in day_entries),
+        'proteine_g': round(sum(float(e.proteine_g) for e in day_entries), 1),
+        'carboidrati_g': round(sum(float(e.carboidrati_g) for e in day_entries), 1),
+        'grassi_g': round(sum(float(e.grassi_g) for e in day_entries), 1),
     }
 
 
@@ -2098,9 +2106,9 @@ def add_macro_entry(request):
             MacroEntry.objects.create(
                 utente=request.user,
                 kcal=int(kcal),
-                proteine_g=_macro_int(request.POST, 'proteine_g'),
-                carboidrati_g=_macro_int(request.POST, 'carboidrati_g'),
-                grassi_g=_macro_int(request.POST, 'grassi_g'),
+                proteine_g=_macro_decimal(request.POST, 'proteine_g'),
+                carboidrati_g=_macro_decimal(request.POST, 'carboidrati_g'),
+                grassi_g=_macro_decimal(request.POST, 'grassi_g'),
                 nota=(request.POST.get('nota') or '').strip()[:100],
                 data=entry_data,
                 creato_il=creato_il,
@@ -2125,9 +2133,9 @@ def edit_macro_entry(request, entry_id):
         ora_str = request.POST.get('ora')
         if kcal and kcal.isdigit() and int(kcal) > 0:
             entry.kcal = int(kcal)
-        entry.proteine_g = _macro_int(request.POST, 'proteine_g')
-        entry.carboidrati_g = _macro_int(request.POST, 'carboidrati_g')
-        entry.grassi_g = _macro_int(request.POST, 'grassi_g')
+        entry.proteine_g = _macro_decimal(request.POST, 'proteine_g')
+        entry.carboidrati_g = _macro_decimal(request.POST, 'carboidrati_g')
+        entry.grassi_g = _macro_decimal(request.POST, 'grassi_g')
         entry.nota = (request.POST.get('nota') or '').strip()[:100]
         if data_str:
             try:
