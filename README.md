@@ -21,7 +21,6 @@ Non è pensato per "gamificare" l'allenamento o inondarti di statistiche. È pen
 - [Com'è fatto](#comè-fatto)
 - [Avvio in locale](#avvio-in-locale)
 - [Struttura del progetto](#struttura-del-progetto)
-- [Crediti](#crediti)
 
 ---
 
@@ -44,7 +43,7 @@ Aggiunta rapida delle serie con autocomplete sugli esercizi già catalogati, mod
 
 ### Catalogo esercizi
 
-Ogni esercizio ha un nome, una tipologia, dei tag muscolari e, opzionalmente, immagini o animazioni di riferimento. Il catalogo può crescere a mano oppure essere importato in blocco da un dataset esterno (gif, istruzioni multilingua, muscolo target). Una **mappa del corpo umano interattiva** permette di navigare gli esercizi per gruppo muscolare invece che per nome, mostrando i primi risultati con un link per vedere il resto nel catalogo completo.
+Ogni esercizio ha un nome, una tipologia, dei tag muscolari e, opzionalmente, immagini o animazioni di riferimento. Una **mappa del corpo umano interattiva** permette di navigare gli esercizi per gruppo muscolare invece che per nome, mostrando i primi risultati con un link per vedere il resto nel catalogo completo.
 
 ### Dashboard
 
@@ -98,13 +97,7 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-L'app parte su `http://127.0.0.1:8000/`. Il catalogo esercizi si può popolare a mano dall'interfaccia, oppure in blocco con:
-
-```bash
-python manage.py import_opengym_exercises
-```
-
-(richiede i dati sorgente del dataset esterno — vedi [Crediti](#crediti)).
+L'app parte su `http://127.0.0.1:8000/`.
 
 ## Struttura del progetto
 
@@ -114,11 +107,7 @@ tracker/
   models.py             Sessioni, serie, circuiti, esercizi, misurazioni, acqua, integratori, profili
   views.py               Logica di tutte le pagine e degli endpoint AJAX
   urls.py                 Routing
-  management/commands/    Comandi custom (import catalogo esercizi)
+  management/commands/    Comandi custom
   templates/tracker/       Template per pagina
   migrations/               Storico dello schema del database
 ```
-
-## Crediti
-
-Le immagini e le animazioni degli esercizi importabili tramite `import_opengym_exercises` non sono contenuto originale di questo progetto: restano di proprietà di terzi e vanno trattate secondo i loro termini — i dettagli sono in [NOTICE.md](NOTICE.md).
