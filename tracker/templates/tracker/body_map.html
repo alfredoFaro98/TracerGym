@@ -8,16 +8,16 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: var(--surface);
-      --bg2: var(--surface-2);
-      --muscle-default: var(--sep);
+      --bg: #0b0c18;
+      --bg2: #10111f;
+      --muscle-default: #252741;
       --muscle-hover: #fe5b7f;
       --glow: rgba(254, 91, 127, 0.45);
-      --outline: var(--sep);
-      --text: var(--label);
-      --text-muted: var(--label-4);
-      --border: var(--hairline);
-      --card: var(--overlay-hover);
+      --outline: #484a68;
+      --text: #e4e6f4;
+      --text-muted: #4e5170;
+      --border: rgba(255,255,255,0.06);
+      --card: rgba(255,255,255,0.03);
     }
 
     body {
@@ -109,7 +109,7 @@
 
     /* Dim non-hovered muscles when one is active */
     .map-hovering .bodymap:not(.is-lit) {
-      color: var(--sep);
+      color: #14152a;
       transition: color 0.18s ease;
     }
 
@@ -121,7 +121,7 @@
     /* ── Joint styles (override 'hidden' class) ── */
     #shoulders, #elbow, #wrist, #hips, #knees, #ankles {
       display: block !important;
-      color: var(--label-4);
+      color: #353756;
       transition: color 0.22s ease;
     }
 
@@ -131,7 +131,7 @@
     .map-hovering #hips,
     .map-hovering #knees,
     .map-hovering #ankles {
-      color: var(--sep);
+      color: #1e1f33;
     }
 
     /* ── Divider ── */
@@ -193,7 +193,7 @@
 
     .hint-sub {
       font-size: 12px;
-      color: var(--label-4);
+      color: #333551;
     }
 
     /* ── Active State ── */
@@ -245,7 +245,7 @@
     .muscle-desc {
       font-size: 13.5px;
       line-height: 1.7;
-      color: var(--label-3);
+      color: #7275a0;
       margin-bottom: 28px;
     }
 
@@ -291,7 +291,7 @@
     /* ── Floating Tooltip on SVG ── */
     .muscle-tooltip {
       position: fixed;
-      background: color-mix(in srgb, var(--surface) 85%, transparent);
+      background: rgba(11, 12, 24, 0.85);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(254, 91, 127, 0.25);
@@ -323,7 +323,7 @@
       transform: translateX(-50%);
       z-index: 10;
       display: flex;
-      background: var(--overlay-hover);
+      background: rgba(255,255,255,0.04);
       border: 1px solid var(--border);
       border-radius: 100px;
       padding: 3px;
@@ -345,7 +345,7 @@
     }
     .vt-btn.active {
       color: var(--text);
-      background: var(--overlay-press);
+      background: rgba(255,255,255,0.09);
     }
 
     /* ── View transitions ── */
@@ -373,13 +373,13 @@
     #bj-ankles, #bj-knees, #bj-wrists, #bj-elbows,
     #bj-neck, #bj-shoulders, #bj-spine {
       display: block !important;
-      color: var(--label-4);
+      color: #353756;
       transition: color 0.22s ease;
     }
     .map-hovering #bj-ankles, .map-hovering #bj-knees,
     .map-hovering #bj-wrists, .map-hovering #bj-elbows,
     .map-hovering #bj-neck, .map-hovering #bj-shoulders,
-    .map-hovering #bj-spine { color: var(--sep); }
+    .map-hovering #bj-spine { color: #1e1f33; }
   
 
 /* Adjustments for Django layout */

@@ -1,171 +1,39 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+*, *::before, *::after { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
 }
 
-/* ==========================================================================
-   Design tokens
-   - [data-theme] controlla sfondi/testo/bordi/colori di stato (aspetto strutturale)
-   - [data-accent] controlla solo il colore di brand/interazione (bottoni,
-     stati attivi, link, progress bar), indipendente dal tema
-   Entrambi gli attributi vengono impostati su <html> in base.html, letti dal
-   profilo utente (context processor tracker.context_processors.appearance).
-   Il default (nessun attributo / :root) riproduce l'aspetto "Scuro Classico"
-   di sempre, cosi' un utente senza preferenze salvate vede l'app invariata.
-   ========================================================================== */
-:root {
-  /* layout — non legati al tema, per codice nuovo (non retroattivi sui
-     border-radius/spacing gia' esistenti nei template, per non introdurre
-     un redesign non richiesto) */
-  --r-sm: 8px; --r: 12px; --r-lg: 16px; --r-xl: 22px; --r-card: 14px;
-  --ease: cubic-bezier(.32,.72,0,1); --fast: 140ms; --med: 220ms;
-
-  /* Scuro Classico (default) */
-  --bg:        #080809;
-  --bg-el:     #09090f;
-  --surface:   #0d0d14;
-  --surface-2: #0f0f1c;
-  --surface-3: #15151c;
-
-  --label:   #f0f0f3;
-  --label-2: #c7cbd6;
-  --label-3: #7d8296;
-  --label-4: #565b6e;
-
-  --sep:      #191926;
-  --hairline:   rgba(255,255,255,.06);
-  --hairline-2: rgba(255,255,255,.08);
-  --overlay-hover: rgba(255,255,255,.06);
-  --overlay-press: rgba(255,255,255,.12);
-  --hair: 1px;
-
-  --green:#4ade80; --red:#f87171; --orange:#f0a875; --blue:#6a9fd8;
-  --teal:#2dd4bf; --pink:#ea4c89; --indigo:#5865f2; --grey:#8b949e;
-  --yellow:#f0a875; --purple:#7c6cf6; --mint:#2dd4bf; --brown:#ac8e68;
-
-  /* CTA (bottoni primari "Salva"/"Aggiungi"): oggi e' un arancio storico,
-     indipendente dal colore accent scelto — resta cosi' nel tema classico
-     per non cambiare l'aspetto attuale. Nei temi nuovi segue l'accent. */
-  --cta-1: #f0883e;
-  --cta-2: #c85c1a;
-
-  --scrollbar-thumb: #22223a;
-  --scrollbar-thumb-hover: #303050;
-}
-
-/* Scuro (iOS) */
-[data-theme="scuro_ios"] {
-  --bg:        #000000;
-  --bg-el:     #0e0e10;
-  --surface:   #1c1c1e;
-  --surface-2: #2c2c2e;
-  --surface-3: #3a3a3c;
-
-  --label:   #ffffff;
-  --label-2: rgba(235,235,245,.60);
-  --label-3: rgba(235,235,245,.32);
-  --label-4: rgba(235,235,245,.18);
-
-  --sep:      rgba(84,84,88,.60);
-  --hairline:   rgba(255,255,255,.06);
-  --hairline-2: rgba(255,255,255,.10);
-  --overlay-hover: rgba(255,255,255,.06);
-  --overlay-press: rgba(255,255,255,.12);
-  --hair: .5px;
-
-  --blue:#0a84ff; --green:#30d158; --red:#ff453a; --orange:#ff9f0a;
-  --yellow:#ffd60a; --teal:#40c8e0; --indigo:#5e5ce6; --pink:#ff375f;
-  --purple:#bf5af2; --mint:#63e6e2; --brown:#ac8e68; --grey:#8e8e93;
-
-  --cta-1: var(--acc);
-  --cta-2: var(--acc-2);
-
-  --scrollbar-thumb: #3a3a3c;
-  --scrollbar-thumb-hover: #48484a;
-}
-
-/* Chiaro */
-[data-theme="chiaro"] {
-  --bg:        #f2f2f7;
-  --bg-el:     #ffffff;
-  --surface:   #ffffff;
-  --surface-2: #e5e5ea;
-  --surface-3: #d1d1d6;
-
-  --label:   #000000;
-  --label-2: rgba(60,60,67,.60);
-  --label-3: rgba(60,60,67,.30);
-  --label-4: rgba(60,60,67,.18);
-
-  --sep:      rgba(60,60,67,.29);
-  --hairline:   rgba(0,0,0,.06);
-  --hairline-2: rgba(0,0,0,.10);
-  --overlay-hover: rgba(0,0,0,.04);
-  --overlay-press: rgba(0,0,0,.08);
-  --hair: .5px;
-
-  --blue:#007aff; --green:#34c759; --red:#ff3b30; --orange:#ff9500;
-  --yellow:#ffcc00; --teal:#30b0c7; --indigo:#5856d6; --pink:#ff2d55;
-  --purple:#af52de; --mint:#00c7be; --brown:#a2845e; --grey:#8e8e93;
-
-  --cta-1: var(--acc);
-  --cta-2: var(--acc-2);
-
-  --scrollbar-thumb: #c7c7cc;
-  --scrollbar-thumb-hover: #aeaeb2;
-}
-
-/* Accent — indipendente dal tema */
-:root, [data-accent="viola"] {
-  --acc:    #7c6cf6;
-  --acc-2:  #6a5cf0;
-  --on-acc: #ffffff;
-}
-[data-accent="verde"] {
-  --acc:    var(--green);
-  --acc-2:  #248a3d;
-  --on-acc: #000000;
-}
-:root {
-  --acc-soft: color-mix(in srgb, var(--acc) 16%, transparent);
-  --acc-line: color-mix(in srgb, var(--acc) 35%, transparent);
-}
-
-html, body {
-  height: 100%;
-  overflow: hidden;
+html, body { 
+  height: 100%; 
+  overflow: hidden; 
 }
 
 body {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--label);
+  background: #080809;
+  color: #f0f0f3;
   -webkit-font-smoothing: antialiased;
   color-scheme: dark;
 }
 
-[data-theme="chiaro"] body {
-  color-scheme: light;
-}
-
-#root {
-  height: 100%;
-  display: flex;
+#root { 
+  height: 100%; 
+  display: flex; 
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
+::-webkit-scrollbar-thumb { background: #22223a; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #303050; }
 
 /* Inputs / buttons global reset */
 input, textarea, select {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  color: var(--label);
+  color: #f0f0f3;
   outline: none;
 }
 
@@ -195,7 +63,7 @@ input[type=number] { -moz-appearance: textfield; }
 
 /* Stili Comuni (Bottoni e Pannelli) */
 .btn-primary-gradient {
-  background: linear-gradient(135deg, var(--cta-1), var(--cta-2));
+  background: linear-gradient(135deg, #f0883e, #c85c1a);
   color: #fff;
   border: none;
   font-weight: 600;
@@ -208,69 +76,44 @@ input[type=number] { -moz-appearance: textfield; }
 }
 
 .tracer-input {
-  width: 100%;
+  width: 100%; 
   padding: 9px 12px;
-  background: var(--bg-el);
-  border: 1px solid var(--hairline-2);
-  border-radius: 7px;
-  color: var(--label);
-  font-size: 13px;
+  background: #09090f; 
+  border: 1px solid #202030;
+  border-radius: 7px; 
+  color: #f0f0f3;
+  font-size: 13px; 
   transition: border-color .15s;
-  color-scheme: inherit;
+  color-scheme: dark;
 }
 
 .tracer-input:focus {
-  border-color: var(--acc-line);
+  border-color: rgba(240,136,62,.45);
 }
 
 .tracer-card {
-  background: var(--surface);
-  border: 1px solid var(--sep);
-  border-radius: 12px;
+  background: #0d0d14; 
+  border: 1px solid #191926; 
+  border-radius: 12px; 
 }
 
 /* Badge (Tags) */
 .badge-tag {
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 9px;
+  padding: 2px 6px; 
+  border-radius: 4px; 
+  font-size: 9px; 
   font-weight: 700;
-  text-transform: uppercase;
+  text-transform: uppercase; 
   letter-spacing: .5px;
 }
-.badge-tag-petto { background: rgba(234,76,137,.1); color: var(--pink); border: 1px solid rgba(234,76,137,.2); }
-.badge-tag-dorso { background: rgba(88,101,242,.1); color: var(--indigo); border: 1px solid rgba(88,101,242,.2); }
-.badge-tag-gambe { background: rgba(255,161,22,.1); color: var(--orange); border: 1px solid rgba(255,161,22,.2); }
-.badge-tag-spalle { background: rgba(248,81,73,.1); color: var(--red); border: 1px solid rgba(248,81,73,.2); }
-.badge-tag-default { background: rgba(139,148,158,.1); color: var(--grey); border: 1px solid rgba(139,148,158,.2); }
+.badge-tag-petto { background: rgba(234,76,137,.1); color: #ea4c89; border: 1px solid rgba(234,76,137,.2); }
+.badge-tag-dorso { background: rgba(88,101,242,.1); color: #5865f2; border: 1px solid rgba(88,101,242,.2); }
+.badge-tag-gambe { background: rgba(255,161,22,.1); color: #ffa116; border: 1px solid rgba(255,161,22,.2); }
+.badge-tag-spalle { background: rgba(248,81,73,.1); color: #f85149; border: 1px solid rgba(248,81,73,.2); }
+.badge-tag-default { background: rgba(139,148,158,.1); color: #8b949e; border: 1px solid rgba(139,148,158,.2); }
 
 /* Fix bootstrap conflict se presente, sovrascriviamo a! */
 a { text-decoration: none; }
-
-/* -- Navigazione sidebar -- */
-.nav-link {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  border-radius: 8px;
-  color: var(--label);
-  font-size: 13px;
-  font-weight: 500;
-  border: 1px solid transparent;
-  transition: background var(--fast), border-color var(--fast), color var(--fast);
-}
-.nav-link:hover {
-  background: var(--overlay-hover);
-}
-.nav-link.is-active {
-  background: var(--acc-soft);
-  border-color: var(--acc-line);
-}
-.nav-link-icon { flex-shrink: 0; stroke: currentColor; }
-
-.logout-btn { color: var(--label); transition: color var(--fast); }
-.logout-btn:hover { color: var(--acc); }
 
 /* -- Responsive Layout Classes -- */
 .mobile-only {
@@ -284,8 +127,8 @@ a { text-decoration: none; }
 
 .sidebar {
   width: 240px;
-  background: var(--bg-el);
-  border-right: 1px solid var(--sep);
+  background: #09090f;
+  border-right: 1px solid #14141f;
   display: flex;
   flex-direction: column;
   padding: 24px 16px;
@@ -323,12 +166,12 @@ a { text-decoration: none; }
   .app-layout {
     flex-direction: column;
   }
-
+  
   .sidebar {
     width: 100%;
     height: auto;
     border-right: none;
-    border-top: 1px solid var(--sep);
+    border-top: 1px solid #14141f;
     flex-direction: row;
     padding: 10px 16px;
     align-items: center;

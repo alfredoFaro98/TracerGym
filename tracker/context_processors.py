@@ -13,11 +13,3 @@ def site_visits(request):
     from .models import SiteVisit
     total = SiteVisit.objects.aggregate(total=Sum('conteggio'))['total'] or 0
     return {'site_visits_total': total}
-
-
-def appearance(request):
-    if getattr(getattr(request, 'user', None), 'is_authenticated', False):
-        from .models import UserProfile
-        profile, _ = UserProfile.objects.get_or_create(user=request.user)
-        return {'theme': profile.tema, 'accent': profile.accent}
-    return {'theme': 'scuro_classico', 'accent': 'viola'}

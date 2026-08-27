@@ -1,7 +1,7 @@
 {% load static %}
 {% load tracker_extras %}
 <!DOCTYPE html>
-<html lang="it" data-theme="{{ theme|default:'scuro_classico' }}" data-accent="{{ accent|default:'viola' }}">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +9,6 @@
     <link rel="icon" type="image/svg+xml" href="{% static 'tracker/favicon.svg' %}">
     <!-- Rimuoviamo Bootstrap per usare solo il design Tracer -->
     <link rel="stylesheet" href="{% static 'tracker/style.css' %}">
-    <script src="{% static 'tracker/theme.js' %}"></script>
 
     {% block extra_head %}{% endblock %}
 </head>
@@ -22,9 +21,9 @@
             <!-- Logo -->
             <a href="{% url 'dashboard' %}" class="logo-container" style="display: flex; align-items: center; gap: 10px; margin-bottom: 40px; padding: 0 8px; text-decoration: none; cursor: pointer;">
                 <div>
-                    <div style="font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; color: var(--label);">Tracer</div>
-                    <div style="font-size: 9px; color: var(--label); font-weight: 600; letter-spacing: 1px;">WORKOUT TRACKER</div>
-                    <div style="font-size: 9px; color: var(--label-4); font-weight: 600; margin-top: 2px;">v{{ app_version }}</div>
+                    <div style="font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; color: #f0f0f3;">Tracer</div>
+                    <div style="font-size: 9px; color: #f0f0f3; font-weight: 600; letter-spacing: 1px;">WORKOUT TRACKER</div>
+                    <div style="font-size: 9px; color: #565b6e; font-weight: 600; margin-top: 2px;">v{{ app_version }}</div>
                 </div>
             </a>
 
@@ -32,103 +31,97 @@
             {% with current_url=request.resolver_match.url_name %}
             <div class="menu-container" style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
                 {% is_dashboard_active as is_active %}
-                <a href="{% url 'dashboard' %}" class="nav-link{% if is_active %} is-active{% endif %}">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-link-icon"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                <a href="{% url 'dashboard' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                     <span class="menu-text">Dashboard</span>
                 </a>
                 {% is_new_workout_active as is_active %}
-                <a href="{% url 'create_session' %}" class="nav-link{% if is_active %} is-active{% endif %}">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-link-icon"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                <a href="{% url 'create_session' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
                     <span class="menu-text">Nuovo Allenamento</span>
                 </a>
                 {% is_athletes_active as is_active %}
-                <a href="{% url 'user_list' %}" class="nav-link{% if is_active %} is-active{% endif %}">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-link-icon"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <a href="{% url 'user_list' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                     <span class="menu-text">Atleti</span>
                 </a>
                 {% with is_active=current_url|in_list:"body_map" %}
-                <a href="{% url 'body_map' %}" class="nav-link{% if is_active %} is-active{% endif %}">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-link-icon"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                <a href="{% url 'body_map' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
                     <span class="menu-text">Mappa Muscolare</span>
                 </a>
                 {% endwith %}
                 {% with is_active=current_url|in_list:"exercises_list,add_exercise,edit_exercise_admin" %}
-                <a href="{% url 'exercises_list' %}" class="nav-link{% if is_active %} is-active{% endif %}">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-link-icon"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                <a href="{% url 'exercises_list' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
                     <span class="menu-text">Catalogo Esercizi</span>
                 </a>
                 {% endwith %}
 
                 {% with is_active=current_url|in_list:"misurazioni" %}
-                <a href="{% url 'misurazioni' %}" class="nav-link{% if is_active %} is-active{% endif %}">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-link-icon"><polyline points="3 17 9 11 13 15 21 7"></polyline><polyline points="14 7 21 7 21 14"></polyline></svg>
+                <a href="{% url 'misurazioni' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="3 17 9 11 13 15 21 7"></polyline><polyline points="14 7 21 7 21 14"></polyline></svg>
                     <span class="menu-text">Misurazioni</span>
                 </a>
                 {% endwith %}
 
                 {% with is_active=current_url|in_list:"integratori" %}
-                <a href="{% url 'integratori' %}" class="nav-link{% if is_active %} is-active{% endif %}">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-link-icon"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg>
+                <a href="{% url 'integratori' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg>
                     <span class="menu-text">Integratori</span>
                 </a>
                 {% endwith %}
 
                 {% with is_active=current_url|in_list:"macro" %}
-                <a href="{% url 'macro' %}" class="nav-link{% if is_active %} is-active{% endif %}">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-link-icon"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+                <a href="{% url 'macro' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
                     <span class="menu-text">Alimentazione</span>
                 </a>
                 {% endwith %}
 
                 {% is_own_profile as is_active %}
-                <a href="{% url 'user_profile' user.username %}" class="nav-link{% if is_active %} is-active{% endif %}">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-link-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <a href="{% url 'user_profile' user.username %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                     <span class="menu-text">Il mio profilo</span>
                 </a>
-                {% with is_active=current_url|in_list:"impostazioni" %}
-                <a href="{% url 'impostazioni' %}" class="nav-link{% if is_active %} is-active{% endif %}">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-link-icon"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                    <span class="menu-text">Impostazioni</span>
-                </a>
-                {% endwith %}
                 {% if user.is_superuser %}
-                <div style="font-size: 9px; font-weight: 700; color: var(--label); text-transform: uppercase; letter-spacing: 1.2px; padding: 8px 14px 2px;">Admin</div>
+                <div style="font-size: 9px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1.2px; padding: 8px 14px 2px;">Admin</div>
                 {% with is_active=request.resolver_match.namespace|in_list:"admin" %}
-                <a href="/admin/" class="nav-link{% if is_active %} is-active{% endif %}">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-link-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                <a href="/admin/" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                     <span class="menu-text">Django Admin</span>
                 </a>
                 {% endwith %}
                 {% endif %}
 
-                <a href="{% static 'tracker/guida-tracer.pdf' %}" download="Tracer-Manuale-Utente.pdf" title="Scarica il manuale utente in PDF" class="nav-link">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="nav-link-icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <a href="{% static 'tracker/guida-tracer.pdf' %}" download="Tracer-Manuale-Utente.pdf" title="Scarica il manuale utente in PDF" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s; border: 1px solid transparent;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                     <span class="menu-text">Guida</span>
                 </a>
             </div>
             {% endwith %}
 
             <!-- User Info / Logout -->
-            <div class="user-info-container" style="border-top: 1px solid var(--sep); padding-top: 20px; margin-top: auto;">
+            <div class="user-info-container" style="border-top: 1px solid #14141f; padding-top: 20px; margin-top: auto;">
                 <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <div style="width: 30px; height: 30px; border-radius: 8px; background: var(--acc); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--on-acc);">
+                        <div style="width: 30px; height: 30px; border-radius: 8px; background: #7c6cf6; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff;">
                             {{ user.username|make_list|first|upper }}
                         </div>
                         <div>
-                            <div style="font-size: 12.5px; font-weight: 600; color: var(--label);">{{ user.username }}</div>
-                            <div style="font-size: 10.5px; color: var(--label);">Atleta</div>
+                            <div style="font-size: 12.5px; font-weight: 600; color: #e0e0f0;">{{ user.username }}</div>
+                            <div style="font-size: 10.5px; color: #f0f0f3;">Atleta</div>
                         </div>
                     </div>
                     <form action="{% url 'logout' %}" method="post" style="display:inline;">
                         {% csrf_token %}
-                        <button type="submit" title="Logout" class="logout-btn" style="background: transparent; border: none; cursor: pointer; font-size: 12px; font-weight: 500;">
+                        <button type="submit" title="Logout" style="background: transparent; border: none; color: #f0f0f3; cursor: pointer; transition: color .15s; font-size: 12px; font-weight: 500;" onmouseover="this.style.color='#9d8ffb'" onmouseout="this.style.color='#f0f0f3'">
                             Logout
                         </button>
                     </form>
                 </div>
                 {% if user.is_superuser %}
-                <div style="display: flex; align-items: center; gap: 6px; padding: 8px 8px 0; color: var(--label-4); font-size: 10.5px; font-weight: 600;">
+                <div style="display: flex; align-items: center; gap: 6px; padding: 8px 8px 0; color: #565b6e; font-size: 10.5px; font-weight: 600;">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                     <span>{{ site_visits_total }} visualizzazioni sito</span>
                 </div>

@@ -8,84 +8,84 @@
     <div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 24px;">
         <div style="display: flex; flex-direction: column; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                <h1 id="date-label" style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: var(--label); letter-spacing: -0.3px; margin: 0; white-space: nowrap;">
-                    {% if session.nome %}{{ session.nome }} <span style="font-weight: 500; color: var(--label-3);">&middot; {{ session.data|date:"l d F Y"|capfirst }}</span>{% else %}{{ session.data|date:"l d F Y"|capfirst }}{% endif %}
+                <h1 id="date-label" style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: #f0f0f3; letter-spacing: -0.3px; margin: 0; white-space: nowrap;">
+                    {% if session.nome %}{{ session.nome }} <span style="font-weight: 500; color: #9ba0b3;">&middot; {{ session.data|date:"l d F Y"|capfirst }}</span>{% else %}{{ session.data|date:"l d F Y"|capfirst }}{% endif %}
                 </h1>
-                <button onclick="toggleDateEdit()" class="sd-ghost-btn" style="border: 1px solid var(--hairline-2); color: var(--label-2); font-size: 12.5px; font-weight: 600; padding: 7px 14px; border-radius: 8px; cursor: pointer; white-space: nowrap; transition: background .12s;">Modifica dettagli</button>
+                <button onclick="toggleDateEdit()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #c7cbd6; font-size: 12.5px; font-weight: 600; padding: 7px 14px; border-radius: 8px; cursor: pointer; white-space: nowrap; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">Modifica dettagli</button>
             </div>
 
             {% if session.orario or session.orario_fine or session.luogo or session.durata_minuti or session.peso_kg or session.altezza_cm or session.compagni_allenamento %}
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                {% if session.orario or session.orario_fine %}<span style="background: var(--overlay-hover); border: 1px solid var(--hairline-2); color: var(--label-2); font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">🕐 {% if session.orario %}{{ session.orario|time:"H:i" }}{% else %}?{% endif %}{% if session.orario_fine %} – {{ session.orario_fine|time:"H:i" }}{% endif %}</span>{% endif %}
-                {% if session.luogo %}<span style="background: var(--overlay-hover); border: 1px solid var(--hairline-2); color: var(--label-2); font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">📍 {{ session.luogo }}</span>{% endif %}
-                {% if session.durata_minuti %}<span style="background: var(--overlay-hover); border: 1px solid var(--hairline-2); color: var(--label-2); font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">⏱ {{ session.durata_minuti }} min</span>{% endif %}
-                {% if session.peso_kg %}<span style="background: var(--overlay-hover); border: 1px solid var(--hairline-2); color: var(--label-2); font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">⚖️ {{ session.peso_kg }} kg</span>{% endif %}
-                {% if session.altezza_cm %}<span style="background: var(--overlay-hover); border: 1px solid var(--hairline-2); color: var(--label-2); font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">📏 {{ session.altezza_cm }} cm</span>{% endif %}
-                {% if session.compagni_allenamento %}<span style="background: var(--overlay-hover); border: 1px solid var(--hairline-2); color: var(--label-2); font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">👥 {{ session.compagni_allenamento }}</span>{% endif %}
+                {% if session.orario or session.orario_fine %}<span style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">🕐 {% if session.orario %}{{ session.orario|time:"H:i" }}{% else %}?{% endif %}{% if session.orario_fine %} – {{ session.orario_fine|time:"H:i" }}{% endif %}</span>{% endif %}
+                {% if session.luogo %}<span style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">📍 {{ session.luogo }}</span>{% endif %}
+                {% if session.durata_minuti %}<span style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">⏱ {{ session.durata_minuti }} min</span>{% endif %}
+                {% if session.peso_kg %}<span style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">⚖️ {{ session.peso_kg }} kg</span>{% endif %}
+                {% if session.altezza_cm %}<span style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">📏 {{ session.altezza_cm }} cm</span>{% endif %}
+                {% if session.compagni_allenamento %}<span style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">👥 {{ session.compagni_allenamento }}</span>{% endif %}
             </div>
             {% endif %}
 
-            <form id="date-form" action="{% url 'edit_session_date' session.id %}" method="post" style="display:none; flex-wrap: wrap; align-items: flex-end; gap: 10px; background: var(--acc-soft); border: 1px solid var(--acc-line); border-radius: 9px; padding: 14px 16px; margin-top: 2px;">
+            <form id="date-form" action="{% url 'edit_session_date' session.id %}" method="post" style="display:none; flex-wrap: wrap; align-items: flex-end; gap: 10px; background: rgba(124,108,246,0.06); border: 1px solid rgba(124,108,246,0.3); border-radius: 9px; padding: 14px 16px; margin-top: 2px;">
                 {% csrf_token %}
                 <div style="display: flex; flex-direction: column; gap: 5px;">
-                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">NOME</span>
+                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">NOME</span>
                     <input type="text" name="nome" value="{{ session.nome }}" maxlength="50" placeholder="Es. Push Day" class="tracer-input" style="width: 160px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 5px;">
-                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">DATA</span>
+                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
                     <input type="date" name="data" value="{{ session.data|date:'Y-m-d' }}" class="tracer-input" style="width: 150px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 5px;">
-                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">ORARIO</span>
+                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
                     <input type="time" name="orario" value="{% if session.orario %}{{ session.orario|time:'H:i' }}{% endif %}" class="tracer-input" style="width: 100px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 5px;">
-                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">ORARIO FINE</span>
+                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO FINE</span>
                     <input type="time" name="orario_fine" value="{% if session.orario_fine %}{{ session.orario_fine|time:'H:i' }}{% endif %}" class="tracer-input" style="width: 100px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 5px;">
-                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">LUOGO</span>
+                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">LUOGO</span>
                     <input type="text" name="luogo" value="{{ session.luogo }}" placeholder="Es. Palestra" class="tracer-input" style="width: 150px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 5px;">
-                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">DURATA (MIN)</span>
+                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DURATA (MIN)</span>
                     <input type="number" name="durata_minuti" value="{{ session.durata_minuti|default:'' }}" min="0" placeholder="Opz." class="tracer-input" style="width: 90px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 5px;">
-                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">PESO ATLETA (KG)</span>
+                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">PESO ATLETA (KG)</span>
                     <input type="number" step="0.1" name="peso_kg" value="{{ session.peso_kg|default_if_none:''|stringformat:'s' }}" min="0" placeholder="Opz." class="tracer-input" style="width: 100px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 5px;">
-                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">ALTEZZA ATLETA (CM)</span>
+                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ALTEZZA ATLETA (CM)</span>
                     <input type="number" step="0.1" name="altezza_cm" value="{{ session.altezza_cm|default_if_none:''|stringformat:'s' }}" min="0" placeholder="Opz." class="tracer-input" style="width: 100px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 5px;">
-                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: var(--label-3);">COMPAGNI DI ALLENAMENTO</span>
+                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">COMPAGNI DI ALLENAMENTO</span>
                     <input type="text" name="compagni_allenamento" value="{{ session.compagni_allenamento }}" placeholder="Es. Mario, Luca" class="tracer-input" style="width: 220px;">
                 </div>
                 <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
-                <button type="button" onclick="toggleDateEdit()" style="padding: 8px 12px; font-size: 12.5px; background: transparent; border: 1px solid var(--hairline-2); border-radius: 6px; color: var(--label-2); cursor: pointer;">Annulla</button>
+                <button type="button" onclick="toggleDateEdit()" style="padding: 8px 12px; font-size: 12.5px; background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #c7cbd6; cursor: pointer;">Annulla</button>
             </form>
         </div>
         <div style="display: flex; align-items: center; gap: 10px;">
             <form action="{% url 'duplicate_session' session.id %}" method="post">
                 {% csrf_token %}
-                <button type="submit" class="sd-ghost-btn" style="border: 1px solid var(--hairline-2); color: var(--label-2); font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer; transition: background .12s;">Duplica Sessione</button>
+                <button type="submit" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">Duplica Sessione</button>
             </form>
-            <button type="button" onclick="exportPDF()" class="sd-accent-soft-btn" style="border: 1px solid var(--acc-line); color: var(--acc); font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer; transition: background .12s;">Esporta PDF</button>
-            <a href="{% url 'export_session' session.id %}" title="Esporta sessione JSON" class="sd-ghost-btn" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:9px;border:1px solid var(--hairline-2);color:var(--label-2);text-decoration:none;transition:background .12s;flex-shrink:0;">
+            <button type="button" onclick="exportPDF()" style="background: rgba(124,108,246,0.14); border: 1px solid rgba(124,108,246,0.4); color: #b7bdf0; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(124,108,246,0.22)'" onmouseout="this.style.background='rgba(124,108,246,0.14)'">Esporta PDF</button>
+            <a href="{% url 'export_session' session.id %}" title="Esporta sessione JSON" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#c7cbd6;text-decoration:none;transition:background .12s;flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
                 <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
             </a>
             {% if exercise_groups or circuit_items %}
             <form action="{% url 'clear_session' session.id %}" method="post" onsubmit="return confirm('Eliminare tutte le {{ session.sets.count }} serie{% if circuit_items %} e i {{ circuit_items|length }} circuiti{% endif %} di questa sessione? L\'azione è irreversibile.');">
                 {% csrf_token %}
-                <button type="submit" style="background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.25); color: var(--red); font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Svuota Sessione</button>
+                <button type="submit" style="background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.25); color: #f87171; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Svuota Sessione</button>
             </form>
             {% endif %}
-            <div style="background: var(--acc); color: var(--on-acc); font-size: 13.5px; font-weight: 700; padding: 9px 18px; border-radius: 9px; white-space: nowrap;">
+            <div style="background: #7c6cf6; color: #fff; font-size: 13.5px; font-weight: 700; padding: 9px 18px; border-radius: 9px; white-space: nowrap;">
                 {{ session.sets.count }} serie
             </div>
-            <div style="background: var(--overlay-hover); border: 1px solid var(--hairline-2); color: var(--label-2); font-size: 13.5px; font-weight: 600; padding: 9px 18px; border-radius: 9px; white-space: nowrap;">
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 13.5px; font-weight: 600; padding: 9px 18px; border-radius: 9px; white-space: nowrap;">
                 ⏱ {{ total_rest_label }} recupero
             </div>
         </div>
@@ -96,21 +96,21 @@
         
         <!-- Form Area -->
         <div class="tracer-card" style="position: sticky; top: 0; z-index: 10; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
-            <span style="font-size: 11.5px; font-weight: 700; letter-spacing: 0.12em; color: var(--label-3);">AGGIUNGI SERIE</span>
+            <span style="font-size: 11.5px; font-weight: 700; letter-spacing: 0.12em; color: #838a9e;">AGGIUNGI SERIE</span>
 
             <form action="{% url 'session_detail' session.id %}" method="post" style="display: flex; flex-direction: column; gap: 16px;">
                 {% csrf_token %}
 
                 <!-- Esercizio -->
                 {% if error_exercise %}
-                <div style="padding: 9px 13px; background: rgba(248,81,73,.08); border: 1px solid rgba(248,81,73,.25); border-radius: 7px; font-size: 12px; color: var(--red);">{{ error_exercise }}</div>
+                <div style="padding: 9px 13px; background: rgba(248,81,73,.08); border: 1px solid rgba(248,81,73,.25); border-radius: 7px; font-size: 12px; color: #f85149;">{{ error_exercise }}</div>
                 {% endif %}
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: var(--label-3);">ESERCIZIO</span>
+                    <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #7d8296;">ESERCIZIO</span>
                     <div style="display: flex; gap: 6px;">
                         <input type="text" id="exercise_name" name="exercise_name" class="tracer-input" placeholder="Cerca esercizio dalla lista…" required autocomplete="off" data-valid="false" style="flex: 1; min-width: 0;">
                         {% if user.is_superuser %}
-                        <button type="button" onclick="openNewExModal('exercise_name')" title="Nuovo esercizio" class="sd-accent-soft-btn" style="width: 38px; height: 38px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 1px solid var(--acc-line); border-radius: 8px; color: var(--acc); cursor: pointer; transition: background .12s;">
+                        <button type="button" onclick="openNewExModal('exercise_name')" title="Nuovo esercizio" style="width: 38px; height: 38px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: rgba(124,108,246,.12); border: 1px solid rgba(124,108,246,.3); border-radius: 8px; color: #a996ff; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(124,108,246,.22)'" onmouseout="this.style.background='rgba(124,108,246,.12)'">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                         </button>
                         {% endif %}
@@ -120,120 +120,120 @@
                 <!-- Reps + Durata + Weight + N.Serie -->
                 <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px;">
                     <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; color: var(--label-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">RIPETIZIONI</span>
+                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">RIPETIZIONI</span>
                         <input type="number" name="reps" class="tracer-input" placeholder="10" min="1">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; color: var(--label-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">DURATA (S)</span>
+                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">DURATA (S)</span>
                         <input type="number" name="durata" class="tracer-input" placeholder="Opc." min="1">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; color: var(--label-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">PESO (KG)</span>
+                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">PESO (KG)</span>
                         <input type="number" step="0.5" name="weight" class="tracer-input" placeholder="Opc." min="0">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; color: var(--label-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">N. SERIE</span>
-                        <input type="number" name="num_sets" class="tracer-input" placeholder="1" min="1" max="20" value="1" required style="background: var(--acc-soft); border: 1px solid var(--acc);">
+                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">N. SERIE</span>
+                        <input type="number" name="num_sets" class="tracer-input" placeholder="1" min="1" max="20" value="1" required style="background: rgba(124,108,246,0.1); border: 1px solid #7c6cf6;">
                     </div>
                 </div>
 
                 <!-- Rest + Per lato -->
                 <div style="display: flex; align-items: flex-end; gap: 14px;">
                     <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
-                        <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--label-3);">RECUPERO (S)</span>
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RECUPERO (S)</span>
                         <input type="number" name="rest_time" class="tracer-input" placeholder="90" min="0">
                     </div>
                     <label style="display: flex; align-items: center; gap: 6px; padding-bottom: 9px; cursor: pointer;">
-                        <input type="checkbox" name="per_lato" style="width: 15px; height: 15px; accent-color: var(--acc); cursor: pointer;">
-                        <span style="font-size: 12.5px; color: var(--label-2);">Per lato</span>
+                        <input type="checkbox" name="per_lato" style="width: 15px; height: 15px; accent-color: #7c6cf6; cursor: pointer;">
+                        <span style="font-size: 12.5px; color: #c7cbd6;">Per lato</span>
                     </label>
                 </div>
 
                 <div style="display: flex; gap: 18px;">
                     <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;">
-                        <input type="checkbox" name="avviamento" style="width: 15px; height: 15px; accent-color: var(--acc); flex-shrink: 0; cursor: pointer;">
-                        <span style="font-size: 12.5px; color: var(--label-2); white-space: nowrap;">Avviamento</span>
+                        <input type="checkbox" name="avviamento" style="width: 15px; height: 15px; accent-color: #7c6cf6; flex-shrink: 0; cursor: pointer;">
+                        <span style="font-size: 12.5px; color: #c7cbd6; white-space: nowrap;">Avviamento</span>
                     </label>
                     <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;">
-                        <input type="checkbox" name="a_cedimento" style="width: 15px; height: 15px; accent-color: var(--acc); flex-shrink: 0; cursor: pointer;">
-                        <span style="font-size: 12.5px; color: var(--label-2); white-space: nowrap;">A cedimento</span>
+                        <input type="checkbox" name="a_cedimento" style="width: 15px; height: 15px; accent-color: #7c6cf6; flex-shrink: 0; cursor: pointer;">
+                        <span style="font-size: 12.5px; color: #c7cbd6; white-space: nowrap;">A cedimento</span>
                     </label>
                     <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;">
-                        <input type="checkbox" name="richiamo" style="width: 15px; height: 15px; accent-color: var(--acc); flex-shrink: 0; cursor: pointer;">
-                        <span style="font-size: 12.5px; color: var(--label-2); white-space: nowrap;">Richiamo</span>
+                        <input type="checkbox" name="richiamo" style="width: 15px; height: 15px; accent-color: #7c6cf6; flex-shrink: 0; cursor: pointer;">
+                        <span style="font-size: 12.5px; color: #c7cbd6; white-space: nowrap;">Richiamo</span>
                     </label>
                 </div>
 
                 <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;" onclick="toggleBarraAdd(event)">
-                    <input type="checkbox" id="barra-check-add" style="width: 15px; height: 15px; accent-color: var(--acc); cursor: pointer;">
-                    <span style="font-size: 12.5px; color: var(--label-2);">+Sbarra</span>
+                    <input type="checkbox" id="barra-check-add" style="width: 15px; height: 15px; accent-color: #7c6cf6; cursor: pointer;">
+                    <span style="font-size: 12.5px; color: #c7cbd6;">+Sbarra</span>
                 </label>
                 <div id="barra-wrap-add" style="display:none;">
-                    <span style="display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--label-3); margin-bottom: 6px;">SBARRA (KG)</span>
+                    <span style="display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296; margin-bottom: 6px;">SBARRA (KG)</span>
                     <input type="number" step="any" name="barra_kg" id="barra-input-add" class="tracer-input" placeholder="20" min="0" style="width: 80px;">
                 </div>
 
                 <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;" onclick="toggleCarrucoleAdd(event)" title="Numero di carrucole della macchina in questa palestra (puo' cambiare da palestra a palestra).">
-                    <input type="checkbox" id="carrucole-check-add" style="width: 15px; height: 15px; accent-color: var(--acc); cursor: pointer;">
-                    <span style="font-size: 12.5px; color: var(--label-2);">+Carrucole</span>
+                    <input type="checkbox" id="carrucole-check-add" style="width: 15px; height: 15px; accent-color: #7c6cf6; cursor: pointer;">
+                    <span style="font-size: 12.5px; color: #c7cbd6;">+Carrucole</span>
                 </label>
                 <div id="carrucole-wrap-add" style="display:none;">
-                    <span style="display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--label-3); margin-bottom: 6px;">CARRUCOLE</span>
+                    <span style="display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296; margin-bottom: 6px;">CARRUCOLE</span>
                     <input type="number" step="1" name="carrucole" id="carrucole-input-add" class="tracer-input" placeholder="2" min="0" style="width: 80px;">
                 </div>
 
                 <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;" title="Inserisce automaticamente una serie di avviamento in più, prima di queste. Il peso viene proposto a metà di quello inserito sopra, ma puoi modificarlo.">
-                    <input type="checkbox" name="aggiungi_avviamento_default" id="warmup-check" style="width: 15px; height: 15px; accent-color: var(--acc); flex-shrink: 0; cursor: pointer;">
-                    <span style="font-size: 12.5px; color: var(--label-2);">+ Avviamento automatico (metà peso)</span>
+                    <input type="checkbox" name="aggiungi_avviamento_default" id="warmup-check" style="width: 15px; height: 15px; accent-color: #7c6cf6; flex-shrink: 0; cursor: pointer;">
+                    <span style="font-size: 12.5px; color: #c7cbd6;">+ Avviamento automatico (metà peso)</span>
                 </label>
                 <div id="warmup-preview-wrap" style="display:none; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;">
                     <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
-                        <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--label-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">RIP. AVVIAMENTO</span>
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">RIP. AVVIAMENTO</span>
                         <input type="number" name="avviamento_default_reps" id="warmup-reps-input" class="tracer-input" min="1">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
-                        <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--label-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">PESO AVVIAMENTO (KG)</span>
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">PESO AVVIAMENTO (KG)</span>
                         <input type="number" step="0.5" name="avviamento_default_peso" id="warmup-preview-input" class="tracer-input" min="0">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
-                        <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--label-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">RECUPERO AVVIAMENTO (S)</span>
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">RECUPERO AVVIAMENTO (S)</span>
                         <input type="number" name="avviamento_default_rest" id="warmup-rest-input" class="tracer-input" min="0">
                     </div>
                 </div>
 
-                <button type="submit" class="btn-primary-gradient" style="padding: 12px; font-size: 14px; box-shadow: 0 10px 24px var(--acc-line);">Aggiungi Serie</button>
+                <button type="submit" class="btn-primary-gradient" style="padding: 12px; font-size: 14px; box-shadow: 0 10px 24px rgba(124,108,246,0.3);">Aggiungi Serie</button>
             </form>
         </div>
 
         <!-- Esercizi Area -->
         <div>
             {% if not exercise_groups %}
-            <div style="background: var(--surface); border: 1px dashed var(--sep); border-radius: 12px; padding: 52px 24px; text-align: center;">
+            <div style="background: #0d0d14; border: 1px dashed #1c1c2e; border-radius: 12px; padding: 52px 24px; text-align: center;">
                 <div style="font-size: 26px; margin-bottom: 10px; opacity: .4;">〇</div>
-                <div style="font-size: 13.5px; color: var(--label); font-weight: 500;">Aggiungi la prima serie dal pannello</div>
+                <div style="font-size: 13.5px; color: #f0f0f3; font-weight: 500;">Aggiungi la prima serie dal pannello</div>
             </div>
             {% else %}
             <div class="tracer-card" style="overflow: hidden;">
-                <div style="padding: 15px 16px; border-bottom: 1px solid var(--sep); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                    <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: var(--label);">ESERCIZI REGISTRATI</span>
+                <div style="padding: 15px 16px; border-bottom: 1px solid #16162a; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                    <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: #ffffff;">ESERCIZI REGISTRATI</span>
                     <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
-                        <span style="font-size: 12.5px; color: var(--label-3); white-space: nowrap;">{{ exercise_groups|length }} esercizi · {{ session.sets.count }} serie</span>
-                        <button id="toggle-all-btn" data-count="{{ exercise_groups|length }}" onclick="toggleAllGroups(this)" class="sd-accent-link" style="padding: 0; background: transparent; border: none; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: color .12s; white-space: nowrap;">Espandi tutto</button>
-                        <button id="edit-all-btn" onclick="startEditAll()" class="sd-accent-link" style="padding: 0; background: transparent; border: none; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: color .12s; white-space: nowrap;">Modifica tutto</button>
+                        <span style="font-size: 12.5px; color: #7d8296; white-space: nowrap;">{{ exercise_groups|length }} esercizi · {{ session.sets.count }} serie</span>
+                        <button id="toggle-all-btn" data-count="{{ exercise_groups|length }}" onclick="toggleAllGroups(this)" style="padding: 0; background: transparent; border: none; color: #a996ff; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: color .12s; white-space: nowrap;" onmouseover="this.style.color='#c2b6ff'" onmouseout="this.style.color='#a996ff'">Espandi tutto</button>
+                        <button id="edit-all-btn" onclick="startEditAll()" style="padding: 0; background: transparent; border: none; color: #a996ff; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: color .12s; white-space: nowrap;" onmouseover="this.style.color='#c2b6ff'" onmouseout="this.style.color='#a996ff'">Modifica tutto</button>
                         <span id="edit-all-actions" style="display: none; align-items: center; gap: 10px;">
-                            <span id="edit-all-status" style="font-size: 12px; color: var(--label-3); white-space: nowrap;"></span>
-                            <button type="button" onclick="saveAllRows()" style="padding: 5px 12px; font-size: 12.5px; font-weight: 600; background: rgba(74,222,128,0.14); border: none; border-radius: 7px; color: var(--green); cursor: pointer; white-space: nowrap;">Salva tutto</button>
-                            <button type="button" onclick="cancelEditAll()" style="padding: 5px 12px; font-size: 12.5px; font-weight: 600; background: transparent; border: 1px solid var(--hairline-2); border-radius: 7px; color: var(--label-2); cursor: pointer; white-space: nowrap;">Annulla tutto</button>
+                            <span id="edit-all-status" style="font-size: 12px; color: #7d8296; white-space: nowrap;"></span>
+                            <button type="button" onclick="saveAllRows()" style="padding: 5px 12px; font-size: 12.5px; font-weight: 600; background: rgba(74,222,128,0.14); border: none; border-radius: 7px; color: #4ade80; cursor: pointer; white-space: nowrap;">Salva tutto</button>
+                            <button type="button" onclick="cancelEditAll()" style="padding: 5px 12px; font-size: 12.5px; font-weight: 600; background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; color: #c7cbd6; cursor: pointer; white-space: nowrap;">Annulla tutto</button>
                         </span>
                     </div>
                 </div>
 
                 <!-- Barra azioni bulk (visibile quando ci sono serie selezionate) -->
                 <div id="bulk-actions-bar" style="display: none; position: fixed; top: 16px; left: 50%; transform: translateX(-50%); width: min(480px, calc(100vw - 32px)); z-index: 200; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 16px; background: #1a1015; box-shadow: 0 10px 30px rgba(0,0,0,.5); border: 1px solid rgba(248,113,113,0.3); border-radius: 12px; flex-wrap: wrap;">
-                    <span id="bulk-actions-count" style="font-size: 12.5px; font-weight: 600; color: var(--red);">0 serie selezionate</span>
+                    <span id="bulk-actions-count" style="font-size: 12.5px; font-weight: 600; color: #f87171;">0 serie selezionate</span>
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <button type="button" onclick="deselectAllSets()" style="padding: 6px 12px; font-size: 12px; font-weight: 600; background: transparent; border: 1px solid var(--hairline-2); border-radius: 7px; color: var(--label-2); cursor: pointer;">Deseleziona</button>
-                        <button type="button" onclick="submitBulkDelete()" style="padding: 6px 14px; font-size: 12px; font-weight: 600; background: rgba(248,113,113,0.16); border: none; border-radius: 7px; color: var(--red); cursor: pointer;">Elimina selezionate</button>
+                        <button type="button" onclick="deselectAllSets()" style="padding: 6px 12px; font-size: 12px; font-weight: 600; background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; color: #c7cbd6; cursor: pointer;">Deseleziona</button>
+                        <button type="button" onclick="submitBulkDelete()" style="padding: 6px 14px; font-size: 12px; font-weight: 600; background: rgba(248,113,113,0.16); border: none; border-radius: 7px; color: #f87171; cursor: pointer;">Elimina selezionate</button>
                     </div>
                 </div>
                 <form id="bulk-delete-form" action="{% url 'bulk_delete_sets' session.id %}" method="post" style="display:none;">
@@ -241,22 +241,22 @@
                 </form>
 
                 {% for group in exercise_groups %}
-                <div class="exercise-group" data-exercise-id="{{ group.exercise.id }}" style="border-bottom: 1px solid var(--sep);">
+                <div class="exercise-group" data-exercise-id="{{ group.exercise.id }}" style="border-bottom: 1px solid #0e0e1e;">
                     <!-- Riga esercizio (cliccabile) -->
-                    <div onclick="toggleGroup('{{ forloop.counter }}')" data-n="{{ forloop.counter }}" class="sd-row-hover" style="padding: 15px 4px 15px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; cursor: pointer; user-select: none; transition: background .12s;">
-                        <span class="drag-handle" title="Trascina per ordinare" style="cursor: grab; color: var(--label-4); font-size: 15px; line-height: 1; flex-shrink: 0; padding: 0 2px; user-select: none;">⠿</span>
-                        <input type="checkbox" class="group-select-cb" data-group-n="{{ group.exercise.id }}" onclick="event.stopPropagation()" onchange="toggleGroupSelect(this)" title="Seleziona tutte le serie di questo esercizio" style="width: 16px; height: 16px; accent-color: var(--red); cursor: pointer; flex-shrink: 0;">
+                    <div onclick="toggleGroup('{{ forloop.counter }}')" data-n="{{ forloop.counter }}" style="padding: 15px 4px 15px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; cursor: pointer; user-select: none; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+                        <span class="drag-handle" title="Trascina per ordinare" style="cursor: grab; color: #565b6e; font-size: 15px; line-height: 1; flex-shrink: 0; padding: 0 2px; user-select: none;">⠿</span>
+                        <input type="checkbox" class="group-select-cb" data-group-n="{{ group.exercise.id }}" onclick="event.stopPropagation()" onchange="toggleGroupSelect(this)" title="Seleziona tutte le serie di questo esercizio" style="width: 16px; height: 16px; accent-color: #f87171; cursor: pointer; flex-shrink: 0;">
                         <div style="flex: 1; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; min-width: 220px;">
-                            <span style="font-size: 15.5px; font-weight: 700; color: var(--label); white-space: nowrap;">{{ group.exercise.nome }}</span>
+                            <span style="font-size: 15.5px; font-weight: 700; color: #ffffff; white-space: nowrap;">{{ group.exercise.nome }}</span>
                             {% for tag in group.exercise.tags.all %}
                                 <span class="badge-tag badge-tag-default">{{ tag.nome }}</span>
                             {% endfor %}
                             <div style="flex: 1;"></div>
-                            <span data-set-count-badge style="background: var(--acc-soft); color: var(--acc); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 7px; white-space: nowrap;">{{ group.count }} serie</span>
+                            <span data-set-count-badge style="background: rgba(124,108,246,0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 7px; white-space: nowrap;">{{ group.count }} serie</span>
                         </div>
                         <form action="{% url 'delete_exercise_sets' session.id group.exercise.id %}" method="post" onclick="event.stopPropagation()" onsubmit="return confirm('Eliminare tutte le serie di {{ group.exercise.nome }}?');" style="margin-right: 10px;">
                             {% csrf_token %}
-                            <button type="submit" style="width: 30px; height: 30px; background: rgba(248,113,113,0.12); border: none; border-radius: 8px; color: var(--red); font-size: 12px; cursor: pointer; flex-shrink: 0; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.22)'" onmouseout="this.style.background='rgba(248,113,113,0.12)'">🗑</button>
+                            <button type="submit" style="width: 30px; height: 30px; background: rgba(248,113,113,0.12); border: none; border-radius: 8px; color: #f87171; font-size: 12px; cursor: pointer; flex-shrink: 0; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.22)'" onmouseout="this.style.background='rgba(248,113,113,0.12)'">🗑</button>
                         </form>
                     </div>
 
@@ -275,54 +275,54 @@
             {% if circuit_items %}
             <div class="tracer-card" style="overflow: hidden; margin-top: 16px; padding: 24px 26px; display: flex; flex-direction: column; gap: 14px;">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: var(--label);">CIRCUITI</span>
-                    <span style="font-size: 12.5px; color: var(--label-3);">{{ circuit_items|length }} circuiti</span>
+                    <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: #ffffff;">CIRCUITI</span>
+                    <span style="font-size: 12.5px; color: #7d8296;">{{ circuit_items|length }} circuiti</span>
                 </div>
                 {% for item in circuit_items %}
                 <div style="display: flex; flex-direction: column; gap: 4px;">
                     <!-- Circuit header row (cliccabile) -->
-                    <div onclick="toggleCircuit({{ item.circuit.id }})" class="sd-row-hover" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 8px 4px; margin-bottom: -2px; border-radius: 8px; cursor: pointer; user-select: none; transition: background .12s;">
+                    <div onclick="toggleCircuit({{ item.circuit.id }})" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 8px 4px; margin-bottom: -2px; border-radius: 8px; cursor: pointer; user-select: none; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
                         <div style="display: flex; flex-direction: column; gap: 1px;">
-                            <span style="font-size: 15.5px; font-weight: 700; color: var(--label);">{% if item.circuit.nome %}{{ item.circuit.nome }}{% else %}Circuito #{{ forloop.counter }}{% endif %}</span>
-                            <span style="font-size: 12px; color: var(--label-3);">{{ item.circuit.rounds }} round{% if item.circuit.rest_tra_round %} &middot; {{ item.circuit.rest_tra_round }}s recupero{% endif %}</span>
+                            <span style="font-size: 15.5px; font-weight: 700; color: #ffffff;">{% if item.circuit.nome %}{{ item.circuit.nome }}{% else %}Circuito #{{ forloop.counter }}{% endif %}</span>
+                            <span style="font-size: 12px; color: #7d8296;">{{ item.circuit.rounds }} round{% if item.circuit.rest_tra_round %} &middot; {{ item.circuit.rest_tra_round }}s recupero{% endif %}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="background: var(--acc-soft); color: var(--acc); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 7px; white-space: nowrap;">{{ item.circuit.rounds }} round</span>
-                            <span onclick="event.stopPropagation(); toggleCircuitEdit({{ item.circuit.id }})" class="sd-accent-soft-btn" style="font-size: 12px; font-weight: 600; color: var(--acc); padding: 6px 12px; border-radius: 7px; cursor: pointer; white-space: nowrap; transition: background .12s;">Modifica</span>
+                            <span style="background: rgba(124,108,246,0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 7px; white-space: nowrap;">{{ item.circuit.rounds }} round</span>
+                            <span onclick="event.stopPropagation(); toggleCircuitEdit({{ item.circuit.id }})" style="font-size: 12px; font-weight: 600; color: #a996ff; padding: 6px 12px; border-radius: 7px; background: rgba(124,108,246,0.12); cursor: pointer; white-space: nowrap; transition: background .12s;" onmouseover="this.style.background='rgba(124,108,246,0.22)'" onmouseout="this.style.background='rgba(124,108,246,0.12)'">Modifica</span>
                             <form action="{% url 'delete_circuit' item.circuit.id %}" method="post" style="display:inline;" onclick="event.stopPropagation()" onsubmit="return confirm('Eliminare circuito e tutte le sue serie?');">
                                 {% csrf_token %}
-                                <button type="submit" style="font-size: 12px; font-weight: 600; color: var(--red); padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; white-space: nowrap; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
+                                <button type="submit" style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; white-space: nowrap; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
                             </form>
                         </div>
                     </div>
                     <!-- Inline edit circuit form -->
-                    <div id="circuit-edit-{{ item.circuit.id }}" style="display: none; flex-direction: column; gap: 14px; background: var(--acc-soft); border: 1px solid var(--acc-line); border-radius: 9px; padding: 14px 16px; margin-bottom: 6px;">
+                    <div id="circuit-edit-{{ item.circuit.id }}" style="display: none; flex-direction: column; gap: 14px; background: rgba(124,108,246,0.06); border: 1px solid rgba(124,108,246,0.3); border-radius: 9px; padding: 14px 16px; margin-bottom: 6px;">
                         <form action="{% url 'edit_circuit' item.circuit.id %}" method="post" novalidate style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
                             {% csrf_token %}
                             <div style="display: flex; flex-direction: column; gap: 6px;">
-                                <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--label-3);">NOME</span>
+                                <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">NOME</span>
                                 <input type="text" name="nome" value="{{ item.circuit.nome }}" class="tracer-input" style="width: 140px;" placeholder="Circuito A">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 6px;">
-                                <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--label-3);">ROUND</span>
-                                <input type="number" name="rounds" value="{{ item.circuit.rounds }}" class="tracer-input" style="width: 70px; background: var(--acc-soft); border-color: var(--acc);" min="1" required>
+                                <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">ROUND</span>
+                                <input type="number" name="rounds" value="{{ item.circuit.rounds }}" class="tracer-input" style="width: 70px; background: rgba(124,108,246,0.1); border-color: #7c6cf6;" min="1" required>
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 6px;">
-                                <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--label-3);">RECUPERO TRA ROUND (S)</span>
+                                <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RECUPERO TRA ROUND (S)</span>
                                 <input type="number" name="rest_tra_round" value="{{ item.circuit.rest_tra_round|default:'' }}" class="tracer-input" style="width: 100px;" min="0" placeholder="Opc.">
                             </div>
                             <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13.5px;">Salva</button>
-                            <button type="button" onclick="toggleCircuitEdit({{ item.circuit.id }})" style="padding: 10px 18px; font-size: 13.5px; font-weight: 600; background: var(--overlay-hover); border: 1px solid var(--hairline-2); border-radius: 9px; color: var(--label-2); cursor: pointer; white-space: nowrap;">Annulla</button>
+                            <button type="button" onclick="toggleCircuitEdit({{ item.circuit.id }})" style="padding: 10px 18px; font-size: 13.5px; font-weight: 600; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 9px; color: #c7cbd6; cursor: pointer; white-space: nowrap;">Annulla</button>
                         </form>
                     </div>
                     <!-- Circuit body (collapsible) -->
                     <div id="circuit-body-{{ item.circuit.id }}" data-reorder-url="{% url 'reorder_circuit_exercises' item.circuit.id %}" style="display: none; flex-direction: column;">
                         {% for group in item.exercise_groups %}
-                        <div class="circuit-ex-group" data-exercise-id="{{ group.exercise.id }}" data-circuit-id="{{ item.circuit.id }}" data-set-reorder-url="{% url 'reorder_circuit_exercise_sets' item.circuit.id group.exercise.id %}" style="display: flex; flex-direction: column; gap: 6px; padding: 10px 0; border-top: 1px solid var(--hairline);">
+                        <div class="circuit-ex-group" data-exercise-id="{{ group.exercise.id }}" data-circuit-id="{{ item.circuit.id }}" data-set-reorder-url="{% url 'reorder_circuit_exercise_sets' item.circuit.id group.exercise.id %}" style="display: flex; flex-direction: column; gap: 6px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.06);">
                             <div style="display: flex; align-items: baseline; gap: 8px;">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--label-4)" style="flex-shrink: 0;"><circle cx="8" cy="6" r="1.6"></circle><circle cx="16" cy="6" r="1.6"></circle><circle cx="8" cy="12" r="1.6"></circle><circle cx="16" cy="12" r="1.6"></circle><circle cx="8" cy="18" r="1.6"></circle><circle cx="16" cy="18" r="1.6"></circle></svg>
-                                <span style="font-size: 14px; font-weight: 700; color: var(--label);">{{ group.exercise.nome }}</span>
-                                <span data-set-count-badge style="font-size: 12px; color: var(--label-3);">{{ group.sets|length }} serie</span>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="#565b6e" style="flex-shrink: 0;"><circle cx="8" cy="6" r="1.6"></circle><circle cx="16" cy="6" r="1.6"></circle><circle cx="8" cy="12" r="1.6"></circle><circle cx="16" cy="12" r="1.6"></circle><circle cx="8" cy="18" r="1.6"></circle><circle cx="16" cy="18" r="1.6"></circle></svg>
+                                <span style="font-size: 14px; font-weight: 700; color: #ffffff;">{{ group.exercise.nome }}</span>
+                                <span data-set-count-badge style="font-size: 12px; color: #7d8296;">{{ group.sets|length }} serie</span>
                             </div>
                             {% for set in group.sets %}
                             {% include 'tracker/partials/set_row.html' with set=set group_n=group.exercise.id in_circuit=True %}
@@ -331,22 +331,22 @@
                         {% endfor %}
                         <!-- Add exercise to circuit -->
                         <div style="padding: 12px 0;">
-                            <div onclick="toggleCircuitAddForm({{ item.circuit.id }})" class="sd-row-hover" style="border: 1px dashed var(--hairline-2); border-radius: 10px; padding: 12px; text-align: center; cursor: pointer; transition: background .12s;">
-                                <span style="font-size: 13px; font-weight: 600; color: var(--acc);">+ Aggiungi esercizio al circuito</span>
+                            <div onclick="toggleCircuitAddForm({{ item.circuit.id }})" style="border: 1px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 12px; text-align: center; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+                                <span style="font-size: 13px; font-weight: 600; color: #7c6cf6;">+ Aggiungi esercizio al circuito</span>
                             </div>
                             <div id="circuit-add-{{ item.circuit.id }}" style="display: none; margin-top: 12px;">
                                 <form action="{% url 'session_detail' session.id %}" method="post" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
                                     {% csrf_token %}
                                     <input type="hidden" name="circuit_id" value="{{ item.circuit.id }}">
-                                    <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: var(--label-3);">ESERCIZIO</span><input type="text" name="exercise_name" class="tracer-input" style="width: 160px;" placeholder="Cerca esercizio…" required autocomplete="off" data-valid="false"></div>
-                                    <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: var(--label-3);">REPS</span><input type="number" name="reps" class="tracer-input" style="width: 60px;" placeholder="10" min="1"></div>
-                                    <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: var(--label-3);">DURATA (S)</span><input type="number" name="durata" class="tracer-input" style="width: 70px;" placeholder="Opc." min="1"></div>
-                                    <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: var(--label-3);">PESO (KG)</span><input type="number" step="0.5" name="weight" class="tracer-input" style="width: 70px;" placeholder="Opc." min="0"></div>
-                                    <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: var(--label-3);">RECUPERO (S)</span><input type="number" name="rest_time" class="tracer-input" style="width: 70px;" placeholder="Opc." min="0"></div>
-                                    <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;"><input type="checkbox" name="per_lato" style="width: 13px; height: 13px; accent-color: var(--acc); cursor: pointer;"><span style="font-size: 12px; color: var(--label-2); white-space: nowrap;">Per lato</span></label>
-                                    <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;"><input type="checkbox" name="a_cedimento" style="width: 13px; height: 13px; accent-color: var(--acc); cursor: pointer;"><span style="font-size: 12px; color: var(--label-2); white-space: nowrap;">A cedimento</span></label>
+                                    <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">ESERCIZIO</span><input type="text" name="exercise_name" class="tracer-input" style="width: 160px;" placeholder="Cerca esercizio…" required autocomplete="off" data-valid="false"></div>
+                                    <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">REPS</span><input type="number" name="reps" class="tracer-input" style="width: 60px;" placeholder="10" min="1"></div>
+                                    <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">DURATA (S)</span><input type="number" name="durata" class="tracer-input" style="width: 70px;" placeholder="Opc." min="1"></div>
+                                    <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">PESO (KG)</span><input type="number" step="0.5" name="weight" class="tracer-input" style="width: 70px;" placeholder="Opc." min="0"></div>
+                                    <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RECUPERO (S)</span><input type="number" name="rest_time" class="tracer-input" style="width: 70px;" placeholder="Opc." min="0"></div>
+                                    <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;"><input type="checkbox" name="per_lato" style="width: 13px; height: 13px; accent-color: #7c6cf6; cursor: pointer;"><span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">Per lato</span></label>
+                                    <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;"><input type="checkbox" name="a_cedimento" style="width: 13px; height: 13px; accent-color: #7c6cf6; cursor: pointer;"><span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">A cedimento</span></label>
                                     <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Aggiungi</button>
-                                    <button type="button" onclick="toggleCircuitAddForm({{ item.circuit.id }})" style="padding: 8px 14px; font-size: 12.5px; font-weight: 600; background: var(--overlay-hover); border: 1px solid var(--hairline-2); border-radius: 8px; color: var(--label-2); cursor: pointer;">Annulla</button>
+                                    <button type="button" onclick="toggleCircuitAddForm({{ item.circuit.id }})" style="padding: 8px 14px; font-size: 12.5px; font-weight: 600; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #c7cbd6; cursor: pointer;">Annulla</button>
                                 </form>
                             </div>
                         </div>
@@ -359,38 +359,38 @@
             <!-- Nuovo Circuito -->
             <div style="margin-top: 14px;">
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <div onclick="toggleNewCircuitForm()" class="sd-row-hover" style="flex: 1; min-width: 200px; border: 1px dashed var(--hairline-2); border-radius: 10px; padding: 14px; text-align: center; cursor: pointer; transition: background .12s;">
-                        <span style="font-size: 13px; font-weight: 600; color: var(--acc);">⊕ Nuovo Circuito</span>
+                    <div onclick="toggleNewCircuitForm()" style="flex: 1; min-width: 200px; border: 1px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 14px; text-align: center; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+                        <span style="font-size: 13px; font-weight: 600; color: #7c6cf6;">⊕ Nuovo Circuito</span>
                     </div>
-                    <div onclick="toggleImportCircuitForm()" class="sd-row-hover" style="flex: 1; min-width: 200px; border: 1px dashed var(--hairline-2); border-radius: 10px; padding: 14px; text-align: center; cursor: pointer; transition: background .12s;">
-                        <span style="font-size: 13px; font-weight: 600; color: var(--acc);">⤵ Importa Circuito</span>
+                    <div onclick="toggleImportCircuitForm()" style="flex: 1; min-width: 200px; border: 1px dashed rgba(255,255,255,0.15); border-radius: 10px; padding: 14px; text-align: center; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+                        <span style="font-size: 13px; font-weight: 600; color: #7c6cf6;">⤵ Importa Circuito</span>
                     </div>
                 </div>
                 <div id="new-circuit-form" style="display: none; margin-top: 12px;">
                     <div class="tracer-card" style="padding: 18px 20px; display: flex; flex-direction: column; gap: 14px;">
-                        <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--label-3);">NUOVO CIRCUITO</span>
+                        <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #838a9e;">NUOVO CIRCUITO</span>
                         <form action="{% url 'create_circuit' session.id %}" method="post" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
                             {% csrf_token %}
-                            <div style="display: flex; flex-direction: column; gap: 6px;"><span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--label-3);">NOME (OPZ.)</span><input type="text" name="nome" class="tracer-input" style="width: 160px;" placeholder="Circuito A"></div>
-                            <div style="display: flex; flex-direction: column; gap: 6px;"><span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--label-3);">ROUND</span><input type="number" name="rounds" class="tracer-input" style="width: 70px; background: var(--acc-soft); border-color: var(--acc);" value="3" min="1" required></div>
-                            <div style="display: flex; flex-direction: column; gap: 6px;"><span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--label-3);">RECUPERO TRA ROUND (S)</span><input type="number" name="rest_tra_round" class="tracer-input" style="width: 100px;" placeholder="Opc." min="0"></div>
+                            <div style="display: flex; flex-direction: column; gap: 6px;"><span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">NOME (OPZ.)</span><input type="text" name="nome" class="tracer-input" style="width: 160px;" placeholder="Circuito A"></div>
+                            <div style="display: flex; flex-direction: column; gap: 6px;"><span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">ROUND</span><input type="number" name="rounds" class="tracer-input" style="width: 70px; background: rgba(124,108,246,0.1); border-color: #7c6cf6;" value="3" min="1" required></div>
+                            <div style="display: flex; flex-direction: column; gap: 6px;"><span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RECUPERO TRA ROUND (S)</span><input type="number" name="rest_tra_round" class="tracer-input" style="width: 100px;" placeholder="Opc." min="0"></div>
                             <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13.5px;">Crea Circuito</button>
-                            <button type="button" onclick="toggleNewCircuitForm()" style="padding: 10px 18px; font-size: 13.5px; font-weight: 600; background: var(--overlay-hover); border: 1px solid var(--hairline-2); border-radius: 9px; color: var(--label-2); cursor: pointer; white-space: nowrap;">Annulla</button>
+                            <button type="button" onclick="toggleNewCircuitForm()" style="padding: 10px 18px; font-size: 13.5px; font-weight: 600; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 9px; color: #c7cbd6; cursor: pointer; white-space: nowrap;">Annulla</button>
                         </form>
                     </div>
                 </div>
                 <div id="import-circuit-form" style="display: none; margin-top: 12px;">
                     <div class="tracer-card" style="padding: 18px 20px; display: flex; flex-direction: column; gap: 14px;">
-                        <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--label-3);">IMPORTA CIRCUITO DA UN'ALTRA GIORNATA</span>
+                        <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #838a9e;">IMPORTA CIRCUITO DA UN'ALTRA GIORNATA</span>
                         <form action="{% url 'import_circuit' session.id %}" method="post" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
                             {% csrf_token %}
                             <input type="hidden" name="circuit_id" id="import-circuit-id">
                             <div style="display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 240px;">
-                                <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--label-3);">CERCA CIRCUITO</span>
+                                <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">CERCA CIRCUITO</span>
                                 <input type="text" id="import-circuit-search" class="tracer-input" placeholder="Cerca per nome o esercizio…" autocomplete="off">
                             </div>
                             <button type="submit" id="import-circuit-submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13.5px;" disabled>Importa</button>
-                            <button type="button" onclick="toggleImportCircuitForm()" style="padding: 10px 18px; font-size: 13.5px; font-weight: 600; background: var(--overlay-hover); border: 1px solid var(--hairline-2); border-radius: 9px; color: var(--label-2); cursor: pointer; white-space: nowrap;">Annulla</button>
+                            <button type="button" onclick="toggleImportCircuitForm()" style="padding: 10px 18px; font-size: 13.5px; font-weight: 600; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 9px; color: #c7cbd6; cursor: pointer; white-space: nowrap;">Annulla</button>
                         </form>
                     </div>
                 </div>
@@ -405,7 +405,7 @@
     <div id="new-ex-modal-box">
         <div class="modal-title">Nuovo Esercizio</div>
         <form id="new-ex-form" style="display: flex; flex-direction: column; gap: 14px;">
-            <div id="new-ex-error" style="display:none; padding: 9px 13px; background: rgba(248,81,73,.08); border: 1px solid rgba(248,81,73,.25); border-radius: 7px; font-size: 12px; color: var(--red);"></div>
+            <div id="new-ex-error" style="display:none; padding: 9px 13px; background: rgba(248,81,73,.08); border: 1px solid rgba(248,81,73,.25); border-radius: 7px; font-size: 12px; color: #f85149;"></div>
             <div>
                 <label class="modal-label">Nome</label>
                 <input type="text" id="new-ex-nome" class="tracer-input" required style="width: 100%;">
@@ -418,18 +418,18 @@
                 <label class="modal-label" style="margin-bottom: 8px;">Gruppo Muscolare</label>
                 <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                     {% for tag in tags %}
-                    <label class="sd-tag-checkbox" style="display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 5px 10px; border-radius: 6px; transition: border-color .12s;">
-                        <input type="checkbox" name="new-ex-tags" value="{{ tag.id }}" style="accent-color: var(--acc);">
-                        <span style="font-size: 11px; color: var(--label-2);">{{ tag.nome }}</span>
+                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 5px 10px; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; transition: border-color .12s;" onmouseover="this.style.borderColor='rgba(255,255,255,0.2)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'">
+                        <input type="checkbox" name="new-ex-tags" value="{{ tag.id }}" style="accent-color: #7c6cf6;">
+                        <span style="font-size: 11px; color: #c7cbd6;">{{ tag.nome }}</span>
                     </label>
                     {% endfor %}
                 </div>
             </div>
             <div>
                 <label class="modal-label">Immagine (opzionale, max {{ max_image_mb }} MB)</label>
-                <input type="file" id="new-ex-immagine" accept="image/*" style="font-size: 12px; color: var(--label-2); background: var(--overlay-hover); border: 1px solid var(--hairline-2); border-radius: 7px; padding: 6px 10px; cursor: pointer; width: 100%; box-sizing: border-box;">
-                <span id="new-ex-immagine-error" style="display:none; font-size: 11px; color: var(--red); margin-top: 5px;"></span>
-                <img id="new-ex-immagine-preview" style="display:none; margin-top: 8px; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: var(--bg-el);">
+                <input type="file" id="new-ex-immagine" accept="image/*" style="font-size: 12px; color: #a0a0c0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 6px 10px; cursor: pointer; width: 100%; box-sizing: border-box;">
+                <span id="new-ex-immagine-error" style="display:none; font-size: 11px; color: #f85149; margin-top: 5px;"></span>
+                <img id="new-ex-immagine-preview" style="display:none; margin-top: 8px; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: #0a0a12;">
             </div>
             <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
                 <button type="button" onclick="closeNewExModal()" class="modal-cancel-btn">Annulla</button>
@@ -444,8 +444,8 @@
 #ex-dropdown {
     position: fixed;
     z-index: 9999;
-    background: var(--surface);
-    border: 1px solid var(--sep);
+    background: #0d0d1a;
+    border: 1px solid #1c1c2c;
     border-radius: 0 0 8px 8px;
     overflow: hidden;
     max-height: 220px;
@@ -455,7 +455,7 @@
 #ex-dropdown .ex-item {
     padding: 9px 14px;
     font-size: 12.5px;
-    color: var(--label-3);
+    color: #8080a0;
     cursor: pointer;
     transition: background .08s, color .08s;
     white-space: nowrap;
@@ -464,16 +464,16 @@
 }
 #ex-dropdown .ex-item:hover,
 #ex-dropdown .ex-item.ex-active {
-    background: var(--surface-2);
-    color: var(--label);
+    background: #141428;
+    color: #f0f0f3;
 }
 #ex-preview {
     display: none;
     position: fixed;
     z-index: 10000;
     width: 168px;
-    background: var(--surface-3);
-    border: 1px solid var(--hairline-2);
+    background: #17171f;
+    border: 1px solid rgba(255,255,255,0.1);
     border-radius: 12px;
     box-shadow: 0 16px 36px rgba(0,0,0,0.5);
     padding: 10px;
@@ -491,15 +491,15 @@
 #ex-preview span {
     font-size: 11.5px;
     font-weight: 700;
-    color: var(--label);
+    color: #fff;
     line-height: 1.3;
 }
 .exercise-group { transition: opacity .15s; }
 .exercise-group.dnd-over { outline: 1px solid rgba(240,136,62,.35); border-radius: 4px; }
-.drag-handle:hover { color: var(--label-3) !important; }
+.drag-handle:hover { color: #5a5a78 !important; }
 .set-row-wrap { transition: opacity .15s; }
-.set-row-wrap.dnd-over > div:first-child { outline: 1px solid var(--acc-line); border-radius: 9px; }
-.set-drag-handle:hover { color: var(--label-3) !important; }
+.set-row-wrap.dnd-over > div:first-child { outline: 1px solid rgba(124,108,246,.35); border-radius: 9px; }
+.set-drag-handle:hover { color: #8a8fa5 !important; }
 .mpill-label input[type="checkbox"] { display: none; }
 .mpill-label span {
     display: inline-block;
@@ -507,8 +507,8 @@
     border-radius: 20px;
     font-size: 10.5px;
     font-weight: 600;
-    border: 1px solid var(--sep);
-    color: var(--label);
+    border: 1px solid #202030;
+    color: #f0f0f3;
     cursor: pointer;
     transition: all .12s;
     user-select: none;
@@ -520,47 +520,36 @@
 }
 .mpill-label span:hover { border-color: #3a3a5a; color: #7070a0; }
 
-/* Hover convertiti da onmouseover/onmouseout inline (migrazione ai design token) */
-.sd-ghost-btn { background: var(--overlay-hover); }
-.sd-ghost-btn:hover { background: var(--overlay-press); }
-.sd-accent-soft-btn { background: var(--acc-soft); }
-.sd-accent-soft-btn:hover { background: var(--acc-line); }
-.sd-accent-link { color: var(--acc); }
-.sd-accent-link:hover { color: var(--acc-2); }
-.sd-row-hover:hover { background: var(--overlay-hover); }
-.sd-tag-checkbox { border: 1px solid var(--hairline-2); }
-.sd-tag-checkbox:hover { border-color: var(--overlay-press); }
-
 /* Tema violetto (allineato al redesign dashboard/login) */
 .page-container .btn-primary-gradient,
 #new-ex-modal .btn-primary-gradient {
-    background: var(--acc);
+    background: #7c6cf6;
     box-shadow: none;
 }
 .page-container .btn-primary-gradient:hover,
-#new-ex-modal .btn-primary-gradient:hover { background: var(--acc-2); opacity: 1; }
+#new-ex-modal .btn-primary-gradient:hover { background: #8b7bf7; opacity: 1; }
 
 .page-container .tracer-input {
-    background: var(--overlay-hover);
-    border-color: var(--hairline-2);
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.08);
 }
 .page-container .tracer-input:focus {
-    border-color: var(--acc-line);
+    border-color: rgba(124,108,246,.5);
 }
 
 .page-container .badge-tag-default {
-    background: var(--acc-soft);
-    color: var(--acc);
-    border: 1px solid var(--acc-line);
+    background: rgba(124,108,246,.12);
+    color: #b7bdf0;
+    border: 1px solid rgba(124,108,246,.2);
 }
 
 #new-ex-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.75); align-items: center; justify-content: center; }
 #new-ex-modal.open { display: flex; }
-#new-ex-modal-box { background: var(--surface-3); border: 1px solid var(--acc-line); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 16px; padding: 24px; width: 100%; max-width: 460px; margin: 16px; }
-.modal-label { display: block; font-size: 10px; font-weight: 700; color: var(--label-3); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px; }
-.modal-title { font-size: 11px; font-weight: 700; color: var(--label-3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 18px; }
-.modal-cancel-btn { padding: 0 16px; height: 34px; background: var(--overlay-hover); border: 1px solid var(--hairline-2); border-radius: 8px; color: var(--label-2); font-size: 12px; font-weight: 600; cursor: pointer; transition: background .12s; }
-.modal-cancel-btn:hover { background: var(--overlay-press); }
+#new-ex-modal-box { background: #111117; border: 1px solid rgba(124,108,246,0.18); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 16px; padding: 24px; width: 100%; max-width: 460px; margin: 16px; }
+.modal-label { display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px; }
+.modal-title { font-size: 11px; font-weight: 700; color: #838a9e; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 18px; }
+.modal-cancel-btn { padding: 0 16px; height: 34px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #c7cbd6; font-size: 12px; font-weight: 600; cursor: pointer; transition: background .12s; }
+.modal-cancel-btn:hover { background: rgba(255,255,255,0.09); }
 </style>
 
 <!-- Contenuto nascosto usato per il PDF -->
@@ -812,7 +801,7 @@ function toggleImportCircuitForm() {
 
     var dropdown = document.createElement('div');
     dropdown.id = 'circuit-dropdown';
-    dropdown.style.cssText = 'display:none; position:fixed; z-index:9999; background:var(--surface); border:1px solid var(--sep); border-radius:0 0 8px 8px; overflow:hidden; max-height:260px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,.5);';
+    dropdown.style.cssText = 'display:none; position:fixed; z-index:9999; background:#0d0d1a; border:1px solid #1c1c2c; border-radius:0 0 8px 8px; overflow:hidden; max-height:260px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,.5);';
     document.body.appendChild(dropdown);
 
     var fetchTimer = null;
@@ -836,10 +825,10 @@ function toggleImportCircuitForm() {
         dropdown.innerHTML = '';
         results.forEach(function(item) {
             var el = document.createElement('div');
-            el.style.cssText = 'padding:9px 14px; font-size:12.5px; cursor:pointer; border-bottom:1px solid var(--sep);';
-            el.innerHTML = '<div style="color:var(--label); font-weight:600;">' + item.label + '</div>' +
-                (item.exercises ? '<div style="font-size:11px; color:var(--label-4); margin-top:2px;">' + item.exercises + '</div>' : '');
-            el.addEventListener('mouseover', function() { el.style.background = 'var(--surface-2)'; });
+            el.style.cssText = 'padding:9px 14px; font-size:12.5px; cursor:pointer; border-bottom:1px solid #16162a;';
+            el.innerHTML = '<div style="color:#f0f0f3; font-weight:600;">' + item.label + '</div>' +
+                (item.exercises ? '<div style="font-size:11px; color:#565b6e; margin-top:2px;">' + item.exercises + '</div>' : '');
+            el.addEventListener('mouseover', function() { el.style.background = '#141428'; });
             el.addEventListener('mouseout', function() { el.style.background = 'transparent'; });
             el.addEventListener('mousedown', function(e) {
                 e.preventDefault();
@@ -1016,7 +1005,7 @@ function toggleCarrucoleEdit(e, id) {
                     if (!hint) {
                         hint = document.createElement('div');
                         hint.className = 'ex-hint';
-                        hint.style.cssText = 'font-size:11px;color:var(--red);margin-top:4px;';
+                        hint.style.cssText = 'font-size:11px;color:#f85149;margin-top:4px;';
                         input.parentNode.appendChild(hint);
                     }
                     hint.textContent = 'Seleziona un esercizio dalla lista.';
@@ -1374,7 +1363,7 @@ function toggleCarrucoleEdit(e, id) {
         document.getElementById('edit-all-actions').style.display = 'flex';
         var status = document.getElementById('edit-all-status');
         status.textContent = '';
-        status.style.color = 'var(--label-3)';
+        status.style.color = '#7d8296';
     }
 
     function exitEditAllMode() {
@@ -1403,7 +1392,7 @@ function toggleCarrucoleEdit(e, id) {
         if (!wraps.length) { cancelEditAll(); return; }
 
         var total = wraps.length, done = 0, failed = 0;
-        status.style.color = 'var(--label-3)';
+        status.style.color = '#7d8296';
         status.textContent = 'Salvataggio 0/' + total + '…';
 
         wraps.forEach(function(wrap) {
@@ -1419,14 +1408,14 @@ function toggleCarrucoleEdit(e, id) {
                         initRow(newWrap);
                     } else {
                         failed++;
-                        wrap.style.outline = '2px solid var(--red)';
+                        wrap.style.outline = '2px solid #f87171';
                     }
                     status.textContent = 'Salvataggio ' + done + '/' + total + '…';
                     if (done === total) finishSaveAll(failed);
                 })
                 .catch(function() {
                     done++; failed++;
-                    wrap.style.outline = '2px solid var(--red)';
+                    wrap.style.outline = '2px solid #f87171';
                     status.textContent = 'Salvataggio ' + done + '/' + total + '…';
                     if (done === total) finishSaveAll(failed);
                 });
@@ -1434,10 +1423,10 @@ function toggleCarrucoleEdit(e, id) {
 
         function finishSaveAll(failedCount) {
             if (failedCount > 0) {
-                status.style.color = 'var(--red)';
+                status.style.color = '#f87171';
                 status.textContent = failedCount + ' riga/e non salvata/e (bordo rosso)';
             } else {
-                status.style.color = 'var(--green)';
+                status.style.color = '#4ade80';
                 status.textContent = 'Salvato';
                 setTimeout(exitEditAllMode, 900);
             }
