@@ -112,7 +112,7 @@
         <div class="tracer-card" style="padding: 18px 20px;">
             <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 4px;">Nuova voce</div>
             <div style="font-size: 11.5px; color: #7d8296; margin-bottom: 12px;">Logga un pasto o il totale della giornata. Proteine/carboidrati/grassi sono facoltativi.</div>
-            <form action="{% url 'add_macro_entry' %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
+            <form action="{% url 'add_macro_entry' %}" method="post" autocomplete="off" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{% url 'macro' %}">
                 <div style="display: flex; flex-direction: column; gap: 6px;">
@@ -154,7 +154,7 @@
         <div class="tracer-card" style="padding: 18px 20px;">
             <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 4px;">Segna giorno</div>
             <div style="font-size: 11.5px; color: #7d8296; margin-bottom: 12px;">Usalo per un giorno di cui non hai loggato nulla (o solo in parte), cosi' viene escluso dall'andamento invece di sembrare "zero calorie".</div>
-            <form action="{% url 'set_macro_day_status' %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
+            <form action="{% url 'set_macro_day_status' %}" method="post" autocomplete="off" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{% url 'macro' %}">
                 <div style="display: flex; flex-direction: column; gap: 6px;">
@@ -234,7 +234,7 @@
             </div>
 
             <div id="day-goal-form-{{ day_key }}" style="display: none; margin-top: 10px;" onclick="event.stopPropagation();">
-                <form action="{% url 'set_day_macro_goal' %}" method="post" style="display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap;">
+                <form action="{% url 'set_day_macro_goal' %}" method="post" autocomplete="off" style="display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap;">
                     {% csrf_token %}
                     <input type="hidden" name="data" value="{{ day_key }}">
                     <input type="hidden" name="next" value="{% url 'macro' %}">
@@ -279,7 +279,7 @@
                         </form>
                     </div>
                     <div id="macro-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(124,108,246,0.06); border: 1px solid rgba(124,108,246,0.3); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
-                        <form action="{% url 'edit_macro_entry' e.id %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
+                        <form action="{% url 'edit_macro_entry' e.id %}" method="post" autocomplete="off" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="{% url 'macro' %}">
                             <div style="display: flex; flex-direction: column; gap: 5px;">
