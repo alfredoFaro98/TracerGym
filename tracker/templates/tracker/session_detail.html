@@ -808,7 +808,18 @@ function toggleImportCircuitForm() {
 
     function position() {
         var r = input.getBoundingClientRect();
-        dropdown.style.top = r.bottom + 'px';
+        var margin = 8, maxH = 260;
+        var spaceBelow = window.innerHeight - r.bottom - margin;
+        var spaceAbove = r.top - margin;
+        if (spaceBelow >= 120 || spaceBelow >= spaceAbove) {
+            dropdown.style.top = r.bottom + 'px';
+            dropdown.style.bottom = 'auto';
+            dropdown.style.maxHeight = Math.max(80, Math.min(maxH, spaceBelow)) + 'px';
+        } else {
+            dropdown.style.top = 'auto';
+            dropdown.style.bottom = (window.innerHeight - r.top) + 'px';
+            dropdown.style.maxHeight = Math.max(80, Math.min(maxH, spaceAbove)) + 'px';
+        }
         dropdown.style.left = r.left + 'px';
         dropdown.style.width = r.width + 'px';
     }
@@ -1050,7 +1061,18 @@ function toggleCarrucoleEdit(e, id) {
 
     function position(input) {
         var r = input.getBoundingClientRect();
-        dropdown.style.top  = r.bottom + 'px';
+        var margin = 8, maxH = 220;
+        var spaceBelow = window.innerHeight - r.bottom - margin;
+        var spaceAbove = r.top - margin;
+        if (spaceBelow >= 120 || spaceBelow >= spaceAbove) {
+            dropdown.style.top = r.bottom + 'px';
+            dropdown.style.bottom = 'auto';
+            dropdown.style.maxHeight = Math.max(80, Math.min(maxH, spaceBelow)) + 'px';
+        } else {
+            dropdown.style.top = 'auto';
+            dropdown.style.bottom = (window.innerHeight - r.top) + 'px';
+            dropdown.style.maxHeight = Math.max(80, Math.min(maxH, spaceAbove)) + 'px';
+        }
         dropdown.style.left = r.left + 'px';
         dropdown.style.width = r.width + 'px';
     }

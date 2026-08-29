@@ -101,7 +101,7 @@ def dashboard(request):
     _delete_blank_sessions(request.user)
 
     # Recupera tutte le sessioni dell'utente loggato con prefetch per ottimizzare le query
-    sessions_query = WorkoutSession.objects.filter(utente=request.user).prefetch_related('sets__exercise').order_by('-data', '-id')
+    sessions_query = WorkoutSession.objects.filter(utente=request.user).prefetch_related('sets__exercise', 'circuits__sets').order_by('-data', '-id')
     
     # Filtro di ricerca testo
     q = request.GET.get('q', '').strip()
@@ -136,16 +136,15 @@ def dashboard(request):
 
     # Prepara dati per heatmap: colore in base al numero di SERIE fatte quel
     # giorno (non al numero di sessioni), sommando piu' sessioni nello stesso giorno.
+    # Le serie di un circuito sono salvate una sola volta (non per ogni round), quindi
+    # si usa real_sets_count() per contarle moltiplicate per il numero di round.
     all_sessions = WorkoutSession.objects.filter(utente=request.user, data__year=year_int)
-    set_counts = (
-        WorkoutSet.objects.filter(session__utente=request.user, session__data__year=year_int)
-        .values('session__data')
-        .annotate(total=models.Count('id'))
-    )
     date_counts = {}
-    for row in set_counts:
-        d_str = row['session__data'].strftime('%Y-%m-%d')
-        date_counts[d_str] = date_counts.get(d_str, 0) + row['total']
+    for s in all_sessions.prefetch_related('sets', 'circuits__sets'):
+        count = s.real_sets_count()
+        if count:
+            d_str = s.data.strftime('%Y-%m-%d')
+            date_counts[d_str] = date_counts.get(d_str, 0) + count
 
     heatmap_data = []
     for d_str, count in date_counts.items():
@@ -154,7 +153,10 @@ def dashboard(request):
         heatmap_data.append({'date': timestamp, 'value': count})
 
     # Statistiche per schermi piccoli
-    total_sets = WorkoutSet.objects.filter(session__utente=request.user).count()
+    total_sets = sum(
+        s.real_sets_count()
+        for s in WorkoutSession.objects.filter(utente=request.user).prefetch_related('sets', 'circuits__sets')
+    )
     now = timezone.now()
     this_month_sessions = all_sessions.filter(data__year=now.year, data__month=now.month).count()
 

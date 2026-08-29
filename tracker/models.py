@@ -58,6 +58,14 @@ class WorkoutSession(models.Model):
     def __str__(self):
         return f"Sessione di {self.utente.username} del {self.data}"
 
+    def real_sets_count(self):
+        # Le serie di un circuito sono salvate una sola volta (non per ogni round),
+        # quindi vanno moltiplicate per il numero di round per contare le serie
+        # effettivamente svolte in giornata.
+        normal = sum(1 for ws in self.sets.all() if ws.circuit_id is None)
+        circuit_total = sum(c.rounds * len(list(c.sets.all())) for c in self.circuits.all())
+        return normal + circuit_total
+
     class Meta:
         ordering = ['-data'] # Ordina dalla più recente alla più vecchia
 
