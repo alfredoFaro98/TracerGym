@@ -79,6 +79,13 @@
                 </a>
                 {% endwith %}
 
+                {% with is_active=current_url|in_list:"sonno" %}
+                <a href="{% url 'sonno' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    <span class="menu-text">Sonno</span>
+                </a>
+                {% endwith %}
+
                 {% is_own_profile as is_active %}
                 <a href="{% url 'user_profile' user.username %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(124,108,246,0.16); border: 1px solid rgba(124,108,246,0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>

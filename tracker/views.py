@@ -12,11 +12,12 @@ from django.contrib.auth.views import LoginView
 from itertools import groupby
 from collections import defaultdict
 import time
+import calendar
 from decimal import Decimal, InvalidOperation
 from datetime import datetime, date, timedelta, time as dt_time
 from django.utils import timezone
 from django.contrib.auth.models import User
-from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal, IntegratoreEntry, SiteVisit, MacroEntry, MacroGoal, MacroDayStatus
+from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal, IntegratoreEntry, SiteVisit, MacroEntry, MacroGoal, MacroDayStatus, SleepEntry
 
 
 REMEMBER_ME_SECONDS = 60 * 60 * 24 * 30  # 30 giorni
@@ -2267,3 +2268,157 @@ def set_macro_day_status(request):
                 else:
                     MacroDayStatus.objects.filter(utente=request.user, data=data).delete()
     return redirect(request.POST.get('next') or 'macro')
+
+
+SLEEP_QUALITY_PCT = {'scarsa': 25, 'media': 50, 'buona': 75, 'ottima': 100}
+MESI_IT = [
+    '', 'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+    'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre',
+]
+
+
+def _sleep_streak(user):
+    """Notti consecutive registrate, contando all'indietro da oggi (se stanotte
+    non e' ancora stata loggata si parte da ieri, stessa logica di _week_streak)."""
+    today = timezone.localdate()
+    nights = set(SleepEntry.objects.filter(utente=user).values_list('data', flat=True))
+    day = today if today in nights else today - timedelta(days=1)
+    streak = 0
+    while day in nights:
+        streak += 1
+        day -= timedelta(days=1)
+    return streak
+
+
+def _sleep_time_input(post, name):
+    val = post.get(name)
+    if not val:
+        return None
+    try:
+        return dt_time.fromisoformat(val)
+    except ValueError:
+        return None
+
+
+@login_required
+def sonno(request):
+    entries_qs = SleepEntry.objects.filter(utente=request.user).order_by('-data', '-creato_il')
+    paginator = Paginator(entries_qs, 20)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+
+    today = timezone.localdate()
+    last7 = list(SleepEntry.objects.filter(utente=request.user, data__gt=today - timedelta(days=7), data__lte=today))
+    if last7:
+        avg_minutes = sum(e._durata_minuti() for e in last7) / len(last7)
+        avg_hours_label = f"{int(avg_minutes // 60)}h {round(avg_minutes % 60):02d}m"
+        avg_quality_pct = round(sum(SLEEP_QUALITY_PCT[e.qualita] for e in last7) / len(last7))
+        avg_bedtime_min = round(sum(e.ora_letto.hour * 60 + e.ora_letto.minute for e in last7) / len(last7))
+        avg_bedtime_label = f"{(avg_bedtime_min // 60) % 24:02d}:{avg_bedtime_min % 60:02d}"
+    else:
+        avg_hours_label = avg_quality_pct = avg_bedtime_label = None
+
+    stats = {
+        'avg_hours': avg_hours_label,
+        'quality_pct': avg_quality_pct,
+        'streak': _sleep_streak(request.user),
+        'bedtime_avg': avg_bedtime_label,
+    }
+
+    chart_entries = SleepEntry.objects.filter(
+        utente=request.user, data__gt=today - timedelta(days=14), data__lte=today,
+    ).order_by('data')
+    chart_data = [{'date': e.data.strftime('%d/%m'), 'value': e.durata_ore()} for e in chart_entries]
+
+    # Calendario mensile qualita' del sonno, navigabile con ?month=YYYY-MM
+    month_str = request.GET.get('month', '')
+    try:
+        year_m, month_m = (int(x) for x in month_str.split('-'))
+        first_of_month = date(year_m, month_m, 1)
+    except (ValueError, TypeError):
+        first_of_month = today.replace(day=1)
+    prev_month = (first_of_month - timedelta(days=1)).replace(day=1)
+    next_month = (first_of_month.replace(day=28) + timedelta(days=4)).replace(day=1)
+
+    month_entries = {
+        e.data: e for e in SleepEntry.objects.filter(
+            utente=request.user, data__year=first_of_month.year, data__month=first_of_month.month,
+        )
+    }
+    month_cells = []
+    for d in calendar.Calendar(firstweekday=0).itermonthdates(first_of_month.year, first_of_month.month):
+        entry = month_entries.get(d) if d.month == first_of_month.month else None
+        month_cells.append({
+            'day': d.day,
+            'in_month': d.month == first_of_month.month,
+            'quality_pct': SLEEP_QUALITY_PCT[entry.qualita] if entry else None,
+            'title': f"{d.day} {MESI_IT[d.month].lower()} — {entry.durata_label()}, {entry.get_qualita_display().lower()}" if entry else '',
+        })
+
+    return render(request, 'tracker/sonno.html', {
+        'entries': page,
+        'stats': stats,
+        'chart_data_json': json.dumps(chart_data),
+        'month_label': f"{MESI_IT[first_of_month.month]} {first_of_month.year}",
+        'month_cells': month_cells,
+        'prev_month': prev_month.strftime('%Y-%m'),
+        'next_month': next_month.strftime('%Y-%m'),
+        'quality_choices': SleepEntry.QUALITA_CHOICES,
+    })
+
+
+@login_required
+def add_sleep_entry(request):
+    if request.method == 'POST':
+        ora_letto = _sleep_time_input(request.POST, 'ora_letto')
+        ora_sveglia = _sleep_time_input(request.POST, 'ora_sveglia')
+        if ora_letto and ora_sveglia:
+            data_str = request.POST.get('data')
+            try:
+                entry_data = date.fromisoformat(data_str) if data_str else timezone.localdate()
+            except ValueError:
+                entry_data = timezone.localdate()
+            qualita = request.POST.get('qualita') or 'buona'
+            if qualita not in dict(SleepEntry.QUALITA_CHOICES):
+                qualita = 'buona'
+            SleepEntry.objects.create(
+                utente=request.user,
+                data=entry_data,
+                ora_letto=ora_letto,
+                ora_sveglia=ora_sveglia,
+                qualita=qualita,
+                nota=(request.POST.get('nota') or '').strip()[:200],
+            )
+    return redirect(request.POST.get('next') or 'sonno')
+
+
+@login_required
+def edit_sleep_entry(request, entry_id):
+    entry = get_object_or_404(SleepEntry, id=entry_id, utente=request.user)
+    if request.method == 'POST':
+        ora_letto = _sleep_time_input(request.POST, 'ora_letto')
+        ora_sveglia = _sleep_time_input(request.POST, 'ora_sveglia')
+        data_str = request.POST.get('data')
+        if data_str:
+            try:
+                entry.data = date.fromisoformat(data_str)
+            except ValueError:
+                pass
+        if ora_letto:
+            entry.ora_letto = ora_letto
+        if ora_sveglia:
+            entry.ora_sveglia = ora_sveglia
+        qualita = request.POST.get('qualita')
+        if qualita in dict(SleepEntry.QUALITA_CHOICES):
+            entry.qualita = qualita
+        entry.nota = (request.POST.get('nota') or '').strip()[:200]
+        entry.save()
+    return redirect(request.POST.get('next') or 'sonno')
+
+
+@login_required
+def delete_sleep_entry(request, entry_id):
+    entry = get_object_or_404(SleepEntry, id=entry_id, utente=request.user)
+    if request.method == 'POST':
+        entry.delete()
+    return redirect(request.POST.get('next') or 'sonno')

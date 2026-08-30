@@ -74,4 +74,8 @@ urlpatterns = [
     path('macro/goal/', views.set_macro_goal, name='set_macro_goal'),
     path('macro/goal/giorno/', views.set_day_macro_goal, name='set_day_macro_goal'),
     path('macro/stato-giorno/', views.set_macro_day_status, name='set_macro_day_status'),
+    path('sonno/', views.sonno, name='sonno'),
+    path('sonno/add/', views.add_sleep_entry, name='add_sleep_entry'),
+    path('sonno/<int:entry_id>/edit/', views.edit_sleep_entry, name='edit_sleep_entry'),
+    path('sonno/<int:entry_id>/delete/', views.delete_sleep_entry, name='delete_sleep_entry'),
 ]

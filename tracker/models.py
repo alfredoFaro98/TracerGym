@@ -303,3 +303,42 @@ class DayPlanOverride(models.Model):
 
     def __str__(self):
         return f"{self.utente.username} - {self.data}"
+
+
+class SleepEntry(models.Model):
+    # Una notte di sonno: data = giorno in cui si e' andati a letto.
+    QUALITA_CHOICES = [
+        ('scarsa', 'Scarsa'),
+        ('media', 'Media'),
+        ('buona', 'Buona'),
+        ('ottima', 'Ottima'),
+    ]
+    utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sleep_entries')
+    data = models.DateField(default=timezone.now)
+    ora_letto = models.TimeField()
+    ora_sveglia = models.TimeField()
+    qualita = models.CharField(max_length=10, choices=QUALITA_CHOICES, default='buona')
+    nota = models.CharField(max_length=200, blank=True, default='')
+    creato_il = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['-data', '-creato_il']
+
+    def _durata_minuti(self):
+        bl, sv = self.ora_letto, self.ora_sveglia
+        minuti = (sv.hour * 60 + sv.minute) - (bl.hour * 60 + bl.minute)
+        # Se la sveglia e' prima o uguale all'ora in cui si e' andati a letto,
+        # vuol dire che e' il giorno dopo (notte passata a cavallo di mezzanotte).
+        if minuti <= 0:
+            minuti += 24 * 60
+        return minuti
+
+    def durata_ore(self):
+        return round(self._durata_minuti() / 60, 2)
+
+    def durata_label(self):
+        h, m = divmod(self._durata_minuti(), 60)
+        return f"{h}h {m}m" if m else f"{h}h"
+
+    def __str__(self):
+        return f"{self.utente.username} - {self.data} ({self.qualita})"
