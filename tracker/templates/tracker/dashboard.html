@@ -264,17 +264,19 @@
                     <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
                 </a>
             </div>
-            <form method="get" class="filter-form" style="display: flex; gap: 8px; align-items: center; flex: 1; justify-content: flex-end; flex-wrap: wrap;">
-                <input type="month" name="month" value="{{ request.GET.month }}" class="tracer-input" style="padding: 6px 10px; width: 130px; font-size: 12px; height: 30px; border-radius: 6px;">
-                <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Cerca esercizio o note..." class="tracer-input" style="padding: 6px 10px; width: 100%; max-width: 170px; font-size: 12px; height: 30px; border-radius: 6px;">
-                <button type="submit" class="btn-primary-gradient" style="padding: 0 12px; height: 30px; font-size: 11px;">Filtra</button>
-                {% if request.GET.q or request.GET.month %}
-                <a href="{% url 'dashboard' %}" style="display: flex; align-items: center; padding: 0 10px; height: 30px; border: 1px solid #1c1c2c; border-radius: 6px; color: #f0f0f3; font-size: 11px; text-decoration: none;">Reset</a>
-                {% endif %}
-            </form>
-            <span style="font-size: 11px; color: #f0f0f3; font-family: 'JetBrains Mono', monospace; min-width: max-content;">
-                {{ total_sessions_count }} sessioni
-            </span>
+            <div class="storico-filters" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex: 1; justify-content: flex-end;">
+                <form method="get" class="filter-form" style="display: flex; gap: 8px; align-items: center; justify-content: flex-end; flex-wrap: wrap;">
+                    <input type="month" name="month" value="{{ request.GET.month }}" class="tracer-input" style="padding: 6px 10px; width: 130px; font-size: 12px; height: 30px; border-radius: 6px;">
+                    <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Cerca esercizio o note..." class="tracer-input" style="padding: 6px 10px; width: 100%; max-width: 170px; font-size: 12px; height: 30px; border-radius: 6px;">
+                    <button type="submit" class="btn-primary-gradient" style="padding: 0 12px; height: 30px; font-size: 11px;">Filtra</button>
+                    {% if request.GET.q or request.GET.month %}
+                    <a href="{% url 'dashboard' %}" style="display: flex; align-items: center; padding: 0 10px; height: 30px; border: 1px solid #1c1c2c; border-radius: 6px; color: #f0f0f3; font-size: 11px; text-decoration: none;">Reset</a>
+                    {% endif %}
+                </form>
+                <span style="font-size: 11px; color: #f0f0f3; font-family: 'JetBrains Mono', monospace; min-width: max-content;">
+                    {{ total_sessions_count }} sessioni
+                </span>
+            </div>
         </div>
         <div style="padding: 10px; display: flex; flex-direction: column; gap: 5px; max-height: 440px; overflow-y: auto;">
             {% for session in sessions %}
@@ -526,10 +528,16 @@
     #water-pills::-webkit-scrollbar-track { background: transparent; }
     #water-pills::-webkit-scrollbar-thumb { background: #1c1c2c; border-radius: 2px; }
 
-    @media (max-width: 768px) {
-        .filter-form { flex-wrap: nowrap !important; width: 100%; }
-        .filter-form input[type="month"] { width: 95px !important; min-width: 95px !important; flex-shrink: 0; }
-        .filter-form input[name="q"] { width: auto !important; max-width: none !important; flex: 1 !important; min-width: 0 !important; }
+    /* La toolbar filtri (data, ricerca, filtra, conteggio) va sempre a capo
+       su una riga tutta sua sotto il titolo appena lo spazio si stringe,
+       invece di lasciare che un singolo controllo (es. il date picker)
+       resti "orfano" accanto al titolo mentre gli altri vanno a capo. */
+    @media (max-width: 900px) {
+        .storico-filters { flex: 1 1 100% !important; justify-content: flex-start !important; }
+    }
+    @media (max-width: 480px) {
+        .filter-form input[type="month"] { width: 120px !important; }
+        .filter-form input[name="q"] { max-width: none !important; flex: 1 !important; min-width: 120px !important; }
     }
 
     /* Sotto questa larghezza le pillow degli esercizi nello storico rischiano
