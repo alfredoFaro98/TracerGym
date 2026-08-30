@@ -2034,6 +2034,7 @@ def _macro_day_totals(day_entries):
         'proteine_g': round(sum(float(e.proteine_g) for e in day_entries), 1),
         'carboidrati_g': round(sum(float(e.carboidrati_g) for e in day_entries), 1),
         'grassi_g': round(sum(float(e.grassi_g) for e in day_entries), 1),
+        'junk_count': sum(1 for e in day_entries if e.e_spazzatura),
     }
 
 
@@ -2087,6 +2088,11 @@ def macro(request):
         .order_by('-data').values_list('peso_kg', flat=True).first()
     )
 
+    week_monday = today - timedelta(days=today.weekday())
+    junk_week_count = MacroEntry.objects.filter(
+        utente=request.user, e_spazzatura=True, data__gte=week_monday, data__lte=today,
+    ).count()
+
     entries = MacroEntry.objects.filter(utente=request.user).order_by('-data', '-creato_il')
     entries_by_day = {day: list(grp) for day, grp in groupby(entries, key=lambda e: e.data)}
     statuses_by_day = _macro_day_statuses_map(request.user)
@@ -2133,6 +2139,7 @@ def macro(request):
         'today_reached': today_reached,
         'ultimo_peso': ultimo_peso,
         'chart_data_json': json.dumps(chart_data),
+        'junk_week_count': junk_week_count,
     })
 
 
@@ -2156,6 +2163,7 @@ def add_macro_entry(request):
                 carboidrati_g=_macro_decimal(request.POST, 'carboidrati_g'),
                 grassi_g=_macro_decimal(request.POST, 'grassi_g'),
                 nota=(request.POST.get('nota') or '').strip()[:100],
+                e_spazzatura=bool(request.POST.get('spazzatura')),
                 data=entry_data,
                 creato_il=creato_il,
             )
@@ -2183,6 +2191,7 @@ def edit_macro_entry(request, entry_id):
         entry.carboidrati_g = _macro_decimal(request.POST, 'carboidrati_g')
         entry.grassi_g = _macro_decimal(request.POST, 'grassi_g')
         entry.nota = (request.POST.get('nota') or '').strip()[:100]
+        entry.e_spazzatura = bool(request.POST.get('spazzatura'))
         if data_str:
             try:
                 entry.data = date.fromisoformat(data_str)

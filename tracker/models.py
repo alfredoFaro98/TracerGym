@@ -140,6 +140,7 @@ class MacroEntry(models.Model):
     carboidrati_g = models.DecimalField(max_digits=5, decimal_places=1, default=0)
     grassi_g = models.DecimalField(max_digits=5, decimal_places=1, default=0)
     nota = models.CharField(max_length=100, blank=True, default='')
+    e_spazzatura = models.BooleanField(default=False)
     data = models.DateField(default=timezone.now)
     creato_il = models.DateTimeField(default=timezone.now)
 
