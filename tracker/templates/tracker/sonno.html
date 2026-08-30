@@ -5,7 +5,7 @@
 {% block content %}
 <div class="page-container">
     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 20px;">
-        <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: #f0f0f3; margin: 0;">🌙 Sonno</h1>
+        <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 44px; font-weight: 700; color: #f0f0f3; margin: 0;">🌙 Sonno</h1>
         <button type="button" onclick="toggleNewEntryForm()" class="dash-add-btn" title="Registra sonno" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
@@ -14,24 +14,24 @@
     <!-- Nuova voce -->
     <div id="new-entry-form" style="display: none; margin-bottom: 24px;">
         <div class="tracer-card" style="padding: 18px 20px;">
-            <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 12px;">Registra sonno</div>
+            <div style="font-size: 22px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 12px;">Registra sonno</div>
             <form action="{% url 'add_sleep_entry' %}" method="post" autocomplete="off" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{% url 'sonno' %}">
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
+                    <span style="font-size: 20px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
                     <input type="date" name="data" value="{% now 'Y-m-d' %}" class="tracer-input" style="width: 150px;">
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">A LETTO</span>
+                    <span style="font-size: 20px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">A LETTO</span>
                     <input type="time" name="ora_letto" value="23:00" class="tracer-input" style="width: 110px;" required>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">SVEGLIA</span>
+                    <span style="font-size: 20px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">SVEGLIA</span>
                     <input type="time" name="ora_sveglia" value="07:00" class="tracer-input" style="width: 110px;" required>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">QUALITÀ</span>
+                    <span style="font-size: 20px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">QUALITÀ</span>
                     <select name="qualita" class="tracer-input" style="width: 130px;">
                         {% for value, label in quality_choices %}
                         <option value="{{ value }}"{% if value == 'buona' %} selected{% endif %}>{{ label }}</option>
@@ -39,11 +39,11 @@
                     </select>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 200px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">NOTA</span>
+                    <span style="font-size: 20px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">NOTA</span>
                     <input type="text" name="nota" placeholder="Es. sveglio più volte, rumori esterni..." maxlength="200" class="tracer-input" style="width: 100%;">
                 </div>
-                <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13px;">Salva</button>
-                <button type="button" onclick="toggleNewEntryForm()" style="padding: 10px 16px; font-size: 13px; background: transparent; border: 1px solid #1c1c2c; border-radius: 8px; color: #787890; cursor: pointer;">Annulla</button>
+                <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 26px;">Salva</button>
+                <button type="button" onclick="toggleNewEntryForm()" style="padding: 10px 16px; font-size: 26px; background: transparent; border: 1px solid #1c1c2c; border-radius: 8px; color: #787890; cursor: pointer;">Annulla</button>
             </form>
         </div>
     </div>
@@ -51,30 +51,30 @@
     <!-- Stats -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
         <div class="tracer-card" style="padding: 18px; text-align: center;">
-            <div style="font-size: 22px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ stats.avg_hours|default:"—" }}</div>
-            <div style="font-size: 10px; color: #7d8296; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Media ore (7gg)</div>
+            <div style="font-size: 44px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ stats.avg_hours|default:"—" }}</div>
+            <div style="font-size: 20px; color: #7d8296; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Media ore (7gg)</div>
         </div>
         <div class="tracer-card" style="padding: 18px; text-align: center;">
-            <div style="font-size: 22px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{% if stats.quality_pct != None %}{{ stats.quality_pct }}%{% else %}—{% endif %}</div>
-            <div style="font-size: 10px; color: #7d8296; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Qualità media</div>
+            <div style="font-size: 44px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{% if stats.quality_pct != None %}{{ stats.quality_pct }}%{% else %}—{% endif %}</div>
+            <div style="font-size: 20px; color: #7d8296; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Qualità media</div>
         </div>
         <div class="tracer-card" style="padding: 18px; text-align: center;">
-            <div style="font-size: 22px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ stats.streak }}</div>
-            <div style="font-size: 10px; color: #7d8296; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Notti di fila registrate</div>
+            <div style="font-size: 44px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ stats.streak }}</div>
+            <div style="font-size: 20px; color: #7d8296; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Notti di fila registrate</div>
         </div>
         <div class="tracer-card" style="padding: 18px; text-align: center; border-color: rgba(124,108,246,0.35);">
-            <div style="font-size: 22px; font-weight: 700; color: #a996ff; font-family: 'JetBrains Mono', monospace;">{{ stats.bedtime_avg|default:"—" }}</div>
-            <div style="font-size: 10px; color: #7d8296; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Media orario a letto</div>
+            <div style="font-size: 44px; font-weight: 700; color: #a996ff; font-family: 'JetBrains Mono', monospace;">{{ stats.bedtime_avg|default:"—" }}</div>
+            <div style="font-size: 20px; color: #7d8296; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Media orario a letto</div>
         </div>
     </div>
 
     <!-- Grafico -->
     <div class="tracer-card" style="margin-bottom: 24px;">
         <div style="padding: 18px 22px; border-bottom: 1px solid #16162a;">
-            <div style="font-size: 11px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Ore di sonno — ultimi 14 giorni</div>
+            <div style="font-size: 22px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Ore di sonno — ultimi 14 giorni</div>
         </div>
         <div style="padding: 16px 20px; display: flex; align-items: center; justify-content: center; min-height: 80px;">
-            <span id="sleep-placeholder" style="font-size: 12px; color: #7d8296;">Nessuna notte registrata negli ultimi 14 giorni</span>
+            <span id="sleep-placeholder" style="font-size: 24px; color: #7d8296;">Nessuna notte registrata negli ultimi 14 giorni</span>
             <div style="width:100%; display:none;" id="sleep-chart-wrap">
                 <canvas id="sleep-canvas" style="max-height: 220px;"></canvas>
             </div>
@@ -87,14 +87,14 @@
             <a href="?month={{ prev_month }}" style="display: flex; color: #7d8296; text-decoration: none;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
             </a>
-            <span style="font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; color: #f0f0f3;">{{ month_label }} — Qualità del sonno</span>
+            <span style="font-family: 'Space Grotesk', sans-serif; font-size: 30px; font-weight: 700; color: #f0f0f3;">{{ month_label }} — Qualità del sonno</span>
             <a href="?month={{ next_month }}" style="display: flex; color: #7d8296; text-decoration: none;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </a>
         </div>
         <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;">
             {% for cell in month_cells %}
-            <div title="{{ cell.title }}" style="position: relative; aspect-ratio: 1.6; border-radius: 6px; {% if not cell.in_month %}background: transparent;{% elif cell.quality_pct == None %}background: rgba(255,255,255,0.04);{% elif cell.quality_pct >= 90 %}background: #7c6cf6;{% elif cell.quality_pct >= 65 %}background: #5e50d9;{% elif cell.quality_pct >= 40 %}background: #3a3670;{% else %}background: rgba(248,113,113,0.35);{% endif %} display: flex; align-items: center; justify-content: center; font-size: 10px; color: rgba(255,255,255,0.4);">
+            <div title="{{ cell.title }}" style="position: relative; aspect-ratio: 1.6; border-radius: 6px; {% if not cell.in_month %}background: transparent;{% elif cell.quality_pct == None %}background: rgba(255,255,255,0.04);{% elif cell.quality_pct >= 90 %}background: #7c6cf6;{% elif cell.quality_pct >= 65 %}background: #5e50d9;{% elif cell.quality_pct >= 40 %}background: #3a3670;{% else %}background: rgba(248,113,113,0.35);{% endif %} display: flex; align-items: center; justify-content: center; font-size: 20px; color: rgba(255,255,255,0.4);">
                 {% if cell.in_month %}{{ cell.day }}{% endif %}
             </div>
             {% endfor %}
@@ -105,28 +105,28 @@
     <div class="tracer-card" style="overflow: hidden;">
         {% if not entries %}
         <div style="padding: 52px 24px; text-align: center;">
-            <div style="font-size: 26px; margin-bottom: 10px; opacity: .4;">🌙</div>
-            <div style="font-size: 13.5px; color: #7d8296; font-weight: 500;">Ancora nessuna notte registrata</div>
+            <div style="font-size: 52px; margin-bottom: 10px; opacity: .4;">🌙</div>
+            <div style="font-size: 27px; color: #7d8296; font-weight: 500;">Ancora nessuna notte registrata</div>
         </div>
         {% else %}
         {% for e in entries %}
         <div>
             <div id="sleep-view-{{ e.id }}" style="display: flex; align-items: center; gap: 14px; padding: 13px 16px; border-bottom: 1px solid #0e0e1e; flex-wrap: wrap;">
-                <span style="font-size: 13px; font-weight: 700; color: #f0f0f3; min-width: 110px;">{{ e.data|date:"d M Y" }}</span>
-                <span style="font-size: 12.5px; color: #7d8296;">{{ e.ora_letto|time:"H:i" }} → {{ e.ora_sveglia|time:"H:i" }}</span>
-                <span style="font-size: 12.5px; font-weight: 700; color: #c7cbd6;">{{ e.durata_label }}</span>
-                <span style="font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px;
+                <span style="font-size: 26px; font-weight: 700; color: #f0f0f3; min-width: 110px;">{{ e.data|date:"d M Y" }}</span>
+                <span style="font-size: 25px; color: #7d8296;">{{ e.ora_letto|time:"H:i" }} → {{ e.ora_sveglia|time:"H:i" }}</span>
+                <span style="font-size: 25px; font-weight: 700; color: #c7cbd6;">{{ e.durata_label }}</span>
+                <span style="font-size: 22px; font-weight: 700; padding: 4px 10px; border-radius: 6px;
                     {% if e.qualita == 'ottima' %}color: #a996ff; background: rgba(124,108,246,0.16);
                     {% elif e.qualita == 'buona' %}color: #ffd580; background: rgba(255,213,128,0.14);
                     {% elif e.qualita == 'media' %}color: #f0a875; background: rgba(240,168,117,0.14);
                     {% else %}color: #ff8a8a; background: rgba(255,138,138,0.14);{% endif %}">{{ e.get_qualita_display }}</span>
-                {% if e.nota %}<span style="font-size: 12px; color: #9ba0b3; font-style: italic;">📝 {{ e.nota }}</span>{% endif %}
+                {% if e.nota %}<span style="font-size: 24px; color: #9ba0b3; font-style: italic;">📝 {{ e.nota }}</span>{% endif %}
                 <div style="flex: 1;"></div>
-                <span onclick="toggleSleepEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: #a996ff; padding: 6px 12px; border-radius: 7px; background: rgba(124,108,246,0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(124,108,246,0.22)'" onmouseout="this.style.background='rgba(124,108,246,0.12)'">Modifica</span>
+                <span onclick="toggleSleepEdit('{{ e.id }}')" style="font-size: 24px; font-weight: 600; color: #a996ff; padding: 6px 12px; border-radius: 7px; background: rgba(124,108,246,0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(124,108,246,0.22)'" onmouseout="this.style.background='rgba(124,108,246,0.12)'">Modifica</span>
                 <form action="{% url 'delete_sleep_entry' e.id %}" method="post" style="display:inline;" onsubmit="return confirm('Eliminare questa notte?');">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{% url 'sonno' %}">
-                    <button type="submit" style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
+                    <button type="submit" style="font-size: 24px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
                 </form>
             </div>
             <div id="sleep-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(124,108,246,0.06); border: 1px solid rgba(124,108,246,0.3); border-radius: 9px; padding: 12px 14px; margin: 4px 16px;">
@@ -134,19 +134,19 @@
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{% url 'sonno' %}">
                     <div style="display: flex; flex-direction: column; gap: 5px;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
+                        <span style="font-size: 19px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
                         <input type="date" name="data" value="{{ e.data|date:'Y-m-d' }}" class="tracer-input" style="width: 140px;">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 5px;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">A LETTO</span>
+                        <span style="font-size: 19px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">A LETTO</span>
                         <input type="time" name="ora_letto" value="{{ e.ora_letto|time:'H:i' }}" class="tracer-input" style="width: 100px;">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 5px;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">SVEGLIA</span>
+                        <span style="font-size: 19px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">SVEGLIA</span>
                         <input type="time" name="ora_sveglia" value="{{ e.ora_sveglia|time:'H:i' }}" class="tracer-input" style="width: 100px;">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 5px;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">QUALITÀ</span>
+                        <span style="font-size: 19px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">QUALITÀ</span>
                         <select name="qualita" class="tracer-input" style="width: 120px;">
                             {% for value, label in quality_choices %}
                             <option value="{{ value }}"{% if value == e.qualita %} selected{% endif %}>{{ label }}</option>
@@ -154,11 +154,11 @@
                         </select>
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 180px;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">NOTA</span>
+                        <span style="font-size: 19px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">NOTA</span>
                         <input type="text" name="nota" value="{{ e.nota }}" maxlength="200" class="tracer-input" style="width: 100%;">
                     </div>
-                    <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
-                    <button type="button" onclick="toggleSleepEdit('{{ e.id }}')" style="color: #838a9e; font-size: 12.5px; font-weight: 600; padding: 8px 10px; background: transparent; border: none; cursor: pointer;" onmouseover="this.style.color='#c7cbd6'" onmouseout="this.style.color='#838a9e'">Annulla</button>
+                    <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 25px;">Salva</button>
+                    <button type="button" onclick="toggleSleepEdit('{{ e.id }}')" style="color: #838a9e; font-size: 25px; font-weight: 600; padding: 8px 10px; background: transparent; border: none; cursor: pointer;" onmouseover="this.style.color='#c7cbd6'" onmouseout="this.style.color='#838a9e'">Annulla</button>
                 </form>
             </div>
         </div>
@@ -168,11 +168,11 @@
         {% if entries.has_other_pages %}
         <div style="display: flex; justify-content: center; gap: 8px; padding: 16px; border-top: 1px solid #16162a;">
             {% if entries.has_previous %}
-                <a href="?page={{ entries.previous_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Precedente</a>
+                <a href="?page={{ entries.previous_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #f0f0f3; border-radius: 5px; font-size: 24px; font-weight: 600; text-decoration: none;">Precedente</a>
             {% endif %}
-            <span style="font-size: 12px; color: #7d8296; align-self: center;">Pagina {{ entries.number }} di {{ entries.paginator.num_pages }}</span>
+            <span style="font-size: 24px; color: #7d8296; align-self: center;">Pagina {{ entries.number }} di {{ entries.paginator.num_pages }}</span>
             {% if entries.has_next %}
-                <a href="?page={{ entries.next_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Successiva</a>
+                <a href="?page={{ entries.next_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #f0f0f3; border-radius: 5px; font-size: 24px; font-weight: 600; text-decoration: none;">Successiva</a>
             {% endif %}
         </div>
         {% endif %}
@@ -267,12 +267,12 @@ function toggleSleepEdit(id) {
             },
             scales: {
                 x: {
-                    ticks: { color: '#e4e4ec', font: { size: 12 }, maxTicksLimit: 8 },
+                    ticks: { color: '#e4e4ec', font: { size: 24 }, maxTicksLimit: 8 },
                     grid: { display: false },
                     border: { display: false }
                 },
                 y: {
-                    ticks: { color: '#e4e4ec', font: { size: 12.5 } },
+                    ticks: { color: '#e4e4ec', font: { size: 25 } },
                     grid: { color: 'rgba(255,255,255,.06)' },
                     border: { display: false }
                 }
