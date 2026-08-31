@@ -13,7 +13,7 @@
 <div class="page-container">
 
     <!-- Back -->
-    <a href="{% url 'user_list' %}" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #f0f0f3; text-decoration: none; margin-bottom: 20px; transition: color .12s;" onmouseover="this.style.color='#9d8ffb'" onmouseout="this.style.color='#f0f0f3'">
+    <a href="{% url 'user_list' %}" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #f0f0f3; text-decoration: none; margin-bottom: 20px; transition: color .12s;" onmouseover="this.style.color='var(--acc-3)'" onmouseout="this.style.color='#f0f0f3'">
         ← Atleti
     </a>
 
@@ -42,6 +42,20 @@
         </form>
         {% endif %}
     </div>
+
+    {% if is_own %}
+    <!-- Colore accent -->
+    <div class="tracer-card" style="padding: 16px 20px; margin-bottom: 24px;">
+        <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 12px;">Colore Accent</div>
+        <form action="{% url 'set_accent' %}" method="post" style="display: flex; gap: 10px; flex-wrap: wrap;">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            {% for value, label, hex in accent_choices %}
+            <button type="submit" name="accent" value="{{ value }}" title="{{ label }}" style="width: 34px; height: 34px; border-radius: 50%; cursor: pointer; background: {{ hex }}; border: 2px solid {% if value == profile.accent %}#f0f0f3{% else %}transparent{% endif %}; box-shadow: 0 0 0 2px {% if value == profile.accent %}{{ hex }}{% else %}transparent{% endif %};"></button>
+            {% endfor %}
+        </form>
+    </div>
+    {% endif %}
 
     {% if private %}
     <!-- Profilo privato -->
@@ -73,7 +87,7 @@
     <div class="tracer-card" style="margin-bottom: 20px; overflow: hidden;">
         <div style="padding: 12px 16px; border-bottom: 1px solid #16162a; display: flex; justify-content: space-between; align-items: center;">
             <div style="font-size: 10.5px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Andamento peso corporeo</div>
-            <a href="{% url 'misurazioni' %}" style="font-size: 11.5px; font-weight: 600; color: #9d8ffb; text-decoration: none;">Vedi tutte le misurazioni →</a>
+            <a href="{% url 'misurazioni' %}" style="font-size: 11.5px; font-weight: 600; color: var(--acc-3); text-decoration: none;">Vedi tutte le misurazioni →</a>
         </div>
         <div style="padding: 16px; min-height: 80px; display: flex; align-items: center; justify-content: center;">
             <span id="bw-placeholder" style="font-size: 12px; color: #f0f0f3;">Nessuna misurazione del peso registrata</span>
@@ -93,7 +107,7 @@
         {% for ex in top_exercises %}
         <div style="padding: 10px 16px; border-bottom: 1px solid #0e0e1e; display: flex; align-items: center; justify-content: space-between;">
             <div style="font-size: 12.5px; color: #c0c0d8;">{{ ex.nome }}</div>
-            <span style="font-size: 11px; font-weight: 700; color: #9d8ffb; font-family: 'JetBrains Mono', monospace;">{{ ex.count }} serie</span>
+            <span style="font-size: 11px; font-weight: 700; color: var(--acc-3); font-family: 'JetBrains Mono', monospace;">{{ ex.count }} serie</span>
         </div>
         {% endfor %}
     </div>
@@ -141,7 +155,7 @@
         <a href="{% url 'session_view' target_user.username session.id %}" style="display: block; padding: 13px 16px; border-bottom: 1px solid #0e0e1e; text-decoration: none; transition: background .12s;" onmouseover="this.style.background='#0f0f1c'" onmouseout="this.style.background='transparent'">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                 <div style="font-size: 12.5px; font-weight: 600; color: #e0e0f0;">{{ session.data|date:"d M Y" }}</div>
-                <span style="padding: 2px 9px; background: rgba(157,143,251,.1); border: 1px solid rgba(157,143,251,.2); border-radius: 5px; font-size: 11px; color: #9d8ffb; font-weight: 600; font-family: 'JetBrains Mono', monospace;">{{ session.sets.count }} serie</span>
+                <span style="padding: 2px 9px; background: rgba(157,143,251,.1); border: 1px solid rgba(157,143,251,.2); border-radius: 5px; font-size: 11px; color: var(--acc-3); font-weight: 600; font-family: 'JetBrains Mono', monospace;">{{ session.sets.count }} serie</span>
             </div>
             <div style="display: flex; flex-wrap: wrap; gap: 5px;">
                 {% for s in session.sets.all %}
@@ -169,11 +183,11 @@
     .ch-domain-text { fill: #a0a6af; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; }
     .ch-subdomain-bg { fill: #16161d; }
     .graph-rect { stroke: #0d0d14; stroke-width: 2px; rx: 2; ry: 2;}
-    .q1 { fill: #7c6cf6 !important; opacity: 0.25;}
-    .q2 { fill: #7c6cf6 !important; opacity: 0.45;}
-    .q3 { fill: #7c6cf6 !important; opacity: 0.65;}
-    .q4 { fill: #7c6cf6 !important; opacity: 0.85;}
-    .q5 { fill: #7c6cf6 !important; opacity: 1;}
+    .q1 { fill: var(--acc) !important; opacity: 0.25;}
+    .q2 { fill: var(--acc) !important; opacity: 0.45;}
+    .q3 { fill: var(--acc) !important; opacity: 0.65;}
+    .q4 { fill: var(--acc) !important; opacity: 0.85;}
+    .q5 { fill: var(--acc) !important; opacity: 1;}
     .hover_cursor:hover { stroke: #ffffff; stroke-width: 1px; }
 
     .ch-tooltip {
@@ -229,12 +243,13 @@
     var MONTH_NAMES_IT_SHORT = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
 
     function heatmapLevelColor(count) {
+        var accRgb = getComputedStyle(document.documentElement).getPropertyValue('--acc-rgb').trim();
         if (!count) return 'rgba(255,255,255,0.05)';
         var ratio = maxCount > 0 ? count / maxCount : 1;
-        if (ratio <= 0.25) return 'rgba(124,108,246,0.35)';
-        if (ratio <= 0.5) return 'rgba(124,108,246,0.55)';
-        if (ratio <= 0.75) return 'rgba(124,108,246,0.78)';
-        return 'rgba(124,108,246,1)';
+        if (ratio <= 0.25) return 'rgba(' + accRgb + ',0.35)';
+        if (ratio <= 0.5) return 'rgba(' + accRgb + ',0.55)';
+        if (ratio <= 0.75) return 'rgba(' + accRgb + ',0.78)';
+        return 'rgba(' + accRgb + ',1)';
     }
 
     function buildYearHeatmap() {

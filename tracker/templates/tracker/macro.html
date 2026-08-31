@@ -37,7 +37,7 @@
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span title="{% if today_reached.kcal %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 13px; font-weight: 700; color: {% if today_reached.kcal %}#4ade80{% else %}#f87171{% endif %};">{% if today_reached.kcal %}✓{% else %}✕{% endif %}</span>
                     <div style="flex: 1; height: 10px; background: rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden;">
-                        <div style="height: 100%; width: {{ today_progress.kcal }}%; background: #7c6cf6; border-radius: 6px; transition: width .3s;"></div>
+                        <div style="height: 100%; width: {{ today_progress.kcal }}%; background: var(--acc); border-radius: 6px; transition: width .3s;"></div>
                     </div>
                 </div>
             </div>
@@ -229,7 +229,7 @@
                     {% endif %}
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                    <span style="background: rgba(124,108,246,0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;">{{ day.totals.kcal }} <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goals.kcal }} kcal</span></span>
+                    <span style="background: rgba(var(--acc-rgb),0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;">{{ day.totals.kcal }} <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goals.kcal }} kcal</span></span>
                     <span style="font-size: 11px; color: #9ba0b3; white-space: nowrap;">P {{ day.totals.proteine_g|floatformat:"-1" }}g · C {{ day.totals.carboidrati_g|floatformat:"-1" }}g · G {{ day.totals.grassi_g|floatformat:"-1" }}g</span>
                     {% if day.reached %}
                     <span title="Obiettivo raggiunto" style="color: #4ade80; font-size: 15px; font-weight: 700;">✓</span>
@@ -284,14 +284,14 @@
                         <span style="font-size: 12px; color: #7d8296;">{{ e.creato_il|date:"H:i" }}</span>
                         {% if e.nota %}<span style="font-size: 12px; color: #9ba0b3; font-style: italic;">📝 {{ e.nota }}</span>{% endif %}
                         <div style="flex: 1;"></div>
-                        <span onclick="toggleMacroEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: #a996ff; padding: 6px 12px; border-radius: 7px; background: rgba(124,108,246,0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(124,108,246,0.22)'" onmouseout="this.style.background='rgba(124,108,246,0.12)'">Modifica</span>
+                        <span onclick="toggleMacroEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: var(--acc-4); padding: 6px 12px; border-radius: 7px; background: rgba(var(--acc-rgb),0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.12)'">Modifica</span>
                         <form action="{% url 'delete_macro_entry' e.id %}" method="post" style="display:inline;" onsubmit="return confirm('Eliminare questa voce?');">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="{% url 'macro' %}">
                             <button type="submit" style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
                         </form>
                     </div>
-                    <div id="macro-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(124,108,246,0.06); border: 1px solid rgba(124,108,246,0.3); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
+                    <div id="macro-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
                         <form action="{% url 'edit_macro_entry' e.id %}" method="post" autocomplete="off" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="{% url 'macro' %}">
@@ -354,18 +354,18 @@
 
 <style>
 .dash-add-btn {
-    background: #7c6cf6;
+    background: var(--acc);
     color: #fff;
     border: none;
     transition: background .15s, box-shadow .15s;
-    box-shadow: 0 8px 20px rgba(124,108,246,.35);
+    box-shadow: 0 8px 20px rgba(var(--acc-rgb),.35);
 }
-.dash-add-btn:hover { background: #8b7bf7; }
+.dash-add-btn:hover { background: var(--acc-2); }
 
 .water-quick-btn {
     padding: 8px 14px;
-    background: rgba(124,108,246,0.12);
-    border: 1px solid rgba(124,108,246,0.2);
+    background: rgba(var(--acc-rgb),0.12);
+    border: 1px solid rgba(var(--acc-rgb),0.2);
     border-radius: 8px;
     color: #b7bdf0;
     font-size: 12.5px;
@@ -375,10 +375,10 @@
     font-family: inherit;
     white-space: nowrap;
 }
-.water-quick-btn:hover { background: rgba(124,108,246,0.22); }
+.water-quick-btn:hover { background: rgba(var(--acc-rgb),0.22); }
 
-.page-container .btn-primary-gradient { background: #7c6cf6; }
-.page-container .btn-primary-gradient:hover { background: #8b7bf7; opacity: 1; }
+.page-container .btn-primary-gradient { background: var(--acc); }
+.page-container .btn-primary-gradient:hover { background: var(--acc-2); opacity: 1; }
 
 .metric-tab {
     padding: 6px 14px;
@@ -394,8 +394,8 @@
 }
 .metric-tab:hover { background: rgba(255,255,255,0.09); }
 .metric-tab.active {
-    background: rgba(124,108,246,0.16);
-    border-color: rgba(124,108,246,0.4);
+    background: rgba(var(--acc-rgb),0.16);
+    border-color: rgba(var(--acc-rgb),0.4);
     color: #b7bdf0;
 }
 </style>
@@ -458,7 +458,7 @@ function toggleMacroEdit(id) {
     var CHART_DATA = {{ chart_data_json|safe }};
     var UNITS = { kcal: 'kcal', proteine_g: 'g', carboidrati_g: 'g', grassi_g: 'g' };
     var LABELS = { kcal: 'Kcal', proteine_g: 'Proteine', carboidrati_g: 'Carboidrati', grassi_g: 'Grassi' };
-    var COLORS = { kcal: '#8b7bf7', proteine_g: '#6a9fd8', carboidrati_g: '#4ade80', grassi_g: '#f0a875' };
+    var COLORS = { kcal: getComputedStyle(document.documentElement).getPropertyValue('--acc-2').trim(), proteine_g: '#6a9fd8', carboidrati_g: '#4ade80', grassi_g: '#f0a875' };
     var placeholder = document.getElementById('metric-placeholder');
     var chartWrap = document.getElementById('metric-chart-wrap');
     var canvas = document.getElementById('metric-canvas');

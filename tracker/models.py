@@ -70,6 +70,14 @@ class WorkoutSession(models.Model):
         ordering = ['-data'] # Ordina dalla più recente alla più vecchia
 
 class UserProfile(models.Model):
+    ACCENT_CHOICES = [
+        ('viola', 'Viola'),
+        ('corallo', 'Corallo'),
+        ('lime', 'Lime'),
+        ('teal', 'Teal'),
+        ('verde', 'Verde'),
+    ]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     is_public = models.BooleanField(default=False)
     obiettivo_acqua_ml = models.PositiveIntegerField(default=2000)
@@ -77,6 +85,7 @@ class UserProfile(models.Model):
     obiettivo_proteine_g = models.PositiveIntegerField(default=140)
     obiettivo_carboidrati_g = models.PositiveIntegerField(default=250)
     obiettivo_grassi_g = models.PositiveIntegerField(default=70)
+    accent = models.CharField(max_length=20, choices=ACCENT_CHOICES, default='viola')
 
     def __str__(self):
         return f"Profilo di {self.user.username}"

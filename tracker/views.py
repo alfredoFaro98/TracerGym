@@ -23,6 +23,16 @@ from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, User
 REMEMBER_ME_SECONDS = 60 * 60 * 24 * 30  # 30 giorni
 MAX_EXERCISE_IMAGE_BYTES = 2 * 1024 * 1024  # 2 MB
 
+# Hex del tono principale di ogni accent, per disegnare le pillole di
+# selezione in "Il mio profilo" (i toni derivati --acc-2/3/4 sono in style.css).
+ACCENT_HEX = {
+    'viola': '#7c6cf6',
+    'corallo': '#fb923c',
+    'lime': '#a3e635',
+    'teal': '#2dd4bf',
+    'verde': '#30d158',
+}
+
 
 def _record_site_visit():
     """Incrementa il contatore di visite (dashboard/login) del giorno corrente."""
@@ -1459,6 +1469,9 @@ def user_profile(request, username):
         'heatmap_data_json': json.dumps(heatmap_data),
         'selected_year': year_int,
         'body_weight_json': body_weight_json,
+        'accent_choices': [
+            (value, label, ACCENT_HEX[value]) for value, label in UserProfile.ACCENT_CHOICES
+        ],
     })
 
 
@@ -1564,6 +1577,18 @@ def toggle_profile_visibility(request):
         profile.is_public = not profile.is_public
         profile.save()
     return redirect('user_profile', username=request.user.username)
+
+
+@login_required
+def set_accent(request):
+    if request.method == 'POST':
+        accent = request.POST.get('accent')
+        if accent in dict(UserProfile.ACCENT_CHOICES):
+            profile, _ = UserProfile.objects.get_or_create(user=request.user)
+            profile.accent = accent
+            profile.save()
+    next_url = request.POST.get('next') or reverse('user_profile', kwargs={'username': request.user.username})
+    return redirect(next_url)
 
 
 def _combine_water_datetime(entry_data, ora_str):

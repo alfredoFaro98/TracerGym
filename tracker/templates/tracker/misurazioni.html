@@ -108,14 +108,14 @@
                 {% if e.cosce_cm %}<span style="font-size: 12.5px; color: #c7cbd6;">Cosce <b>{{ e.cosce_cm }}</b> cm</span>{% endif %}
                 {% if e.note %}<span style="font-size: 12.5px; color: #9ba0b3; font-style: italic;">📝 {{ e.note }}</span>{% endif %}
                 <div style="flex: 1;"></div>
-                <span onclick="toggleMetricEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: #a996ff; padding: 6px 12px; border-radius: 7px; background: rgba(124,108,246,0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(124,108,246,0.22)'" onmouseout="this.style.background='rgba(124,108,246,0.12)'">Modifica</span>
+                <span onclick="toggleMetricEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: var(--acc-4); padding: 6px 12px; border-radius: 7px; background: rgba(var(--acc-rgb),0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.12)'">Modifica</span>
                 <form action="{% url 'delete_misurazione' e.id %}" method="post" style="display:inline;" onsubmit="return confirm('Eliminare questa misurazione?');">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{% url 'misurazioni' %}">
                     <button type="submit" style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
                 </form>
             </div>
-            <div id="metric-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(124,108,246,0.06); border: 1px solid rgba(124,108,246,0.3); border-radius: 9px; padding: 12px 14px; margin: 4px 16px;">
+            <div id="metric-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 12px 14px; margin: 4px 16px;">
                 <form action="{% url 'save_misurazione' %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{% url 'misurazioni' %}">
@@ -185,18 +185,18 @@
 
 <style>
 .dash-add-btn {
-    background: #7c6cf6;
+    background: var(--acc);
     color: #fff;
     border: none;
     transition: background .15s, box-shadow .15s;
-    box-shadow: 0 8px 20px rgba(124,108,246,.35);
+    box-shadow: 0 8px 20px rgba(var(--acc-rgb),.35);
 }
-.dash-add-btn:hover { background: #8b7bf7; }
+.dash-add-btn:hover { background: var(--acc-2); }
 
 .page-container .btn-primary-gradient {
-    background: #7c6cf6;
+    background: var(--acc);
 }
-.page-container .btn-primary-gradient:hover { background: #8b7bf7; opacity: 1; }
+.page-container .btn-primary-gradient:hover { background: var(--acc-2); opacity: 1; }
 
 .metric-tab {
     padding: 6px 14px;
@@ -212,8 +212,8 @@
 }
 .metric-tab:hover { background: rgba(255,255,255,0.09); }
 .metric-tab.active {
-    background: rgba(124,108,246,0.16);
-    border-color: rgba(124,108,246,0.4);
+    background: rgba(var(--acc-rgb),0.16);
+    border-color: rgba(var(--acc-rgb),0.4);
     color: #b7bdf0;
 }
 </style>
@@ -266,10 +266,13 @@ function toggleMetricEdit(id) {
 
         if (chartInst) chartInst.destroy();
 
+        var rootStyle = getComputedStyle(document.documentElement);
+        var accRgb = rootStyle.getPropertyValue('--acc-rgb').trim();
+        var acc2 = rootStyle.getPropertyValue('--acc-2').trim();
         var ctx = canvas.getContext('2d');
         var fade = ctx.createLinearGradient(0, 0, 0, 240);
-        fade.addColorStop(0, 'rgba(124,108,246,.35)');
-        fade.addColorStop(1, 'rgba(124,108,246,0)');
+        fade.addColorStop(0, 'rgba(' + accRgb + ',.35)');
+        fade.addColorStop(1, 'rgba(' + accRgb + ',0)');
 
         chartInst = new Chart(canvas, {
             type: 'line',
@@ -278,9 +281,9 @@ function toggleMetricEdit(id) {
                 datasets: [{
                     label: LABELS[metric],
                     data: values,
-                    borderColor: '#8b7bf7',
+                    borderColor: acc2,
                     backgroundColor: fade,
-                    pointBackgroundColor: '#8b7bf7',
+                    pointBackgroundColor: acc2,
                     pointBorderColor: '#111117',
                     pointBorderWidth: 2,
                     pointRadius: 4,

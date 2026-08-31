@@ -16,11 +16,11 @@
 
     #edit-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.6); align-items: center; justify-content: center; }
     #edit-modal.open { display: flex; }
-    #edit-modal-box { background: #111117; border: 1px solid rgba(124,108,246,0.18); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 16px; padding: 24px; width: 100%; max-width: 480px; margin: 16px; }
+    #edit-modal-box { background: #111117; border: 1px solid rgba(var(--acc-rgb),0.18); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 16px; padding: 24px; width: 100%; max-width: 480px; margin: 16px; }
 
     #ex-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.75); align-items: center; justify-content: center; }
     #ex-modal.open { display: flex; }
-    #ex-modal-box { background: #111117; border: 1px solid rgba(124,108,246,0.18); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 16px; padding: 24px; width: 100%; max-width: 580px; margin: 16px; max-height: 90vh; overflow-y: auto; }
+    #ex-modal-box { background: #111117; border: 1px solid rgba(var(--acc-rgb),0.18); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 16px; padding: 24px; width: 100%; max-width: 580px; margin: 16px; max-height: 90vh; overflow-y: auto; }
 
     .modal-label { display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px; }
     .modal-title { font-size: 11px; font-weight: 700; color: #838a9e; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 18px; }
@@ -42,7 +42,7 @@
         user-select: none;
     }
     .filter-tab:hover { background: rgba(255,255,255,0.09); }
-    .filter-tab.active { background: rgba(124,108,246,0.22); border-color: #7c6cf6; color: #ffffff; }
+    .filter-tab.active { background: rgba(var(--acc-rgb),0.22); border-color: var(--acc); color: #ffffff; }
 
     .ex-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 10px; }
     .ex-grid .no-media { order: 1; }
@@ -58,9 +58,9 @@
         z-index: 0;
     }
     .ex-card:hover {
-        background: rgba(124,108,246,0.14);
-        border-color: rgba(124,108,246,0.45);
-        box-shadow: 0 0 0 1px rgba(124,108,246,0.2);
+        background: rgba(var(--acc-rgb),0.14);
+        border-color: rgba(var(--acc-rgb),0.45);
+        box-shadow: 0 0 0 1px rgba(var(--acc-rgb),0.2);
         transform: translateY(-1px);
         z-index: 30;
     }
@@ -82,10 +82,10 @@
 
     .page-container .btn-primary-gradient,
     #edit-modal .btn-primary-gradient,
-    #ex-modal .btn-primary-gradient { background: #7c6cf6; }
+    #ex-modal .btn-primary-gradient { background: var(--acc); }
     .page-container .btn-primary-gradient:hover,
     #edit-modal .btn-primary-gradient:hover,
-    #ex-modal .btn-primary-gradient:hover { background: #8b7bf7; opacity: 1; }
+    #ex-modal .btn-primary-gradient:hover { background: var(--acc-2); opacity: 1; }
 </style>
 {% endblock %}
 
@@ -139,7 +139,7 @@
                     <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                         {% for tag in tags %}
                         <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 5px 10px; border: 1px solid #1c1c2c; border-radius: 6px; transition: border-color .12s;" onmouseover="this.style.borderColor='#3a3a5a'" onmouseout="this.style.borderColor='#1c1c2c'">
-                            <input type="checkbox" name="tags" value="{{ tag.id }}" style="accent-color: #7c6cf6;">
+                            <input type="checkbox" name="tags" value="{{ tag.id }}" style="accent-color: var(--acc);">
                             <span style="font-size: 11px; color: #a0a0c0;">{{ tag.nome }}</span>
                         </label>
                         {% endfor %}
@@ -201,7 +201,7 @@
             </div>
             {% if user.is_superuser %}
             <div style="display: flex; gap: 5px; flex-shrink: 0;">
-                <button type="button" data-edit-btn data-ex-id="{{ exercise.id }}" data-ex-nome="{{ exercise.nome }}" data-ex-tipologia="{{ exercise.tipologia }}" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(124,108,246,.12); border: 1px solid rgba(124,108,246,.28); border-radius: 5px; color: #a996ff; cursor: pointer;">
+                <button type="button" data-edit-btn data-ex-id="{{ exercise.id }}" data-ex-nome="{{ exercise.nome }}" data-ex-tipologia="{{ exercise.tipologia }}" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(var(--acc-rgb),.12); border: 1px solid rgba(var(--acc-rgb),.28); border-radius: 5px; color: var(--acc-4); cursor: pointer;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </button>
                 <form method="post" action="{% url 'delete_exercise_admin' exercise.id %}" data-confirm-nome="{{ exercise.nome }}" style="margin: 0;">
@@ -264,7 +264,7 @@
                 <div style="display: flex; flex-wrap: wrap; gap: 8px;" id="edit-tags">
                     {% for tag in tags %}
                     <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 5px 10px; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; transition: border-color .12s;" onmouseover="this.style.borderColor='rgba(255,255,255,0.2)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'">
-                        <input type="checkbox" name="tags" value="{{ tag.id }}" data-tag-id="{{ tag.id }}" style="accent-color: #7c6cf6;">
+                        <input type="checkbox" name="tags" value="{{ tag.id }}" data-tag-id="{{ tag.id }}" style="accent-color: var(--acc);">
                         <span style="font-size: 11px; color: #c7cbd6;">{{ tag.nome }}</span>
                     </label>
                     {% endfor %}

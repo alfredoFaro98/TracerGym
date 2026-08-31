@@ -91,7 +91,7 @@
                     <span style="font-size: 11.5px; color: #7d8296;">{{ day.entries|length }} bevut{{ day.entries|length|pluralize:"a,e" }}</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="background: rgba(124,108,246,0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;">{{ day.total_l|floatformat:"-2" }} L <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goal_l|floatformat:"-2" }} L</span></span>
+                    <span style="background: rgba(var(--acc-rgb),0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;">{{ day.total_l|floatformat:"-2" }} L <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goal_l|floatformat:"-2" }} L</span></span>
                     {% if day.reached %}
                     <span title="Obiettivo raggiunto" style="color: #4ade80; font-size: 15px; font-weight: 700;">✓</span>
                     {% else %}
@@ -121,14 +121,14 @@
                         <span style="font-size: 13.5px; color: #ffffff;"><b>{{ e.quantita_ml }}</b> ml</span>
                         <span style="font-size: 12px; color: #7d8296;">{{ e.creato_il|date:"H:i" }}</span>
                         <div style="flex: 1;"></div>
-                        <span onclick="toggleWaterEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: #a996ff; padding: 6px 12px; border-radius: 7px; background: rgba(124,108,246,0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(124,108,246,0.22)'" onmouseout="this.style.background='rgba(124,108,246,0.12)'">Modifica</span>
+                        <span onclick="toggleWaterEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: var(--acc-4); padding: 6px 12px; border-radius: 7px; background: rgba(var(--acc-rgb),0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.12)'">Modifica</span>
                         <form action="{% url 'delete_water_entry' e.id %}" method="post" style="display:inline;" onsubmit="return confirm('Eliminare questa aggiunta?');">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="{% url 'water_history' %}">
                             <button type="submit" style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
                         </form>
                     </div>
-                    <div id="water-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(124,108,246,0.06); border: 1px solid rgba(124,108,246,0.3); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
+                    <div id="water-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
                         <form action="{% url 'edit_water_entry' e.id %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="{% url 'water_history' %}">
@@ -187,18 +187,18 @@
 
 <style>
 .dash-add-btn {
-    background: #7c6cf6;
+    background: var(--acc);
     color: #fff;
     border: none;
     transition: background .15s, box-shadow .15s;
-    box-shadow: 0 8px 20px rgba(124,108,246,.35);
+    box-shadow: 0 8px 20px rgba(var(--acc-rgb),.35);
 }
-.dash-add-btn:hover { background: #8b7bf7; }
+.dash-add-btn:hover { background: var(--acc-2); }
 
 .water-quick-btn {
     padding: 8px 14px;
-    background: rgba(124,108,246,0.12);
-    border: 1px solid rgba(124,108,246,0.2);
+    background: rgba(var(--acc-rgb),0.12);
+    border: 1px solid rgba(var(--acc-rgb),0.2);
     border-radius: 8px;
     color: #b7bdf0;
     font-size: 12.5px;
@@ -208,12 +208,12 @@
     font-family: inherit;
     white-space: nowrap;
 }
-.water-quick-btn:hover { background: rgba(124,108,246,0.22); }
+.water-quick-btn:hover { background: rgba(var(--acc-rgb),0.22); }
 
 .page-container .btn-primary-gradient {
-    background: #7c6cf6;
+    background: var(--acc);
 }
-.page-container .btn-primary-gradient:hover { background: #8b7bf7; opacity: 1; }
+.page-container .btn-primary-gradient:hover { background: var(--acc-2); opacity: 1; }
 
 [data-hmcell]:hover [data-hmtip] { opacity: 1 !important; }
 .ch-domain-text { fill: #a0a6af; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; }
@@ -322,13 +322,14 @@ var MONTH_NAMES_IT = ['GEN','FEB','MAR','APR','MAG','GIU','LUG','AGO','SET','OTT
 var MONTH_NAMES_IT_SHORT = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
 
 function heatmapLevelColor(ml, goalMl) {
+    var accRgb = getComputedStyle(document.documentElement).getPropertyValue('--acc-rgb').trim();
     if (!ml) return 'rgba(255,255,255,0.05)';
     var ratio = goalMl > 0 ? ml / goalMl : 0;
-    if (ratio >= 1) return 'rgba(124,108,246,1)';
-    if (ratio >= 0.75) return 'rgba(124,108,246,0.78)';
-    if (ratio >= 0.5) return 'rgba(124,108,246,0.55)';
-    if (ratio >= 0.25) return 'rgba(124,108,246,0.35)';
-    return 'rgba(124,108,246,0.18)';
+    if (ratio >= 1) return 'rgba(' + accRgb + ',1)';
+    if (ratio >= 0.75) return 'rgba(' + accRgb + ',0.78)';
+    if (ratio >= 0.5) return 'rgba(' + accRgb + ',0.55)';
+    if (ratio >= 0.25) return 'rgba(' + accRgb + ',0.35)';
+    return 'rgba(' + accRgb + ',0.18)';
 }
 
 function buildYearHeatmap() {

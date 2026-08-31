@@ -1,6 +1,51 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-*, *::before, *::after { 
+/* ==========================================================================
+   Accent color: [data-accent] su <html> (impostato in base.html dal profilo
+   utente via tracker.context_processors.appearance) controlla solo il colore
+   di brand/interazione (bottoni, stati attivi, link, progress bar) — non
+   tocca sfondi/testo/bordi. --acc/--acc-2/--acc-3/--acc-4 sono gli stessi 4
+   toni di viola gia' usati ovunque nei template (dal piu' scuro al piu'
+   chiaro); --acc-rgb permette rgba(var(--acc-rgb), X) per le versioni
+   trasparenti. Il default (nessun attributo) riproduce il viola di sempre.
+   ========================================================================== */
+:root {
+  --acc: #7c6cf6;
+  --acc-2: #8b7bf7;
+  --acc-3: #9d8ffb;
+  --acc-4: #a996ff;
+  --acc-rgb: 124, 108, 246;
+}
+[data-accent="corallo"] {
+  --acc: #fb923c;
+  --acc-2: #fb9b4b;
+  --acc-3: #ffa860;
+  --acc-4: #ffae6b;
+  --acc-rgb: 251, 146, 60;
+}
+[data-accent="lime"] {
+  --acc: #a3e635;
+  --acc-2: #a9e843;
+  --acc-3: #b4ef55;
+  --acc-4: #baf658;
+  --acc-rgb: 163, 230, 53;
+}
+[data-accent="teal"] {
+  --acc: #2dd4bf;
+  --acc-2: #3ad7c3;
+  --acc-3: #4ae0cd;
+  --acc-4: #4ce8d5;
+  --acc-rgb: 45, 212, 191;
+}
+[data-accent="verde"] {
+  --acc: #30d158;
+  --acc-2: #3dd462;
+  --acc-3: #4cdd70;
+  --acc-4: #4ee674;
+  --acc-rgb: 48, 209, 88;
+}
+
+*, *::before, *::after {
   box-sizing: border-box; 
   margin: 0; 
   padding: 0; 

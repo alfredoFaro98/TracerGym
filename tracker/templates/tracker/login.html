@@ -17,8 +17,8 @@
         padding: 36px;
         font-family: 'Plus Jakarta Sans', sans-serif;
         background:
-            radial-gradient(circle at left center, rgba(124, 108, 246, 0.12) 0%, transparent 18%),
-            radial-gradient(circle at center bottom, rgba(124, 108, 246, 0.08) 0%, transparent 30%),
+            radial-gradient(circle at left center, rgba(var(--acc-rgb), 0.12) 0%, transparent 18%),
+            radial-gradient(circle at center bottom, rgba(var(--acc-rgb), 0.08) 0%, transparent 30%),
             #08080c;
     }
 
@@ -58,7 +58,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #7c6cf6;
+        background: var(--acc);
         color: #fff;
         flex-shrink: 0;
     }
@@ -97,7 +97,7 @@
     }
 
     .login-hero h1 span {
-        color: #9d8ffb;
+        color: var(--acc-3);
     }
 
     .login-hero p {
@@ -194,7 +194,7 @@
         height: 380px;
         transform: translate(-50%, -50%);
         border-radius: 50%;
-        background: radial-gradient(circle, rgba(124, 108, 246, 0.16) 0%, rgba(124, 108, 246, 0) 70%);
+        background: radial-gradient(circle, rgba(var(--acc-rgb), 0.16) 0%, rgba(var(--acc-rgb), 0) 70%);
         pointer-events: none;
         transition: left 0.06s linear, top 0.06s linear;
     }
@@ -246,8 +246,8 @@
     }
 
     .login-input-wrap:focus-within {
-        border-color: rgba(124, 108, 246, 0.6);
-        box-shadow: 0 0 0 3px rgba(124, 108, 246, 0.15);
+        border-color: rgba(var(--acc-rgb), 0.6);
+        box-shadow: 0 0 0 3px rgba(var(--acc-rgb), 0.15);
     }
 
     .login-input-icon {
@@ -317,8 +317,8 @@
     }
 
     .login-checkbox.is-checked {
-        background: #7c6cf6;
-        border-color: #7c6cf6;
+        background: var(--acc);
+        border-color: var(--acc);
     }
 
     .login-checkbox svg {
@@ -352,18 +352,18 @@
         height: 48px;
         border: none;
         border-radius: 10px;
-        background: #7c6cf6;
+        background: var(--acc);
         color: #fff;
         font-size: 14.5px;
         font-weight: 700;
         font-family: inherit;
-        box-shadow: 0 10px 24px rgba(124, 108, 246, 0.3);
+        box-shadow: 0 10px 24px rgba(var(--acc-rgb), 0.3);
         transition: transform 0.15s, box-shadow 0.15s;
     }
 
     .login-submit:hover {
         transform: translateY(-1px);
-        box-shadow: 0 14px 28px rgba(124, 108, 246, 0.34);
+        box-shadow: 0 14px 28px rgba(var(--acc-rgb), 0.34);
     }
 
     .login-submit.is-loading {
@@ -446,8 +446,8 @@
 
                     <div class="login-kpis">
                         <div class="login-kpi">
-                            <div class="login-kpi-icon" style="background: rgba(124,108,246,0.18);">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a996ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle></svg>
+                            <div class="login-kpi-icon" style="background: rgba(var(--acc-rgb),0.18);">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc-4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle></svg>
                             </div>
                             <div>
                                 <div class="login-kpi-value">7</div>
@@ -464,8 +464,8 @@
                             </div>
                         </div>
                         <div class="login-kpi">
-                            <div class="login-kpi-icon" style="background: rgba(124,108,246,0.18);">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a996ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                            <div class="login-kpi-icon" style="background: rgba(var(--acc-rgb),0.18);">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--acc-4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
                             </div>
                             <div>
                                 <div class="login-kpi-value">35</div>
@@ -555,7 +555,8 @@
 (function () {
     // Heatmap: generate cells and animate a periodic "wave" highlight across columns.
     var heatmapEl = document.getElementById('loginHeatmap');
-    var colors = ['rgba(124,108,246,0.9)', 'rgba(124,108,246,0.55)', 'rgba(124,108,246,0.28)'];
+    var accRgb = getComputedStyle(document.documentElement).getPropertyValue('--acc-rgb').trim();
+    var colors = ['rgba(' + accRgb + ',0.9)', 'rgba(' + accRgb + ',0.55)', 'rgba(' + accRgb + ',0.28)'];
     var cells = [];
 
     for (var i = 0; i < 75; i++) {
