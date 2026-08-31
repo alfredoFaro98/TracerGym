@@ -278,7 +278,7 @@
                         <input type="month" name="month" value="{{ request.GET.month }}">
                     </div>
                     <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Cerca esercizio o note..." class="tracer-input" style="padding: 6px 10px; width: 100%; max-width: 170px; font-size: 12px; height: 30px; border-radius: 6px;">
-                    <button type="submit" class="btn-primary-gradient" style="padding: 0 12px; height: 30px; font-size: 11px;">Filtra</button>
+                    <button type="submit" class="btn-primary-gradient storico-filtra-btn" style="padding: 0 12px; height: 30px; font-size: 11px;">Filtra</button>
                     {% if request.GET.q or request.GET.month %}
                     <a href="{% url 'dashboard' %}" style="display: flex; align-items: center; padding: 0 10px; height: 30px; border: 1px solid #1c1c2c; border-radius: 6px; color: #f0f0f3; font-size: 11px; text-decoration: none;">Reset</a>
                     {% endif %}
@@ -368,7 +368,7 @@
     <!-- Programmazione Settimanale -->
     <div class="tracer-card" style="overflow: visible; margin-top: 24px;">
         <div style="padding: 18px 22px; border-bottom: 1px solid #16162a; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-            <div style="font-size: 11px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Programmazione Settimanale</div>
+            <div class="week-title" style="font-size: 11px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Programmazione Settimanale</div>
             <div class="week-controls-pill" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 999px; padding: 6px 14px;">
                 <button type="button" onclick="exportWeekPDF()" title="Stampa PDF" style="background:none;border:none;color:#c7cbd6;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.color='#f0f0f3'" onmouseout="this.style.color='#c7cbd6'">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -582,12 +582,15 @@
         .storico-io-icons { margin-left: auto; }
     }
     /* Quando la pillola di Programmazione Settimanale va a capo sotto il
-       titolo, centrala invece di lasciarla appiccicata a sinistra. */
+       titolo, centra sia il titolo che la pillola invece di lasciarli a
+       sinistra. */
     @media (max-width: 600px) {
+        .week-title { flex: 1 1 100%; text-align: center; }
         .week-controls-pill { flex: 1 1 100%; width: fit-content; margin: 0 auto; }
     }
     @media (max-width: 480px) {
         .filter-form input[name="q"] { max-width: none !important; flex: 1 !important; min-width: 120px !important; }
+        .storico-filtra-btn { flex: 1 !important; }
     }
 
     /* Pill per il filtro mese: sostituisce lo stile nativo dell'input
