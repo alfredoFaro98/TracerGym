@@ -369,15 +369,18 @@
     <div class="tracer-card" style="overflow: visible; margin-top: 24px;">
         <div style="padding: 18px 22px; border-bottom: 1px solid #16162a; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
             <div style="font-size: 11px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Programmazione Settimanale</div>
-            <div style="display: flex; align-items: center; gap: 6px;">
-                <button type="button" onclick="weekNav(-1)" style="background:none;border:1px solid #1c1c2c;color:#787890;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;justify-content:center;" onmouseover="this.style.color='#f0f0f3'" onmouseout="this.style.color='#787890'">&#8592;</button>
-                <span id="week-label" style="font-size: 12px; color: #c7cbd6; font-family: 'JetBrains Mono', monospace; min-width: 200px; text-align: center; display: inline-block;"></span>
-                <button type="button" onclick="weekNav(1)" style="background:none;border:1px solid #1c1c2c;color:#787890;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:14px;display:inline-flex;align-items:center;justify-content:center;" onmouseover="this.style.color='#f0f0f3'" onmouseout="this.style.color='#787890'">&#8594;</button>
+            <div style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 999px; padding: 6px 14px;">
+                <button type="button" onclick="exportWeekPDF()" title="Stampa PDF" style="background:none;border:none;color:#c7cbd6;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.color='#f0f0f3'" onmouseout="this.style.color='#c7cbd6'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                </button>
+                <button type="button" onclick="weekNav(-1)" title="Settimana precedente" style="background:none;border:none;color:#787890;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.color='#f0f0f3'" onmouseout="this.style.color='#787890'">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </button>
+                <span id="week-grid-label" style="font-size: 13px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace; white-space: nowrap;"></span>
+                <button type="button" onclick="weekNav(1)" title="Settimana successiva" style="background:none;border:none;color:#787890;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.color='#f0f0f3'" onmouseout="this.style.color='#787890'">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
             </div>
-            <button type="button" onclick="exportWeekPDF()" style="padding: 0 12px; height: 28px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: #c7cbd6; font-size: 11px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                Stampa PDF
-            </button>
         </div>
         <div style="overflow-x: auto; padding: 12px;">
             <div id="week-grid" style="display: grid; grid-template-columns: repeat(7, minmax(120px, 1fr)); gap: 10px; min-height: 90px;">
@@ -1206,7 +1209,7 @@
         var label = m.getDate() + ' ' + IT_MONTHS[m.getMonth()];
         if (m.getFullYear() !== s.getFullYear()) label += ' ' + m.getFullYear();
         label += ' – ' + s.getDate() + ' ' + IT_MONTHS[s.getMonth()] + ' ' + s.getFullYear();
-        document.getElementById('week-label').textContent = label;
+        document.getElementById('week-grid-label').textContent = label;
     }
 
     function renderGrid(data) {
