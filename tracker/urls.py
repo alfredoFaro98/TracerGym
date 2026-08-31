@@ -43,6 +43,7 @@ urlpatterns = [
     path('users/<str:username>/session/<int:session_id>/import/', views.import_session_from_user, name='import_session_from_user'),
     path('profile/toggle-visibility/', views.toggle_profile_visibility, name='toggle_profile_visibility'),
     path('profile/set-accent/', views.set_accent, name='set_accent'),
+    path('impostazioni/', views.impostazioni, name='impostazioni'),
     path('body-map/', views.body_map, name='body_map'),
     path('sessions/week/', views.weekly_sessions_data, name='weekly_sessions_data'),
     path('week-training/data/', views.week_training_data, name='week_training_data'),

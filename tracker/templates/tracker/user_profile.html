@@ -43,20 +43,6 @@
         {% endif %}
     </div>
 
-    {% if is_own %}
-    <!-- Colore accent -->
-    <div class="tracer-card" style="padding: 16px 20px; margin-bottom: 24px;">
-        <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 12px;">Colore Accent</div>
-        <form action="{% url 'set_accent' %}" method="post" style="display: flex; gap: 10px; flex-wrap: wrap;">
-            {% csrf_token %}
-            <input type="hidden" name="next" value="{{ request.get_full_path }}">
-            {% for value, label, hex in accent_choices %}
-            <button type="submit" name="accent" value="{{ value }}" title="{{ label }}" style="width: 34px; height: 34px; border-radius: 50%; cursor: pointer; background: {{ hex }}; border: 2px solid {% if value == profile.accent %}#f0f0f3{% else %}transparent{% endif %}; box-shadow: 0 0 0 2px {% if value == profile.accent %}{{ hex }}{% else %}transparent{% endif %};"></button>
-            {% endfor %}
-        </form>
-    </div>
-    {% endif %}
-
     {% if private %}
     <!-- Profilo privato -->
     <div style="background: #0d0d14; border: 1px dashed #1c1c2e; border-radius: 12px; padding: 52px 24px; text-align: center;">

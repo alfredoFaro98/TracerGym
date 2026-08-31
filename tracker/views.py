@@ -1469,9 +1469,6 @@ def user_profile(request, username):
         'heatmap_data_json': json.dumps(heatmap_data),
         'selected_year': year_int,
         'body_weight_json': body_weight_json,
-        'accent_choices': [
-            (value, label, ACCENT_HEX[value]) for value, label in UserProfile.ACCENT_CHOICES
-        ],
     })
 
 
@@ -1587,8 +1584,19 @@ def set_accent(request):
             profile, _ = UserProfile.objects.get_or_create(user=request.user)
             profile.accent = accent
             profile.save()
-    next_url = request.POST.get('next') or reverse('user_profile', kwargs={'username': request.user.username})
+    next_url = request.POST.get('next') or reverse('impostazioni')
     return redirect(next_url)
+
+
+@login_required
+def impostazioni(request):
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    return render(request, 'tracker/impostazioni.html', {
+        'profile': profile,
+        'accent_choices': [
+            (value, label, ACCENT_HEX[value]) for value, label in UserProfile.ACCENT_CHOICES
+        ],
+    })
 
 
 def _combine_water_datetime(entry_data, ora_str):
