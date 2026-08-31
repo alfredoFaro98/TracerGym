@@ -552,8 +552,14 @@
 .modal-cancel-btn:hover { background: rgba(255,255,255,0.09); }
 </style>
 
-<!-- Contenuto nascosto usato per il PDF -->
-<div id="pdf-content" style="display:none; font-family: Arial, sans-serif; padding: 24px; color: #111; background: #fff;">
+<!-- Contenuto nascosto usato per il PDF. position:absolute fuori
+     schermo (non display:none puro) cosi' quando exportPDF() lo rende
+     display:block per la cattura di html2canvas non entra nel flusso
+     della pagina: senza questo, per il secondo/due che serve a
+     catturarlo un blocco bianco a piena larghezza compariva in mezzo
+     alla pagina scura spingendo giu' tutto il resto, per poi sparire
+     di colpo. -->
+<div id="pdf-content" style="display:none; position:absolute; top:0; left:-9999px; width:800px; font-family: Arial, sans-serif; padding: 24px; color: #111; background: #fff; box-sizing: border-box;">
     <div style="border-bottom: 2px solid #111; padding-bottom: 12px; margin-bottom: 20px;">
         <div style="font-size: 20px; font-weight: 700;">{{ session.data|date:"l d F Y" }}</div>
         <div style="font-size: 12px; color: #555; margin-top: 4px;">{% if exercise_groups %}{{ exercise_groups|length }} esercizi &middot; {% endif %}{{ session.sets.count }} serie totali{% if circuit_items %} &middot; {{ circuit_items|length }} circuito{% if circuit_items|length > 1 %}i{% endif %}{% endif %}</div>

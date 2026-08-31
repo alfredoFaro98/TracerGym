@@ -559,7 +559,16 @@
         scrollbar fantasma anche quando il contenuto entra per intero. */
         width: 100%;
         overflow-x: auto;
-        overflow-y: visible;
+        /* overflow-y:visible qui non funziona davvero: la spec forza l'asse
+           "visible" a diventare "auto" quando l'altro asse non lo e' (serve
+           overflow-x:auto per lo scroll orizzontale del calendario, quindi
+           anche l'asse verticale finisce clippato). Percio' la nuvoletta
+           delle celle della riga in alto (sopra: calc(100% + 5px)) veniva
+           tagliata/sovrapposta all'etichetta del mese. Un padding-top pari
+           all'altezza della nuvoletta le da' lo spazio per stare dentro
+           l'area visibile invece di dover "uscire" dal contenitore. */
+        padding-top: 34px;
+        margin-top: -34px;
     }
     .heatmap-scroll-wrap::-webkit-scrollbar { height: 4px; }
     .heatmap-scroll-wrap::-webkit-scrollbar-track { background: transparent; }
