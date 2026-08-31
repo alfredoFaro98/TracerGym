@@ -80,7 +80,9 @@ Le sessioni (e il catalogo esercizi) si esportano e importano in JSON, per chi v
 
 - **Backend**: Django 6, database MySQL sia in locale che in produzione.
 - **Frontend**: nessun framework JavaScript — template Django con JavaScript vanilla dove serve interattività (drag & drop, autocomplete, grafici via [Chart.js](https://www.chartjs.org/), heatmap via [cal-heatmap](https://cal-heatmap.com/)), pensati per restare leggeri e comprensibili riga per riga piuttosto che dipendere da una build chain.
-- **Deploy**: PythonAnywhere, con `SECRET_KEY` e `DB_PASSWORD` forniti da variabili d'ambiente in produzione.
+- **Deploy**: PythonAnywhere, con `SECRET_KEY` e `DB_PASSWORD` forniti da variabili d'ambiente in produzione. `STATIC_ROOT` (`staticfiles/`) è separato da `STATICFILES_DIRS` (`static/`): un `git pull` aggiorna solo la seconda, quindi va sempre seguito da `python manage.py collectstatic --noinput` prima del reload, altrimenti CSS/JS serviti in produzione restano quelli vecchi anche se il codice sorgente è aggiornato (successo gia' una volta: dopo aver cambiato `style.css` il sito continuava a servire una versione di mesi prima perché mancava questo passaggio).
+
+**Checklist ad ogni deploy**: `git pull` → `python manage.py migrate` (se ci sono migrazioni nuove) → `python manage.py collectstatic --noinput` (se sono cambiati CSS/JS/immagini in `static/`) → reload della web app dalla dashboard PythonAnywhere.
 
 Il tema è viola scuro, disegnato prima come mockup statici e poi portato dentro l'app pagina per pagina, mantenendo lo stesso linguaggio visivo — stessi colori, stessi badge, stesse card — su dashboard, sessione, profilo e le pagine più recenti come acqua e misurazioni.
 
