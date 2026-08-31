@@ -106,9 +106,9 @@
                 <form data-ajax-water action="{% url 'add_water_entry_ajax' %}" method="post" class="water-custom-form" style="display: flex; gap: 6px;">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                    <input type="number" name="quantita_ml" placeholder="ml" min="1" class="tracer-input" style="width: 72px; padding: 8px 10px; font-size: 12.5px; flex-shrink: 0;">
-                    <button type="submit" class="water-quick-btn" style="flex: 1;">Aggiungi</button>
                     <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input water-time-input" style="width: 92px; padding: 8px 10px; font-size: 12.5px; flex-shrink: 0;">
+                    <input type="number" name="quantita_ml" placeholder="ml" min="1" class="tracer-input water-ml-input" style="width: 72px; padding: 8px 10px; font-size: 12.5px; flex-shrink: 0;">
+                    <button type="submit" class="water-quick-btn" style="flex: 1;">Aggiungi</button>
                 </form>
                 <button type="button" class="water-goal-btn-desktop" onclick="toggleWaterGoalForm()" title="Modifica obiettivo giornaliero" style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 9px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; cursor: pointer; flex-shrink: 0; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
@@ -451,7 +451,9 @@
         .water-quick-group form { flex: 1; }
         .water-quick-group .water-quick-btn { width: 100%; }
         .water-custom-form { flex: 1 1 100% !important; }
-        .water-time-input { width: 40px !important; padding: 8px 6px !important; }
+        .water-custom-form .water-time-input,
+        .water-custom-form .water-ml-input,
+        .water-custom-form button { flex: 1 !important; width: auto !important; flex-shrink: 1 !important; }
 
         /* Ordine mobile: titolo, poi subito la barra di progresso, poi i
            pulsanti azione (invece di lasciare la barra in fondo dopo tutto). */
