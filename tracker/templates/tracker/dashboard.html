@@ -277,13 +277,13 @@
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ba0b3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                         <input type="month" name="month" value="{{ request.GET.month }}">
                     </div>
-                    <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Cerca esercizio o note..." class="tracer-input" style="padding: 6px 10px; width: 100%; max-width: 170px; font-size: 12px; height: 30px; border-radius: 6px;">
+                    <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Cerca esercizio o note..." class="tracer-input" style="padding: 6px 10px; flex: 0 0 170px; font-size: 12px; height: 30px; border-radius: 6px;">
                     <button type="submit" class="btn-primary-gradient storico-filtra-btn" style="padding: 0 12px; height: 30px; font-size: 11px;">Filtra</button>
                     {% if request.GET.q or request.GET.month %}
                     <a href="{% url 'dashboard' %}" style="display: flex; align-items: center; padding: 0 10px; height: 30px; border: 1px solid #1c1c2c; border-radius: 6px; color: #f0f0f3; font-size: 11px; text-decoration: none;">Reset</a>
                     {% endif %}
                 </form>
-                <span style="font-size: 11px; color: #f0f0f3; font-family: 'JetBrains Mono', monospace; min-width: max-content; margin-left: auto;">
+                <span class="storico-count" style="font-size: 11px; color: #f0f0f3; font-family: 'JetBrains Mono', monospace; min-width: max-content;">
                     {{ total_sessions_count }} sessioni
                 </span>
             </div>
@@ -580,6 +580,11 @@
            di lasciarle appiccicate al titolo. */
         .storico-title-row { flex: 1 1 100%; }
         .storico-io-icons { margin-left: auto; }
+        /* Sotto i 900px lo spingiamo a destra sulla riga in cui finisce a capo;
+           sopra i 900px .storico-filters e' gia' justify-content:flex-end e
+           un margin-left:auto qui spaccherebbe form e conteggio, mandando
+           il primo a sinistra e il secondo all'estremo bordo destro. */
+        .storico-count { margin-left: auto; }
     }
     /* Quando la pillola di Programmazione Settimanale va a capo sotto il
        titolo, centra sia il titolo che la pillola invece di lasciarli a
