@@ -523,8 +523,6 @@
         border: 1px solid rgba(var(--acc-rgb),.2);
     }
 
-    /* Tooltip celle heatmap annuale (desktop) */
-    [data-hmcell]:hover [data-hmtip] { opacity: 1 !important; }
 
     /* Personalizzazioni dark per cal-heatmap */
     .ch-domain-text { fill: #a0a6af; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; }
@@ -559,16 +557,6 @@
         scrollbar fantasma anche quando il contenuto entra per intero. */
         width: 100%;
         overflow-x: auto;
-        /* overflow-y:visible qui non funziona davvero: la spec forza l'asse
-           "visible" a diventare "auto" quando l'altro asse non lo e' (serve
-           overflow-x:auto per lo scroll orizzontale del calendario, quindi
-           anche l'asse verticale finisce clippato). Percio' la nuvoletta
-           delle celle della riga in alto (sopra: calc(100% + 5px)) veniva
-           tagliata/sovrapposta all'etichetta del mese. Un padding-top pari
-           all'altezza della nuvoletta le da' lo spazio per stare dentro
-           l'area visibile invece di dover "uscire" dal contenitore. */
-        padding-top: 34px;
-        margin-top: -34px;
     }
     .heatmap-scroll-wrap::-webkit-scrollbar { height: 4px; }
     .heatmap-scroll-wrap::-webkit-scrollbar-track { background: transparent; }
@@ -620,6 +608,13 @@
         padding: 0 8px;
         height: 30px;
         flex-shrink: 0;
+        /* Indispensabile: l'indicatore del calendario qui sotto e'
+           position:absolute con top/left/right/bottom a 0. Senza un
+           antenato posizionato si aggancia a un contenitore molto piu'
+           grande e diventa un'area cliccabile invisibile che copre anche
+           il campo di ricerca accanto: cliccando su "Cerca esercizio o
+           note" si apriva il selettore data invece del campo. */
+        position: relative;
     }
     .storico-date-field input[type="month"] {
         background: transparent;
@@ -785,12 +780,7 @@
                         var count = dataByDate[dateStr] || 0;
                         cell.style.background = heatmapLevelColor(count);
                         cell.setAttribute('data-hmcell', '1');
-
-                        var tip = document.createElement('div');
-                        tip.setAttribute('data-hmtip', '1');
-                        tip.style.cssText = 'position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:#15151c;color:#fff;font-size:11px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;z-index:20;box-shadow:0 6px 16px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);transition:opacity .1s;';
-                        tip.textContent = dayNum + ' ' + MONTH_NAMES_IT_SHORT[m] + ' ' + YEAR + ' — ' + (count === 0 ? 'nessuna serie' : count + ' serie');
-                        cell.appendChild(tip);
+                        cell.dataset.hmlabel = dayNum + ' ' + MONTH_NAMES_IT_SHORT[m] + ' ' + YEAR + ' — ' + (count === 0 ? 'nessuna serie' : count + ' serie');
                     } else {
                         cell.style.background = 'transparent';
                     }
@@ -801,6 +791,43 @@
             }
         }
         buildYearHeatmap();
+
+        // Nuvoletta della heatmap: un solo elemento agganciato al <body> con
+        // position:fixed, posizionato a mano sull'hover. Come figlio della
+        // cella veniva inevitabilmente tagliata dai bordi del contenitore
+        // (che ha overflow-x:auto per lo scroll orizzontale dei 12 mesi, e
+        // la spec CSS forza a "auto" anche l'asse verticale): sui bordi
+        // sinistro/destro e sulla prima riga spariva a meta'.
+        (function() {
+            var hmTip = document.createElement('div');
+            hmTip.style.cssText = 'position:fixed;display:none;background:#15151c;color:#fff;font-size:11px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:10000;box-shadow:0 6px 16px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);';
+            document.body.appendChild(hmTip);
+
+            var container = document.getElementById('year-heatmap');
+            if (!container) return;
+
+            container.addEventListener('mouseover', function(e) {
+                var cell = e.target.closest('[data-hmcell]');
+                if (!cell || !cell.dataset.hmlabel) return;
+                hmTip.textContent = cell.dataset.hmlabel;
+                hmTip.style.display = 'block';
+                var r = cell.getBoundingClientRect();
+                var t = hmTip.getBoundingClientRect();
+                // Sopra la cella, centrata; se non ci sta (celle in alto)
+                // scende sotto, e resta comunque dentro i bordi finestra.
+                var left = Math.min(Math.max(4, r.left + r.width / 2 - t.width / 2), window.innerWidth - t.width - 4);
+                var top = r.top - t.height - 6;
+                if (top < 4) top = r.bottom + 6;
+                hmTip.style.left = left + 'px';
+                hmTip.style.top = top + 'px';
+            });
+
+            container.addEventListener('mouseout', function(e) {
+                if (e.target.closest('[data-hmcell]')) hmTip.style.display = 'none';
+            });
+            var scroller = container.closest('.heatmap-scroll-wrap');
+            if (scroller) scroller.addEventListener('scroll', function() { hmTip.style.display = 'none'; });
+        })();
 
         // Mobile heatmap (solo 1 mese, navigabile)
         var mobileMonthNames = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
