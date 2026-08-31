@@ -79,31 +79,33 @@
                     </div>
                 </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <form data-ajax-water action="{% url 'add_water_entry_ajax' %}" method="post">
+            <div class="water-actions" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <div class="water-quick-group" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <form data-ajax-water action="{% url 'add_water_entry_ajax' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantita_ml" value="250">
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <button type="submit" class="water-quick-btn">+250ml</button>
+                    </form>
+                    <form data-ajax-water action="{% url 'add_water_entry_ajax' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantita_ml" value="500">
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <button type="submit" class="water-quick-btn">+500ml</button>
+                    </form>
+                    <form data-ajax-water action="{% url 'add_water_entry_ajax' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantita_ml" value="1000">
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <button type="submit" class="water-quick-btn">+1L</button>
+                    </form>
+                </div>
+                <form data-ajax-water action="{% url 'add_water_entry_ajax' %}" method="post" class="water-custom-form" style="display: flex; gap: 6px;">
                     {% csrf_token %}
-                    <input type="hidden" name="quantita_ml" value="250">
                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                    <button type="submit" class="water-quick-btn">+250ml</button>
-                </form>
-                <form data-ajax-water action="{% url 'add_water_entry_ajax' %}" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="quantita_ml" value="500">
-                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                    <button type="submit" class="water-quick-btn">+500ml</button>
-                </form>
-                <form data-ajax-water action="{% url 'add_water_entry_ajax' %}" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="quantita_ml" value="1000">
-                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                    <button type="submit" class="water-quick-btn">+1L</button>
-                </form>
-                <form data-ajax-water action="{% url 'add_water_entry_ajax' %}" method="post" style="display: flex; gap: 6px;">
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                    <input type="number" name="quantita_ml" placeholder="ml" min="1" class="tracer-input" style="width: 72px; padding: 8px 10px; font-size: 12.5px;">
-                    <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input" style="width: 92px; padding: 8px 10px; font-size: 12.5px;">
-                    <button type="submit" class="water-quick-btn">Aggiungi</button>
+                    <input type="number" name="quantita_ml" placeholder="ml" min="1" class="tracer-input" style="width: 72px; padding: 8px 10px; font-size: 12.5px; flex-shrink: 0;">
+                    <button type="submit" class="water-quick-btn" style="flex: 1;">Aggiungi</button>
+                    <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input water-time-input" style="width: 92px; padding: 8px 10px; font-size: 12.5px; flex-shrink: 0;">
                 </form>
                 <button type="button" onclick="toggleWaterGoalForm()" title="Modifica obiettivo giornaliero" style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 9px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; cursor: pointer; flex-shrink: 0; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
@@ -435,6 +437,17 @@
         padding: 2px 0 0 0;
     }
     .water-pill:hover .water-pill-x { opacity: 1; transform: scale(1); }
+
+    /* Su mobile la riga dei pulsanti rapidi acqua e quella di inserimento
+       manuale vanno impilate a piena larghezza ciascuna, invece di lasciare
+       che tutti i controlli si accavallino su una riga sola troppo stretta. */
+    @media (max-width: 480px) {
+        .water-quick-group { flex: 1 1 100% !important; }
+        .water-quick-group form { flex: 1; }
+        .water-quick-group .water-quick-btn { width: 100%; }
+        .water-custom-form { flex: 1 1 100% !important; }
+        .water-time-input { width: 40px !important; padding: 8px 6px !important; }
+    }
 
     .week-nav-btn {
         background: none;
