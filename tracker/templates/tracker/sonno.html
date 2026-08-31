@@ -227,8 +227,8 @@ function toggleSleepEdit(id) {
     var values = CHART_DATA.map(function(p) { return p.value; });
 
     var rootStyle = getComputedStyle(document.documentElement);
-    var accRgb = rootStyle.getPropertyValue('--acc-rgb').trim();
-    var acc2 = rootStyle.getPropertyValue('--acc-2').trim();
+    var accRgb = (rootStyle.getPropertyValue('--acc-rgb').trim() || '124, 108, 246');
+    var acc2 = (rootStyle.getPropertyValue('--acc-2').trim() || '#8b7bf7');
     var ctx = canvas.getContext('2d');
     var fade = ctx.createLinearGradient(0, 0, 0, 220);
     fade.addColorStop(0, 'rgba(' + accRgb + ',.35)');

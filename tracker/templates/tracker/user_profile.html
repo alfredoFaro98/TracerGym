@@ -243,7 +243,7 @@
     var MONTH_NAMES_IT_SHORT = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
 
     function heatmapLevelColor(count) {
-        var accRgb = getComputedStyle(document.documentElement).getPropertyValue('--acc-rgb').trim();
+        var accRgb = (getComputedStyle(document.documentElement).getPropertyValue('--acc-rgb').trim() || '124, 108, 246');
         if (!count) return 'rgba(255,255,255,0.05)';
         var ratio = maxCount > 0 ? count / maxCount : 1;
         if (ratio <= 0.25) return 'rgba(' + accRgb + ',0.35)';

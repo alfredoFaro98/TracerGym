@@ -555,7 +555,7 @@
 (function () {
     // Heatmap: generate cells and animate a periodic "wave" highlight across columns.
     var heatmapEl = document.getElementById('loginHeatmap');
-    var accRgb = getComputedStyle(document.documentElement).getPropertyValue('--acc-rgb').trim();
+    var accRgb = (getComputedStyle(document.documentElement).getPropertyValue('--acc-rgb').trim() || '124, 108, 246');
     var colors = ['rgba(' + accRgb + ',0.9)', 'rgba(' + accRgb + ',0.55)', 'rgba(' + accRgb + ',0.28)'];
     var cells = [];
 

@@ -458,7 +458,7 @@ function toggleMacroEdit(id) {
     var CHART_DATA = {{ chart_data_json|safe }};
     var UNITS = { kcal: 'kcal', proteine_g: 'g', carboidrati_g: 'g', grassi_g: 'g' };
     var LABELS = { kcal: 'Kcal', proteine_g: 'Proteine', carboidrati_g: 'Carboidrati', grassi_g: 'Grassi' };
-    var COLORS = { kcal: getComputedStyle(document.documentElement).getPropertyValue('--acc-2').trim(), proteine_g: '#6a9fd8', carboidrati_g: '#4ade80', grassi_g: '#f0a875' };
+    var COLORS = { kcal: (getComputedStyle(document.documentElement).getPropertyValue('--acc-2').trim() || '#8b7bf7'), proteine_g: '#6a9fd8', carboidrati_g: '#4ade80', grassi_g: '#f0a875' };
     var placeholder = document.getElementById('metric-placeholder');
     var chartWrap = document.getElementById('metric-chart-wrap');
     var canvas = document.getElementById('metric-canvas');

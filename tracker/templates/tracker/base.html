@@ -8,7 +8,11 @@
     <title>{% block title %}Workout Tracker{% endblock %}</title>
     <link rel="icon" type="image/svg+xml" href="{% static 'tracker/favicon.svg' %}">
     <!-- Rimuoviamo Bootstrap per usare solo il design Tracer -->
-    <link rel="stylesheet" href="{% static 'tracker/style.css' %}">
+    <!-- ?v=app_version rompe la cache del browser ad ogni deploy (app_version
+         cresce da solo ad ogni commit, vedi tracker/version.py): senza questo,
+         dopo un pull che cambia lo stylesheet il browser puo' continuare a
+         servire la versione vecchia mentre l'HTML e' gia' aggiornato. -->
+    <link rel="stylesheet" href="{% static 'tracker/style.css' %}?v={{ app_version }}">
 
     {% block extra_head %}{% endblock %}
 </head>
