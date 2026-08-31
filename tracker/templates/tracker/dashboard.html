@@ -282,7 +282,7 @@
             {% for session in sessions %}
             <!-- Singola Card Cliccabile -->
             <div style="position: relative; border-radius: 8px; border: 1px solid #1c1c2c; background: transparent; transition: all .15s;" onmouseover="this.style.background='rgba(124,108,246,0.05)'; this.style.borderColor='rgba(124,108,246,0.25)';" onmouseout="this.style.background='transparent'; this.style.borderColor='#1c1c2c';">
-                <a href="{% url 'session_detail' session.id %}" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding: 14px 18px; color: inherit; text-decoration: none;">
+                <a href="{% url 'session_detail' session.id %}" class="session-row-link" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding: 14px 18px; color: inherit; text-decoration: none;">
                     <div style="display: flex; align-items: center; gap: 14px; flex: 1;">
                         <!-- Date box -->
                         <div style="width: 44px; height: 44px; border-radius: 8px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -290,9 +290,12 @@
                             <span style="font-size: 16px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ session.data|date:"d" }}</span>
                         </div>
                         <div>
-                            <div style="font-size: 14px; font-weight: 600; color: #e0e0f0; margin-bottom: 4px;">{{ session.data|date:"l d F" }}{% if session.luogo %} <span style="font-size: 11px; font-weight: 600; color: #9ba0b3;">&middot; 📍 {{ session.luogo }}</span>{% endif %}</div>
+                            <div style="font-size: 14px; font-weight: 600; color: #e0e0f0; margin-bottom: 4px;">{{ session.data|date:"l d F" }}</div>
                             <div style="display: flex; gap: 4px; flex-wrap: wrap; align-items: center;">
                                 <span style="font-size: 10px; font-weight: 700; color: #f0f0f3; margin-right: 4px;">{{ session.real_sets_count }} serie &middot;</span>
+                                {% if session.luogo %}
+                                <span class="badge-tag badge-tag-default">📍 {{ session.luogo }}</span>
+                                {% endif %}
                                 <span class="session-pills" style="display: contents;">
                                     {% regroup session.sets.all by exercise as exercise_list %}
                                     {% for group in exercise_list|slice:":3" %}
@@ -547,6 +550,12 @@
     @media (max-width: 1100px) {
         .session-pills { display: none !important; }
     }
+
+    /* I pulsanti azione (PDF/duplica/elimina) sono posizionati assoluti sopra
+       la card: riserviamo sempre spazio a destra nel link cliccabile così
+       titolo e badge luogo vanno a capo prima di finirci sotto, invece di
+       scorrere dietro le icone. */
+    .session-row-link { padding-right: 130px !important; }
 </style>
 
 <script>
