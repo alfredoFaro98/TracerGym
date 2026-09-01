@@ -95,10 +95,13 @@
     <div class="main-grid">
         
         <!-- Form Area -->
-        <div class="tracer-card" style="position: sticky; top: 0; z-index: 10; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
-            <span style="font-size: 11.5px; font-weight: 700; letter-spacing: 0.12em; color: #838a9e;">AGGIUNGI SERIE</span>
+        <div id="add-set-card" class="tracer-card" style="position: sticky; top: 0; z-index: 10; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+            <button type="button" id="add-set-toggle" onclick="toggleAddSet()" aria-expanded="true" aria-controls="add-set-body">
+                <span>AGGIUNGI SERIE</span>
+                <svg id="add-set-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
 
-            <form action="{% url 'session_detail' session.id %}" method="post" style="display: flex; flex-direction: column; gap: 16px;">
+            <form id="add-set-body" action="{% url 'session_detail' session.id %}" method="post" style="display: flex; flex-direction: column; gap: 16px;">
                 {% csrf_token %}
 
                 <!-- Esercizio -->
@@ -135,21 +138,18 @@
                         <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">N. SERIE</span>
                         <input type="number" name="num_sets" class="tracer-input" placeholder="1" min="1" max="20" value="1" required style="background: rgba(var(--acc-rgb),0.1); border: 1px solid var(--acc);">
                     </div>
-                </div>
-
-                <!-- Rest + Per lato -->
-                <div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px;">
-                    <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
-                        <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RECUPERO (S)</span>
+                    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">RECUPERO (S)</span>
                         <input type="number" name="rest_time" class="tracer-input" placeholder="90" min="0">
                     </div>
-                    <label style="display: flex; align-items: center; gap: 6px; padding-bottom: 9px; cursor: pointer;">
+                </div>
+
+
+                <div style="display: flex; flex-wrap: wrap; gap: 18px;">
+                    <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;">
                         <input type="checkbox" name="per_lato" style="width: 15px; height: 15px; accent-color: var(--acc); cursor: pointer;">
                         <span style="font-size: 12.5px; color: #c7cbd6;">Per lato</span>
                     </label>
-                </div>
-
-                <div style="display: flex; flex-wrap: wrap; gap: 18px;">
                     <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;">
                         <input type="checkbox" name="avviamento" style="width: 15px; height: 15px; accent-color: var(--acc); flex-shrink: 0; cursor: pointer;">
                         <span style="font-size: 12.5px; color: #c7cbd6; white-space: nowrap;">Avviamento</span>
@@ -561,6 +561,31 @@
 @media (min-width: 1200px) {
     .session-meta-form { flex-wrap: nowrap !important; }
 }
+
+/* Pannello "Aggiungi serie": l'intestazione lo apre e chiude. Su desktop sta
+   nella colonna di fianco e parte aperto; su mobile finisce sopra la lista,
+   quindi parte chiuso per non spingerla fuori schermo. */
+#add-set-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #838a9e;
+    text-align: left;
+}
+#add-set-toggle:hover { color: #c7cbd6; }
+#add-set-chevron { flex-shrink: 0; transition: transform .18s; }
+#add-set-card.is-collapsed #add-set-body { display: none; }
+#add-set-card.is-collapsed #add-set-chevron { transform: rotate(-90deg); }
 </style>
 
 <!-- Contenuto nascosto usato per il PDF. position:absolute fuori
@@ -647,6 +672,24 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
+// --- Pannello "Aggiungi serie" apribile ---
+function toggleAddSet() {
+    var card = document.getElementById('add-set-card');
+    var open = card.classList.toggle('is-collapsed') === false;
+    document.getElementById('add-set-toggle').setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+(function() {
+    // Su mobile il pannello sta sopra la lista: parte chiuso. Se pero' la
+    // sessione e' ancora vuota resta aperto, altrimenti la pagina sembrerebbe
+    // non avere nulla da fare.
+    var card = document.getElementById('add-set-card');
+    var vuota = {% if exercise_groups or circuit_items %}false{% else %}true{% endif %};
+    if (card && window.innerWidth <= 768 && !vuota) {
+        card.classList.add('is-collapsed');
+        document.getElementById('add-set-toggle').setAttribute('aria-expanded', 'false');
+    }
+})();
+
 // --- Selezione multipla serie / bulk delete ---
 function updateBulkBar() {
     var checked = document.querySelectorAll('.set-select-cb:checked');
