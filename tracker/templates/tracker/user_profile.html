@@ -1,9 +1,11 @@
 {% extends 'tracker/base.html' %}
+{% load static %}
 
 {% block title %}{{ target_user.username }} - Workout Tracker{% endblock %}
 
 {% block extra_head %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+<script src="{% static 'tracker/year-heatmap.js' %}?v={{ app_version }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cal-heatmap/3.6.2/cal-heatmap.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cal-heatmap/3.6.2/cal-heatmap.css">
 {% if is_own %}<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>{% endif %}
@@ -112,7 +114,7 @@
         </div>
         <!-- Desktop Heatmap -->
         <div class="desktop-only heatmap-scroll-wrap">
-            <div id="year-heatmap" style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 8px; width: 100%; min-width: 920px;"></div>
+            <div id="year-heatmap" style="display: flex; flex-direction: column; gap: 6px; width: 100%; min-width: 920px;"></div>
         </div>
 
         <!-- Mobile: Mini Heatmap -->
@@ -164,7 +166,6 @@
 {% if not private %}
 <style>
     /* Tema violetto (allineato al redesign dashboard) */
-    [data-hmcell]:hover [data-hmtip] { opacity: 1 !important; }
 
     .ch-domain-text { fill: #a0a6af; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; }
     .ch-subdomain-bg { fill: var(--card-solid); }
@@ -225,8 +226,6 @@
     });
 
     var YEAR = {{ selected_year }};
-    var MONTH_NAMES_IT = ['GEN','FEB','MAR','APR','MAG','GIU','LUG','AGO','SET','OTT','NOV','DIC'];
-    var MONTH_NAMES_IT_SHORT = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
 
     function heatmapLevelColor(count) {
         var accRgb = (getComputedStyle(document.documentElement).getPropertyValue('--acc-rgb').trim() || '124, 108, 246');
@@ -238,53 +237,16 @@
         return 'rgba(' + accRgb + ',1)';
     }
 
-    function buildYearHeatmap() {
-        var container = document.getElementById('year-heatmap');
-        if (!container) return;
-        container.innerHTML = '';
-        for (var m = 0; m < 12; m++) {
-            var daysInMonth = new Date(YEAR, m + 1, 0).getDate();
-            var firstWeekday = (new Date(YEAR, m, 1).getDay() + 6) % 7;
-            var cols = Math.ceil((firstWeekday + daysInMonth) / 7);
-
-            var monthCol = document.createElement('div');
-            monthCol.style.cssText = 'display:flex;flex-direction:column;gap:8px;align-items:center;min-width:0;';
-
-            var label = document.createElement('div');
-            label.style.cssText = 'font-size:10px;font-weight:600;color:#a7abc0;';
-            label.textContent = MONTH_NAMES_IT[m];
-            monthCol.appendChild(label);
-
-            var grid = document.createElement('div');
-            grid.style.cssText = 'display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-template-rows:repeat(' + cols + ',auto);gap:2px;width:100%;';
-
-            for (var i = 0; i < cols * 7; i++) {
-                var dayNum = i - firstWeekday + 1;
-                var valid = dayNum >= 1 && dayNum <= daysInMonth;
-                var cell = document.createElement('div');
-                cell.style.cssText = 'position:relative;width:100%;aspect-ratio:1;border-radius:2px;';
-
-                if (valid) {
-                    var dateStr = YEAR + '-' + String(m + 1).padStart(2, '0') + '-' + String(dayNum).padStart(2, '0');
-                    var count = dataByDate[dateStr] || 0;
-                    cell.style.background = heatmapLevelColor(count);
-                    cell.setAttribute('data-hmcell', '1');
-
-                    var tip = document.createElement('div');
-                    tip.setAttribute('data-hmtip', '1');
-                    tip.style.cssText = 'position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:var(--panel);color:#fff;font-size:11px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;z-index:20;box-shadow:0 6px 16px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);transition:opacity .1s;';
-                    tip.textContent = dayNum + ' ' + MONTH_NAMES_IT_SHORT[m] + ' ' + YEAR + ' — ' + (count === 0 ? 'nessun allenamento' : count + (count === 1 ? ' allenamento' : ' allenamenti'));
-                    cell.appendChild(tip);
-                } else {
-                    cell.style.background = 'transparent';
-                }
-                grid.appendChild(cell);
-            }
-            monthCol.appendChild(grid);
-            container.appendChild(monthCol);
-        }
-    }
-    buildYearHeatmap();
+    TracerHeatmap.build({
+        container: 'year-heatmap',
+        year: YEAR,
+        colorFor: function(dateStr) { return heatmapLevelColor(dataByDate[dateStr] || 0); },
+        labelFor: function(dateStr, giorno, mese) {
+            var count = dataByDate[dateStr] || 0;
+            return giorno + ' ' + mese + ' ' + YEAR + ' — ' + (count === 0 ? 'nessuna serie' : count + ' serie');
+        },
+        legend: [0, 0.25, 0.5, 0.75, 1].map(function(r) { return heatmapLevelColor(r * maxCount); })
+    });
 
     var mobileMonthNames = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
     var mobileCalStart = new Date();
