@@ -318,6 +318,13 @@ a { text-decoration: none; }
     display: none !important; /* Nascondiamo logo e user info sulla bottom bar mobile per risparmiare spazio */
   }
 
+  /* Le etichette di sezione ("Admin") dividono i gruppi in una colonna: in
+     una barra orizzontale finiscono in mezzo alle voci, disallineate e
+     scambiabili per un pulsante che non e'. */
+  .sidebar .menu-section-label {
+    display: none !important;
+  }
+
   .sidebar .menu-container {
     flex-direction: row !important;
     justify-content: flex-start;
