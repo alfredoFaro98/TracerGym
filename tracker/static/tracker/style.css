@@ -276,6 +276,14 @@ a { text-decoration: none; }
   align-items: start;
 }
 
+/* Senza questo un elemento della griglia non scende sotto la larghezza del
+   proprio contenuto (min-width: auto e' il default): basta un nome lungo o
+   una riga che non va a capo e la colonna si allarga, portando in scroll
+   orizzontale l'intera pagina invece di adattarsi. */
+.main-grid > * {
+  min-width: 0;
+}
+
 /* Mobile Media Queries */
 @media (max-width: 768px) {
   .desktop-only {

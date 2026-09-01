@@ -243,11 +243,11 @@
                 {% for group in exercise_groups %}
                 <div class="exercise-group" data-exercise-id="{{ group.exercise.id }}" style="border-bottom: 1px solid var(--border);">
                     <!-- Riga esercizio (cliccabile) -->
-                    <div onclick="toggleGroup('{{ forloop.counter }}')" data-n="{{ forloop.counter }}" style="padding: 15px 4px 15px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; cursor: pointer; user-select: none; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+                    <div onclick="toggleGroup('{{ forloop.counter }}')" data-n="{{ forloop.counter }}" style="padding: 15px 4px 15px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-width: 0; cursor: pointer; user-select: none; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
                         <span class="drag-handle" title="Trascina per ordinare" style="cursor: grab; color: #565b6e; font-size: 15px; line-height: 1; flex-shrink: 0; padding: 0 2px; user-select: none;">⠿</span>
                         <input type="checkbox" class="group-select-cb" data-group-n="{{ group.exercise.id }}" onclick="event.stopPropagation()" onchange="toggleGroupSelect(this)" title="Seleziona tutte le serie di questo esercizio" style="width: 16px; height: 16px; accent-color: #f87171; cursor: pointer; flex-shrink: 0;">
-                        <div style="flex: 1; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; min-width: 220px;">
-                            <span style="font-size: 15.5px; font-weight: 700; color: #ffffff; white-space: nowrap;">{{ group.exercise.nome }}</span>
+                        <div style="flex: 1; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; min-width: 0;">
+                            <span style="font-size: 15.5px; font-weight: 700; color: #ffffff; overflow-wrap: anywhere;">{{ group.exercise.nome }}</span>
                             {% for tag in group.exercise.tags.all %}
                                 <span class="badge-tag badge-tag-default">{{ tag.nome }}</span>
                             {% endfor %}
