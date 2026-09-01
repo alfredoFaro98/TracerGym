@@ -449,7 +449,8 @@
 #ex-dropdown {
     position: fixed;
     z-index: 9999;
-    background: var(--sunken);
+    /* Galleggia sopra il form: serve un fondo opaco, non un overlay. */
+    background: var(--panel);
     border: 1px solid var(--border);
     border-radius: 0 0 8px 8px;
     overflow: hidden;
@@ -817,7 +818,7 @@ function toggleImportCircuitForm() {
 
     var dropdown = document.createElement('div');
     dropdown.id = 'circuit-dropdown';
-    dropdown.style.cssText = 'display:none; position:fixed; z-index:9999; background:var(--sunken); border:1px solid var(--border); border-radius:0 0 8px 8px; overflow:hidden; max-height:260px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,.5);';
+    dropdown.style.cssText = 'display:none; position:fixed; z-index:9999; background:var(--panel); border:1px solid var(--border); border-radius:0 0 8px 8px; overflow:hidden; max-height:260px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,.5);';
     document.body.appendChild(dropdown);
 
     var fetchTimer = null;
