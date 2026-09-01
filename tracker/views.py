@@ -2240,6 +2240,31 @@ def edit_macro_entry(request, entry_id):
 
 
 @login_required
+def duplicate_macro_entry(request, entry_id):
+    entry = get_object_or_404(MacroEntry, id=entry_id, utente=request.user)
+    if request.method == 'POST':
+        target_data = timezone.localdate()
+        data_str = request.POST.get('data')
+        if data_str:
+            try:
+                target_data = date.fromisoformat(data_str)
+            except ValueError:
+                pass
+        MacroEntry.objects.create(
+            utente=request.user,
+            kcal=entry.kcal,
+            proteine_g=entry.proteine_g,
+            carboidrati_g=entry.carboidrati_g,
+            grassi_g=entry.grassi_g,
+            nota=entry.nota,
+            e_spazzatura=entry.e_spazzatura,
+            data=target_data,
+            creato_il=_combine_water_datetime(target_data, None),
+        )
+    return redirect(request.POST.get('next') or 'macro')
+
+
+@login_required
 def set_macro_goal(request):
     if request.method == 'POST':
         profile, _ = UserProfile.objects.get_or_create(user=request.user)
