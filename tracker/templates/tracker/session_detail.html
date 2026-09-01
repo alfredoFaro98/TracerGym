@@ -101,7 +101,7 @@
                 <svg id="add-set-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </button>
 
-            <form id="add-set-body" action="{% url 'session_detail' session.id %}" method="post" style="display: flex; flex-direction: column; gap: 16px;">
+            <form id="add-set-body" action="{% url 'session_detail' session.id %}" method="post">
                 {% csrf_token %}
 
                 <!-- Esercizio -->
@@ -584,6 +584,9 @@
 }
 #add-set-toggle:hover { color: #c7cbd6; }
 #add-set-chevron { flex-shrink: 0; transition: transform .18s; }
+/* display sta qui e non inline: uno style inline vincerebbe su questa
+   regola e il pannello non si chiuderebbe mai. */
+#add-set-body { display: flex; flex-direction: column; gap: 16px; }
 #add-set-card.is-collapsed #add-set-body { display: none; }
 #add-set-card.is-collapsed #add-set-chevron { transform: rotate(-90deg); }
 </style>
