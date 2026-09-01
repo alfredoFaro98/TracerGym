@@ -12,6 +12,15 @@
                     {% if session.nome %}{{ session.nome }} <span style="font-weight: 500; color: #9ba0b3;">&middot; {{ session.data|date:"l d F Y"|capfirst }}</span>{% else %}{{ session.data|date:"l d F Y"|capfirst }}{% endif %}
                 </h1>
                 <button onclick="toggleDateEdit()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #c7cbd6; font-size: 12.5px; font-weight: 600; padding: 7px 14px; border-radius: 8px; cursor: pointer; white-space: nowrap; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">Modifica dettagli</button>
+                <!-- Badge riepilogo accanto al titolo: stanno sulla stessa riga
+                     di "Modifica dettagli" cosi' su schermi stretti l'header
+                     resta su due righe di pulsanti invece di tre. -->
+                <div class="header-badge" style="background: var(--acc); color: #fff; font-size: 13.5px; font-weight: 700; padding: 7px 14px; border-radius: 9px; white-space: nowrap;">
+                    {{ session.sets.count }} serie
+                </div>
+                <div class="header-badge" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 13.5px; font-weight: 600; padding: 7px 14px; border-radius: 9px; white-space: nowrap;">
+                    ⏱ {{ total_rest_label }}<span class="header-badge-long"> recupero</span>
+                </div>
             </div>
 
             {% if session.orario or session.orario_fine or session.luogo or session.durata_minuti or session.peso_kg or session.altezza_cm or session.compagni_allenamento %}
@@ -82,12 +91,6 @@
                 <button type="submit" style="background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.25); color: #f87171; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Svuota Sessione</button>
             </form>
             {% endif %}
-            <div style="background: var(--acc); color: #fff; font-size: 13.5px; font-weight: 700; padding: 9px 18px; border-radius: 9px; white-space: nowrap;">
-                {{ session.sets.count }} serie
-            </div>
-            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 13.5px; font-weight: 600; padding: 9px 18px; border-radius: 9px; white-space: nowrap;">
-                ⏱ {{ total_rest_label }} recupero
-            </div>
         </div>
     </div>
 
@@ -566,6 +569,14 @@
     .session-meta-form { flex-wrap: nowrap !important; }
 }
 
+/* Su schermi stretti i badge di riepilogo si compattano (e "recupero"
+   sparisce, resta il solo tempo) cosi' stanno sulla stessa riga di
+   "Modifica dettagli": l'header resta su due righe di pulsanti, non tre. */
+@media (max-width: 560px) {
+    .header-badge { font-size: 12px !important; padding: 6px 10px !important; }
+    .header-badge-long { display: none; }
+}
+
 /* Pannello "Aggiungi serie": l'intestazione lo apre e chiude. Su desktop sta
    nella colonna di fianco e parte aperto; su mobile finisce sopra la lista,
    quindi parte chiuso per non spingerla fuori schermo. */
@@ -893,6 +904,17 @@ function toggleImportCircuitForm() {
 
     function hide() { dropdown.style.display = 'none'; }
 
+    // La tendina e' position:fixed (per non essere tagliata dai contenitori),
+    // quindi non si muove da sola quando la pagina scorre: senza questo
+    // resta appesa a mezzo schermo mentre il campo scorre via. Il capture
+    // intercetta anche lo scroll dei contenitori interni, non solo del body.
+    window.addEventListener('scroll', function() {
+        if (dropdown.style.display !== 'none') position();
+    }, true);
+    window.addEventListener('resize', function() {
+        if (dropdown.style.display !== 'none') position();
+    });
+
     function markInvalid() {
         hiddenId.value = '';
         submitBtn.disabled = true;
@@ -1145,6 +1167,19 @@ function toggleCarrucoleEdit(e, id) {
     }
 
     function hide() { dropdown.style.display = 'none'; activeIdx = -1; hidePreview(); }
+
+    // Vedi nota sulla tendina dei circuiti: essendo position:fixed va
+    // riposizionata a mano quando la pagina (o un contenitore interno)
+    // scorre, altrimenti resta ferma a mezzo schermo staccata dal campo.
+    window.addEventListener('scroll', function() {
+        if (dropdown.style.display !== 'none' && activeInput) {
+            position(activeInput);
+            hidePreview();
+        }
+    }, true);
+    window.addEventListener('resize', function() {
+        if (dropdown.style.display !== 'none' && activeInput) position(activeInput);
+    });
 
     function onKeydown(e) {
         if (dropdown.style.display === 'none') return;

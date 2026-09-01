@@ -464,19 +464,23 @@
        manuale vanno impilate a piena larghezza ciascuna, invece di lasciare
        che tutti i controlli si accavallino su una riga sola troppo stretta. */
     @media (max-width: 480px) {
-        .water-quick-group { flex: 1 1 100% !important; }
-        .water-quick-group form { flex: 1; }
-        .water-quick-group .water-quick-btn { width: 100%; }
-        .water-custom-form { flex: 1 1 100% !important; }
+        /* min-width:0 ovunque: senza, i figli flex non scendono sotto la
+           larghezza intrinseca del loro contenuto (min-width:auto di default)
+           e su schermi stretti sbordano a destra fuori dalla card invece di
+           restringersi — le righe finivano piu' larghe della barra sopra. */
+        .water-quick-group { flex: 1 1 100% !important; min-width: 0; }
+        .water-quick-group form { flex: 1; min-width: 0; }
+        .water-quick-group .water-quick-btn { width: 100%; min-width: 0; padding-left: 4px; padding-right: 4px; }
+        .water-custom-form { flex: 1 1 100% !important; min-width: 0; }
         .water-custom-form .water-time-input,
         .water-custom-form .water-ml-input,
-        .water-custom-form button { flex: 1 !important; width: auto !important; flex-shrink: 1 !important; }
+        .water-custom-form button { flex: 1 1 0 !important; width: auto !important; flex-shrink: 1 !important; min-width: 0 !important; }
 
         /* Ordine mobile: titolo, poi subito la barra di progresso, poi i
            pulsanti azione (invece di lasciare la barra in fondo dopo tutto). */
         .water-title-block { order: 1; }
         .water-progress-wrap { order: 2; }
-        .water-actions { order: 3; flex: 1 1 100%; }
+        .water-actions { order: 3; flex: 1 1 100%; min-width: 0; }
     }
 
     .week-nav-btn {
