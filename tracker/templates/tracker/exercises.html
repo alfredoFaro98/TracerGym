@@ -24,8 +24,6 @@
 
     .modal-label { display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px; }
     .modal-title { font-size: 11px; font-weight: 700; color: #838a9e; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 18px; }
-    .modal-cancel-btn { padding: 0 16px; height: 34px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #c7cbd6; font-size: 12px; font-weight: 600; cursor: pointer; transition: background .12s; }
-    .modal-cancel-btn:hover { background: rgba(255,255,255,0.09); }
 
     .filter-tab {
         padding: 8px 14px;
@@ -279,7 +277,7 @@
             </div>
             <div id="edit-immagine-limit-msg" style="display:none; font-size: 10.5px; color: #565b6e;">Questo esercizio ha già un'immagine. Per sostituirla, eliminala prima dalla scheda dell'esercizio (clicca sul nome nell'elenco).</div>
             <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
-                <button type="button" onclick="closeEdit()" class="modal-cancel-btn">Annulla</button>
+                <button type="button" onclick="closeEdit()" class="btn-cancel" style="height: 34px;">Annulla</button>
                 <button type="submit" class="btn-primary-gradient" style="padding: 0 20px; height: 34px; font-size: 12px; font-weight: 600;">Salva</button>
             </div>
         </form>

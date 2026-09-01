@@ -138,7 +138,7 @@
                     </div>
                     <form action="{% url 'logout' %}" method="post" style="display:inline;">
                         {% csrf_token %}
-                        <button type="submit" title="Logout" style="background: transparent; border: none; color: #f0f0f3; cursor: pointer; transition: color .15s; font-size: 12px; font-weight: 500;" onmouseover="this.style.color='var(--acc-3)'" onmouseout="this.style.color='#f0f0f3'">
+                        <button type="submit" title="Logout" class="btn-logout">
                             Logout
                         </button>
                     </form>

@@ -120,6 +120,56 @@ input[type=number] { -moz-appearance: textfield; }
   opacity: 0.9;
 }
 
+/* Pulsanti "Annulla": prima erano stili inline sparsi (spesso testo grigio
+   senza bordo) che si mimetizzavano con lo sfondo. Classe unica con bordo e
+   testo leggibili; le varianti -lg/-sm coprono le taglie gia' in uso. */
+.btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #dfe3ee;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .12s, border-color .12s, color .12s;
+}
+.btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.32);
+  color: #ffffff;
+}
+.btn-cancel-lg { padding: 10px 17px; font-size: 13px; border-radius: 9px; }
+.btn-cancel-sm { padding: 6px 12px; font-size: 12px; border-radius: 7px; }
+
+/* Logout: e' un'uscita, quindi si distingue con il rosso tenue gia' usato
+   per le azioni distruttive, invece del testo grigio di prima. */
+.btn-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ff9a9a;
+  background: rgba(248, 113, 113, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .12s, border-color .12s, color .12s;
+}
+.btn-logout:hover {
+  background: rgba(248, 113, 113, 0.22);
+  border-color: rgba(248, 113, 113, 0.55);
+  color: #ffbcbc;
+}
+
 .tracer-input {
   width: 100%; 
   padding: 9px 12px;

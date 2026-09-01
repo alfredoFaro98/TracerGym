@@ -41,7 +41,7 @@
                     <input type="number" name="quantita_ml" placeholder="es. 250" min="1" class="tracer-input" style="width: 110px;">
                 </div>
                 <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13px;">Aggiungi</button>
-                <button type="button" onclick="toggleNewEntryForm()" style="padding: 10px 16px; font-size: 13px; background: transparent; border: 1px solid #1c1c2c; border-radius: 8px; color: #787890; cursor: pointer;">Annulla</button>
+                <button type="button" onclick="toggleNewEntryForm()" class="btn-cancel btn-cancel-lg">Annulla</button>
             </form>
         </div>
     </div>
@@ -110,7 +110,7 @@
                     <input type="number" name="obiettivo_ml" value="{{ day.goal_ml }}" min="100" step="50" class="tracer-input" style="width: 100px; padding: 7px 9px; font-size: 12px;">
                     <span style="font-size: 11px; color: #7d8296;">ml</span>
                     <button type="submit" class="btn-primary-gradient" style="padding: 7px 14px; font-size: 12px;">Salva</button>
-                    <button type="button" onclick="toggleDayGoalForm('{{ day_key }}')" style="padding: 7px 12px; font-size: 12px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #787890; cursor: pointer;">Annulla</button>
+                    <button type="button" onclick="toggleDayGoalForm('{{ day_key }}')" class="btn-cancel btn-cancel-sm">Annulla</button>
                 </form>
             </div>
 
@@ -145,7 +145,7 @@
                                 <input type="time" name="ora" value="{{ e.creato_il|date:'H:i' }}" class="tracer-input" style="width: 100px;">
                             </div>
                             <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
-                            <button type="button" onclick="toggleWaterEdit('{{ e.id }}')" style="color: #838a9e; font-size: 12.5px; font-weight: 600; padding: 8px 10px; background: transparent; border: none; cursor: pointer;" onmouseover="this.style.color='#c7cbd6'" onmouseout="this.style.color='#838a9e'">Annulla</button>
+                            <button type="button" onclick="toggleWaterEdit('{{ e.id }}')" class="btn-cancel btn-cancel-sm">Annulla</button>
                         </form>
                     </div>
                 </div>
@@ -161,7 +161,7 @@
                             <input type="number" name="quantita_ml" placeholder="ml" min="1" class="tracer-input" style="width: 90px; padding: 8px 10px; font-size: 12.5px;">
                             <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input" style="width: 100px; padding: 8px 10px; font-size: 12.5px;">
                             <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Aggiungi</button>
-                            <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" style="padding: 8px 12px; font-size: 12.5px; background: transparent; border: 1px solid #1c1c2c; border-radius: 6px; color: #787890; cursor: pointer;">Annulla</button>
+                            <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" class="btn-cancel">Annulla</button>
                         </form>
                     </div>
                 </div>
