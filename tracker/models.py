@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -341,6 +343,14 @@ class SleepEntry(models.Model):
         if minuti <= 0:
             minuti += 24 * 60
         return minuti
+
+    def data_sveglia(self):
+        """Giorno in cui ci si e' svegliati: derivato, non un campo a parte.
+        E' il giorno dopo quando la sveglia cade oltre la mezzanotte (stessa
+        regola usata da _durata_minuti)."""
+        sv, bl = self.ora_sveglia, self.ora_letto
+        oltre_mezzanotte = (sv.hour * 60 + sv.minute) <= (bl.hour * 60 + bl.minute)
+        return self.data + timedelta(days=1) if oltre_mezzanotte else self.data
 
     def durata_ore(self):
         return round(self._durata_minuti() / 60, 2)

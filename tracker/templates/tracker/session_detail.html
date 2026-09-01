@@ -25,43 +25,43 @@
             </div>
             {% endif %}
 
-            <form id="date-form" action="{% url 'edit_session_date' session.id %}" method="post" style="display:none; flex-wrap: wrap; align-items: flex-end; gap: 10px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 14px 16px; margin-top: 2px;">
+            <form id="date-form" class="session-meta-form" action="{% url 'edit_session_date' session.id %}" method="post" style="display:none; flex-wrap: wrap; align-items: flex-end; gap: 10px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 14px 16px; margin-top: 2px;">
                 {% csrf_token %}
-                <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div style="display: flex; flex-direction: column; gap: 5px; flex: 1 1 130px; min-width: 0;">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">NOME</span>
-                    <input type="text" name="nome" value="{{ session.nome }}" maxlength="50" placeholder="Es. Push Day" class="tracer-input" style="width: 160px;">
+                    <input type="text" name="nome" value="{{ session.nome }}" maxlength="50" placeholder="Es. Push Day" class="tracer-input" style="width: 100%;">
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div style="display: flex; flex-direction: column; gap: 5px; flex: 0 0 150px; min-width: 0;">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
-                    <input type="date" name="data" value="{{ session.data|date:'Y-m-d' }}" class="tracer-input" style="width: 150px;">
+                    <input type="date" name="data" value="{{ session.data|date:'Y-m-d' }}" class="tracer-input" style="width: 100%;">
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div style="display: flex; flex-direction: column; gap: 5px; flex: 0 0 100px; min-width: 0;">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
-                    <input type="time" name="orario" value="{% if session.orario %}{{ session.orario|time:'H:i' }}{% endif %}" class="tracer-input" style="width: 100px;">
+                    <input type="time" name="orario" value="{% if session.orario %}{{ session.orario|time:'H:i' }}{% endif %}" class="tracer-input" style="width: 100%;">
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div style="display: flex; flex-direction: column; gap: 5px; flex: 0 0 100px; min-width: 0;">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO FINE</span>
-                    <input type="time" name="orario_fine" value="{% if session.orario_fine %}{{ session.orario_fine|time:'H:i' }}{% endif %}" class="tracer-input" style="width: 100px;">
+                    <input type="time" name="orario_fine" value="{% if session.orario_fine %}{{ session.orario_fine|time:'H:i' }}{% endif %}" class="tracer-input" style="width: 100%;">
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div style="display: flex; flex-direction: column; gap: 5px; flex: 1 1 110px; min-width: 0;">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">LUOGO</span>
-                    <input type="text" name="luogo" value="{{ session.luogo }}" placeholder="Es. Palestra" class="tracer-input" style="width: 150px;">
+                    <input type="text" name="luogo" value="{{ session.luogo }}" placeholder="Es. Palestra" class="tracer-input" style="width: 100%;">
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div style="display: flex; flex-direction: column; gap: 5px; flex: 1 1 80px; min-width: 0;">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DURATA (MIN)</span>
-                    <input type="number" name="durata_minuti" value="{{ session.durata_minuti|default:'' }}" min="0" placeholder="Opz." class="tracer-input" style="width: 90px;">
+                    <input type="number" name="durata_minuti" value="{{ session.durata_minuti|default:'' }}" min="0" placeholder="Opz." class="tracer-input" style="width: 100%;">
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div style="display: flex; flex-direction: column; gap: 5px; flex: 1 1 90px; min-width: 0;">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">PESO ATLETA (KG)</span>
-                    <input type="number" step="0.1" name="peso_kg" value="{{ session.peso_kg|default_if_none:''|stringformat:'s' }}" min="0" placeholder="Opz." class="tracer-input" style="width: 100px;">
+                    <input type="number" step="0.1" name="peso_kg" value="{{ session.peso_kg|default_if_none:''|stringformat:'s' }}" min="0" placeholder="Opz." class="tracer-input" style="width: 100%;">
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div style="display: flex; flex-direction: column; gap: 5px; flex: 1 1 90px; min-width: 0;">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ALTEZZA ATLETA (CM)</span>
-                    <input type="number" step="0.1" name="altezza_cm" value="{{ session.altezza_cm|default_if_none:''|stringformat:'s' }}" min="0" placeholder="Opz." class="tracer-input" style="width: 100px;">
+                    <input type="number" step="0.1" name="altezza_cm" value="{{ session.altezza_cm|default_if_none:''|stringformat:'s' }}" min="0" placeholder="Opz." class="tracer-input" style="width: 100%;">
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div style="display: flex; flex-direction: column; gap: 5px; flex: 2 1 150px; min-width: 0;">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">COMPAGNI DI ALLENAMENTO</span>
-                    <input type="text" name="compagni_allenamento" value="{{ session.compagni_allenamento }}" placeholder="Es. Mario, Luca" class="tracer-input" style="width: 220px;">
+                    <input type="text" name="compagni_allenamento" value="{{ session.compagni_allenamento }}" placeholder="Es. Mario, Luca" class="tracer-input" style="width: 100%;">
                 </div>
                 <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
                 <button type="button" onclick="toggleDateEdit()" class="btn-cancel" style="padding: 8px 16px; font-size: 12.5px;">Annulla</button>
@@ -548,6 +548,13 @@
 #new-ex-modal-box { background: #111117; border: 1px solid rgba(var(--acc-rgb),0.18); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 16px; padding: 24px; width: 100%; max-width: 460px; margin: 16px; }
 .modal-label { display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px; }
 .modal-title { font-size: 11px; font-weight: 700; color: #838a9e; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 18px; }
+
+/* Dati sessione: sotto questa soglia i campi vanno a capo come prima; sopra
+   restano tutti su un'unica riga, Salva e Annulla compresi, restringendosi
+   invece di mandare a capo gli ultimi pulsanti. */
+@media (min-width: 1200px) {
+    .session-meta-form { flex-wrap: nowrap !important; }
+}
 </style>
 
 <!-- Contenuto nascosto usato per il PDF. position:absolute fuori
