@@ -2255,7 +2255,7 @@ def duplicate_macro_entry(request, entry_id):
         except ValueError:
             return JsonResponse({'error': 'Data non valida.'}, status=400)
 
-    MacroEntry.objects.create(
+    new_entry = MacroEntry.objects.create(
         utente=request.user,
         kcal=entry.kcal,
         proteine_g=entry.proteine_g,
@@ -2266,7 +2266,35 @@ def duplicate_macro_entry(request, entry_id):
         data=target_data,
         creato_il=_combine_water_datetime(target_data, None),
     )
-    return JsonResponse({'ok': True, 'data': target_data.isoformat()})
+
+    day_key = target_data.isoformat()
+    day_entries = MacroEntry.objects.filter(utente=request.user, data=target_data)
+    totals = _macro_day_totals(day_entries)
+    return JsonResponse({
+        'ok': True,
+        'data': day_key,
+        'html': render_to_string(
+            'tracker/partials/macro_entry_row.html',
+            {'e': new_entry, 'day_key': day_key},
+            request=request,
+        ),
+        'ora': timezone.localtime(new_entry.creato_il).strftime('%H:%M'),
+        'count': len(day_entries),
+        'totals': {
+            'kcal': totals['kcal'],
+            'proteine_g': float(totals['proteine_g']),
+            'carboidrati_g': float(totals['carboidrati_g']),
+            'grassi_g': float(totals['grassi_g']),
+        },
+    })
+
+
+@login_required
+def bulk_delete_macro_entries(request):
+    if request.method == 'POST':
+        entry_ids = request.POST.getlist('entry_ids')
+        MacroEntry.objects.filter(utente=request.user, id__in=entry_ids).delete()
+    return redirect(request.POST.get('next') or 'macro')
 
 
 @login_required

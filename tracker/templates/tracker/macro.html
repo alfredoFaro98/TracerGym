@@ -203,6 +203,19 @@
         </div>
     </div>
 
+    <!-- Barra azioni bulk (visibile quando ci sono voci selezionate) -->
+    <div id="macro-bulk-bar" style="display: none; position: fixed; top: 16px; left: 50%; transform: translateX(-50%); width: min(480px, calc(100vw - 32px)); z-index: 200; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 16px; background: #1a1015; box-shadow: 0 10px 30px rgba(0,0,0,.5); border: 1px solid rgba(248,113,113,0.3); border-radius: 12px; flex-wrap: wrap;">
+        <span id="macro-bulk-count" style="font-size: 12.5px; font-weight: 600; color: #f87171;">0 voci selezionate</span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <button type="button" onclick="deselectAllMacro()" style="padding: 6px 12px; font-size: 12px; font-weight: 600; background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; color: #c7cbd6; cursor: pointer;">Deseleziona</button>
+            <button type="button" onclick="submitMacroBulkDelete()" style="padding: 6px 14px; font-size: 12px; font-weight: 600; background: rgba(248,113,113,0.16); border: none; border-radius: 7px; color: #f87171; cursor: pointer;">Elimina selezionate</button>
+        </div>
+    </div>
+    <form id="macro-bulk-delete-form" action="{% url 'bulk_delete_macro_entries' %}" method="post" style="display:none;">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{% url 'macro' %}">
+    </form>
+
     <!-- Storico per giorno -->
     <div class="tracer-card" style="overflow: hidden;">
         {% if not days %}
@@ -217,8 +230,9 @@
             <div onclick="toggleDay('{{ day_key }}')" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; cursor: pointer; user-select: none;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <svg id="day-chevron-{{ day_key }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    <input type="checkbox" class="macro-day-select-cb" data-day-key="{{ day_key }}" onclick="event.stopPropagation()" onchange="toggleMacroDaySelect(this)" title="Seleziona tutte le voci di questo giorno" style="width: 15px; height: 15px; accent-color: #f87171; cursor: pointer; flex-shrink: 0;">
                     <span style="font-size: 13.5px; font-weight: 700; color: #f0f0f3;">{{ day.data|date:"l d F Y"|capfirst }}</span>
-                    <span style="font-size: 11.5px; color: #7d8296;">{{ day.entries|length }} voc{{ day.entries|length|pluralize:"e,i" }}</span>
+                    <span id="day-count-{{ day_key }}" style="font-size: 11.5px; color: #7d8296;">{{ day.entries|length }} voc{{ day.entries|length|pluralize:"e,i" }}</span>
                     {% if day.totals.junk_count %}
                     <span title="Voci di cibo spazzatura" style="font-size: 10.5px; font-weight: 700; color: #f0a875; background: rgba(240,168,117,0.14); padding: 3px 9px; border-radius: 6px; white-space: nowrap;">🍔 {{ day.totals.junk_count }}</span>
                     {% endif %}
@@ -229,8 +243,8 @@
                     {% endif %}
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                    <span style="background: rgba(var(--acc-rgb),0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;">{{ day.totals.kcal }} <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goals.kcal }} kcal</span></span>
-                    <span style="font-size: 11px; color: #9ba0b3; white-space: nowrap;">P {{ day.totals.proteine_g|floatformat:"-1" }}g · C {{ day.totals.carboidrati_g|floatformat:"-1" }}g · G {{ day.totals.grassi_g|floatformat:"-1" }}g</span>
+                    <span style="background: rgba(var(--acc-rgb),0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;"><span id="day-kcal-{{ day_key }}">{{ day.totals.kcal }}</span> <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goals.kcal }} kcal</span></span>
+                    <span id="day-macros-{{ day_key }}" style="font-size: 11px; color: #9ba0b3; white-space: nowrap;">P {{ day.totals.proteine_g|floatformat:"-1" }}g · C {{ day.totals.carboidrati_g|floatformat:"-1" }}g · G {{ day.totals.grassi_g|floatformat:"-1" }}g</span>
                     {% if day.reached %}
                     <span title="Obiettivo raggiunto" style="color: #4ade80; font-size: 15px; font-weight: 700;">✓</span>
                     {% else %}
@@ -274,73 +288,7 @@
 
             <div id="day-body-{{ day_key }}" style="display: none; flex-direction: column; gap: 6px; margin-top: 12px;">
                 {% for e in day.entries %}
-                <div>
-                    <div id="macro-view-{{ e.id }}" style="display: flex; align-items: center; gap: 10px; background: {% if e.e_spazzatura %}rgba(240,168,117,0.06){% else %}rgba(255,255,255,0.025){% endif %}; border: 1px solid {% if e.e_spazzatura %}rgba(240,168,117,0.25){% else %}rgba(255,255,255,0.05){% endif %}; border-radius: 9px; padding: 9px 14px; flex-wrap: wrap;">
-                        {% if e.e_spazzatura %}<span title="Cibo spazzatura" style="font-size: 12px; font-weight: 700; color: #f0a875; background: rgba(240,168,117,0.14); padding: 3px 8px; border-radius: 20px;">🍔</span>{% endif %}
-                        <span style="font-size: 13.5px; color: #ffffff;"><b>{{ e.kcal }}</b> kcal</span>
-                        {% if e.proteine_g %}<span style="font-size: 12px; color: #6a9fd8;">P {{ e.proteine_g|floatformat:"-1" }}g</span>{% endif %}
-                        {% if e.carboidrati_g %}<span style="font-size: 12px; color: #4ade80;">C {{ e.carboidrati_g|floatformat:"-1" }}g</span>{% endif %}
-                        {% if e.grassi_g %}<span style="font-size: 12px; color: #f0a875;">G {{ e.grassi_g|floatformat:"-1" }}g</span>{% endif %}
-                        <span style="font-size: 12px; color: #7d8296;">{{ e.creato_il|date:"H:i" }}</span>
-                        {% if e.nota %}<span style="font-size: 12px; color: #9ba0b3; font-style: italic;">📝 {{ e.nota }}</span>{% endif %}
-                        <div style="flex: 1;"></div>
-                        <span onclick="toggleMacroEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: var(--acc-4); padding: 6px 12px; border-radius: 7px; background: rgba(var(--acc-rgb),0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.12)'">Modifica</span>
-                        <span id="macro-dup-btn-{{ e.id }}" onclick="toggleMacroDuplicate('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: #4ade80; padding: 6px 12px; border-radius: 7px; background: rgba(74,222,128,0.1); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(74,222,128,0.2)'" onmouseout="this.style.background='rgba(74,222,128,0.1)'">Importa</span>
-                        <form action="{% url 'delete_macro_entry' e.id %}" method="post" style="display:inline;" onsubmit="return confirm('Eliminare questa voce?');">
-                            {% csrf_token %}
-                            <input type="hidden" name="next" value="{% url 'macro' %}">
-                            <button type="submit" style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
-                        </form>
-                    </div>
-                    <div id="macro-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
-                        <form action="{% url 'edit_macro_entry' e.id %}" method="post" autocomplete="off" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
-                            {% csrf_token %}
-                            <input type="hidden" name="next" value="{% url 'macro' %}">
-                            <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">KCAL</span>
-                                <input type="number" name="kcal" value="{{ e.kcal }}" class="tracer-input" style="width: 90px;" min="1">
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">PROTEINE (G)</span>
-                                <input type="number" name="proteine_g" value="{{ e.proteine_g|unlocalize }}" class="tracer-input" style="width: 80px;" min="0" step="0.1">
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">CARBOIDRATI (G)</span>
-                                <input type="number" name="carboidrati_g" value="{{ e.carboidrati_g|unlocalize }}" class="tracer-input" style="width: 80px;" min="0" step="0.1">
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">GRASSI (G)</span>
-                                <input type="number" name="grassi_g" value="{{ e.grassi_g|unlocalize }}" class="tracer-input" style="width: 80px;" min="0" step="0.1">
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
-                                <input type="date" name="data" value="{{ e.data|date:'Y-m-d' }}" class="tracer-input" style="width: 150px;">
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
-                                <input type="time" name="ora" value="{{ e.creato_il|date:'H:i' }}" class="tracer-input" style="width: 100px;">
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px;">
-                                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">NOTA</span>
-                                <input type="text" name="nota" value="{{ e.nota }}" placeholder="Es. Pranzo" maxlength="100" class="tracer-input" style="width: 100%;">
-                            </div>
-                            <label style="display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; cursor: pointer; font-size: 12px; color: #c7cbd6; white-space: nowrap;">
-                                <input type="checkbox" name="spazzatura" {% if e.e_spazzatura %}checked{% endif %} style="accent-color: #f0a875;"> 🍔 Cibo spazzatura
-                            </label>
-                            <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
-                            <button type="button" onclick="toggleMacroEdit('{{ e.id }}')" style="color: #838a9e; font-size: 12.5px; font-weight: 600; padding: 8px 10px; background: transparent; border: none; cursor: pointer;" onmouseover="this.style.color='#c7cbd6'" onmouseout="this.style.color='#838a9e'">Annulla</button>
-                        </form>
-                    </div>
-                    <div id="macro-dup-{{ e.id }}" style="display: none; align-items: center; gap: 8px; background: rgba(74,222,128,0.06); border: 1px solid rgba(74,222,128,0.25); border-radius: 9px; padding: 10px 14px; margin-top: 4px; flex-wrap: wrap;">
-                        <form data-ajax-macro-dup action="{% url 'duplicate_macro_entry' e.id %}" method="post" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            {% csrf_token %}
-                            <span style="font-size: 12px; color: #c7cbd6;">Importa questa voce nel giorno:</span>
-                            <input type="date" name="data" value="{% now 'Y-m-d' %}" class="tracer-input" style="width: 150px;">
-                            <button type="submit" style="padding: 7px 14px; font-size: 12px; font-weight: 600; color: #4ade80; background: rgba(74,222,128,0.14); border: 1px solid rgba(74,222,128,0.3); border-radius: 7px; cursor: pointer;">Importa</button>
-                        </form>
-                        <button type="button" onclick="toggleMacroDuplicate('{{ e.id }}')" style="color: #838a9e; font-size: 12.5px; font-weight: 600; padding: 7px 10px; background: transparent; border: none; cursor: pointer;" onmouseover="this.style.color='#c7cbd6'" onmouseout="this.style.color='#838a9e'">Annulla</button>
-                    </div>
-                </div>
+                {% include 'tracker/partials/macro_entry_row.html' with e=e day_key=day_key %}
                 {% endfor %}
             </div>
         </div>
@@ -469,31 +417,124 @@ function toggleMacroDuplicate(id) {
     dup.style.display = dup.style.display === 'none' ? 'flex' : 'none';
 }
 
-document.querySelectorAll('form[data-ajax-macro-dup]').forEach(function(form) {
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        var entryId = form.action.match(/\/macro\/(\d+)\/duplicate\//)[1];
-        var btn = form.querySelector('button[type="submit"]');
-        if (btn) btn.disabled = true;
-        fetch(form.action, { method: 'POST', body: new FormData(form) })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                if (btn) btn.disabled = false;
-                if (!data.ok) { alert(data.error || 'Errore, riprova.'); return; }
-                toggleMacroDuplicate(entryId);
-                var label = document.getElementById('macro-dup-btn-' + entryId);
-                if (label) {
-                    var original = label.textContent;
-                    label.textContent = 'Importato ✓';
-                    setTimeout(function() { label.textContent = original; }, 1800);
-                }
-            })
-            .catch(function() {
-                if (btn) btn.disabled = false;
-                alert('Errore di rete, riprova.');
-            });
+// Inserisce la riga importata nel giorno di destinazione, se quel giorno e'
+// gia' presente in pagina, rispettando l'ordine per orario crescente.
+function insertMacroRow(dayKey, html, ora) {
+    var body = document.getElementById('day-body-' + dayKey);
+    if (!body) return false;
+    var tmp = document.createElement('div');
+    tmp.innerHTML = html.trim();
+    var row = tmp.firstElementChild;
+    if (!row) return false;
+    var next = null;
+    body.querySelectorAll('[data-macro-entry]').forEach(function(el) {
+        if (!next && (el.dataset.ora || '') > ora) next = el;
     });
+    body.insertBefore(row, next);
+    // Se il giorno di destinazione era chiuso lo apriamo, altrimenti la voce
+    // appena importata resterebbe invisibile.
+    if (body.style.display !== 'flex') toggleDay(dayKey);
+    row.scrollIntoView({ block: 'nearest' });
+    return true;
+}
+
+function refreshMacroDayHeader(dayKey, count, totals) {
+    var countEl = document.getElementById('day-count-' + dayKey);
+    if (countEl) countEl.textContent = count + ' voc' + (count === 1 ? 'e' : 'i');
+    var kcalEl = document.getElementById('day-kcal-' + dayKey);
+    if (kcalEl) kcalEl.textContent = totals.kcal;
+    var macrosEl = document.getElementById('day-macros-' + dayKey);
+    if (macrosEl) {
+        var fmt = function(v) { return (Math.round(v * 10) / 10).toString().replace('.', ','); };
+        macrosEl.textContent = 'P ' + fmt(totals.proteine_g) + 'g · C ' + fmt(totals.carboidrati_g) + 'g · G ' + fmt(totals.grassi_g) + 'g';
+    }
+}
+
+// Delega sul document: cosi' funziona anche sulle righe inserite via AJAX,
+// che non esistevano quando la pagina e' stata caricata.
+document.addEventListener('submit', function(ev) {
+    var form = ev.target.closest('form[data-ajax-macro-dup]');
+    if (!form) return;
+    ev.preventDefault();
+    var entryId = form.action.match(/\/macro\/(\d+)\/duplicate\//)[1];
+    var btn = form.querySelector('button[type="submit"]');
+    if (btn) btn.disabled = true;
+    fetch(form.action, { method: 'POST', body: new FormData(form) })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (btn) btn.disabled = false;
+            if (!data.ok) { alert(data.error || 'Errore, riprova.'); return; }
+            toggleMacroDuplicate(entryId);
+            var inserted = insertMacroRow(data.data, data.html, data.ora);
+            if (inserted) {
+                refreshMacroDayHeader(data.data, data.count, data.totals);
+                updateMacroDayCbState(data.data);
+            }
+            var label = document.getElementById('macro-dup-btn-' + entryId);
+            if (label) {
+                var original = label.textContent;
+                label.textContent = inserted ? 'Importato ✓' : 'Importato ✓ (altro giorno)';
+                setTimeout(function() { label.textContent = original; }, 1800);
+            }
+        })
+        .catch(function() {
+            if (btn) btn.disabled = false;
+            alert('Errore di rete, riprova.');
+        });
 });
+
+// --- Selezione multipla voci / eliminazione in blocco ---
+function updateMacroBulkBar() {
+    var checked = document.querySelectorAll('.macro-select-cb:checked');
+    var bar = document.getElementById('macro-bulk-bar');
+    var countEl = document.getElementById('macro-bulk-count');
+    if (checked.length > 0) {
+        bar.style.display = 'flex';
+        countEl.textContent = checked.length + (checked.length === 1 ? ' voce selezionata' : ' voci selezionate');
+    } else {
+        bar.style.display = 'none';
+    }
+}
+function updateMacroDayCbState(dayKey) {
+    var dayCb = document.querySelector('.macro-day-select-cb[data-day-key="' + dayKey + '"]');
+    if (!dayCb) return;
+    var cbs = document.querySelectorAll('.macro-select-cb[data-day-key="' + dayKey + '"]');
+    var checkedCount = document.querySelectorAll('.macro-select-cb[data-day-key="' + dayKey + '"]:checked').length;
+    dayCb.checked = cbs.length > 0 && checkedCount === cbs.length;
+    dayCb.indeterminate = checkedCount > 0 && checkedCount < cbs.length;
+}
+function onMacroCbChange(cb) {
+    updateMacroDayCbState(cb.dataset.dayKey);
+    updateMacroBulkBar();
+}
+function toggleMacroDaySelect(dayCb) {
+    var dayKey = dayCb.dataset.dayKey;
+    document.querySelectorAll('.macro-select-cb[data-day-key="' + dayKey + '"]').forEach(function(cb) {
+        cb.checked = dayCb.checked;
+    });
+    dayCb.indeterminate = false;
+    updateMacroBulkBar();
+}
+function deselectAllMacro() {
+    document.querySelectorAll('.macro-select-cb:checked').forEach(function(cb) { cb.checked = false; });
+    document.querySelectorAll('.macro-day-select-cb').forEach(function(cb) { cb.checked = false; cb.indeterminate = false; });
+    updateMacroBulkBar();
+}
+function submitMacroBulkDelete() {
+    var checked = document.querySelectorAll('.macro-select-cb:checked');
+    if (!checked.length) return;
+    if (!confirm('Eliminare ' + checked.length + (checked.length === 1 ? ' voce selezionata?' : ' voci selezionate?'))) return;
+    var form = document.getElementById('macro-bulk-delete-form');
+    form.querySelectorAll('input[name="entry_ids"]').forEach(function(el) { el.remove(); });
+    checked.forEach(function(cb) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'entry_ids';
+        input.value = cb.value;
+        form.appendChild(input);
+    });
+    form.submit();
+}
 
 (function() {
     var CHART_DATA = {{ chart_data_json|safe }};

@@ -1,0 +1,73 @@
+{% load l10n %}
+{# Riga di una voce di alimentazione: vista + form di modifica + form di
+   importazione su un'altra data. Usata sia nel loop dello storico in
+   macro.html sia dall'endpoint AJAX di importazione, che la rende lato
+   server e la inserisce nel DOM senza ricaricare la pagina. #}
+<div data-macro-entry="{{ e.id }}" data-ora="{{ e.creato_il|date:'H:i' }}">
+    <div id="macro-view-{{ e.id }}" style="display: flex; align-items: center; gap: 10px; background: {% if e.e_spazzatura %}rgba(240,168,117,0.06){% else %}rgba(255,255,255,0.025){% endif %}; border: 1px solid {% if e.e_spazzatura %}rgba(240,168,117,0.25){% else %}rgba(255,255,255,0.05){% endif %}; border-radius: 9px; padding: 9px 14px; flex-wrap: wrap;">
+        <input type="checkbox" class="macro-select-cb" data-day-key="{{ day_key }}" value="{{ e.id }}" onchange="onMacroCbChange(this)" title="Seleziona questa voce" style="width: 15px; height: 15px; accent-color: #f87171; cursor: pointer; flex-shrink: 0;">
+        {% if e.e_spazzatura %}<span title="Cibo spazzatura" style="font-size: 12px; font-weight: 700; color: #f0a875; background: rgba(240,168,117,0.14); padding: 3px 8px; border-radius: 20px;">🍔</span>{% endif %}
+        <span style="font-size: 13.5px; color: #ffffff;"><b>{{ e.kcal }}</b> kcal</span>
+        {% if e.proteine_g %}<span style="font-size: 12px; color: #6a9fd8;">P {{ e.proteine_g|floatformat:"-1" }}g</span>{% endif %}
+        {% if e.carboidrati_g %}<span style="font-size: 12px; color: #4ade80;">C {{ e.carboidrati_g|floatformat:"-1" }}g</span>{% endif %}
+        {% if e.grassi_g %}<span style="font-size: 12px; color: #f0a875;">G {{ e.grassi_g|floatformat:"-1" }}g</span>{% endif %}
+        <span style="font-size: 12px; color: #7d8296;">{{ e.creato_il|date:"H:i" }}</span>
+        {% if e.nota %}<span style="font-size: 12px; color: #9ba0b3; font-style: italic;">📝 {{ e.nota }}</span>{% endif %}
+        <div style="flex: 1;"></div>
+        <span onclick="toggleMacroEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: var(--acc-4); padding: 6px 12px; border-radius: 7px; background: rgba(var(--acc-rgb),0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.12)'">Modifica</span>
+        <span id="macro-dup-btn-{{ e.id }}" onclick="toggleMacroDuplicate('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: #4ade80; padding: 6px 12px; border-radius: 7px; background: rgba(74,222,128,0.1); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(74,222,128,0.2)'" onmouseout="this.style.background='rgba(74,222,128,0.1)'">Importa</span>
+        <form action="{% url 'delete_macro_entry' e.id %}" method="post" style="display:inline;" onsubmit="return confirm('Eliminare questa voce?');">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{% url 'macro' %}">
+            <button type="submit" style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
+        </form>
+    </div>
+    <div id="macro-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
+        <form action="{% url 'edit_macro_entry' e.id %}" method="post" autocomplete="off" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{% url 'macro' %}">
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">KCAL</span>
+                <input type="number" name="kcal" value="{{ e.kcal }}" class="tracer-input" style="width: 90px;" min="1">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">PROTEINE (G)</span>
+                <input type="number" name="proteine_g" value="{{ e.proteine_g|unlocalize }}" class="tracer-input" style="width: 80px;" min="0" step="0.1">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">CARBOIDRATI (G)</span>
+                <input type="number" name="carboidrati_g" value="{{ e.carboidrati_g|unlocalize }}" class="tracer-input" style="width: 80px;" min="0" step="0.1">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">GRASSI (G)</span>
+                <input type="number" name="grassi_g" value="{{ e.grassi_g|unlocalize }}" class="tracer-input" style="width: 80px;" min="0" step="0.1">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
+                <input type="date" name="data" value="{{ e.data|date:'Y-m-d' }}" class="tracer-input" style="width: 150px;">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
+                <input type="time" name="ora" value="{{ e.creato_il|date:'H:i' }}" class="tracer-input" style="width: 100px;">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">NOTA</span>
+                <input type="text" name="nota" value="{{ e.nota }}" placeholder="Es. Pranzo" maxlength="100" class="tracer-input" style="width: 100%;">
+            </div>
+            <label style="display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; cursor: pointer; font-size: 12px; color: #c7cbd6; white-space: nowrap;">
+                <input type="checkbox" name="spazzatura" {% if e.e_spazzatura %}checked{% endif %} style="accent-color: #f0a875;"> 🍔 Cibo spazzatura
+            </label>
+            <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
+            <button type="button" onclick="toggleMacroEdit('{{ e.id }}')" style="color: #838a9e; font-size: 12.5px; font-weight: 600; padding: 8px 10px; background: transparent; border: none; cursor: pointer;" onmouseover="this.style.color='#c7cbd6'" onmouseout="this.style.color='#838a9e'">Annulla</button>
+        </form>
+    </div>
+    <div id="macro-dup-{{ e.id }}" style="display: none; align-items: center; gap: 8px; background: rgba(74,222,128,0.06); border: 1px solid rgba(74,222,128,0.25); border-radius: 9px; padding: 10px 14px; margin-top: 4px; flex-wrap: wrap;">
+        <form data-ajax-macro-dup action="{% url 'duplicate_macro_entry' e.id %}" method="post" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            {% csrf_token %}
+            <span style="font-size: 12px; color: #c7cbd6;">Importa questa voce nel giorno:</span>
+            <input type="date" name="data" value="{% now 'Y-m-d' %}" class="tracer-input" style="width: 150px;">
+            <button type="submit" style="padding: 7px 14px; font-size: 12px; font-weight: 600; color: #4ade80; background: rgba(74,222,128,0.14); border: 1px solid rgba(74,222,128,0.3); border-radius: 7px; cursor: pointer;">Importa</button>
+        </form>
+        <button type="button" onclick="toggleMacroDuplicate('{{ e.id }}')" style="color: #838a9e; font-size: 12.5px; font-weight: 600; padding: 7px 10px; background: transparent; border: none; cursor: pointer;" onmouseover="this.style.color='#c7cbd6'" onmouseout="this.style.color='#838a9e'">Annulla</button>
+    </div>
+</div>
