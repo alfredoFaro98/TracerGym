@@ -7,7 +7,7 @@
     <!-- Sfondo radiale -->
     <div style="position: absolute; width: 700px; height: 700px; background: radial-gradient(circle, rgba(var(--acc-rgb),.055) 0%, transparent 65%); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none;"></div>
     
-    <div class="page-enter responsive-card-width" style="width: 360px; background: #0d0d14; border: 1px solid #1e1e2c; border-radius: 14px; padding: 32px; z-index: 1;">
+    <div class="page-enter responsive-card-width" style="width: 360px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 32px; z-index: 1;">
         
         <!-- Logo -->
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 26px;">
@@ -19,9 +19,9 @@
         </div>
 
         <!-- Mode tabs -->
-        <div style="display: flex; gap: 4px; padding: 4px; background: #09090f; border: 1px solid #17171f; border-radius: 8px; margin-bottom: 22px;">
+        <div style="display: flex; gap: 4px; padding: 4px; background: var(--sunken); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 22px;">
             <a href="{% url 'login' %}" style="flex: 1; padding: 7px; border-radius: 5px; text-align: center; background: transparent; color: #f0f0f3; font-size: 13px;">Accedi</a>
-            <div style="flex: 1; padding: 7px; border-radius: 5px; text-align: center; background: #1c1c2c; color: #f0f0f3; font-size: 13px; font-weight: 600;">Registrati</div>
+            <div style="flex: 1; padding: 7px; border-radius: 5px; text-align: center; background: var(--surface-2); color: #f0f0f3; font-size: 13px; font-weight: 600;">Registrati</div>
         </div>
 
         <!-- Form -->

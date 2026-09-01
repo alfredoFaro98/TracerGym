@@ -45,10 +45,30 @@
   --acc-rgb: 48, 209, 88;
 }
 
+/* ==========================================================================
+   Superfici e sfondo. --bg e' l'unico colore "di fondo" vero: card, bordi e
+   incassi sono overlay trasparenti sopra di esso, quindi si ri-tingono da
+   soli se cambia --bg e mantengono sempre la stessa gerarchia (card piu'
+   chiara del fondo, input piu' scuro della card). Restano pieni solo i
+   pannelli che devono essere opachi perche' galleggiano sopra il contenuto
+   (tooltip, tendine, modali) e --card-solid, usato dove serve un colore
+   vero e proprio invece di un overlay (es. lo stroke fra le celle SVG
+   della heatmap).
+   ========================================================================== */
+:root {
+  --bg: #132025;
+  --card-solid: #182a30;
+  --panel: #1b2d34;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-2: rgba(255, 255, 255, 0.08);
+  --sunken: rgba(0, 0, 0, 0.25);
+  --border: rgba(255, 255, 255, 0.10);
+}
+
 *, *::before, *::after {
-  box-sizing: border-box; 
-  margin: 0; 
-  padding: 0; 
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html, body { 
@@ -58,7 +78,7 @@ html, body {
 
 body {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  background: #080809;
+  background: var(--bg);
   color: #f0f0f3;
   -webkit-font-smoothing: antialiased;
   color-scheme: dark;
@@ -72,8 +92,8 @@ body {
 /* Scrollbar */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #22223a; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #303050; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.24); }
 
 /* Inputs / buttons global reset */
 input, textarea, select {
@@ -175,8 +195,8 @@ input[type=number] { -moz-appearance: textfield; }
 .tracer-input {
   width: 100%; 
   padding: 9px 12px;
-  background: #09090f; 
-  border: 1px solid #202030;
+  background: var(--sunken); 
+  border: 1px solid var(--border);
   border-radius: 7px; 
   color: #f0f0f3;
   font-size: 13px; 
@@ -189,8 +209,8 @@ input[type=number] { -moz-appearance: textfield; }
 }
 
 .tracer-card {
-  background: #0d0d14; 
-  border: 1px solid #191926; 
+  background: var(--surface); 
+  border: 1px solid var(--border); 
   border-radius: 12px; 
 }
 
@@ -224,8 +244,8 @@ a { text-decoration: none; }
 
 .sidebar {
   width: 240px;
-  background: #09090f;
-  border-right: 1px solid #14141f;
+  background: var(--sunken);
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   padding: 24px 16px;
@@ -268,7 +288,7 @@ a { text-decoration: none; }
     width: 100%;
     height: auto;
     border-right: none;
-    border-top: 1px solid #14141f;
+    border-top: 1px solid var(--border);
     flex-direction: row;
     padding: 10px 16px;
     align-items: center;

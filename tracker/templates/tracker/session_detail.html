@@ -208,13 +208,13 @@
         <!-- Esercizi Area -->
         <div>
             {% if not exercise_groups %}
-            <div style="background: #0d0d14; border: 1px dashed #1c1c2e; border-radius: 12px; padding: 52px 24px; text-align: center;">
+            <div style="background: var(--surface); border: 1px dashed var(--border); border-radius: 12px; padding: 52px 24px; text-align: center;">
                 <div style="font-size: 26px; margin-bottom: 10px; opacity: .4;">〇</div>
                 <div style="font-size: 13.5px; color: #f0f0f3; font-weight: 500;">Aggiungi la prima serie dal pannello</div>
             </div>
             {% else %}
             <div class="tracer-card" style="overflow: hidden;">
-                <div style="padding: 15px 16px; border-bottom: 1px solid #16162a; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <div style="padding: 15px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                     <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: #ffffff;">ESERCIZI REGISTRATI</span>
                     <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
                         <span style="font-size: 12.5px; color: #7d8296; white-space: nowrap;">{{ exercise_groups|length }} esercizi · {{ session.sets.count }} serie</span>
@@ -241,7 +241,7 @@
                 </form>
 
                 {% for group in exercise_groups %}
-                <div class="exercise-group" data-exercise-id="{{ group.exercise.id }}" style="border-bottom: 1px solid #0e0e1e;">
+                <div class="exercise-group" data-exercise-id="{{ group.exercise.id }}" style="border-bottom: 1px solid var(--border);">
                     <!-- Riga esercizio (cliccabile) -->
                     <div onclick="toggleGroup('{{ forloop.counter }}')" data-n="{{ forloop.counter }}" style="padding: 15px 4px 15px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; cursor: pointer; user-select: none; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
                         <span class="drag-handle" title="Trascina per ordinare" style="cursor: grab; color: #565b6e; font-size: 15px; line-height: 1; flex-shrink: 0; padding: 0 2px; user-select: none;">⠿</span>
@@ -434,7 +434,7 @@
                 <label class="modal-label">Immagine (opzionale, max {{ max_image_mb }} MB)</label>
                 <input type="file" id="new-ex-immagine" accept="image/*" style="font-size: 12px; color: #a0a0c0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 6px 10px; cursor: pointer; width: 100%; box-sizing: border-box;">
                 <span id="new-ex-immagine-error" style="display:none; font-size: 11px; color: #f85149; margin-top: 5px;"></span>
-                <img id="new-ex-immagine-preview" style="display:none; margin-top: 8px; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: #0a0a12;">
+                <img id="new-ex-immagine-preview" style="display:none; margin-top: 8px; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: var(--sunken);">
             </div>
             <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
                 <button type="button" onclick="closeNewExModal()" class="btn-cancel" style="padding: 0 20px; height: 34px; font-size: 12px;">Annulla</button>
@@ -449,8 +449,8 @@
 #ex-dropdown {
     position: fixed;
     z-index: 9999;
-    background: #0d0d1a;
-    border: 1px solid #1c1c2c;
+    background: var(--sunken);
+    border: 1px solid var(--border);
     border-radius: 0 0 8px 8px;
     overflow: hidden;
     max-height: 220px;
@@ -469,7 +469,7 @@
 }
 #ex-dropdown .ex-item:hover,
 #ex-dropdown .ex-item.ex-active {
-    background: #141428;
+    background: var(--surface-2);
     color: #f0f0f3;
 }
 #ex-preview {
@@ -477,7 +477,7 @@
     position: fixed;
     z-index: 10000;
     width: 168px;
-    background: #17171f;
+    background: var(--panel);
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 12px;
     box-shadow: 0 16px 36px rgba(0,0,0,0.5);
@@ -512,7 +512,7 @@
     border-radius: 20px;
     font-size: 10.5px;
     font-weight: 600;
-    border: 1px solid #202030;
+    border: 1px solid var(--border);
     color: #f0f0f3;
     cursor: pointer;
     transition: all .12s;
@@ -550,7 +550,7 @@
 
 #new-ex-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.75); align-items: center; justify-content: center; }
 #new-ex-modal.open { display: flex; }
-#new-ex-modal-box { background: #111117; border: 1px solid rgba(var(--acc-rgb),0.18); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 16px; padding: 24px; width: 100%; max-width: 460px; margin: 16px; }
+#new-ex-modal-box { background: var(--panel); border: 1px solid rgba(var(--acc-rgb),0.18); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 16px; padding: 24px; width: 100%; max-width: 460px; margin: 16px; }
 .modal-label { display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px; }
 .modal-title { font-size: 11px; font-weight: 700; color: #838a9e; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 18px; }
 
@@ -817,7 +817,7 @@ function toggleImportCircuitForm() {
 
     var dropdown = document.createElement('div');
     dropdown.id = 'circuit-dropdown';
-    dropdown.style.cssText = 'display:none; position:fixed; z-index:9999; background:#0d0d1a; border:1px solid #1c1c2c; border-radius:0 0 8px 8px; overflow:hidden; max-height:260px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,.5);';
+    dropdown.style.cssText = 'display:none; position:fixed; z-index:9999; background:var(--sunken); border:1px solid var(--border); border-radius:0 0 8px 8px; overflow:hidden; max-height:260px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,.5);';
     document.body.appendChild(dropdown);
 
     var fetchTimer = null;
@@ -852,10 +852,10 @@ function toggleImportCircuitForm() {
         dropdown.innerHTML = '';
         results.forEach(function(item) {
             var el = document.createElement('div');
-            el.style.cssText = 'padding:9px 14px; font-size:12.5px; cursor:pointer; border-bottom:1px solid #16162a;';
+            el.style.cssText = 'padding:9px 14px; font-size:12.5px; cursor:pointer; border-bottom:1px solid var(--border);';
             el.innerHTML = '<div style="color:#f0f0f3; font-weight:600;">' + item.label + '</div>' +
                 (item.exercises ? '<div style="font-size:11px; color:#565b6e; margin-top:2px;">' + item.exercises + '</div>' : '');
-            el.addEventListener('mouseover', function() { el.style.background = '#141428'; });
+            el.addEventListener('mouseover', function() { el.style.background = 'rgba(255,255,255,0.08)'; });
             el.addEventListener('mouseout', function() { el.style.background = 'transparent'; });
             el.addEventListener('mousedown', function(e) {
                 e.preventDefault();

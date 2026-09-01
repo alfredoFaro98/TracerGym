@@ -66,7 +66,7 @@
 
     <!-- Grafico andamento -->
     <div class="tracer-card" style="overflow: visible; margin-bottom: 24px;">
-        <div style="padding: 18px 22px; border-bottom: 1px solid #16162a; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <div style="padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
             <div style="font-size: 11px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap;">Andamento</div>
             <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                 <button type="button" class="metric-tab" data-metric="peso" onclick="selectMetric('peso')">Peso</button>
@@ -96,7 +96,7 @@
         {% else %}
         {% for e in entries %}
         <div>
-            <div id="metric-view-{{ e.id }}" style="display: flex; align-items: center; gap: 14px; padding: 13px 16px; border-bottom: 1px solid #0e0e1e; flex-wrap: wrap;">
+            <div id="metric-view-{{ e.id }}" style="display: flex; align-items: center; gap: 14px; padding: 13px 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap;">
                 <span style="font-size: 13px; font-weight: 700; color: #f0f0f3; min-width: 130px;">{{ e.data|date:"d M Y" }}</span>
                 {% if e.orario %}<span style="font-size: 12.5px; color: #7d8296;">🕐 {{ e.orario|time:"H:i" }}</span>{% endif %}
                 {% if e.peso_kg %}<span style="font-size: 12.5px; color: #c7cbd6;">⚖️ <b>{{ e.peso_kg }}</b> kg</span>{% endif %}
@@ -170,13 +170,13 @@
         {% endif %}
 
         {% if entries.has_other_pages %}
-        <div style="display: flex; justify-content: center; gap: 8px; padding: 16px; border-top: 1px solid #16162a;">
+        <div style="display: flex; justify-content: center; gap: 8px; padding: 16px; border-top: 1px solid var(--border);">
             {% if entries.has_previous %}
-                <a href="?page={{ entries.previous_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Precedente</a>
+                <a href="?page={{ entries.previous_page_number }}" style="padding: 5px 10px; background: var(--surface-2); color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Precedente</a>
             {% endif %}
             <span style="font-size: 12px; color: #7d8296; align-self: center;">Pagina {{ entries.number }} di {{ entries.paginator.num_pages }}</span>
             {% if entries.has_next %}
-                <a href="?page={{ entries.next_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Successiva</a>
+                <a href="?page={{ entries.next_page_number }}" style="padding: 5px 10px; background: var(--surface-2); color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Successiva</a>
             {% endif %}
         </div>
         {% endif %}
@@ -284,7 +284,7 @@ function toggleMetricEdit(id) {
                     borderColor: acc2,
                     backgroundColor: fade,
                     pointBackgroundColor: acc2,
-                    pointBorderColor: '#111117',
+                    pointBorderColor: '#1b2d34',
                     pointBorderWidth: 2,
                     pointRadius: 4,
                     pointHoverRadius: 6,
@@ -298,7 +298,7 @@ function toggleMetricEdit(id) {
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: '#15151c',
+                        backgroundColor: '#1b2d34',
                         borderColor: 'rgba(255,255,255,.08)',
                         borderWidth: 1,
                         padding: 10,

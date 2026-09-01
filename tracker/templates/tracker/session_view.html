@@ -26,7 +26,7 @@
             {% if not is_own %}
             <form action="{% url 'import_session_from_user' target_user.username session.id %}" method="post" style="margin: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                 {% csrf_token %}
-                <input type="date" name="data" value="{{ session.data|date:'Y-m-d' }}" title="Data in cui importarla" style="height: 30px; padding: 0 8px; background: #0d0d18; border: 1px solid #1c1c30; border-radius: 6px; color: #c0c0e0; font-size: 12px; font-family: inherit;">
+                <input type="date" name="data" value="{{ session.data|date:'Y-m-d' }}" title="Data in cui importarla" style="height: 30px; padding: 0 8px; background: var(--sunken); border: 1px solid var(--border); border-radius: 6px; color: #c0c0e0; font-size: 12px; font-family: inherit;">
                 <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
                     <button type="button" class="load-pct-chip" data-pct="20" onclick="setLoadPct(20)">20%</button>
                     <button type="button" class="load-pct-chip" data-pct="50" onclick="setLoadPct(50)">50%</button>
@@ -36,12 +36,12 @@
                     <button type="button" class="load-pct-chip" data-pct="150" onclick="setLoadPct(150)">150%</button>
                     <button type="button" class="load-pct-chip" data-pct="200" onclick="setLoadPct(200)">200%</button>
                 </div>
-                <div style="display: flex; align-items: center; gap: 0; background: #0d0d18; border: 1px solid #1c1c30; border-radius: 6px; overflow: hidden;">
-                    <span style="padding: 0 8px; font-size: 10.5px; color: #f0f0f3; white-space: nowrap; border-right: 1px solid #1c1c30; line-height: 28px;">Peso</span>
+                <div style="display: flex; align-items: center; gap: 0; background: var(--sunken); border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+                    <span style="padding: 0 8px; font-size: 10.5px; color: #f0f0f3; white-space: nowrap; border-right: 1px solid var(--border); line-height: 28px;">Peso</span>
                     <input id="load-pct-input" type="number" name="weight_pct" value="100" min="20" max="200" step="5"
                         style="width: 52px; padding: 0 6px; height: 28px; background: transparent; border: none; color: #c0c0e0; font-size: 13px; font-family: 'JetBrains Mono', monospace; font-weight: 600; text-align: center; outline: none;"
                         oninput="updateLoadChips(this.value)">
-                    <span style="padding: 0 8px; font-size: 11px; color: #f0f0f3; border-left: 1px solid #1c1c30; line-height: 28px;">%</span>
+                    <span style="padding: 0 8px; font-size: 11px; color: #f0f0f3; border-left: 1px solid var(--border); line-height: 28px;">%</span>
                 </div>
                 <button type="submit" style="padding: 5px 13px; height: 30px; background: rgba(64,160,96,.08); border: 1px solid rgba(64,160,96,.25); border-radius: 6px; font-size: 12px; color: #50c878; font-weight: 600; cursor: pointer; transition: all .12s;" onmouseover="this.style.background='rgba(64,160,96,.18)'" onmouseout="this.style.background='rgba(64,160,96,.08)'">
                     + Importa
@@ -53,15 +53,15 @@
 
     {% if exercise_groups %}
     <div class="tracer-card" style="overflow: hidden;">
-        <div style="padding: 13px 16px; border-bottom: 1px solid #16162a; display: flex; justify-content: space-between; align-items: center;">
+        <div style="padding: 13px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
             <div style="font-size: 10.5px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Esercizi</div>
             <div style="font-size: 11px; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ exercise_groups|length }} esercizi · {{ session.sets.count }} serie</div>
         </div>
 
         {% for group in exercise_groups %}
-        <div style="border-bottom: 1px solid #0e0e1e;">
+        <div style="border-bottom: 1px solid var(--border);">
             <!-- Riga esercizio -->
-            <div onclick="toggleGroup({{ forloop.counter }})" style="padding: 13px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='#0f0f1c'" onmouseout="this.style.background='transparent'">
+            <div onclick="toggleGroup({{ forloop.counter }})" style="padding: 13px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
                 <div style="flex: 1;">
                     <div style="font-size: 13px; font-weight: 600; color: #e8e8f8;">{{ group.exercise.nome }}</div>
                     {% if group.exercise.tags.all %}
@@ -79,7 +79,7 @@
             <!-- Serie espandibili -->
             <div id="group-{{ forloop.counter }}" style="display: none; flex-direction: column; gap: 4px; padding: 0 12px 12px;">
                 {% for set in group.sets %}
-                <div style="padding: 9px 12px; border-radius: 7px; background: #0a0a12; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <div style="padding: 9px 12px; border-radius: 7px; background: var(--sunken); display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                     <span style="font-size: 10px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace; min-width: 20px;">#{{ forloop.counter }}</span>
                     <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #f0f0f3;">{{ set.reps }}<span style="font-size: 10px; font-weight: 400; color: #f0f0f3; margin-left: 2px;">reps</span></span>
                     {% if set.weight %}
@@ -96,7 +96,7 @@
     </div>
 
     {% else %}
-    <div style="background: #0d0d14; border: 1px dashed #1c1c2e; border-radius: 12px; padding: 52px 24px; text-align: center;">
+    <div style="background: var(--surface); border: 1px dashed var(--border); border-radius: 12px; padding: 52px 24px; text-align: center;">
         <div style="font-size: 13.5px; color: #f0f0f3; font-weight: 500;">Nessuna serie registrata in questa sessione</div>
     </div>
     {% endif %}
@@ -126,8 +126,8 @@ function updateLoadChips(val) {
 .load-pct-chip {
     padding: 5px 9px;
     height: 28px;
-    background: #0d0d18;
-    border: 1px solid #1c1c30;
+    background: var(--sunken);
+    border: 1px solid var(--border);
     border-radius: 6px;
     color: #7878a0;
     font-size: 11.5px;

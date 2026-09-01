@@ -70,7 +70,7 @@
 
     <!-- Grafico -->
     <div class="tracer-card" style="margin-bottom: 24px;">
-        <div style="padding: 18px 22px; border-bottom: 1px solid #16162a;">
+        <div style="padding: 18px 22px; border-bottom: 1px solid var(--border);">
             <div style="font-size: 11px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Ore di sonno — ultimi 14 giorni</div>
         </div>
         <div style="padding: 16px 20px; display: flex; align-items: center; justify-content: center; min-height: 80px;">
@@ -111,7 +111,7 @@
         {% else %}
         {% for e in entries %}
         <div>
-            <div id="sleep-view-{{ e.id }}" style="display: flex; align-items: center; gap: 14px; padding: 13px 16px; border-bottom: 1px solid #0e0e1e; flex-wrap: wrap;">
+            <div id="sleep-view-{{ e.id }}" style="display: flex; align-items: center; gap: 14px; padding: 13px 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap;">
                 <span style="font-size: 13px; font-weight: 700; color: #f0f0f3; min-width: 110px;">{{ e.data|date:"d M Y" }}</span>
                 <span style="font-size: 12.5px; color: #7d8296;">{{ e.ora_letto|time:"H:i" }} → {{ e.ora_sveglia|time:"H:i" }}{% if e.data_sveglia != e.data %} <span style="color: #565b6e;">({{ e.data_sveglia|date:"d M" }})</span>{% endif %}</span>
                 <span style="font-size: 12.5px; font-weight: 700; color: #c7cbd6;">{{ e.durata_label }}</span>
@@ -166,13 +166,13 @@
         {% endif %}
 
         {% if entries.has_other_pages %}
-        <div style="display: flex; justify-content: center; gap: 8px; padding: 16px; border-top: 1px solid #16162a;">
+        <div style="display: flex; justify-content: center; gap: 8px; padding: 16px; border-top: 1px solid var(--border);">
             {% if entries.has_previous %}
-                <a href="?page={{ entries.previous_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Precedente</a>
+                <a href="?page={{ entries.previous_page_number }}" style="padding: 5px 10px; background: var(--surface-2); color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Precedente</a>
             {% endif %}
             <span style="font-size: 12px; color: #7d8296; align-self: center;">Pagina {{ entries.number }} di {{ entries.paginator.num_pages }}</span>
             {% if entries.has_next %}
-                <a href="?page={{ entries.next_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Successiva</a>
+                <a href="?page={{ entries.next_page_number }}" style="padding: 5px 10px; background: var(--surface-2); color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Successiva</a>
             {% endif %}
         </div>
         {% endif %}
@@ -244,7 +244,7 @@ function toggleSleepEdit(id) {
                 borderColor: acc2,
                 backgroundColor: fade,
                 pointBackgroundColor: acc2,
-                pointBorderColor: '#111117',
+                pointBorderColor: '#1b2d34',
                 pointBorderWidth: 2,
                 pointRadius: 4,
                 pointHoverRadius: 6,
@@ -258,7 +258,7 @@ function toggleSleepEdit(id) {
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: '#15151c',
+                    backgroundColor: '#1b2d34',
                     borderColor: 'rgba(255,255,255,.08)',
                     borderWidth: 1,
                     padding: 10,

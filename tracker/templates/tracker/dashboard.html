@@ -233,13 +233,13 @@
 
     <!-- Progressione -->
     <div class="tracer-card" style="overflow: visible;">
-        <div style="padding: 18px 22px; border-bottom: 1px solid #16162a; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <div style="padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
             <div style="font-size: 11px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap;">Progressione</div>
             <div style="position: relative; flex: 1; max-width: 260px;">
                 <input type="text" id="wc-input" placeholder="Cerca esercizio…"
                        class="tracer-input" style="padding: 5px 10px; height: 30px; font-size: 12px; width: 100%; border-radius: 6px;" autocomplete="off">
-                <div id="wc-dropdown" style="display:none; position:absolute; top:calc(100% + 3px); left:0; right:0; background:#13131e; border:1px solid #1c1c2c; border-radius:6px; z-index:200; max-height:180px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,.5);"></div>
-                <div id="wc-preview" style="display:none; position:fixed; z-index:10000; width:168px; background:#17171f; border:1px solid rgba(255,255,255,0.1); border-radius:12px; box-shadow:0 16px 36px rgba(0,0,0,0.5); padding:10px; flex-direction:column; gap:8px; box-sizing:border-box;">
+                <div id="wc-dropdown" style="display:none; position:absolute; top:calc(100% + 3px); left:0; right:0; background:var(--panel); border:1px solid var(--border); border-radius:6px; z-index:200; max-height:180px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,.5);"></div>
+                <div id="wc-preview" style="display:none; position:fixed; z-index:10000; width:168px; background:var(--panel); border:1px solid rgba(255,255,255,0.1); border-radius:12px; box-shadow:0 16px 36px rgba(0,0,0,0.5); padding:10px; flex-direction:column; gap:8px; box-sizing:border-box;">
                     <img style="width:100%; height:120px; object-fit:cover; border-radius:8px; display:block;">
                     <span style="font-size:11.5px; font-weight:700; color:#fff; line-height:1.3;"></span>
                 </div>
@@ -256,14 +256,14 @@
 
     <!-- Sessions List -->
     <div class="tracer-card" style="overflow: hidden; margin-top: 24px;">
-        <div style="padding: 18px 22px; border-bottom: 1px solid #16162a; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div style="padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
             <div class="storico-title-row" style="display: flex; align-items: center; gap: 10px;">
                 <div style="font-size: 11px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Storico Allenamenti</div>
                 <div class="storico-io-icons" style="display: flex; align-items: center; gap: 10px;">
-                    <a href="{% url 'export_sessions' %}" title="Esporta backup JSON" style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;background:#141420;border:1px solid #1c1c2c;color:#787890;text-decoration:none;" onmouseover="this.style.color='#f0f0f3'" onmouseout="this.style.color='#787890'">
+                    <a href="{% url 'export_sessions' %}" title="Esporta backup JSON" style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;background:var(--surface-2);border:1px solid var(--border);color:#787890;text-decoration:none;" onmouseover="this.style.color='#f0f0f3'" onmouseout="this.style.color='#787890'">
                         <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
                     </a>
-                    <a href="{% url 'import_sessions' %}" title="Importa backup JSON" style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;background:#141420;border:1px solid #1c1c2c;color:#787890;text-decoration:none;" onmouseover="this.style.color='#f0f0f3'" onmouseout="this.style.color='#787890'">
+                    <a href="{% url 'import_sessions' %}" title="Importa backup JSON" style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;background:var(--surface-2);border:1px solid var(--border);color:#787890;text-decoration:none;" onmouseover="this.style.color='#f0f0f3'" onmouseout="this.style.color='#787890'">
                         <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
                     </a>
                 </div>
@@ -277,7 +277,7 @@
                     <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Cerca esercizio o note..." class="tracer-input" style="padding: 6px 10px; flex: 0 0 170px; font-size: 12px; height: 30px; border-radius: 6px;">
                     <button type="submit" class="btn-primary-gradient storico-filtra-btn" style="padding: 0 12px; height: 30px; font-size: 11px;">Filtra</button>
                     {% if request.GET.q or request.GET.month %}
-                    <a href="{% url 'dashboard' %}" style="display: flex; align-items: center; padding: 0 10px; height: 30px; border: 1px solid #1c1c2c; border-radius: 6px; color: #f0f0f3; font-size: 11px; text-decoration: none;">Reset</a>
+                    <a href="{% url 'dashboard' %}" style="display: flex; align-items: center; padding: 0 10px; height: 30px; border: 1px solid var(--border); border-radius: 6px; color: #f0f0f3; font-size: 11px; text-decoration: none;">Reset</a>
                     {% endif %}
                 </form>
                 <span class="storico-count" style="font-size: 11px; color: #f0f0f3; font-family: 'JetBrains Mono', monospace; min-width: max-content;">
@@ -288,7 +288,7 @@
         <div style="padding: 10px; display: flex; flex-direction: column; gap: 5px; max-height: 440px; overflow-y: auto;">
             {% for session in sessions %}
             <!-- Singola Card Cliccabile -->
-            <div style="position: relative; border-radius: 8px; border: 1px solid #1c1c2c; background: transparent; transition: all .15s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.05)'; this.style.borderColor='rgba(var(--acc-rgb),0.25)';" onmouseout="this.style.background='transparent'; this.style.borderColor='#1c1c2c';">
+            <div style="position: relative; border-radius: 8px; border: 1px solid var(--border); background: transparent; transition: all .15s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.05)'; this.style.borderColor='rgba(var(--acc-rgb),0.25)';" onmouseout="this.style.background='transparent'; this.style.borderColor='rgba(255,255,255,0.10)';">
                 <a href="{% url 'session_detail' session.id %}" class="session-row-link" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding: 14px 18px; color: inherit; text-decoration: none;">
                     <div style="display: flex; align-items: center; gap: 14px; flex: 1;">
                         <!-- Date box -->
@@ -347,15 +347,15 @@
 
             <!-- Paginazione -->
             {% if sessions.has_other_pages %}
-            <div style="display: flex; justify-content: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #16162a;">
+            <div style="display: flex; justify-content: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);">
                 {% if sessions.has_previous %}
-                    <a href="?page={{ sessions.previous_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600;">Precedente</a>
+                    <a href="?page={{ sessions.previous_page_number }}" style="padding: 5px 10px; background: var(--surface-2); color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600;">Precedente</a>
                 {% endif %}
 
                 <span style="font-size: 12px; color: #f0f0f3; align-self: center;">Pagina {{ sessions.number }} di {{ sessions.paginator.num_pages }}</span>
 
                 {% if sessions.has_next %}
-                    <a href="?page={{ sessions.next_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600;">Successiva</a>
+                    <a href="?page={{ sessions.next_page_number }}" style="padding: 5px 10px; background: var(--surface-2); color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600;">Successiva</a>
                 {% endif %}
             </div>
             {% endif %}
@@ -364,7 +364,7 @@
 
     <!-- Programmazione Settimanale -->
     <div class="tracer-card" style="overflow: visible; margin-top: 24px;">
-        <div style="padding: 18px 22px; border-bottom: 1px solid #16162a; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div style="padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
             <div class="week-title" style="font-size: 11px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Programmazione Settimanale</div>
             <div class="week-controls-pill" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 999px; padding: 6px 14px;">
                 <button type="button" onclick="exportWeekPDF()" title="Stampa PDF" style="background:none;border:none;color:#c7cbd6;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;" onmouseover="this.style.color='#f0f0f3'" onmouseout="this.style.color='#c7cbd6'">
@@ -533,8 +533,8 @@
 
     /* Personalizzazioni dark per cal-heatmap */
     .ch-domain-text { fill: #a0a6af; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; }
-    .ch-subdomain-bg { fill: #16161d; }
-    .graph-rect { stroke: #0d0d14; stroke-width: 2px; rx: 2; ry: 2;}
+    .ch-subdomain-bg { fill: var(--card-solid); }
+    .graph-rect { stroke: var(--card-solid); stroke-width: 2px; rx: 2; ry: 2;}
     .q1 { fill: var(--acc) !important; opacity: 0.25;}
     .q2 { fill: var(--acc) !important; opacity: 0.45;}
     .q3 { fill: var(--acc) !important; opacity: 0.65;}
@@ -546,7 +546,7 @@
     .ch-tooltip {
         position: absolute !important;
         z-index: 99999 !important;
-        background: #15151c !important;
+        background: var(--panel) !important;
         color: #f0f0f3 !important;
         border: 1px solid rgba(255,255,255,.08) !important;
         border-radius: 6px !important;
@@ -556,7 +556,7 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
         pointer-events: none;
     }
-    .ch-tooltip::after { border-top-color: #15151c !important; }
+    .ch-tooltip::after { border-top-color: var(--panel) !important; }
 
     .heatmap-scroll-wrap {
         /* Layout a blocco (non flex): con flex + justify-content:center e
@@ -567,11 +567,11 @@
     }
     .heatmap-scroll-wrap::-webkit-scrollbar { height: 4px; }
     .heatmap-scroll-wrap::-webkit-scrollbar-track { background: transparent; }
-    .heatmap-scroll-wrap::-webkit-scrollbar-thumb { background: #1c1c2c; border-radius: 2px; }
+    .heatmap-scroll-wrap::-webkit-scrollbar-thumb { background: var(--surface-2); border-radius: 2px; }
 
     #water-pills::-webkit-scrollbar { height: 4px; }
     #water-pills::-webkit-scrollbar-track { background: transparent; }
-    #water-pills::-webkit-scrollbar-thumb { background: #1c1c2c; border-radius: 2px; }
+    #water-pills::-webkit-scrollbar-thumb { background: var(--surface-2); border-radius: 2px; }
 
     /* La toolbar filtri (data, ricerca, filtra, conteggio) va sempre a capo
        su una riga tutta sua sotto il titolo appena lo spazio si stringe,
@@ -609,8 +609,8 @@
         display: flex;
         align-items: center;
         gap: 6px;
-        background: #101018;
-        border: 1px solid #1c1c2c;
+        background: var(--sunken);
+        border: 1px solid var(--border);
         border-radius: 6px;
         padding: 0 8px;
         height: 30px;
@@ -879,7 +879,7 @@
         // sinistro/destro e sulla prima riga spariva a meta'.
         (function() {
             var hmTip = document.createElement('div');
-            hmTip.style.cssText = 'position:fixed;display:none;background:#15151c;color:#fff;font-size:11px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:10000;box-shadow:0 6px 16px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);';
+            hmTip.style.cssText = 'position:fixed;display:none;background:var(--panel);color:#fff;font-size:11px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:10000;box-shadow:0 6px 16px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);';
             document.body.appendChild(hmTip);
 
             var container = document.getElementById('year-heatmap');
@@ -1122,7 +1122,7 @@
         results.forEach(function(e) {
             var el = document.createElement('div');
             el.dataset.name = e.nome;
-            el.style.cssText = 'padding:8px 12px; font-size:12.5px; color:#f0f0f3; cursor:pointer; border-bottom:1px solid #1c1c2c;';
+            el.style.cssText = 'padding:8px 12px; font-size:12.5px; color:#f0f0f3; cursor:pointer; border-bottom:1px solid var(--border);';
             el.textContent = e.nome;
             el.addEventListener('mouseover', function() { el.style.background = 'rgba(var(--acc-rgb),.12)'; showPreview(e, el); });
             el.addEventListener('mouseout', function() { el.style.background = 'transparent'; hidePreview(); });
@@ -1207,7 +1207,7 @@
                 borderColor: color,
                 backgroundColor: fade,
                 pointBackgroundColor: color,
-                pointBorderColor: '#111117',
+                pointBorderColor: '#1b2d34',
                 pointBorderWidth: 2,
                 pointRadius: multi ? 3 : 4,
                 pointHoverRadius: 6,
@@ -1233,7 +1233,7 @@
                         labels: { color: '#c7cbd6', boxWidth: 10, boxHeight: 10, font: { size: 11.5 }, usePointStyle: true, pointStyle: 'circle' }
                     },
                     tooltip: {
-                        backgroundColor: '#15151c',
+                        backgroundColor: '#1b2d34',
                         borderColor: 'rgba(255,255,255,.08)',
                         borderWidth: 1,
                         padding: 10,
@@ -1348,7 +1348,7 @@
             var d = parseDate(day.date);
             var isToday = d.getTime() === today.getTime();
             var has = day.sessions.length > 0;
-            var border = isToday ? 'rgba(var(--acc-rgb),.35)' : '#1c1c2c';
+            var border = isToday ? 'rgba(var(--acc-rgb),.35)' : 'rgba(255,255,255,0.10)';
             var bg = isToday ? 'rgba(var(--acc-rgb),.06)' : 'transparent';
 
             html += '<div style="border:1px solid ' + border + ';border-radius:10px;padding:12px 12px;background:' + bg + ';min-height:130px;">';

@@ -186,7 +186,7 @@
 
     <!-- Grafico andamento -->
     <div class="tracer-card" style="overflow: visible; margin-bottom: 24px;">
-        <div style="padding: 18px 22px; border-bottom: 1px solid #16162a; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <div style="padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
             <div style="font-size: 11px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap;">Andamento</div>
             <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                 <button type="button" class="metric-tab" data-metric="kcal" onclick="selectMetric('kcal')">Kcal</button>
@@ -226,7 +226,7 @@
         {% else %}
         {% for day in days %}
         {% with day_key=day.data|date:"Y-m-d" %}
-        <div style="padding: 16px 20px; border-bottom: 1px solid #16162a; {% if day.status %}background: rgba(248,113,113,0.04);{% endif %}">
+        <div style="padding: 16px 20px; border-bottom: 1px solid var(--border); {% if day.status %}background: rgba(248,113,113,0.04);{% endif %}">
             <div onclick="toggleDay('{{ day_key }}')" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; cursor: pointer; user-select: none;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <svg id="day-chevron-{{ day_key }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -251,7 +251,7 @@
                     <span title="Obiettivo non raggiunto" style="color: #f87171; font-size: 13px; font-weight: 700;">✕</span>
                     {% endif %}
                     <span onclick="event.stopPropagation(); toggleDayGoalForm('{{ day_key }}')" title="Imposta obiettivo di questo giorno" style="cursor: pointer; font-size: 14px; padding: 4px; border-radius: 6px; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">🎯</span>
-                    <select onclick="event.stopPropagation();" onchange="event.stopPropagation(); submitDayStatus('{{ day_key }}', this.value);" title="Stato di tracciamento del giorno" style="font-size: 11px; font-weight: 600; padding: 4px 6px; border-radius: 6px; background: #15151c; border: 1px solid #1c1c2c; color: #9ba0b3; cursor: pointer;">
+                    <select onclick="event.stopPropagation();" onchange="event.stopPropagation(); submitDayStatus('{{ day_key }}', this.value);" title="Stato di tracciamento del giorno" style="font-size: 11px; font-weight: 600; padding: 4px 6px; border-radius: 6px; background: var(--panel); border: 1px solid var(--border); color: #9ba0b3; cursor: pointer;">
                         <option value="" {% if not day.status %}selected{% endif %}>✓ Tracciato</option>
                         <option value="parziale" {% if day.status == 'parziale' %}selected{% endif %}>⚠️ Parziale</option>
                         <option value="non_tracciato" {% if day.status == 'non_tracciato' %}selected{% endif %}>🚫 Non tracciato</option>
@@ -296,13 +296,13 @@
         {% endfor %}
 
         {% if days.has_other_pages %}
-        <div style="display: flex; justify-content: center; gap: 8px; padding: 16px; border-top: 1px solid #16162a;">
+        <div style="display: flex; justify-content: center; gap: 8px; padding: 16px; border-top: 1px solid var(--border);">
             {% if days.has_previous %}
-                <a href="?page={{ days.previous_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Precedente</a>
+                <a href="?page={{ days.previous_page_number }}" style="padding: 5px 10px; background: var(--surface-2); color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Precedente</a>
             {% endif %}
             <span style="font-size: 12px; color: #7d8296; align-self: center;">Pagina {{ days.number }} di {{ days.paginator.num_pages }}</span>
             {% if days.has_next %}
-                <a href="?page={{ days.next_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Successiva</a>
+                <a href="?page={{ days.next_page_number }}" style="padding: 5px 10px; background: var(--surface-2); color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Successiva</a>
             {% endif %}
         </div>
         {% endif %}
@@ -585,7 +585,7 @@ function submitMacroBulkDelete() {
                     borderColor: color,
                     backgroundColor: fade,
                     pointBackgroundColor: color,
-                    pointBorderColor: '#111117',
+                    pointBorderColor: '#1b2d34',
                     pointBorderWidth: 2,
                     pointRadius: 4,
                     pointHoverRadius: 6,
@@ -599,7 +599,7 @@ function submitMacroBulkDelete() {
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: '#15151c',
+                        backgroundColor: '#1b2d34',
                         borderColor: 'rgba(255,255,255,.08)',
                         borderWidth: 1,
                         padding: 10,

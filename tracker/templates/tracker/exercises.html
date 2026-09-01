@@ -16,11 +16,11 @@
 
     #edit-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.6); align-items: center; justify-content: center; }
     #edit-modal.open { display: flex; }
-    #edit-modal-box { background: #111117; border: 1px solid rgba(var(--acc-rgb),0.18); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 16px; padding: 24px; width: 100%; max-width: 480px; margin: 16px; }
+    #edit-modal-box { background: var(--panel); border: 1px solid rgba(var(--acc-rgb),0.18); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 16px; padding: 24px; width: 100%; max-width: 480px; margin: 16px; }
 
     #ex-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.75); align-items: center; justify-content: center; }
     #ex-modal.open { display: flex; }
-    #ex-modal-box { background: #111117; border: 1px solid rgba(var(--acc-rgb),0.18); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 16px; padding: 24px; width: 100%; max-width: 580px; margin: 16px; max-height: 90vh; overflow-y: auto; }
+    #ex-modal-box { background: var(--panel); border: 1px solid rgba(var(--acc-rgb),0.18); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 16px; padding: 24px; width: 100%; max-width: 580px; margin: 16px; max-height: 90vh; overflow-y: auto; }
 
     .modal-label { display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px; }
     .modal-title { font-size: 11px; font-weight: 700; color: #838a9e; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 18px; }
@@ -49,7 +49,7 @@
         align-items: center;
         gap: 14px;
         padding: 12px 16px;
-        background: #14141b;
+        background: var(--panel);
         border-radius: 12px;
         border: 1px solid transparent;
         transition: all .12s;
@@ -65,7 +65,7 @@
     .ex-thumb, .ex-thumb-fallback { width: 44px; height: 44px; border-radius: 8px; flex-shrink: 0; }
     .ex-thumb {
         object-fit: cover;
-        background: #0a0a12;
+        background: var(--sunken);
         position: relative;
         transition: transform .18s ease, box-shadow .18s ease;
         transform-origin: left center;
@@ -76,7 +76,7 @@
         cursor: zoom-in;
         box-shadow: 0 10px 30px rgba(0,0,0,.55);
     }
-    .ex-thumb-fallback { background: #1c1c2c; color: #7d8296; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; }
+    .ex-thumb-fallback { background: var(--surface-2); color: #7d8296; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; }
 
     .page-container .btn-primary-gradient,
     #edit-modal .btn-primary-gradient,
@@ -97,7 +97,7 @@
             <p style="font-size: 14px; color: #7d8296;">{{ total_count }} esercizi con animazioni{% if total_media_bytes is not None %} &middot; {{ total_media_bytes|filesizeformat }} di immagini caricate{% endif %}</p>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
-            <a href="{% url 'export_exercises_json' %}" style="height: 34px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 1px solid #1c1c2c; border-radius: 8px; color: #787890; font-size: 12px; font-weight: 600; text-decoration: none; transition: all .12s;" onmouseover="this.style.borderColor='#3a3a5a';this.style.color='#f0f0f3'" onmouseout="this.style.borderColor='#1c1c2c';this.style.color='#787890'">
+            <a href="{% url 'export_exercises_json' %}" style="height: 34px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: #787890; font-size: 12px; font-weight: 600; text-decoration: none; transition: all .12s;" onmouseover="this.style.borderColor='#3a3a5a';this.style.color='#f0f0f3'" onmouseout="this.style.borderColor='rgba(255,255,255,0.10)';this.style.color='#787890'">
                 <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
                 Esporta JSON
             </a>
@@ -136,7 +136,7 @@
                     <label style="display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 8px;">Gruppo Muscolare</label>
                     <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                         {% for tag in tags %}
-                        <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 5px 10px; border: 1px solid #1c1c2c; border-radius: 6px; transition: border-color .12s;" onmouseover="this.style.borderColor='#3a3a5a'" onmouseout="this.style.borderColor='#1c1c2c'">
+                        <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 5px 10px; border: 1px solid var(--border); border-radius: 6px; transition: border-color .12s;" onmouseover="this.style.borderColor='#3a3a5a'" onmouseout="this.style.borderColor='rgba(255,255,255,0.10)'">
                             <input type="checkbox" name="tags" value="{{ tag.id }}" style="accent-color: var(--acc);">
                             <span style="font-size: 11px; color: #a0a0c0;">{{ tag.nome }}</span>
                         </label>
@@ -147,7 +147,7 @@
                     <label style="display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Immagine (opzionale, max {{ max_image_mb }} MB)</label>
                     <input type="file" name="immagine" id="add-immagine" accept="image/*" style="font-size: 12px; color: #a0a0c0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 6px 10px; cursor: pointer; width: 100%; max-width: 320px; box-sizing: border-box;">
                     <span id="add-immagine-error" style="display:none; font-size: 11px; color: #f85149; margin-top: 5px;"></span>
-                    <img id="add-immagine-preview" style="display:none; margin-top: 8px; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: #0a0a12;">
+                    <img id="add-immagine-preview" style="display:none; margin-top: 8px; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: var(--sunken);">
                 </div>
             </form>
         </div>
@@ -273,7 +273,7 @@
                 <input type="file" name="immagine" id="edit-immagine" accept="image/*" style="font-size: 12px; color: #a0a0c0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 6px 10px; cursor: pointer; width: 100%; box-sizing: border-box;">
                 <span style="display: block; font-size: 10.5px; color: #565b6e; margin-top: 5px;">Max {{ max_image_mb }} MB.</span>
                 <span id="edit-immagine-error" style="display:none; font-size: 11px; color: #f85149; margin-top: 5px;"></span>
-                <img id="edit-immagine-preview" style="display:none; margin-top: 8px; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: #0a0a12;">
+                <img id="edit-immagine-preview" style="display:none; margin-top: 8px; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: var(--sunken);">
             </div>
             <div id="edit-immagine-limit-msg" style="display:none; font-size: 10.5px; color: #565b6e;">Questo esercizio ha già un'immagine. Per sostituirla, eliminala prima dalla scheda dell'esercizio (clicca sul nome nell'elenco).</div>
             <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
@@ -351,7 +351,7 @@
                 wrap.style.cssText = 'position:relative;display:inline-block;';
                 var imgEl = document.createElement('img');
                 imgEl.src = img.url;
-                imgEl.style.cssText = 'width:260px;height:260px;object-fit:contain;background:#0a0a12;border-radius:10px;border:1px solid #1c1c2c;display:block;';
+                imgEl.style.cssText = 'width:260px;height:260px;object-fit:contain;background:var(--sunken);border-radius:10px;border:1px solid var(--border);display:block;';
                 wrap.appendChild(imgEl);
                 if (IS_ADMIN) {
                     var form = document.createElement('form');

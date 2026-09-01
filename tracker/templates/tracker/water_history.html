@@ -83,7 +83,7 @@
         {% else %}
         {% for day in days %}
         {% with day_key=day.data|date:"Y-m-d" %}
-        <div style="padding: 16px 20px; border-bottom: 1px solid #16162a;">
+        <div style="padding: 16px 20px; border-bottom: 1px solid var(--border);">
             <div onclick="toggleDay('{{ day_key }}')" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; cursor: pointer; user-select: none;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <svg id="day-chevron-{{ day_key }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -172,13 +172,13 @@
         {% endif %}
 
         {% if days.has_other_pages %}
-        <div style="display: flex; justify-content: center; gap: 8px; padding: 16px; border-top: 1px solid #16162a;">
+        <div style="display: flex; justify-content: center; gap: 8px; padding: 16px; border-top: 1px solid var(--border);">
             {% if days.has_previous %}
-                <a href="?page={{ days.previous_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Precedente</a>
+                <a href="?page={{ days.previous_page_number }}" style="padding: 5px 10px; background: var(--surface-2); color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Precedente</a>
             {% endif %}
             <span style="font-size: 12px; color: #7d8296; align-self: center;">Pagina {{ days.number }} di {{ days.paginator.num_pages }}</span>
             {% if days.has_next %}
-                <a href="?page={{ days.next_page_number }}" style="padding: 5px 10px; background: #1c1c2c; color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Successiva</a>
+                <a href="?page={{ days.next_page_number }}" style="padding: 5px 10px; background: var(--surface-2); color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Successiva</a>
             {% endif %}
         </div>
         {% endif %}
@@ -220,7 +220,7 @@
 .ch-tooltip {
     position: absolute !important;
     z-index: 99999 !important;
-    background: #15151c !important;
+    background: var(--panel) !important;
     color: #f0f0f3 !important;
     border: 1px solid rgba(255,255,255,.08) !important;
     border-radius: 6px !important;
@@ -230,7 +230,7 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
     pointer-events: none;
 }
-.ch-tooltip::after { border-top-color: #15151c !important; }
+.ch-tooltip::after { border-top-color: var(--panel) !important; }
 .heatmap-scroll-wrap {
     width: 100%;
     overflow-x: auto;
@@ -243,7 +243,7 @@
 }
 .heatmap-scroll-wrap::-webkit-scrollbar { height: 4px; }
 .heatmap-scroll-wrap::-webkit-scrollbar-track { background: transparent; }
-.heatmap-scroll-wrap::-webkit-scrollbar-thumb { background: #1c1c2c; border-radius: 2px; }
+.heatmap-scroll-wrap::-webkit-scrollbar-thumb { background: var(--surface-2); border-radius: 2px; }
 </style>
 <script>
 var OPEN_DAYS_KEY = 'open_water_days';
@@ -368,7 +368,7 @@ function buildYearHeatmap() {
                 var pct = dayGoalMl > 0 ? Math.round((ml / dayGoalMl) * 100) : 0;
                 var tip = document.createElement('div');
                 tip.setAttribute('data-hmtip', '1');
-                tip.style.cssText = 'position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:#15151c;color:#fff;font-size:11px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;z-index:20;box-shadow:0 6px 16px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);transition:opacity .1s;';
+                tip.style.cssText = 'position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:var(--panel);color:#fff;font-size:11px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;z-index:20;box-shadow:0 6px 16px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);transition:opacity .1s;';
                 tip.textContent = dayNum + ' ' + MONTH_NAMES_IT_SHORT[m] + ' ' + YEAR + ' — ' + (ml === 0 ? 'nessuna bevuta' : (ml / 1000).toFixed(2) + 'L (' + pct + '% obiettivo)');
                 cell.appendChild(tip);
             } else {

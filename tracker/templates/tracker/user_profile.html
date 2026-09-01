@@ -19,7 +19,7 @@
 
     <!-- Header profilo -->
     <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 28px; flex-wrap: wrap;">
-        <div style="width: 52px; height: 52px; border-radius: 14px; background: #1c1c2c; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; color: #a0a0c0; flex-shrink: 0;">
+        <div style="width: 52px; height: 52px; border-radius: 14px; background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; color: #a0a0c0; flex-shrink: 0;">
             {{ target_user.username|make_list|first|upper }}
         </div>
         <div style="flex: 1;">
@@ -45,7 +45,7 @@
 
     {% if private %}
     <!-- Profilo privato -->
-    <div style="background: #0d0d14; border: 1px dashed #1c1c2e; border-radius: 12px; padding: 52px 24px; text-align: center;">
+    <div style="background: var(--surface); border: 1px dashed var(--border); border-radius: 12px; padding: 52px 24px; text-align: center;">
         <div style="font-size: 26px; margin-bottom: 10px; opacity: .4;">🔒</div>
         <div style="font-size: 14px; color: #f0f0f3; font-weight: 500;">Questo profilo è privato</div>
     </div>
@@ -71,7 +71,7 @@
     {% if is_own %}
     <!-- Andamento peso corporeo (solo tuo, non visibile agli altri) -->
     <div class="tracer-card" style="margin-bottom: 20px; overflow: hidden;">
-        <div style="padding: 12px 16px; border-bottom: 1px solid #16162a; display: flex; justify-content: space-between; align-items: center;">
+        <div style="padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
             <div style="font-size: 10.5px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Andamento peso corporeo</div>
             <a href="{% url 'misurazioni' %}" style="font-size: 11.5px; font-weight: 600; color: var(--acc-3); text-decoration: none;">Vedi tutte le misurazioni →</a>
         </div>
@@ -87,11 +87,11 @@
     <!-- Top esercizi -->
     {% if top_exercises %}
     <div class="tracer-card" style="margin-bottom: 20px; overflow: hidden;">
-        <div style="padding: 12px 16px; border-bottom: 1px solid #16162a;">
+        <div style="padding: 12px 16px; border-bottom: 1px solid var(--border);">
             <div style="font-size: 10.5px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Esercizi preferiti</div>
         </div>
         {% for ex in top_exercises %}
-        <div style="padding: 10px 16px; border-bottom: 1px solid #0e0e1e; display: flex; align-items: center; justify-content: space-between;">
+        <div style="padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
             <div style="font-size: 12.5px; color: #c0c0d8;">{{ ex.nome }}</div>
             <span style="font-size: 11px; font-weight: 700; color: var(--acc-3); font-family: 'JetBrains Mono', monospace;">{{ ex.count }} serie</span>
         </div>
@@ -131,14 +131,14 @@
     <!-- Sessioni recenti -->
     {% if sessions %}
     <div class="tracer-card" style="overflow: hidden;">
-        <div style="padding: 12px 16px; border-bottom: 1px solid #16162a; display: flex; justify-content: space-between; align-items: center;">
+        <div style="padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
             <div style="font-size: 10.5px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Sessioni recenti</div>
             {% if total_sessions > 20 %}
             <div style="font-size: 11px; color: #f0f0f3;">Mostrando le ultime 20</div>
             {% endif %}
         </div>
         {% for session in sessions %}
-        <a href="{% url 'session_view' target_user.username session.id %}" style="display: block; padding: 13px 16px; border-bottom: 1px solid #0e0e1e; text-decoration: none; transition: background .12s;" onmouseover="this.style.background='#0f0f1c'" onmouseout="this.style.background='transparent'">
+        <a href="{% url 'session_view' target_user.username session.id %}" style="display: block; padding: 13px 16px; border-bottom: 1px solid var(--border); text-decoration: none; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                 <div style="font-size: 12.5px; font-weight: 600; color: #e0e0f0;">{{ session.data|date:"d M Y" }}</div>
                 <span style="padding: 2px 9px; background: rgba(157,143,251,.1); border: 1px solid rgba(157,143,251,.2); border-radius: 5px; font-size: 11px; color: var(--acc-3); font-weight: 600; font-family: 'JetBrains Mono', monospace;">{{ session.sets.count }} serie</span>
@@ -146,11 +146,11 @@
             <div style="display: flex; flex-wrap: wrap; gap: 5px;">
                 {% for s in session.sets.all %}
                 {% if forloop.counter <= 6 %}
-                <span style="padding: 2px 8px; border-radius: 20px; font-size: 10.5px; background: #111120; border: 1px solid #1c1c2c; color: #6060a0;">{{ s.exercise.nome }}</span>
+                <span style="padding: 2px 8px; border-radius: 20px; font-size: 10.5px; background: var(--panel); border: 1px solid var(--border); color: #6060a0;">{{ s.exercise.nome }}</span>
                 {% endif %}
                 {% endfor %}
                 {% if session.sets.count > 6 %}
-                <span style="padding: 2px 8px; border-radius: 20px; font-size: 10.5px; background: #111120; border: 1px solid #1c1c2c; color: #f0f0f3;">+{{ session.sets.count|add:"-6" }} altre</span>
+                <span style="padding: 2px 8px; border-radius: 20px; font-size: 10.5px; background: var(--panel); border: 1px solid var(--border); color: #f0f0f3;">+{{ session.sets.count|add:"-6" }} altre</span>
                 {% endif %}
             </div>
         </a>
@@ -167,8 +167,8 @@
     [data-hmcell]:hover [data-hmtip] { opacity: 1 !important; }
 
     .ch-domain-text { fill: #a0a6af; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; }
-    .ch-subdomain-bg { fill: #16161d; }
-    .graph-rect { stroke: #0d0d14; stroke-width: 2px; rx: 2; ry: 2;}
+    .ch-subdomain-bg { fill: var(--card-solid); }
+    .graph-rect { stroke: var(--card-solid); stroke-width: 2px; rx: 2; ry: 2;}
     .q1 { fill: var(--acc) !important; opacity: 0.25;}
     .q2 { fill: var(--acc) !important; opacity: 0.45;}
     .q3 { fill: var(--acc) !important; opacity: 0.65;}
@@ -179,7 +179,7 @@
     .ch-tooltip {
         position: absolute !important;
         z-index: 99999 !important;
-        background: #15151c !important;
+        background: var(--panel) !important;
         color: #f0f0f3 !important;
         border: 1px solid rgba(255,255,255,.08) !important;
         border-radius: 6px !important;
@@ -189,7 +189,7 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
         pointer-events: none;
     }
-    .ch-tooltip::after { border-top-color: #15151c !important; }
+    .ch-tooltip::after { border-top-color: var(--panel) !important; }
 
     .heatmap-scroll-wrap {
         /* Layout a blocco (non flex): con flex + justify-content:center e
@@ -201,7 +201,7 @@
     }
     .heatmap-scroll-wrap::-webkit-scrollbar { height: 4px; }
     .heatmap-scroll-wrap::-webkit-scrollbar-track { background: transparent; }
-    .heatmap-scroll-wrap::-webkit-scrollbar-thumb { background: #1c1c2c; border-radius: 2px; }
+    .heatmap-scroll-wrap::-webkit-scrollbar-thumb { background: var(--surface-2); border-radius: 2px; }
 </style>
 <script>
     function changeYear(delta) {
@@ -272,7 +272,7 @@
 
                     var tip = document.createElement('div');
                     tip.setAttribute('data-hmtip', '1');
-                    tip.style.cssText = 'position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:#15151c;color:#fff;font-size:11px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;z-index:20;box-shadow:0 6px 16px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);transition:opacity .1s;';
+                    tip.style.cssText = 'position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:var(--panel);color:#fff;font-size:11px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;z-index:20;box-shadow:0 6px 16px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);transition:opacity .1s;';
                     tip.textContent = dayNum + ' ' + MONTH_NAMES_IT_SHORT[m] + ' ' + YEAR + ' — ' + (count === 0 ? 'nessun allenamento' : count + (count === 1 ? ' allenamento' : ' allenamenti'));
                     cell.appendChild(tip);
                 } else {
@@ -358,7 +358,7 @@
                     borderColor: '#60a060',
                     backgroundColor: fade,
                     pointBackgroundColor: '#60a060',
-                    pointBorderColor: '#111117',
+                    pointBorderColor: '#1b2d34',
                     pointBorderWidth: 2,
                     pointRadius: 3,
                     pointHoverRadius: 6,
@@ -372,7 +372,7 @@
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: '#15151c',
+                        backgroundColor: '#1b2d34',
                         borderColor: 'rgba(255,255,255,.08)',
                         borderWidth: 1,
                         padding: 10,
