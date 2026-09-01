@@ -56,10 +56,14 @@
    della heatmap).
    ========================================================================== */
 :root {
-  --bg: #132025;
-  --card-solid: #182a30;
+  /* Fondo pagina scuro come la sidebar (sono lo stesso colore, li separa
+     solo il bordo); il petrolio sta sulle card, che cosi' emergono. Per
+     questo --surface e' un colore pieno e non un overlay: sopra un fondo
+     quasi nero un velo di bianco darebbe grigio neutro, non petrolio. */
+  --bg: #0e181c;
+  --surface: #16252b;
+  --card-solid: #16252b;
   --panel: #1b2d34;
-  --surface: rgba(255, 255, 255, 0.04);
   --surface-2: rgba(255, 255, 255, 0.08);
   --sunken: rgba(0, 0, 0, 0.25);
   --border: rgba(255, 255, 255, 0.10);
@@ -244,7 +248,8 @@ a { text-decoration: none; }
 
 .sidebar {
   width: 240px;
-  background: var(--sunken);
+  /* Stesso fondo dell'area contenuti: le separa il bordo, non il colore. */
+  background: var(--bg);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
