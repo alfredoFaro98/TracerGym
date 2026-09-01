@@ -67,7 +67,7 @@
                 <button type="button" onclick="toggleDateEdit()" class="btn-cancel" style="padding: 8px 16px; font-size: 12.5px;">Annulla</button>
             </form>
         </div>
-        <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
             <form action="{% url 'duplicate_session' session.id %}" method="post">
                 {% csrf_token %}
                 <button type="submit" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">Duplica Sessione</button>
@@ -138,7 +138,7 @@
                 </div>
 
                 <!-- Rest + Per lato -->
-                <div style="display: flex; align-items: flex-end; gap: 14px;">
+                <div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px;">
                     <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
                         <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RECUPERO (S)</span>
                         <input type="number" name="rest_time" class="tracer-input" placeholder="90" min="0">
@@ -149,7 +149,7 @@
                     </label>
                 </div>
 
-                <div style="display: flex; gap: 18px;">
+                <div style="display: flex; flex-wrap: wrap; gap: 18px;">
                     <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;">
                         <input type="checkbox" name="avviamento" style="width: 15px; height: 15px; accent-color: var(--acc); flex-shrink: 0; cursor: pointer;">
                         <span style="font-size: 12.5px; color: #c7cbd6; white-space: nowrap;">Avviamento</span>
@@ -231,7 +231,7 @@
                 <!-- Barra azioni bulk (visibile quando ci sono serie selezionate) -->
                 <div id="bulk-actions-bar" style="display: none; position: fixed; top: 16px; left: 50%; transform: translateX(-50%); width: min(480px, calc(100vw - 32px)); z-index: 200; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 16px; background: #1a1015; box-shadow: 0 10px 30px rgba(0,0,0,.5); border: 1px solid rgba(248,113,113,0.3); border-radius: 12px; flex-wrap: wrap;">
                     <span id="bulk-actions-count" style="font-size: 12.5px; font-weight: 600; color: #f87171;">0 serie selezionate</span>
-                    <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
                         <button type="button" onclick="deselectAllSets()" style="padding: 6px 12px; font-size: 12px; font-weight: 600; background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; color: #c7cbd6; cursor: pointer;">Deseleziona</button>
                         <button type="button" onclick="submitBulkDelete()" style="padding: 6px 14px; font-size: 12px; font-weight: 600; background: rgba(248,113,113,0.16); border: none; border-radius: 7px; color: #f87171; cursor: pointer;">Elimina selezionate</button>
                     </div>
@@ -274,7 +274,7 @@
             <!-- ── Circuits ── -->
             {% if circuit_items %}
             <div class="tracer-card" style="overflow: hidden; margin-top: 16px; padding: 24px 26px; display: flex; flex-direction: column; gap: 14px;">
-                <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;">
                     <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: #ffffff;">CIRCUITI</span>
                     <span style="font-size: 12.5px; color: #7d8296;">{{ circuit_items|length }} circuiti</span>
                 </div>
@@ -286,7 +286,7 @@
                             <span style="font-size: 15.5px; font-weight: 700; color: #ffffff;">{% if item.circuit.nome %}{{ item.circuit.nome }}{% else %}Circuito #{{ forloop.counter }}{% endif %}</span>
                             <span style="font-size: 12px; color: #7d8296;">{{ item.circuit.rounds }} round{% if item.circuit.rest_tra_round %} &middot; {{ item.circuit.rest_tra_round }}s recupero{% endif %}</span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
                             <span style="background: rgba(var(--acc-rgb),0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 7px; white-space: nowrap;">{{ item.circuit.rounds }} round</span>
                             <span onclick="event.stopPropagation(); toggleCircuitEdit({{ item.circuit.id }})" style="font-size: 12px; font-weight: 600; color: var(--acc-4); padding: 6px 12px; border-radius: 7px; background: rgba(var(--acc-rgb),0.12); cursor: pointer; white-space: nowrap; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.12)'">Modifica</span>
                             <form action="{% url 'delete_circuit' item.circuit.id %}" method="post" style="display:inline;" onclick="event.stopPropagation()" onsubmit="return confirm('Eliminare circuito e tutte le sue serie?');">
