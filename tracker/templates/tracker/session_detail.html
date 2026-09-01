@@ -379,8 +379,10 @@
                             <div style="display: flex; flex-direction: column; gap: 6px;"><span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">NOME (OPZ.)</span><input type="text" name="nome" class="tracer-input" style="width: 160px;" placeholder="Circuito A"></div>
                             <div style="display: flex; flex-direction: column; gap: 6px;"><span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">ROUND</span><input type="number" name="rounds" class="tracer-input" style="width: 70px; background: rgba(var(--acc-rgb),0.1); border-color: var(--acc);" value="3" min="1" required></div>
                             <div style="display: flex; flex-direction: column; gap: 6px;"><span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RECUPERO TRA ROUND (S)</span><input type="number" name="rest_tra_round" class="tracer-input" style="width: 100px;" placeholder="Opc." min="0"></div>
-                            <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13.5px;">Crea Circuito</button>
-                            <button type="button" onclick="toggleNewCircuitForm()" class="btn-cancel" style="padding: 10px 20px; font-size: 13.5px;">Annulla</button>
+                            <div style="display: flex; gap: 10px; align-items: flex-end;">
+                                <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13.5px;">Crea Circuito</button>
+                                <button type="button" onclick="toggleNewCircuitForm()" class="btn-cancel" style="padding: 10px 20px; font-size: 13.5px;">Annulla</button>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -394,8 +396,10 @@
                                 <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">CERCA CIRCUITO</span>
                                 <input type="text" id="import-circuit-search" class="tracer-input" placeholder="Cerca per nome o esercizio…" autocomplete="off">
                             </div>
-                            <button type="submit" id="import-circuit-submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13.5px;" disabled>Importa</button>
-                            <button type="button" onclick="toggleImportCircuitForm()" class="btn-cancel" style="padding: 10px 20px; font-size: 13.5px;">Annulla</button>
+                            <div style="display: flex; gap: 10px; align-items: flex-end;">
+                                <button type="submit" id="import-circuit-submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13.5px;" disabled>Importa</button>
+                                <button type="button" onclick="toggleImportCircuitForm()" class="btn-cancel" style="padding: 10px 20px; font-size: 13.5px;">Annulla</button>
+                            </div>
                         </form>
                     </div>
                 </div>
