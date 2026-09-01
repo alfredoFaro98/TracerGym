@@ -2127,7 +2127,7 @@ def macro(request):
         utente=request.user, e_spazzatura=True, data__gte=week_monday, data__lte=today,
     ).count()
 
-    entries = MacroEntry.objects.filter(utente=request.user).order_by('-data', '-creato_il')
+    entries = MacroEntry.objects.filter(utente=request.user).order_by('-data', 'creato_il')
     entries_by_day = {day: list(grp) for day, grp in groupby(entries, key=lambda e: e.data)}
     statuses_by_day = _macro_day_statuses_map(request.user)
 
@@ -2241,27 +2241,32 @@ def edit_macro_entry(request, entry_id):
 
 @login_required
 def duplicate_macro_entry(request, entry_id):
+    """Copia una voce di alimentazione su un'altra data, via AJAX (nessun
+    ricaricamento della pagina): il form nella UI intercetta il submit."""
     entry = get_object_or_404(MacroEntry, id=entry_id, utente=request.user)
-    if request.method == 'POST':
-        target_data = timezone.localdate()
-        data_str = request.POST.get('data')
-        if data_str:
-            try:
-                target_data = date.fromisoformat(data_str)
-            except ValueError:
-                pass
-        MacroEntry.objects.create(
-            utente=request.user,
-            kcal=entry.kcal,
-            proteine_g=entry.proteine_g,
-            carboidrati_g=entry.carboidrati_g,
-            grassi_g=entry.grassi_g,
-            nota=entry.nota,
-            e_spazzatura=entry.e_spazzatura,
-            data=target_data,
-            creato_il=_combine_water_datetime(target_data, None),
-        )
-    return redirect(request.POST.get('next') or 'macro')
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Metodo non valido.'}, status=405)
+
+    target_data = timezone.localdate()
+    data_str = request.POST.get('data')
+    if data_str:
+        try:
+            target_data = date.fromisoformat(data_str)
+        except ValueError:
+            return JsonResponse({'error': 'Data non valida.'}, status=400)
+
+    MacroEntry.objects.create(
+        utente=request.user,
+        kcal=entry.kcal,
+        proteine_g=entry.proteine_g,
+        carboidrati_g=entry.carboidrati_g,
+        grassi_g=entry.grassi_g,
+        nota=entry.nota,
+        e_spazzatura=entry.e_spazzatura,
+        data=target_data,
+        creato_il=_combine_water_datetime(target_data, None),
+    )
+    return JsonResponse({'ok': True, 'data': target_data.isoformat()})
 
 
 @login_required

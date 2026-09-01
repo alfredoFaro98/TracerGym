@@ -285,7 +285,7 @@
                         {% if e.nota %}<span style="font-size: 12px; color: #9ba0b3; font-style: italic;">📝 {{ e.nota }}</span>{% endif %}
                         <div style="flex: 1;"></div>
                         <span onclick="toggleMacroEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: var(--acc-4); padding: 6px 12px; border-radius: 7px; background: rgba(var(--acc-rgb),0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.12)'">Modifica</span>
-                        <span onclick="toggleMacroDuplicate('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: #4ade80; padding: 6px 12px; border-radius: 7px; background: rgba(74,222,128,0.1); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(74,222,128,0.2)'" onmouseout="this.style.background='rgba(74,222,128,0.1)'">Duplica</span>
+                        <span id="macro-dup-btn-{{ e.id }}" onclick="toggleMacroDuplicate('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: #4ade80; padding: 6px 12px; border-radius: 7px; background: rgba(74,222,128,0.1); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(74,222,128,0.2)'" onmouseout="this.style.background='rgba(74,222,128,0.1)'">Importa</span>
                         <form action="{% url 'delete_macro_entry' e.id %}" method="post" style="display:inline;" onsubmit="return confirm('Eliminare questa voce?');">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="{% url 'macro' %}">
@@ -332,12 +332,11 @@
                         </form>
                     </div>
                     <div id="macro-dup-{{ e.id }}" style="display: none; align-items: center; gap: 8px; background: rgba(74,222,128,0.06); border: 1px solid rgba(74,222,128,0.25); border-radius: 9px; padding: 10px 14px; margin-top: 4px; flex-wrap: wrap;">
-                        <form action="{% url 'duplicate_macro_entry' e.id %}" method="post" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <form data-ajax-macro-dup action="{% url 'duplicate_macro_entry' e.id %}" method="post" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                             {% csrf_token %}
-                            <input type="hidden" name="next" value="{% url 'macro' %}">
-                            <span style="font-size: 12px; color: #c7cbd6;">Copia questa voce sul giorno:</span>
+                            <span style="font-size: 12px; color: #c7cbd6;">Importa questa voce nel giorno:</span>
                             <input type="date" name="data" value="{% now 'Y-m-d' %}" class="tracer-input" style="width: 150px;">
-                            <button type="submit" style="padding: 7px 14px; font-size: 12px; font-weight: 600; color: #4ade80; background: rgba(74,222,128,0.14); border: 1px solid rgba(74,222,128,0.3); border-radius: 7px; cursor: pointer;">Copia</button>
+                            <button type="submit" style="padding: 7px 14px; font-size: 12px; font-weight: 600; color: #4ade80; background: rgba(74,222,128,0.14); border: 1px solid rgba(74,222,128,0.3); border-radius: 7px; cursor: pointer;">Importa</button>
                         </form>
                         <button type="button" onclick="toggleMacroDuplicate('{{ e.id }}')" style="color: #838a9e; font-size: 12.5px; font-weight: 600; padding: 7px 10px; background: transparent; border: none; cursor: pointer;" onmouseover="this.style.color='#c7cbd6'" onmouseout="this.style.color='#838a9e'">Annulla</button>
                     </div>
@@ -469,6 +468,32 @@ function toggleMacroDuplicate(id) {
     var dup = document.getElementById('macro-dup-' + id);
     dup.style.display = dup.style.display === 'none' ? 'flex' : 'none';
 }
+
+document.querySelectorAll('form[data-ajax-macro-dup]').forEach(function(form) {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var entryId = form.action.match(/\/macro\/(\d+)\/duplicate\//)[1];
+        var btn = form.querySelector('button[type="submit"]');
+        if (btn) btn.disabled = true;
+        fetch(form.action, { method: 'POST', body: new FormData(form) })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (btn) btn.disabled = false;
+                if (!data.ok) { alert(data.error || 'Errore, riprova.'); return; }
+                toggleMacroDuplicate(entryId);
+                var label = document.getElementById('macro-dup-btn-' + entryId);
+                if (label) {
+                    var original = label.textContent;
+                    label.textContent = 'Importato ✓';
+                    setTimeout(function() { label.textContent = original; }, 1800);
+                }
+            })
+            .catch(function() {
+                if (btn) btn.disabled = false;
+                alert('Errore di rete, riprova.');
+            });
+    });
+});
 
 (function() {
     var CHART_DATA = {{ chart_data_json|safe }};
