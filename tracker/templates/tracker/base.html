@@ -111,10 +111,16 @@
                 {% endwith %}
                 {% endif %}
 
-                <a href="{% static 'tracker/guida-tracer.pdf' %}" download="Tracer-Manuale-Utente.pdf" title="Scarica il manuale utente in PDF" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s; border: 1px solid transparent;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'">
+                {% comment %}
+                Voce Guida temporaneamente disattivata: resta visibile ma non
+                scarica piu' il PDF. Per riattivarla: rimettere il tag <a> con
+                href al file statico tracker/guida-tracer.pdf, l'attributo
+                download="Tracer-Manuale-Utente.pdf" e gli handler di hover.
+                {% endcomment %}
+                <span title="Guida non disponibile al momento" aria-disabled="true" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; border: 1px solid transparent; opacity: .45; cursor: default;">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                     <span class="menu-text">Guida</span>
-                </a>
+                </span>
             </div>
             {% endwith %}
 
