@@ -43,7 +43,7 @@
                     <input type="text" name="nota" placeholder="Es. sveglio più volte, rumori esterni..." maxlength="200" class="tracer-input" style="width: 100%;">
                 </div>
                 <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13px;">Salva</button>
-                <button type="button" onclick="toggleNewEntryForm()" class="btn-cancel btn-cancel-lg">Annulla</button>
+                <button type="button" onclick="toggleNewEntryForm()" class="btn-cancel" style="padding: 10px 20px; font-size: 13px;">Annulla</button>
             </form>
         </div>
     </div>
@@ -158,7 +158,7 @@
                         <input type="text" name="nota" value="{{ e.nota }}" maxlength="200" class="tracer-input" style="width: 100%;">
                     </div>
                     <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
-                    <button type="button" onclick="toggleSleepEdit('{{ e.id }}')" class="btn-cancel btn-cancel-sm">Annulla</button>
+                    <button type="button" onclick="toggleSleepEdit('{{ e.id }}')" class="btn-cancel" style="padding: 8px 16px; font-size: 12.5px;">Annulla</button>
                 </form>
             </div>
         </div>
