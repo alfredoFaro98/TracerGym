@@ -6,8 +6,8 @@
 <div class="page-container">
     <!-- Header -->
     <div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 24px;">
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <div class="header-left-col" style="display: flex; flex-direction: column; gap: 8px;">
+            <div class="header-title-row" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                 <h1 id="date-label" style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: #f0f0f3; letter-spacing: -0.3px; margin: 0; white-space: nowrap;">
                     {% if session.nome %}{{ session.nome }} <span style="font-weight: 500; color: #9ba0b3;">&middot; {{ session.data|date:"l d F Y"|capfirst }}</span>{% else %}{{ session.data|date:"l d F Y"|capfirst }}{% endif %}
                 </h1>
@@ -76,7 +76,7 @@
                 <button type="button" onclick="toggleDateEdit()" class="btn-cancel" style="padding: 8px 16px; font-size: 12.5px;">Annulla</button>
             </form>
         </div>
-        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+        <div class="header-actions-row" style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
             <form action="{% url 'duplicate_session' session.id %}" method="post">
                 {% csrf_token %}
                 <button type="submit" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">Duplica Sessione</button>
@@ -575,6 +575,20 @@
 @media (max-width: 560px) {
     .header-badge { font-size: 12px !important; padding: 6px 10px !important; }
     .header-badge-long { display: none; }
+
+    /* I pulsanti dell'header occupano tutta la riga invece di accalcarsi a
+       sinistra lasciando vuoto a destra: ogni elemento cresce in proporzione
+       (min-width:0 perche' altrimenti non scenderebbero sotto la larghezza
+       del testo). L'icona di export JSON resta quadrata. */
+    .header-left-col { width: 100%; }
+    .header-title-row > h1 { flex: 1 1 100%; }
+    .header-title-row > button,
+    .header-title-row > .header-badge { flex: 1; min-width: 0; text-align: center; }
+
+    .header-actions-row { width: 100%; }
+    .header-actions-row > form { flex: 1; min-width: 0; }
+    .header-actions-row > form > button { width: 100%; }
+    .header-actions-row > button { flex: 1; min-width: 0; }
 }
 
 /* Pannello "Aggiungi serie": l'intestazione lo apre e chiude. Su desktop sta
