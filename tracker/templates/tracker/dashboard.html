@@ -133,7 +133,7 @@
         </div>
 
         <!-- Aggiunte di oggi -->
-        <div id="water-pills" style="display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 10px; margin-top: 14px; padding-bottom: 6px;">
+        <div id="water-pills" style="display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 10px; margin-top: 6px; padding-top: 8px; padding-bottom: 6px;">
             {% for e in water_entries_today %}
             <form action="{% url 'delete_water_entry' e.id %}" method="post" class="water-pill" style="position: relative; display: inline-flex; flex-shrink: 0; white-space: nowrap;" onsubmit="return confirm('Eliminare questa aggiunta?');">
                 {% csrf_token %}
