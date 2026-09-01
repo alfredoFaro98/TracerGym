@@ -131,17 +131,22 @@ input[type=number] { -moz-appearance: textfield; }
   justify-content: center;
   font-family: inherit;
   font-weight: 600;
-  color: #dbe6ea;
-  background: #33454d;
+  color: #c7cbd6;
+  background: transparent;
+  /* Bordo disegnato con un inset shadow e non con border: cosi' non occupa
+     spazio nel box e il pulsante resta alto esattamente come il primario
+     accanto, che di bordo non ne ha. */
   border: none;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
   border-radius: 8px;
   cursor: pointer;
   white-space: nowrap;
-  transition: background .15s, color .15s;
+  transition: background .15s, color .15s, box-shadow .15s;
 }
 .btn-cancel:hover {
-  background: #3e545e;
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+  color: #f0f0f3;
 }
 
 /* Logout: e' un'uscita, quindi si distingue con il rosso tenue gia' usato

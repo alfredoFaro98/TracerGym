@@ -430,8 +430,6 @@
         background: #f87171;
         color: #fff;
         border: none;
-        font-size: 11px;
-        line-height: 1;
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -439,8 +437,26 @@
         opacity: 0;
         transform: scale(0.8);
         transition: opacity .12s, transform .12s;
-        padding: 2px 0 0 0;
+        /* Niente glifo di testo: il carattere "×" non e' centrato nel suo
+           bounding box e restava sempre un po' storto nel tondino. La croce
+           e' disegnata con due pseudo-elementi, quindi perfettamente al
+           centro a prescindere dal font. */
+        padding: 0;
+        font-size: 0;
     }
+    .water-pill-x::before,
+    .water-pill-x::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 8px;
+        height: 1.6px;
+        border-radius: 1px;
+        background: #fff;
+    }
+    .water-pill-x::before { transform: translate(-50%, -50%) rotate(45deg); }
+    .water-pill-x::after { transform: translate(-50%, -50%) rotate(-45deg); }
     .water-pill:hover .water-pill-x { opacity: 1; transform: scale(1); }
 
     /* Su mobile la riga dei pulsanti rapidi acqua e quella di inserimento
