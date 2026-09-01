@@ -1,8 +1,10 @@
 {% load l10n %}
-{# Riga di una voce di alimentazione: vista + form di modifica + form di
-   importazione su un'altra data. Usata sia nel loop dello storico in
-   macro.html sia dall'endpoint AJAX di importazione, che la rende lato
-   server e la inserisce nel DOM senza ricaricare la pagina. #}
+{% comment %}
+Riga di una voce di alimentazione: vista + form di modifica + form di
+importazione su un'altra data. Usata sia nel loop dello storico in
+macro.html sia dall'endpoint AJAX di importazione, che la rende lato
+server e la inserisce nel DOM senza ricaricare la pagina.
+{% endcomment %}
 <div data-macro-entry="{{ e.id }}" data-ora="{{ e.creato_il|date:'H:i' }}">
     <div id="macro-view-{{ e.id }}" style="display: flex; align-items: center; gap: 10px; background: {% if e.e_spazzatura %}rgba(240,168,117,0.06){% else %}rgba(255,255,255,0.025){% endif %}; border: 1px solid {% if e.e_spazzatura %}rgba(240,168,117,0.25){% else %}rgba(255,255,255,0.05){% endif %}; border-radius: 9px; padding: 9px 14px; flex-wrap: wrap;">
         <input type="checkbox" class="macro-select-cb" data-day-key="{{ day_key }}" value="{{ e.id }}" onchange="onMacroCbChange(this)" title="Seleziona questa voce" style="width: 15px; height: 15px; accent-color: #f87171; cursor: pointer; flex-shrink: 0;">
