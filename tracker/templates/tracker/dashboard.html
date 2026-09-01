@@ -906,10 +906,10 @@
         weekLabel.textContent = hasToday ? 'Questa settimana' : (d1[2] + '/' + d1[1] + ' – ' + d2[2] + '/' + d2[1]);
     }
 
-    function muscleChips(day) {
-        // Muscoli se disponibili; molti esercizi personali non hanno il
-        // muscolo compilato, quindi in mancanza mostriamo gli esercizi fatti.
-        var items = day.muscles.length ? day.muscles : day.esercizi;
+    function exerciseChips(day) {
+        // Nel pannello del giorno vogliamo i nomi degli esercizi fatti, non i
+        // gruppi muscolari (che restano nel payload ma non si mostrano qui).
+        var items = day.esercizi;
         if (!items.length) {
             return '<div style="font-size:11.5px;color:#7d8296;">Nessun dato registrato</div>';
         }
@@ -953,7 +953,7 @@
             '<span style="font-size:16px;flex-shrink:0;">🏋️</span>' +
             '<div style="flex:1;min-width:0;">' +
                 '<div style="font-size:9.5px;font-weight:700;color:#7d8296;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;">' + titleLabel + '</div>' +
-                muscleChips(day) +
+                exerciseChips(day) +
             '</div>' +
             actionHtml;
     }
