@@ -157,33 +157,39 @@
         {% for day in days %}
         {% with day_key=day.data|date:"Y-m-d" %}
         <div style="padding: 16px 20px; border-bottom: 1px solid var(--border);">
-            <div onclick="toggleDay('{{ day_key }}')" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; cursor: pointer; user-select: none;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <svg id="day-chevron-{{ day_key }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;{% if filter_active %} transform: rotate(90deg);{% endif %}"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                    <span style="font-size: 13.5px; font-weight: 700; color: #f0f0f3;">{{ day.data|date:"l d F Y"|capfirst }}</span>
-                    <span style="font-size: 11.5px; color: #7d8296;">{{ day.entries|length }} assunzion{{ day.entries|length|pluralize:"e,i" }}</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                    {% for b in day.totals_badges %}
-                    <span style="background: {{ b.bg }}; color: {{ b.fg }}; font-size: 11.5px; font-weight: 700; padding: 5px 10px; border-radius: 7px; white-space: nowrap;">{{ b.label }} {{ b.valore }}g</span>
-                    {% endfor %}
-                </div>
+            <!-- I chip di riepilogo per tipo che stavano qui sono stati tolti:
+                 ripetevano gli stessi valori delle card del dettaglio, che si
+                 aprono un tocco piu' sotto. -->
+            <div onclick="toggleDay('{{ day_key }}')" style="display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none;">
+                <svg id="day-chevron-{{ day_key }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;{% if filter_active %} transform: rotate(90deg);{% endif %}"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                <span style="flex: 1; min-width: 0; font-size: 13.5px; font-weight: 700; color: #f0f0f3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ day.data|date:"l d F Y"|capfirst }}</span>
+                <span style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: var(--acc-4); background: rgba(var(--acc-rgb),.12); border: 1px solid rgba(var(--acc-rgb),.25); border-radius: 7px; padding: 4px 9px; white-space: nowrap;">{{ day.entries|length }} assunzion{{ day.entries|length|pluralize:"e,i" }}</span>
             </div>
 
             <div id="day-body-{{ day_key }}" style="display: {% if filter_active %}flex{% else %}none{% endif %}; flex-direction: column; gap: 6px; margin-top: 12px;">
                 {% for e in day.entries %}
                 <div>
-                    <div id="integratore-view-{{ e.id }}" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.05); border-radius: 9px; padding: 9px 14px; flex-wrap: wrap;">
-                        <span style="font-size: 9px; font-weight: 700; color: var(--acc-4); background: rgba(var(--acc-rgb),.12); border: 1px solid rgba(var(--acc-rgb),.25); border-radius: 4px; padding: 2px 6px; letter-spacing: .4px; text-transform: uppercase;">{{ e.get_tipo_display }}</span>
-                        <span style="font-size: 13.5px; color: #ffffff;"><b>{{ e.quantita_g }}</b> g</span>
-                        <span style="font-size: 12px; color: #7d8296;">{{ e.creato_il|date:"H:i" }}</span>
-                        <div style="flex: 1;"></div>
-                        <span onclick="toggleIntegratoreEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: var(--acc-4); padding: 6px 12px; border-radius: 7px; background: rgba(var(--acc-rgb),0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.12)'">Modifica</span>
-                        <form action="{% url 'delete_integratore_entry' e.id %}" method="post" style="display:inline;" onsubmit="return confirm('Eliminare questa assunzione?');">
-                            {% csrf_token %}
-                            <input type="hidden" name="next" value="{% url 'integratori' %}">
-                            <button type="submit" style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
-                        </form>
+                    <div id="integratore-view-{{ e.id }}" style="display: flex; flex-direction: column; gap: 9px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.05); border-radius: 9px; padding: 10px 14px;">
+                        <!-- Nome e dose a sinistra, orario spinto a destra dal
+                             margin-left:auto: prima stava subito dopo la dose e
+                             finiva in mezzo al testo. -->
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="flex-shrink: 0; font-size: 9px; font-weight: 700; color: var(--acc-4); background: rgba(var(--acc-rgb),.12); border: 1px solid rgba(var(--acc-rgb),.25); border-radius: 4px; padding: 2px 6px; letter-spacing: .4px; text-transform: uppercase;">{{ e.get_tipo_display }}</span>
+                            <span style="font-size: 13.5px; color: #ffffff;"><b>{{ e.quantita_g }}</b> g</span>
+                            <span style="margin-left: auto; flex-shrink: 0; font-size: 12px; color: #7d8296;">{{ e.creato_il|date:"H:i" }}</span>
+                        </div>
+                        <!-- Griglia e non flex:1: con box-sizing border-box il
+                             flex-basis comprende il padding, quindi quello di
+                             Modifica si sommerebbe alla sua meta' e le due
+                             larghezze non verrebbero uguali. -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <span onclick="toggleIntegratoreEdit('{{ e.id }}')" style="text-align: center; font-size: 12px; font-weight: 600; color: var(--acc-4); padding: 8px 12px; border-radius: 7px; background: rgba(var(--acc-rgb),0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.12)'">Modifica</span>
+                            <form action="{% url 'delete_integratore_entry' e.id %}" method="post" style="display: flex;" onsubmit="return confirm('Eliminare questa assunzione?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{% url 'integratori' %}">
+                                <button type="submit" style="width: 100%; font-size: 12px; font-weight: 600; color: #f87171; padding: 8px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; font-family: inherit; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
+                            </form>
+                        </div>
                     </div>
                     <div id="integratore-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
                         <form action="{% url 'edit_integratore_entry' e.id %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
@@ -219,7 +225,7 @@
                 {% endfor %}
 
                 <div style="margin-top: 6px;">
-                    <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" class="water-quick-btn">+ Aggiungi assunzione</button>
+                    <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" class="water-quick-btn" style="width: 100%;">+ Aggiungi assunzione</button>
                     <div id="day-add-{{ day_key }}" style="display: none; margin-top: 10px;">
                         <form action="{% url 'add_integratore_entry' %}" method="post" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                             {% csrf_token %}
