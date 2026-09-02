@@ -256,23 +256,24 @@
 
     <!-- Sessions List -->
     <div class="tracer-card" style="overflow: hidden; margin-top: 24px;">
-        <div style="padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div class="storico-toolbar" style="padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
             <div class="storico-title-row" style="display: flex; align-items: center; gap: 10px;">
                 <div style="font-size: 11px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Storico Allenamenti</div>
                 <div class="storico-io-icons" style="display: flex; align-items: center; gap: 10px;">
-                    <a href="{% url 'export_sessions' %}" title="Esporta backup JSON" style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;background:var(--surface-2);border:1px solid var(--border);color:#787890;text-decoration:none;" onmouseover="this.style.color='#f0f0f3'" onmouseout="this.style.color='#787890'">
+                    <a href="{% url 'export_sessions' %}" title="Esporta backup JSON" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:6px;background:var(--surface-2);border:1px solid var(--border);color:#787890;text-decoration:none;" onmouseover="this.style.color='#f0f0f3'" onmouseout="this.style.color='#787890'">
                         <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
                     </a>
-                    <a href="{% url 'import_sessions' %}" title="Importa backup JSON" style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;background:var(--surface-2);border:1px solid var(--border);color:#787890;text-decoration:none;" onmouseover="this.style.color='#f0f0f3'" onmouseout="this.style.color='#787890'">
+                    <a href="{% url 'import_sessions' %}" title="Importa backup JSON" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:6px;background:var(--surface-2);border:1px solid var(--border);color:#787890;text-decoration:none;" onmouseover="this.style.color='#f0f0f3'" onmouseout="this.style.color='#787890'">
                         <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
                     </a>
                 </div>
             </div>
             <div class="storico-filters" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex: 1; justify-content: flex-end;">
                 <form method="get" class="filter-form" style="display: flex; gap: 8px; align-items: center; justify-content: flex-end; flex-wrap: wrap;">
-                    <div class="storico-date-field">
+                    <div class="storico-date-field{% if not request.GET.month %} is-empty{% endif %}">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ba0b3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                        <input type="month" name="month" value="{{ request.GET.month }}">
+                        <span class="storico-date-ph" aria-hidden="true">Mese</span>
+                        <input type="month" name="month" value="{{ request.GET.month }}" aria-label="Filtra per mese">
                     </div>
                     <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Cerca esercizio o note..." class="tracer-input" style="padding: 6px 10px; flex: 0 0 170px; font-size: 12px; height: 30px; border-radius: 6px;">
                     <button type="submit" class="btn-primary-gradient storico-filtra-btn" style="padding: 0 12px; height: 30px; font-size: 11px;">Filtra</button>
@@ -587,18 +588,31 @@
     /* La toolbar filtri (data, ricerca, filtra, conteggio) va sempre a capo
        su una riga tutta sua sotto il titolo appena lo spazio si stringe,
        invece di lasciare che un singolo controllo (es. il date picker)
-       resti "orfano" accanto al titolo mentre gli altri vanno a capo. */
-    @media (max-width: 900px) {
+       resti "orfano" accanto al titolo mentre gli altri vanno a capo.
+
+       Le soglie qui sotto sono @container e non @media perche' quello che
+       decide se i controlli ci stanno e' la larghezza della TOOLBAR, non
+       quella della finestra: la card sta dentro .main-content, che perde
+       240px di sidebar. Con la vecchia soglia @media (max-width:900px)
+       restava scoperta una fascia (~950-1150px di finestra) in cui la
+       regola non era ancora scattata ma la toolbar era gia' sui 700px, e
+       il conteggio sessioni finiva a capo da solo sotto "Filtra" - lo
+       stesso orfano che questo blocco doveva evitare. */
+    .storico-toolbar {
+        container-type: inline-size;
+        container-name: storico;
+    }
+    @container storico (max-width: 720px) {
         .storico-filters { flex: 1 1 100% !important; justify-content: flex-start !important; }
         /* La riga con titolo resta da sola (i filtri vanno a capo sotto):
            allarghiamola e spingiamo le icone import/export a destra invece
            di lasciarle appiccicate al titolo. */
         .storico-title-row { flex: 1 1 100%; }
         .storico-io-icons { margin-left: auto; }
-        /* Sotto i 900px lo spingiamo a destra sulla riga in cui finisce a capo;
-           sopra i 900px .storico-filters e' gia' justify-content:flex-end e
-           un margin-left:auto qui spaccherebbe form e conteggio, mandando
-           il primo a sinistra e il secondo all'estremo bordo destro. */
+        /* Qui lo spingiamo a destra sulla riga in cui finisce a capo; sopra
+           la soglia .storico-filters e' gia' justify-content:flex-end e un
+           margin-left:auto spaccherebbe form e conteggio, mandando il primo
+           a sinistra e il secondo all'estremo bordo destro. */
         .storico-count { margin-left: auto; }
     }
     /* Quando la pillola di Programmazione Settimanale va a capo sotto il
@@ -608,7 +622,9 @@
         .week-title { flex: 1 1 100%; text-align: center; }
         .week-controls-pill { flex: 1 1 100%; width: fit-content; margin: 0 auto; }
     }
-    @media (max-width: 480px) {
+    /* Stessa logica: e' il form a non starci piu', quindi si misura la
+       toolbar. A questo punto i filtri occupano gia' tutta la riga. */
+    @container storico (max-width: 400px) {
         .filter-form input[name="q"] { max-width: none !important; flex: 1 !important; min-width: 120px !important; }
         .storico-filtra-btn { flex: 1 !important; }
     }
@@ -641,10 +657,30 @@
         padding: 0;
         font-size: 12px;
         color: #f0f0f3;
-        width: 74px;
+        /* 74px non bastavano per il valore vero: in italiano il campo
+           renderizza "settembre 2026" e il testo veniva tagliato. */
+        width: 108px;
+        min-width: 0;
         height: 100%;
         font-family: inherit;
     }
+
+    /* Il campo vuoto mostrava una fila di trattini ("--------- ---"): e' il
+       placeholder nativo di input[type=month], che vive nello shadow DOM del
+       browser e non si puo' ne' stilare ne' sostituire da CSS. Quando non c'e'
+       un valore azzeriamo l'input e mettiamo al suo posto la nostra etichetta.
+       L'input resta nel DOM perche' serve il suo name per la query GET; il
+       click continua a funzionare perche' ad aprire il calendario e' il
+       ::-webkit-calendar-picker-indicator qui sotto, steso su tutta la pill. */
+    .storico-date-ph {
+        display: none;
+        font-size: 12px;
+        color: #9ba0b3;
+        white-space: nowrap;
+        pointer-events: none;
+    }
+    .storico-date-field.is-empty .storico-date-ph { display: block; }
+    .storico-date-field.is-empty input[type="month"] { width: 0; opacity: 0; }
     .storico-date-field input[type="month"]::-webkit-calendar-picker-indicator {
         background: transparent;
         color: transparent;
@@ -727,6 +763,19 @@
                             alert('Errore di rete, riprova.');
                         });
                 });
+            });
+        })();
+
+        // --- Filtro mese: segna il campo come vuoto cosi' il CSS puo'
+        // sostituire i trattini del placeholder nativo con l'etichetta "Mese" ---
+        (function() {
+            document.querySelectorAll('.storico-date-field').forEach(function(field) {
+                var input = field.querySelector('input[type="month"]');
+                if (!input) return;
+                function sync() { field.classList.toggle('is-empty', !input.value); }
+                sync();
+                input.addEventListener('change', sync);
+                input.addEventListener('input', sync);
             });
         })();
 
