@@ -32,7 +32,7 @@
             <div>
                 <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px;">
                     <span style="color: #f0f0f3; font-weight: 600;">Calorie</span>
-                    <span style="color: #c7cbd6;"><b style="color: #f0f0f3;">{{ today_totals.kcal }}</b> / {{ goals.kcal }} kcal</span>
+                    <span style="white-space: nowrap; flex-shrink: 0; color: #c7cbd6;"><b style="color: #f0f0f3;">{{ today_totals.kcal }}</b> / {{ goals.kcal }} kcal</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span title="{% if today_reached.kcal %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 13px; font-weight: 700; color: {% if today_reached.kcal %}#4ade80{% else %}#f87171{% endif %};">{% if today_reached.kcal %}✓{% else %}✕{% endif %}</span>
@@ -44,7 +44,7 @@
             <div>
                 <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
                     <span style="color: #c7cbd6;">Proteine</span>
-                    <span style="color: #9ba0b3;">{{ today_totals.proteine_g|floatformat:"-1" }} / {{ goals.proteine_g }} g</span>
+                    <span style="white-space: nowrap; flex-shrink: 0; color: #9ba0b3;">{{ today_totals.proteine_g|floatformat:"-1" }} / {{ goals.proteine_g }} g</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span title="{% if today_reached.proteine_g %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: {% if today_reached.proteine_g %}#4ade80{% else %}#f87171{% endif %};">{% if today_reached.proteine_g %}✓{% else %}✕{% endif %}</span>
@@ -56,7 +56,7 @@
             <div>
                 <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
                     <span style="color: #c7cbd6;">Carboidrati</span>
-                    <span style="color: #9ba0b3;">{{ today_totals.carboidrati_g|floatformat:"-1" }} / {{ goals.carboidrati_g }} g</span>
+                    <span style="white-space: nowrap; flex-shrink: 0; color: #9ba0b3;">{{ today_totals.carboidrati_g|floatformat:"-1" }} / {{ goals.carboidrati_g }} g</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span title="{% if today_reached.carboidrati_g %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: {% if today_reached.carboidrati_g %}#4ade80{% else %}#f87171{% endif %};">{% if today_reached.carboidrati_g %}✓{% else %}✕{% endif %}</span>
@@ -68,7 +68,7 @@
             <div>
                 <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
                     <span style="color: #c7cbd6;">Grassi</span>
-                    <span style="color: #9ba0b3;">{{ today_totals.grassi_g|floatformat:"-1" }} / {{ goals.grassi_g }} g</span>
+                    <span style="white-space: nowrap; flex-shrink: 0; color: #9ba0b3;">{{ today_totals.grassi_g|floatformat:"-1" }} / {{ goals.grassi_g }} g</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span title="{% if today_reached.grassi_g %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: {% if today_reached.grassi_g %}#4ade80{% else %}#f87171{% endif %};">{% if today_reached.grassi_g %}✓{% else %}✕{% endif %}</span>
@@ -186,14 +186,12 @@
 
     <!-- Grafico andamento -->
     <div class="tracer-card" style="overflow: visible; margin-bottom: 24px;">
-        <div style="padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <div style="padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
             <div style="font-size: 11px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap;">Andamento</div>
-            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                <button type="button" class="metric-tab" data-metric="kcal" onclick="selectMetric('kcal')">Kcal</button>
-                <button type="button" class="metric-tab" data-metric="proteine_g" onclick="selectMetric('proteine_g')">Proteine</button>
-                <button type="button" class="metric-tab" data-metric="carboidrati_g" onclick="selectMetric('carboidrati_g')">Carboidrati</button>
-                <button type="button" class="metric-tab" data-metric="grassi_g" onclick="selectMetric('grassi_g')">Grassi</button>
-            </div>
+            <button type="button" id="metric-open" class="metric-select-btn">
+                <span id="metric-current">Kcal</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
         </div>
         <div style="padding: 16px 20px; display: flex; align-items: center; justify-content: center; min-height: 80px;">
             <span id="metric-placeholder" style="font-size: 12px; color: #7d8296;">Nessun dato registrato per questa metrica</span>
@@ -227,62 +225,81 @@
         {% for day in days %}
         {% with day_key=day.data|date:"Y-m-d" %}
         <div style="padding: 16px 20px; border-bottom: 1px solid var(--border); {% if day.status %}background: rgba(248,113,113,0.04);{% endif %}">
-            <div onclick="toggleDay('{{ day_key }}')" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; cursor: pointer; user-select: none;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <svg id="day-chevron-{{ day_key }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                    <input type="checkbox" class="macro-day-select-cb" data-day-key="{{ day_key }}" onclick="event.stopPropagation()" onchange="toggleMacroDaySelect(this)" title="Seleziona tutte le voci di questo giorno" style="width: 15px; height: 15px; accent-color: #f87171; cursor: pointer; flex-shrink: 0;">
-                    <span style="font-size: 13.5px; font-weight: 700; color: #f0f0f3;">{{ day.data|date:"l d F Y"|capfirst }}</span>
-                    <span id="day-count-{{ day_key }}" style="font-size: 11.5px; color: #7d8296;">{{ day.entries|length }} voc{{ day.entries|length|pluralize:"e,i" }}</span>
-                    {% if day.totals.junk_count %}
-                    <span title="Voci di cibo spazzatura" style="font-size: 10.5px; font-weight: 700; color: #f0a875; background: rgba(240,168,117,0.14); padding: 3px 9px; border-radius: 6px; white-space: nowrap;">🍔 {{ day.totals.junk_count }}</span>
-                    {% endif %}
-                    {% if day.status == 'non_tracciato' %}
-                    <span style="background: rgba(248,113,113,0.14); color: #f87171; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap;">🚫 NON TRACCIATO</span>
-                    {% elif day.status == 'parziale' %}
-                    <span style="background: rgba(240,168,117,0.14); color: #f0a875; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap;">⚠️ PARZIALE</span>
-                    {% endif %}
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                    <span style="background: rgba(var(--acc-rgb),0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;"><span id="day-kcal-{{ day_key }}">{{ day.totals.kcal }}</span> <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goals.kcal }} kcal</span></span>
-                    <span id="day-macros-{{ day_key }}" style="font-size: 11px; color: #9ba0b3; white-space: nowrap;">P {{ day.totals.proteine_g|floatformat:"-1" }}g · C {{ day.totals.carboidrati_g|floatformat:"-1" }}g · G {{ day.totals.grassi_g|floatformat:"-1" }}g</span>
-                    {% if day.reached %}
-                    <span title="Obiettivo raggiunto" style="color: #4ade80; font-size: 15px; font-weight: 700;">✓</span>
-                    {% else %}
-                    <span title="Obiettivo non raggiunto" style="color: #f87171; font-size: 13px; font-weight: 700;">✕</span>
-                    {% endif %}
-                    <span onclick="event.stopPropagation(); toggleDayGoalForm('{{ day_key }}')" title="Imposta obiettivo di questo giorno" style="cursor: pointer; font-size: 14px; padding: 4px; border-radius: 6px; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">🎯</span>
-                    <select onclick="event.stopPropagation();" onchange="event.stopPropagation(); submitDayStatus('{{ day_key }}', this.value);" title="Stato di tracciamento del giorno" style="font-size: 11px; font-weight: 600; padding: 4px 6px; border-radius: 6px; background: var(--panel); border: 1px solid var(--border); color: #9ba0b3; cursor: pointer;">
-                        <option value="" {% if not day.status %}selected{% endif %}>✓ Tracciato</option>
-                        <option value="parziale" {% if day.status == 'parziale' %}selected{% endif %}>⚠️ Parziale</option>
-                        <option value="non_tracciato" {% if day.status == 'non_tracciato' %}selected{% endif %}>🚫 Non tracciato</option>
-                    </select>
-                </div>
+            <!-- Riga 1: solo chevron, selezione, data e conteggio. Prima qui
+                 dentro stava anche tutto il blocco totali e su schermo stretto
+                 il flex-wrap lo sparpagliava su due o tre righe diverse. -->
+            <div onclick="toggleDay('{{ day_key }}')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+                <svg id="day-chevron-{{ day_key }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                <input type="checkbox" class="macro-day-select-cb" data-day-key="{{ day_key }}" onclick="event.stopPropagation()" onchange="toggleMacroDaySelect(this)" title="Seleziona tutte le voci di questo giorno" style="width: 15px; height: 15px; accent-color: #f87171; cursor: pointer; flex-shrink: 0;">
+                <span style="flex: 1; min-width: 0; font-size: 13.5px; font-weight: 700; color: #f0f0f3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ day.data|date:"l d F Y"|capfirst }}</span>
+                <span id="day-count-{{ day_key }}" style="flex-shrink: 0; font-size: 11.5px; color: #7d8296; white-space: nowrap;">{{ day.entries|length }} voc{{ day.entries|length|pluralize:"e,i" }}</span>
+            </div>
+
+            <!-- Riga 2, sempre visibile anche a giorno chiuso: kcal a sinistra,
+                 riepilogo macro al centro (si accorcia lui se manca spazio),
+                 icone azione a destra. -->
+            <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+                <span style="flex-shrink: 0; background: rgba(var(--acc-rgb),0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;"><span id="day-kcal-{{ day_key }}">{{ day.totals.kcal }}</span> <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goals.kcal }} kcal</span></span>
+                <span id="day-macros-{{ day_key }}" style="flex: 1; min-width: 0; font-size: 11px; color: #9ba0b3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">P {{ day.totals.proteine_g|floatformat:"-1" }}g &middot; C {{ day.totals.carboidrati_g|floatformat:"-1" }}g &middot; G {{ day.totals.grassi_g|floatformat:"-1" }}g</span>
+                {% if day.reached %}
+                <span title="Obiettivo raggiunto" style="flex-shrink: 0; color: #4ade80; font-size: 15px; font-weight: 700;">&#10003;</span>
+                {% else %}
+                <span title="Obiettivo non raggiunto" style="flex-shrink: 0; color: #f87171; font-size: 13px; font-weight: 700;">&#10005;</span>
+                {% endif %}
+                <span onclick="toggleDayGoalForm('{{ day_key }}')" title="Imposta obiettivo di questo giorno" style="flex-shrink: 0; cursor: pointer; font-size: 14px; padding: 4px; border-radius: 6px; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">&#127919;</span>
+            </div>
+
+            <!-- Riga 3: stato del giorno, sempre visibile. -->
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
+                <select onchange="submitDayStatus('{{ day_key }}', this.value);" title="Stato di tracciamento del giorno" style="flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 5px 8px; border-radius: 6px; background: var(--panel); border: 1px solid var(--border); color: #9ba0b3; cursor: pointer; font-family: inherit;">
+                    <option value="" {% if not day.status %}selected{% endif %}>&#10003; Tracciato</option>
+                    <option value="parziale" {% if day.status == 'parziale' %}selected{% endif %}>&#9888;&#65039; Parziale</option>
+                    <option value="non_tracciato" {% if day.status == 'non_tracciato' %}selected{% endif %}>&#128683; Non tracciato</option>
+                </select>
+                {% if day.totals.junk_count %}
+                <span title="Voci di cibo spazzatura" style="font-size: 10.5px; font-weight: 700; color: #f0a875; background: rgba(240,168,117,0.14); padding: 3px 9px; border-radius: 6px; white-space: nowrap;">&#127828; {{ day.totals.junk_count }}</span>
+                {% endif %}
+                {% if day.status == 'non_tracciato' %}
+                <span style="background: rgba(248,113,113,0.14); color: #f87171; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap;">&#128683; NON TRACCIATO</span>
+                {% elif day.status == 'parziale' %}
+                <span style="background: rgba(240,168,117,0.14); color: #f0a875; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap;">&#9888;&#65039; PARZIALE</span>
+                {% endif %}
             </div>
 
             <div id="day-goal-form-{{ day_key }}" style="display: none; margin-top: 10px;" onclick="event.stopPropagation();">
-                <form action="{% url 'set_day_macro_goal' %}" method="post" autocomplete="off" style="display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap;">
+                <form action="{% url 'set_day_macro_goal' %}" method="post" autocomplete="off" style="display: flex; flex-direction: column; gap: 10px;">
                     {% csrf_token %}
                     <input type="hidden" name="data" value="{{ day_key }}">
                     <input type="hidden" name="next" value="{% url 'macro' %}">
-                    <span style="font-size: 11px; color: #7d8296; width: 100%;">Obiettivo di questo giorno:</span>
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">KCAL</span>
-                        <input type="number" name="kcal" value="{{ day.goals.kcal }}" min="1" class="tracer-input" style="width: 90px; padding: 7px 9px; font-size: 12px;">
+                    <span style="font-size: 11px; color: #7d8296;">Obiettivo di questo giorno:</span>
+                    <!-- Tre colonne fisse: con quattro campi viene una riga da
+                         tre piu' uno, invece delle larghezze irregolari che
+                         dava il flex-wrap. -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                        <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">KCAL</span>
+                            <input type="number" name="kcal" value="{{ day.goals.kcal }}" min="1" class="tracer-input" style="width: 100%; height: 36px; box-sizing: border-box; padding: 7px 9px; font-size: 12px;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">PROTEINE (G)</span>
+                            <input type="number" name="proteine_g" value="{{ day.goals.proteine_g }}" min="0" class="tracer-input" style="width: 100%; height: 36px; box-sizing: border-box; padding: 7px 9px; font-size: 12px;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">CARBOIDRATI (G)</span>
+                            <input type="number" name="carboidrati_g" value="{{ day.goals.carboidrati_g }}" min="0" class="tracer-input" style="width: 100%; height: 36px; box-sizing: border-box; padding: 7px 9px; font-size: 12px;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">GRASSI (G)</span>
+                            <input type="number" name="grassi_g" value="{{ day.goals.grassi_g }}" min="0" class="tracer-input" style="width: 100%; height: 36px; box-sizing: border-box; padding: 7px 9px; font-size: 12px;">
+                        </div>
                     </div>
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">PROTEINE (G)</span>
-                        <input type="number" name="proteine_g" value="{{ day.goals.proteine_g }}" min="0" class="tracer-input" style="width: 80px; padding: 7px 9px; font-size: 12px;">
+                    <!-- Griglia e non flex:1: con box-sizing border-box il
+                         flex-basis comprende il padding, quindi le due meta'
+                         non verrebbero uguali. -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button type="submit" class="btn-primary-gradient" style="width: 100%; height: 36px; box-sizing: border-box; padding: 0 14px; font-size: 12px;">Salva</button>
+                        <button type="button" onclick="toggleDayGoalForm('{{ day_key }}')" class="btn-cancel" style="width: 100%; height: 36px; box-sizing: border-box; padding: 0 14px; font-size: 12px;">Annulla</button>
                     </div>
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">CARBOIDRATI (G)</span>
-                        <input type="number" name="carboidrati_g" value="{{ day.goals.carboidrati_g }}" min="0" class="tracer-input" style="width: 80px; padding: 7px 9px; font-size: 12px;">
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">GRASSI (G)</span>
-                        <input type="number" name="grassi_g" value="{{ day.goals.grassi_g }}" min="0" class="tracer-input" style="width: 80px; padding: 7px 9px; font-size: 12px;">
-                    </div>
-                    <button type="submit" class="btn-primary-gradient" style="padding: 7px 14px; font-size: 12px;">Salva</button>
-                    <button type="button" onclick="toggleDayGoalForm('{{ day_key }}')" class="btn-cancel" style="padding: 7px 14px; font-size: 12px;">Annulla</button>
                 </form>
             </div>
 
@@ -308,6 +325,17 @@
         {% endif %}
         {% endif %}
     </div>
+</div>
+
+<!-- Selettore macro: stesso schema del pannello filtri del catalogo esercizi. -->
+<div id="metric-backdrop" class="metric-backdrop"></div>
+<div id="metric-sheet" class="metric-sheet" role="dialog" aria-modal="true" aria-labelledby="metric-sheet-title">
+    <div class="metric-sheet-grabber"></div>
+    <div class="metric-sheet-title" id="metric-sheet-title">Seleziona macro</div>
+    <button type="button" class="metric-option" data-metric="kcal">Kcal</button>
+    <button type="button" class="metric-option" data-metric="proteine_g">Proteine</button>
+    <button type="button" class="metric-option" data-metric="carboidrati_g">Carboidrati</button>
+    <button type="button" class="metric-option" data-metric="grassi_g">Grassi</button>
 </div>
 
 <style>
@@ -338,8 +366,12 @@
 .page-container .btn-primary-gradient { background: var(--acc); }
 .page-container .btn-primary-gradient:hover { background: var(--acc-2); opacity: 1; }
 
-.metric-tab {
-    padding: 6px 14px;
+/* Pulsante che mostra la macro attiva e apre il pannello di scelta. */
+.metric-select-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 7px;
@@ -350,12 +382,69 @@
     transition: all .12s;
     font-family: inherit;
 }
-.metric-tab:hover { background: rgba(255,255,255,0.09); }
-.metric-tab.active {
-    background: rgba(var(--acc-rgb),0.16);
-    border-color: rgba(var(--acc-rgb),0.4);
-    color: #b7bdf0;
+.metric-select-btn:hover { background: rgba(255,255,255,0.09); }
+
+/* Pannello a comparsa dal basso, come i filtri del catalogo esercizi. */
+.metric-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s;
+    z-index: 900;
 }
+.metric-backdrop.open { opacity: 1; pointer-events: auto; }
+
+.metric-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 901;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: var(--panel);
+    border-top: 1px solid var(--border);
+    border-radius: 18px 18px 0 0;
+    padding: 10px 18px calc(18px + env(safe-area-inset-bottom));
+    box-shadow: 0 -18px 40px rgba(0,0,0,0.5);
+    transform: translateY(100%);
+    transition: transform .22s ease;
+}
+.metric-sheet.open { transform: translateY(0); }
+
+.metric-sheet-grabber {
+    width: 38px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.18);
+    margin: 0 auto 14px;
+}
+.metric-sheet-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 14px;
+}
+.metric-option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 14px 16px;
+    margin-bottom: 4px;
+    background: none;
+    border: none;
+    border-radius: 12px;
+    color: #c7cbd6;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .12s, color .12s;
+}
+.metric-option:hover { background: rgba(255,255,255,0.06); }
+.metric-option.active { background: var(--acc); color: #fff; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
@@ -546,12 +635,30 @@ function submitMacroBulkDelete() {
     var canvas = document.getElementById('metric-canvas');
     var chartInst = null;
 
+    var sheet = document.getElementById('metric-sheet');
+    var backdrop = document.getElementById('metric-backdrop');
+    var currentLabel = document.getElementById('metric-current');
+
+    function setSheetOpen(open) {
+        sheet.classList.toggle('open', open);
+        backdrop.classList.toggle('open', open);
+    }
+
     window.selectMetric = function(metric) {
-        document.querySelectorAll('.metric-tab').forEach(function(btn) {
+        currentLabel.textContent = LABELS[metric];
+        document.querySelectorAll('.metric-option').forEach(function(btn) {
             btn.classList.toggle('active', btn.dataset.metric === metric);
         });
+        setSheetOpen(false);
         renderChart(metric);
     };
+
+    document.getElementById('metric-open').addEventListener('click', function() { setSheetOpen(true); });
+    backdrop.addEventListener('click', function() { setSheetOpen(false); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') setSheetOpen(false); });
+    document.querySelectorAll('.metric-option').forEach(function(btn) {
+        btn.addEventListener('click', function() { selectMetric(btn.dataset.metric); });
+    });
 
     function renderChart(metric) {
         var points = CHART_DATA[metric] || [];
