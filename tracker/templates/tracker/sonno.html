@@ -49,7 +49,7 @@
     </div>
 
     <!-- Stats -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
         <div class="tracer-card" style="padding: 18px; text-align: center;">
             <div style="font-size: 22px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ stats.avg_hours|default:"—" }}</div>
             <div style="font-size: 10px; color: #7d8296; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Media ore (7gg)</div>
@@ -111,54 +111,80 @@
         {% else %}
         {% for e in entries %}
         <div>
-            <div id="sleep-view-{{ e.id }}" style="display: flex; align-items: center; gap: 14px; padding: 13px 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap;">
-                <span style="font-size: 13px; font-weight: 700; color: #f0f0f3; min-width: 110px;">{{ e.data|date:"d M Y" }}</span>
-                <span style="font-size: 12.5px; color: #7d8296;">{{ e.ora_letto|time:"H:i" }} → {{ e.ora_sveglia|time:"H:i" }}{% if e.data_sveglia != e.data %} <span style="color: #565b6e;">({{ e.data_sveglia|date:"d M" }})</span>{% endif %}</span>
-                <span style="font-size: 12.5px; font-weight: 700; color: #c7cbd6;">{{ e.durata_label }}</span>
-                <span style="font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px;
-                    {% if e.qualita == 'ottima' %}color: var(--acc-4); background: rgba(var(--acc-rgb),0.16);
-                    {% elif e.qualita == 'buona' %}color: #ffd580; background: rgba(255,213,128,0.14);
-                    {% elif e.qualita == 'media' %}color: #f0a875; background: rgba(240,168,117,0.14);
-                    {% else %}color: #ff8a8a; background: rgba(255,138,138,0.14);{% endif %}">{{ e.get_qualita_display }}</span>
-                {% if e.nota %}<span style="font-size: 12px; color: #9ba0b3; font-style: italic;">📝 {{ e.nota }}</span>{% endif %}
-                <div style="flex: 1;"></div>
-                <span onclick="toggleSleepEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: var(--acc-4); padding: 6px 12px; border-radius: 7px; background: rgba(var(--acc-rgb),0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.12)'">Modifica</span>
-                <form action="{% url 'delete_sleep_entry' e.id %}" method="post" style="display:inline;" onsubmit="return confirm('Eliminare questa notte?');">
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{% url 'sonno' %}">
-                    <button type="submit" style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
-                </form>
+            <div id="sleep-view-{{ e.id }}" style="display: flex; flex-direction: column; gap: 9px; padding: 13px 16px; border-bottom: 1px solid var(--border);">
+                <!-- Riga fissa: chevron, data, fascia oraria (si accorcia lei se
+                     manca spazio) e durata sempre a filo destro. Prima stava
+                     tutto in un unico flex con wrap, che su schermo stretto
+                     spezzava la riga in punti diversi da card a card. -->
+                <div onclick="toggleSleepEdit('{{ e.id }}')" style="display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none;">
+                    <svg id="sleep-chevron-{{ e.id }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    <span style="flex-shrink: 0; font-size: 13px; font-weight: 700; color: #f0f0f3;">{{ e.data|date:"d M Y" }}</span>
+                    <span style="flex: 1; min-width: 0; font-size: 12.5px; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ e.ora_letto|time:"H:i" }} &rarr; {{ e.ora_sveglia|time:"H:i" }}{% if e.data_sveglia != e.data %} <span style="color: #565b6e;">({{ e.data_sveglia|date:"d M" }})</span>{% endif %}</span>
+                    <span style="flex-shrink: 0; font-size: 12.5px; font-weight: 700; color: #c7cbd6; white-space: nowrap;">{{ e.durata_label }}</span>
+                </div>
+
+                <!-- Sempre visibile, anche a riga chiusa. -->
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="flex-shrink: 0; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; white-space: nowrap;
+                        {% if e.qualita == 'ottima' %}color: var(--acc-4); background: rgba(var(--acc-rgb),0.16);
+                        {% elif e.qualita == 'buona' %}color: #ffd580; background: rgba(255,213,128,0.14);
+                        {% elif e.qualita == 'media' %}color: #f0a875; background: rgba(240,168,117,0.14);
+                        {% else %}color: #ff8a8a; background: rgba(255,138,138,0.14);{% endif %}">{{ e.get_qualita_display }}</span>
+                    <div style="flex: 1; min-width: 0;"></div>
+                    <span onclick="toggleSleepEdit('{{ e.id }}')" style="flex-shrink: 0; font-size: 12px; font-weight: 600; color: var(--acc-4); padding: 6px 12px; border-radius: 7px; background: rgba(var(--acc-rgb),0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.12)'">Modifica</span>
+                    <form action="{% url 'delete_sleep_entry' e.id %}" method="post" style="flex-shrink: 0;" onsubmit="return confirm('Eliminare questa notte?');">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{% url 'sonno' %}">
+                        <button type="submit" style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; font-family: inherit; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
+                    </form>
+                </div>
+
+                <!-- La nota stava nella riga principale e la sballava; qui ha
+                     una riga sua e compare solo se c'e'. -->
+                {% if e.nota %}
+                <div style="font-size: 12px; color: #9ba0b3; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">&#128221; {{ e.nota }}</div>
+                {% endif %}
             </div>
             <div id="sleep-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 12px 14px; margin: 4px 16px;">
-                <form action="{% url 'edit_sleep_entry' e.id %}" method="post" autocomplete="off" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
+                <form action="{% url 'edit_sleep_entry' e.id %}" method="post" autocomplete="off" style="display: flex; flex-direction: column; gap: 10px;">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{% url 'sonno' %}">
-                    <div style="display: flex; flex-direction: column; gap: 5px;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
-                        <input type="date" name="data" value="{{ e.data|date:'Y-m-d' }}" class="tracer-input" style="width: 140px;">
+                    <!-- Due colonne per due righe: i quattro campi restano
+                         incolonnati e tutti alla stessa altezza, invece delle
+                         larghezze irregolari che dava il flex-wrap. -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div style="display: flex; flex-direction: column; gap: 5px; min-width: 0;">
+                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">DATA</span>
+                            <input type="date" name="data" value="{{ e.data|date:'Y-m-d' }}" class="tracer-input" style="width: 100%; height: 38px; box-sizing: border-box;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 5px; min-width: 0;">
+                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">A LETTO</span>
+                            <input type="time" name="ora_letto" value="{{ e.ora_letto|time:'H:i' }}" class="tracer-input" style="width: 100%; height: 38px; box-sizing: border-box;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 5px; min-width: 0;">
+                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">SVEGLIA</span>
+                            <input type="time" name="ora_sveglia" value="{{ e.ora_sveglia|time:'H:i' }}" class="tracer-input" style="width: 100%; height: 38px; box-sizing: border-box;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 5px; min-width: 0;">
+                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">QUALITÀ</span>
+                            <select name="qualita" class="tracer-input" style="width: 100%; height: 38px; box-sizing: border-box;">
+                                {% for value, label in quality_choices %}
+                                <option value="{{ value }}"{% if value == e.qualita %} selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 5px;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">A LETTO</span>
-                        <input type="time" name="ora_letto" value="{{ e.ora_letto|time:'H:i' }}" class="tracer-input" style="width: 100px;">
+                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">NOTA</span>
+                        <input type="text" name="nota" value="{{ e.nota }}" maxlength="200" class="tracer-input" style="width: 100%; height: 38px; box-sizing: border-box;">
                     </div>
-                    <div style="display: flex; flex-direction: column; gap: 5px;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">SVEGLIA</span>
-                        <input type="time" name="ora_sveglia" value="{{ e.ora_sveglia|time:'H:i' }}" class="tracer-input" style="width: 100px;">
+                    <!-- Griglia e non flex:1: con box-sizing border-box il
+                         flex-basis comprende il padding, quindi le due meta'
+                         non verrebbero uguali. -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button type="submit" class="btn-primary-gradient" style="width: 100%; height: 38px; box-sizing: border-box; padding: 0 16px; font-size: 12.5px;">Salva</button>
+                        <button type="button" onclick="toggleSleepEdit('{{ e.id }}')" class="btn-cancel" style="width: 100%; height: 38px; box-sizing: border-box; padding: 0 16px; font-size: 12.5px;">Annulla</button>
                     </div>
-                    <div style="display: flex; flex-direction: column; gap: 5px;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">QUALITÀ</span>
-                        <select name="qualita" class="tracer-input" style="width: 120px;">
-                            {% for value, label in quality_choices %}
-                            <option value="{{ value }}"{% if value == e.qualita %} selected{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 180px;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">NOTA</span>
-                        <input type="text" name="nota" value="{{ e.nota }}" maxlength="200" class="tracer-input" style="width: 100%;">
-                    </div>
-                    <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
-                    <button type="button" onclick="toggleSleepEdit('{{ e.id }}')" class="btn-cancel" style="padding: 8px 16px; font-size: 12.5px;">Annulla</button>
                 </form>
             </div>
         </div>
@@ -202,11 +228,13 @@ function toggleNewEntryForm() {
     el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 function toggleSleepEdit(id) {
-    var view = document.getElementById('sleep-view-' + id);
     var edit = document.getElementById('sleep-edit-' + id);
+    var chevron = document.getElementById('sleep-chevron-' + id);
     var showEdit = edit.style.display === 'none';
     edit.style.display = showEdit ? 'flex' : 'none';
-    view.style.opacity = showEdit ? '0.5' : '1';
+    // La riga non viene piu' sbiadita: ora resta l'intestazione della sezione
+    // aperta, non una cosa che il form sostituisce.
+    if (chevron) chevron.style.transform = showEdit ? 'rotate(90deg)' : 'rotate(0deg)';
 }
 
 (function() {
