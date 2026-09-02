@@ -114,7 +114,7 @@
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #7d8296;">ESERCIZIO</span>
                     <div style="display: flex; gap: 6px;">
-                        <input type="text" id="exercise_name" name="exercise_name" class="tracer-input" placeholder="Cerca esercizio dalla lista…" required autocomplete="off" data-valid="false" style="flex: 1; min-width: 0;">
+                        <input type="text" id="exercise_name" name="exercise_name" class="tracer-input" placeholder="Cerca esercizio dalla lista…" required autocomplete="off" data-valid="false" style="height: 40px; box-sizing: border-box; flex: 1; min-width: 0;">
                         {% if user.is_superuser %}
                         <button type="button" onclick="openNewExModal('exercise_name')" title="Nuovo esercizio" style="width: 38px; height: 38px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: rgba(var(--acc-rgb),.12); border: 1px solid rgba(var(--acc-rgb),.3); border-radius: 8px; color: var(--acc-4); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),.12)'">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -124,26 +124,26 @@
                 </div>
 
                 <!-- Reps + Durata + Weight + N.Serie -->
-                <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px;">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
                     <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
                         <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">RIPETIZIONI</span>
-                        <input type="number" name="reps" class="tracer-input" placeholder="10" min="1">
+                        <input type="number" name="reps" class="tracer-input" placeholder="10" min="1" style="height: 40px; box-sizing: border-box;">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
                         <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">DURATA (S)</span>
-                        <input type="number" name="durata" class="tracer-input" placeholder="Opc." min="1">
+                        <input type="number" name="durata" class="tracer-input" placeholder="Opc." min="1" style="height: 40px; box-sizing: border-box;">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
                         <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">PESO (KG)</span>
-                        <input type="number" step="0.5" name="weight" class="tracer-input" placeholder="Opc." min="0">
+                        <input type="number" step="0.5" name="weight" class="tracer-input" placeholder="Opc." min="0" style="height: 40px; box-sizing: border-box;">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
                         <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">N. SERIE</span>
-                        <input type="number" name="num_sets" class="tracer-input" placeholder="1" min="1" max="20" value="1" required style="background: rgba(var(--acc-rgb),0.1); border: 1px solid var(--acc);">
+                        <input type="number" name="num_sets" class="tracer-input" placeholder="1" min="1" max="20" value="1" required style="height: 40px; box-sizing: border-box; background: rgba(var(--acc-rgb),0.1); border: 1px solid var(--acc);">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
                         <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">RECUPERO (S)</span>
-                        <input type="number" name="rest_time" class="tracer-input" placeholder="90" min="0">
+                        <input type="number" name="rest_time" class="tracer-input" placeholder="90" min="0" style="height: 40px; box-sizing: border-box;">
                     </div>
                 </div>
 
@@ -173,7 +173,7 @@
                 </label>
                 <div id="barra-wrap-add" style="display:none;">
                     <span style="display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296; margin-bottom: 6px;">SBARRA (KG)</span>
-                    <input type="number" step="any" name="barra_kg" id="barra-input-add" class="tracer-input" placeholder="20" min="0" style="width: 80px;">
+                    <input type="number" step="any" name="barra_kg" id="barra-input-add" class="tracer-input" placeholder="20" min="0" style="height: 40px; box-sizing: border-box; width: 80px;">
                 </div>
 
                 <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;" onclick="toggleCarrucoleAdd(event)" title="Numero di carrucole della macchina in questa palestra (puo' cambiare da palestra a palestra).">
@@ -182,29 +182,34 @@
                 </label>
                 <div id="carrucole-wrap-add" style="display:none;">
                     <span style="display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296; margin-bottom: 6px;">CARRUCOLE</span>
-                    <input type="number" step="1" name="carrucole" id="carrucole-input-add" class="tracer-input" placeholder="2" min="0" style="width: 80px;">
+                    <input type="number" step="1" name="carrucole" id="carrucole-input-add" class="tracer-input" placeholder="2" min="0" style="height: 40px; box-sizing: border-box; width: 80px;">
                 </div>
 
                 <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;" title="Inserisce automaticamente una serie di avviamento in più, prima di queste. Il peso viene proposto a metà di quello inserito sopra, ma puoi modificarlo.">
                     <input type="checkbox" name="aggiungi_avviamento_default" id="warmup-check" style="width: 15px; height: 15px; accent-color: var(--acc); flex-shrink: 0; cursor: pointer;">
                     <span style="font-size: 12.5px; color: #c7cbd6;">+ Avviamento automatico (metà peso)</span>
                 </label>
-                <div id="warmup-preview-wrap" style="display:none; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;">
+                <div id="warmup-preview-wrap" style="display:none; grid-template-columns: repeat(3, 1fr); gap: 12px;">
                     <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
                         <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">RIP. AVVIAMENTO</span>
-                        <input type="number" name="avviamento_default_reps" id="warmup-reps-input" class="tracer-input" min="1">
+                        <input type="number" name="avviamento_default_reps" id="warmup-reps-input" class="tracer-input" min="1" style="height: 40px; box-sizing: border-box;">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
                         <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">PESO AVVIAMENTO (KG)</span>
-                        <input type="number" step="0.5" name="avviamento_default_peso" id="warmup-preview-input" class="tracer-input" min="0">
+                        <input type="number" step="0.5" name="avviamento_default_peso" id="warmup-preview-input" class="tracer-input" min="0" style="height: 40px; box-sizing: border-box;">
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
                         <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">RECUPERO AVVIAMENTO (S)</span>
-                        <input type="number" name="avviamento_default_rest" id="warmup-rest-input" class="tracer-input" min="0">
+                        <input type="number" name="avviamento_default_rest" id="warmup-rest-input" class="tracer-input" min="0" style="height: 40px; box-sizing: border-box;">
                     </div>
                 </div>
 
-                <button type="submit" class="btn-primary-gradient" style="padding: 12px; font-size: 14px; box-shadow: 0 10px 24px rgba(var(--acc-rgb),0.3);">Aggiungi Serie</button>
+                <!-- Griglia e non flex:1: con box-sizing border-box il flex-basis
+                     comprende il padding, quindi le due meta' non verrebbero uguali. -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <button type="submit" class="btn-primary-gradient" style="width: 100%; height: 44px; box-sizing: border-box; padding: 0 12px; font-size: 14px; box-shadow: 0 10px 24px rgba(var(--acc-rgb),0.3);">Aggiungi Serie</button>
+                    <button type="button" onclick="toggleAddSet()" class="btn-cancel" style="width: 100%; height: 44px; box-sizing: border-box; padding: 0 12px; font-size: 14px;">Annulla</button>
+                </div>
             </form>
         </div>
 

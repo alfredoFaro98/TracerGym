@@ -15,51 +15,59 @@
     <div id="new-entry-form" style="display: none; margin-bottom: 24px;">
         <div class="tracer-card" style="padding: 18px 20px;">
             <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 12px;">Nuova misurazione</div>
-            <form action="{% url 'save_misurazione' %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
+            <form action="{% url 'save_misurazione' %}" method="post" style="display: flex; flex-direction: column; gap: 12px;">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{% url 'misurazioni' %}">
-                <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
-                    <input type="date" name="data" value="{% now 'Y-m-d' %}" class="tracer-input" style="width: 150px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">DATA</span>
+                        <input type="date" name="data" value="{% now 'Y-m-d' %}" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">ORARIO</span>
+                        <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">PESO (KG)</span>
+                        <input type="number" step="0.1" name="peso_kg" placeholder="es. 78.5" min="0" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">ALTEZZA (CM)</span>
+                        <input type="number" step="0.1" name="altezza_cm" placeholder="es. 178" min="0" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">BODY FAT (%)</span>
+                        <input type="number" step="0.1" name="body_fat_pct" placeholder="Opz." min="0" max="100" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">VITA (CM)</span>
+                        <input type="number" step="0.1" name="vita_cm" placeholder="Opz." min="0" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">TORACE (CM)</span>
+                        <input type="number" step="0.1" name="torace_cm" placeholder="Opz." min="0" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">BRACCIA (CM)</span>
+                        <input type="number" step="0.1" name="braccia_cm" placeholder="Opz." min="0" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">COSCE (CM)</span>
+                        <input type="number" step="0.1" name="cosce_cm" placeholder="Opz." min="0" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
+                    </div>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
-                    <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input" style="width: 110px;">
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">NOTE</span>
+                    <input type="text" name="note" placeholder="Opzionale, max 100 caratteri" maxlength="100" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">PESO (KG)</span>
-                    <input type="number" step="0.1" name="peso_kg" placeholder="es. 78.5" min="0" class="tracer-input" style="width: 110px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <button type="submit" class="btn-primary-gradient" style="width: 100%; height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Salva</button>
+                    <button type="button" onclick="toggleNewEntryForm()" class="btn-cancel" style="width: 100%; height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Annulla</button>
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ALTEZZA (CM)</span>
-                    <input type="number" step="0.1" name="altezza_cm" placeholder="es. 178" min="0" class="tracer-input" style="width: 110px;">
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">BODY FAT (%)</span>
-                    <input type="number" step="0.1" name="body_fat_pct" placeholder="Opz." min="0" max="100" class="tracer-input" style="width: 100px;">
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">VITA (CM)</span>
-                    <input type="number" step="0.1" name="vita_cm" placeholder="Opz." min="0" class="tracer-input" style="width: 100px;">
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">TORACE (CM)</span>
-                    <input type="number" step="0.1" name="torace_cm" placeholder="Opz." min="0" class="tracer-input" style="width: 100px;">
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">BRACCIA (CM)</span>
-                    <input type="number" step="0.1" name="braccia_cm" placeholder="Opz." min="0" class="tracer-input" style="width: 100px;">
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">COSCE (CM)</span>
-                    <input type="number" step="0.1" name="cosce_cm" placeholder="Opz." min="0" class="tracer-input" style="width: 100px;">
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 200px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">NOTE</span>
-                    <input type="text" name="note" placeholder="Opzionale, max 100 caratteri" maxlength="100" class="tracer-input" style="width: 100%;">
-                </div>
-                <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13px;">Salva</button>
-                <button type="button" onclick="toggleNewEntryForm()" class="btn-cancel" style="padding: 10px 20px; font-size: 13px;">Annulla</button>
             </form>
         </div>
     </div>

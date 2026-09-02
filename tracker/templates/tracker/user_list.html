@@ -29,6 +29,12 @@
             </div>
             <div style="flex: 1; min-width: 0;">
                 <div style="font-size: 13px; font-weight: 600; color: #e8e8f8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ item.user.username }}</div>
+                <!-- Su mobile queste due informazioni allungavano la card senza
+                     servire davvero, quindi le nascondiamo li' e basta: su
+                     schermo largo restano come prima. -->
+                <div class="atleta-meta" style="font-size: 11px; color: #f0f0f3; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    Membro dal {{ item.user.date_joined|date:"d M Y" }}{% if user.is_superuser %} &middot; Ultimo accesso {% if item.user.last_login %}{{ item.user.last_login|date:"d M Y H:i" }}{% else %}mai{% endif %}{% endif %}
+                </div>
                 {% if not item.is_public %}
                 <span style="display: inline-block; margin-top: 6px; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; background: rgba(var(--acc-rgb),0.12); border: 1px solid rgba(var(--acc-rgb),0.2); color: #b7bdf0; white-space: nowrap;">privato</span>
                 {% endif %}
@@ -46,4 +52,11 @@
     </div>
     {% endif %}
 </div>
+
+<style>
+/* 768px e' la stessa soglia con cui style.css passa al layout mobile. */
+@media (max-width: 768px) {
+    .atleta-meta { display: none; }
+}
+</style>
 {% endblock %}

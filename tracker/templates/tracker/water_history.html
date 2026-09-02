@@ -27,23 +27,27 @@
     <div id="new-entry-form" style="display: none; margin-bottom: 24px;">
         <div class="tracer-card" style="padding: 18px 20px;">
             <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 12px;">Nuova bevuta</div>
-            <form action="{% url 'add_water_entry' %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
+            <form action="{% url 'add_water_entry' %}" method="post" style="display: flex; flex-direction: column; gap: 12px;">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{% url 'water_history' %}">
-                <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
-                    <input type="date" name="data" value="{% now 'Y-m-d' %}" class="tracer-input" style="width: 150px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">DATA</span>
+                        <input type="date" name="data" value="{% now 'Y-m-d' %}" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">ORARIO</span>
+                        <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
+                    </div>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
-                    <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input" style="width: 110px;">
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">ML</span>
+                    <input type="number" name="quantita_ml" placeholder="es. 250" min="1" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ML</span>
-                    <input type="number" name="quantita_ml" placeholder="es. 250" min="1" class="tracer-input" style="width: 110px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <button type="submit" class="btn-primary-gradient" style="width: 100%; height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Aggiungi</button>
+                    <button type="button" onclick="toggleNewEntryForm()" class="btn-cancel" style="width: 100%; height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Annulla</button>
                 </div>
-                <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13px;">Aggiungi</button>
-                <button type="button" onclick="toggleNewEntryForm()" class="btn-cancel" style="padding: 10px 20px; font-size: 13px;">Annulla</button>
             </form>
         </div>
     </div>
@@ -156,14 +160,24 @@
                 <div style="margin-top: 6px;">
                     <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" class="water-quick-btn">+ Aggiungi bevuta</button>
                     <div id="day-add-{{ day_key }}" style="display: none; margin-top: 10px;">
-                        <form action="{% url 'add_water_entry' %}" method="post" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <form action="{% url 'add_water_entry' %}" method="post" style="display: flex; flex-direction: column; gap: 12px;">
                             {% csrf_token %}
                             <input type="hidden" name="data" value="{{ day_key }}">
                             <input type="hidden" name="next" value="{% url 'water_history' %}">
-                            <input type="number" name="quantita_ml" placeholder="ml" min="1" class="tracer-input" style="width: 90px; padding: 8px 10px; font-size: 12.5px;">
-                            <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input" style="width: 100px; padding: 8px 10px; font-size: 12.5px;">
-                            <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Aggiungi</button>
-                            <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" class="btn-cancel" style="padding: 8px 16px; font-size: 12.5px;">Annulla</button>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">ML</span>
+                                    <input type="number" name="quantita_ml" placeholder="ml" min="1" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">ORARIO</span>
+                                    <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <button type="submit" class="btn-primary-gradient" style="width: 100%; height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Aggiungi</button>
+                                <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" class="btn-cancel" style="width: 100%; height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Annulla</button>
+                            </div>
                         </form>
                     </div>
                 </div>

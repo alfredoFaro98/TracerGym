@@ -232,22 +232,21 @@
     <div id="add-form" style="display: none; margin-bottom: 20px;">
         <div class="tracer-card" style="padding: 20px 24px;">
             <div style="font-size: 11px; font-weight: 700; color: #838a9e; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;">Nuovo Esercizio</div>
-            <form method="post" action="{% url 'add_exercise' %}" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 14px;">
+            <form method="post" action="{% url 'add_exercise' %}" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 12px;">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;">
-                    <div style="flex: 1; min-width: 180px;">
-                        <label style="display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Nome</label>
-                        <input type="text" name="nome" class="tracer-input" placeholder="Es. Curl con bilanciere" required style="width: 100%;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">NOME</span>
+                        <input type="text" name="nome" placeholder="Es. Curl con bilanciere" required class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
                     </div>
-                    <div style="flex: 1; min-width: 180px;">
-                        <label style="display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Tipologia</label>
-                        <input type="text" name="tipologia" class="tracer-input" placeholder="Es. Esercizio con bilanciere" style="width: 100%;">
+                    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">TIPOLOGIA</span>
+                        <input type="text" name="tipologia" placeholder="Es. Esercizio con bilanciere" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
                     </div>
-                    <button type="submit" class="btn-primary-gradient" style="height: 36px; padding: 0 20px; font-size: 12px; flex-shrink: 0;">Aggiungi</button>
                 </div>
-                <div>
-                    <label style="display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 8px;">Gruppo Muscolare</label>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">GRUPPO MUSCOLARE</span>
                     <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                         {% for tag in tags %}
                         <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 5px 10px; border: 1px solid var(--border); border-radius: 6px; transition: border-color .12s;" onmouseover="this.style.borderColor='#3a3a5a'" onmouseout="this.style.borderColor='rgba(255,255,255,0.10)'">
@@ -257,11 +256,15 @@
                         {% endfor %}
                     </div>
                 </div>
-                <div>
-                    <label style="display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px;">Immagine (opzionale, max {{ max_image_mb }} MB)</label>
-                    <input type="file" name="immagine" id="add-immagine" accept="image/*" style="font-size: 12px; color: #a0a0c0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 6px 10px; cursor: pointer; width: 100%; max-width: 320px; box-sizing: border-box;">
-                    <span id="add-immagine-error" style="display:none; font-size: 11px; color: #f85149; margin-top: 5px;"></span>
-                    <img id="add-immagine-preview" style="display:none; margin-top: 8px; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: var(--sunken);">
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">IMMAGINE (OPZIONALE, MAX {{ max_image_mb }} MB)</span>
+                    <input type="file" name="immagine" id="add-immagine" accept="image/*" style="width: 100%; height: 40px; box-sizing: border-box; font-size: 12px; color: #a0a0c0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 8px 10px; cursor: pointer;">
+                    <span id="add-immagine-error" style="display:none; font-size: 11px; color: #f85149;"></span>
+                    <img id="add-immagine-preview" style="display:none; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: var(--sunken);">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <button type="submit" class="btn-primary-gradient" style="width: 100%; height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Aggiungi</button>
+                    <button type="button" onclick="document.getElementById('add-form').style.display='none'" class="btn-cancel" style="width: 100%; height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Annulla</button>
                 </div>
             </form>
         </div>
