@@ -852,48 +852,43 @@
         var mobileMonthNames = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
         var mobileCalStart = new Date();
         mobileCalStart.setDate(1);
-        var mobileCal = null;
 
-        function updateMobileLabel() {
+        // Mini calendario del mese: prima lo disegnava CalHeatMap in SVG con
+        // celle di dimensione fissa, minuscole e scollegate dalla larghezza
+        // dello schermo. Ora e' la griglia di TracerHeatmap, che usa gli stessi
+        // colori e gli stessi tooltip della heatmap annuale qui sopra.
+        function renderMobileCal() {
             var el = document.getElementById('mobile-month-label');
-            if (el) {
-                el.textContent = mobileMonthNames[mobileCalStart.getMonth()] + ' ' + mobileCalStart.getFullYear();
-            }
+            if (el) el.textContent = mobileMonthNames[mobileCalStart.getMonth()] + ' ' + mobileCalStart.getFullYear();
+            var anno = mobileCalStart.getFullYear();
+            TracerHeatmap.buildMonth({
+                container: 'mobile-cal-heatmap',
+                year: anno,
+                month: mobileCalStart.getMonth(),
+                colorFor: function(dateStr) {
+                    return heatmapColorForLevel(heatmapLevel(dataByDate[dateStr] || 0));
+                },
+                labelFor: function(dateStr, giorno, mese) {
+                    var count = dataByDate[dateStr] || 0;
+                    return giorno + ' ' + mese + ' ' + anno + ' — ' + (count === 0 ? 'nessuna serie' : count + ' serie');
+                },
+                legend: [0, 1, 2, 3, 4].map(heatmapColorForLevel)
+            });
         }
 
         function mobileCalPrev() {
             mobileCalStart = new Date(mobileCalStart.getFullYear(), mobileCalStart.getMonth() - 1, 1);
-            updateMobileLabel();
-            if (mobileCal) mobileCal.previous(1);
+            renderMobileCal();
         }
-
         function mobileCalNext() {
             mobileCalStart = new Date(mobileCalStart.getFullYear(), mobileCalStart.getMonth() + 1, 1);
-            updateMobileLabel();
-            if (mobileCal) mobileCal.next(1);
+            renderMobileCal();
         }
 
-        // Costruita sempre (non solo sotto i 768px): e' il CSS a decidere quale
-        // heatmap mostrare, cosi' restringendo la finestra senza reload il mini
-        // calendario mobile e' gia' pronto invece di restare vuoto.
-        mobileCal = new CalHeatMap();
-        mobileCal.init({
-            itemSelector: "#mobile-cal-heatmap",
-            domain: "month",
-            subDomain: "x_day",
-            data: data,
-            start: mobileCalStart,
-            cellSize: 12,
-            cellPadding: 2,
-            domainGutter: 0,
-            range: 1,
-            tooltip: true,
-            displayLegend: false,
-            itemName: ["serie", "serie"],
-            domainLabelFormat: "",
-            label: { position: "top", height: 0, offset: { x: 0, y: 0 } }
-        });
-        updateMobileLabel();
+        // Disegnato sempre, non solo sotto i 768px: e' il CSS a scegliere quale
+        // delle due heatmap mostrare, cosi' restringendo la finestra senza
+        // ricaricare il calendario mensile e' gia' pronto.
+        renderMobileCal();
 </script>
 
 <!-- Widget "Settimana" (muscoli lavorati per giorno, dati reali) -->

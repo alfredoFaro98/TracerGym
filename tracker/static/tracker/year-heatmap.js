@@ -146,24 +146,83 @@ window.TracerHeatmap = (function () {
         container.appendChild(body);
 
         if (opts.legend && opts.legend.length) {
-            var legend = document.createElement('div');
-            legend.style.cssText = 'display:flex;align-items:center;justify-content:flex-end;gap:4px;font-size:10.5px;font-weight:600;color:#a7abc0;margin-top:2px;';
-            var less = document.createElement('span');
-            less.textContent = 'Meno';
-            legend.appendChild(less);
-            opts.legend.forEach(function (color) {
-                var sq = document.createElement('span');
-                sq.style.cssText = 'width:11px;height:11px;border-radius:3px;background:' + color + ';';
-                legend.appendChild(sq);
-            });
-            var more = document.createElement('span');
-            more.textContent = 'Più';
-            legend.appendChild(more);
-            container.appendChild(legend);
+            container.appendChild(makeLegend(opts.legend, 'flex-end'));
         }
 
         attachTooltip(container);
     }
 
-    return { build: build, accentRgb: accentRgb, MONTHS_SHORT: MONTHS_SHORT };
+    function makeLegend(colors, align) {
+        var legend = document.createElement('div');
+        legend.style.cssText = 'display:flex;align-items:center;justify-content:' + align +
+            ';gap:4px;font-size:10.5px;font-weight:600;color:#a7abc0;margin-top:2px;';
+        var less = document.createElement('span');
+        less.textContent = 'Meno';
+        legend.appendChild(less);
+        colors.forEach(function (color) {
+            var sq = document.createElement('span');
+            sq.style.cssText = 'width:11px;height:11px;border-radius:3px;background:' + color + ';';
+            legend.appendChild(sq);
+        });
+        var more = document.createElement('span');
+        more.textContent = 'Più';
+        legend.appendChild(more);
+        return legend;
+    }
+
+    /* Versione a mese singolo, usata su mobile dove la griglia annuale non ci
+       sta. Stessi colorFor/labelFor della annuale, cosi' le due viste dicono
+       la stessa cosa. Sostituisce il calendario SVG di CalHeatMap, che
+       disegnava celle minuscole di dimensione fissa e ignorava la larghezza
+       dello schermo.
+
+         TracerHeatmap.buildMonth({
+           container: 'mobile-cal-heatmap',
+           year: 2026, month: 8,          // month: 0 = gennaio
+           colorFor: ..., labelFor: ..., legend: [...]
+         });
+    */
+    function buildMonth(opts) {
+        var container = typeof opts.container === 'string'
+            ? document.getElementById(opts.container)
+            : opts.container;
+        if (!container) return;
+
+        var year = opts.year;
+        var month = opts.month;
+        container.innerHTML = '';
+        container.style.cssText = 'display:flex;flex-direction:column;gap:10px;width:100%;';
+
+        var grid = document.createElement('div');
+        grid.style.cssText = 'display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;';
+
+        // Celle vuote iniziali per far cadere il 1 del mese nel suo giorno
+        // della settimana, con lunedi' in prima colonna.
+        var first = new Date(year, month, 1);
+        var lead = (first.getDay() + 6) % 7;
+        for (var i = 0; i < lead; i++) {
+            var vuota = document.createElement('div');
+            vuota.style.cssText = 'aspect-ratio:1;';
+            grid.appendChild(vuota);
+        }
+
+        var giorni = new Date(year, month + 1, 0).getDate();
+        for (var d = 1; d <= giorni; d++) {
+            var dateStr = year + '-' + pad(month + 1) + '-' + pad(d);
+            var cell = document.createElement('div');
+            cell.style.cssText = 'aspect-ratio:1;border-radius:7px;background:' + opts.colorFor(dateStr) + ';';
+            cell.setAttribute('data-hmcell', '1');
+            cell.dataset.hmlabel = opts.labelFor(dateStr, d, MONTHS_SHORT[month]);
+            grid.appendChild(cell);
+        }
+        container.appendChild(grid);
+
+        if (opts.legend && opts.legend.length) {
+            container.appendChild(makeLegend(opts.legend, 'center'));
+        }
+
+        attachTooltip(container);
+    }
+
+    return { build: build, buildMonth: buildMonth, accentRgb: accentRgb, MONTHS_SHORT: MONTHS_SHORT };
 })();
