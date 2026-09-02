@@ -39,68 +39,68 @@
             {% with current_url=request.resolver_match.url_name %}
             <div class="menu-container" style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
                 {% is_dashboard_active as is_active %}
-                <a href="{% url 'dashboard' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                <a href="{% url 'dashboard' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if is_active %} data-menu-active="1"{% endif %}{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                     <span class="menu-text">Dashboard</span>
                 </a>
                 {% is_new_workout_active as is_active %}
-                <a href="{% url 'create_session' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                <a href="{% url 'create_session' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if is_active %} data-menu-active="1"{% endif %}{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
                     <span class="menu-text">Nuovo Allenamento</span>
                 </a>
                 {% is_athletes_active as is_active %}
-                <a href="{% url 'user_list' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                <a href="{% url 'user_list' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if is_active %} data-menu-active="1"{% endif %}{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                     <span class="menu-text">Atleti</span>
                 </a>
                 {% with is_active=current_url|in_list:"body_map" %}
-                <a href="{% url 'body_map' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                <a href="{% url 'body_map' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if is_active %} data-menu-active="1"{% endif %}{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
                     <span class="menu-text">Mappa Muscolare</span>
                 </a>
                 {% endwith %}
                 {% with is_active=current_url|in_list:"exercises_list,add_exercise,edit_exercise_admin" %}
-                <a href="{% url 'exercises_list' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                <a href="{% url 'exercises_list' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if is_active %} data-menu-active="1"{% endif %}{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
                     <span class="menu-text">Catalogo Esercizi</span>
                 </a>
                 {% endwith %}
 
                 {% with is_active=current_url|in_list:"misurazioni" %}
-                <a href="{% url 'misurazioni' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                <a href="{% url 'misurazioni' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if is_active %} data-menu-active="1"{% endif %}{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="3 17 9 11 13 15 21 7"></polyline><polyline points="14 7 21 7 21 14"></polyline></svg>
                     <span class="menu-text">Misurazioni</span>
                 </a>
                 {% endwith %}
 
                 {% with is_active=current_url|in_list:"integratori" %}
-                <a href="{% url 'integratori' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                <a href="{% url 'integratori' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if is_active %} data-menu-active="1"{% endif %}{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg>
                     <span class="menu-text">Integratori</span>
                 </a>
                 {% endwith %}
 
                 {% with is_active=current_url|in_list:"macro" %}
-                <a href="{% url 'macro' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                <a href="{% url 'macro' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if is_active %} data-menu-active="1"{% endif %}{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
                     <span class="menu-text">Alimentazione</span>
                 </a>
                 {% endwith %}
 
                 {% with is_active=current_url|in_list:"sonno" %}
-                <a href="{% url 'sonno' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                <a href="{% url 'sonno' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if is_active %} data-menu-active="1"{% endif %}{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
                     <span class="menu-text">Sonno</span>
                 </a>
                 {% endwith %}
 
                 {% is_own_profile as is_active %}
-                <a href="{% url 'user_profile' user.username %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                <a href="{% url 'user_profile' user.username %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if is_active %} data-menu-active="1"{% endif %}{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                     <span class="menu-text">Il mio profilo</span>
                 </a>
                 {% with is_active=current_url|in_list:"impostazioni" %}
-                <a href="{% url 'impostazioni' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                <a href="{% url 'impostazioni' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if is_active %} data-menu-active="1"{% endif %}{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                     <span class="menu-text">Impostazioni</span>
                 </a>
@@ -108,7 +108,7 @@
                 {% if user.is_superuser %}
                 <div class="menu-section-label" style="font-size: 9px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1.2px; padding: 8px 14px 2px;">Admin</div>
                 {% with is_active=request.resolver_match.namespace|in_list:"admin" %}
-                <a href="/admin/" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
+                <a href="/admin/" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if is_active %} data-menu-active="1"{% endif %}{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                     <span class="menu-text">Django Admin</span>
                 </a>
@@ -162,5 +162,55 @@
             {% block content %}{% endblock %}
         </main>
     </div>
+
+    <script>
+    /* Su mobile la sidebar diventa una barra in basso che scorre in
+       orizzontale. Ad ogni cambio pagina ripartiva da sinistra, quindi se
+       toccavi una voce che stava oltre il bordo destro, a pagina aperta quella
+       voce era di nuovo fuori schermo. Qui la posizione dello scorrimento viene
+       ricordata per la sessione del browser e rimessa al caricamento; se non
+       c'e' niente da ricordare (primo ingresso, scheda nuova) portiamo in vista
+       la voce della pagina corrente. */
+    (function () {
+        var bar = document.querySelector('.sidebar');
+        if (!bar) return;
+        var KEY = 'tracer-nav-scroll';
+
+        function leggi() {
+            try { return sessionStorage.getItem(KEY); } catch (e) { return null; }
+        }
+        function salva() {
+            // Sopra il breakpoint mobile la sidebar e' una colonna e non
+            // scorre: salvare uno zero cancellerebbe la posizione mobile.
+            if (bar.scrollWidth <= bar.clientWidth) return;
+            try { sessionStorage.setItem(KEY, String(bar.scrollLeft)); } catch (e) {}
+        }
+
+        function centraVoceAttiva() {
+            var attiva = bar.querySelector('[data-menu-active]');
+            if (!attiva) return;
+            var b = bar.getBoundingClientRect();
+            var a = attiva.getBoundingClientRect();
+            // Gia' tutta visibile: lasciamo la barra dove sta.
+            if (a.left >= b.left - 1 && a.right <= b.right + 1) return;
+            bar.scrollLeft += (a.left - b.left) - (b.width - a.width) / 2;
+        }
+
+        if (bar.scrollWidth > bar.clientWidth) {
+            var salvato = leggi();
+            if (salvato !== null && salvato !== '') {
+                bar.scrollLeft = parseFloat(salvato) || 0;
+            }
+            // Anche dopo aver rimesso la posizione: se sei arrivato da un link
+            // dentro la pagina invece che dalla barra, la voce della pagina
+            // aperta puo' essere finita fuori schermo.
+            centraVoceAttiva();
+        }
+
+        bar.addEventListener('click', salva);
+        // pagehide invece di beforeunload: su iOS quest'ultimo spesso non parte.
+        window.addEventListener('pagehide', salva);
+    })();
+    </script>
 </body>
 </html>
