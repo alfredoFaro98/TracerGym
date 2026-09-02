@@ -99,6 +99,38 @@ body {
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.24); }
 
+/* La heatmap annuale ha contenuto a larghezza fissa (min-width ~900px) e
+   scrolla in orizzontale nella fascia tra il breakpoint desktop (769px) e
+   quella larghezza. Li' la barra e' l'unico modo per spostarla, quindi
+   dev'essere spessa e visibile abbastanza da afferrarla col mouse: la
+   scrollbar globale qui sopra (5px, thumb allo 0.14) e' pensata per liste
+   lunghe dove si usa la rotella, non per trascinare.
+
+   Regola unica e condivisa: prima dashboard.html e integratori.html se la
+   ridefinivano ciascuno per conto suo, per giunta piu' sottile (4px) e piu'
+   sbiadita (--surface-2 = bianco 0.08) del default. */
+.heatmap-scroll-wrap {
+  scrollbar-width: auto;                                        /* Firefox */
+  scrollbar-color: rgba(255,255,255,0.30) rgba(255,255,255,0.06);
+}
+.heatmap-scroll-wrap::-webkit-scrollbar { height: 12px; }
+.heatmap-scroll-wrap::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.06);
+  border-radius: 6px;
+}
+.heatmap-scroll-wrap::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.30);
+  border-radius: 6px;
+  /* Bordo trasparente + background-clip: l'area che risponde al mouse resta
+     alta 12px, ma il pollice si vede spesso 6px e staccato dal binario. */
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+.heatmap-scroll-wrap::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.48);
+  background-clip: padding-box;
+}
+
 /* Inputs / buttons global reset */
 input, textarea, select {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
