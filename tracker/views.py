@@ -128,17 +128,23 @@ def dashboard(request):
         year_int = int(year_str)
     else:
         year_int = timezone.now().year
-    # Applica filtro anno sia a sessions_query che a all_sessions
-    sessions_query = sessions_query.filter(data__year=year_int)
-    
-    # Filtro per mese (mantieni filtraggio)
+    # Filtro per mese. Il mese porta con se' il suo anno, quindi quando c'e'
+    # decide lui: prima il filtro anno qui sotto veniva applicato comunque, e
+    # scegliendo un mese di un altro anno la query chiedeva le sessioni del
+    # 2026 E del 2025 insieme, cioe' non trovava mai niente.
     month_filter = request.GET.get('month', '')
+    month_applied = False
     if month_filter:
         try:
             year_part, month = month_filter.split('-')
-            sessions_query = sessions_query.filter(data__year=year_part, data__month=month)
+            sessions_query = sessions_query.filter(data__year=int(year_part), data__month=int(month))
+            month_applied = True
         except ValueError:
             pass
+
+    # Applica filtro anno sia a sessions_query che a all_sessions
+    if not month_applied:
+        sessions_query = sessions_query.filter(data__year=year_int)
 
     # Paginazione: 15 sessioni per pagina
     paginator = Paginator(sessions_query, 15)

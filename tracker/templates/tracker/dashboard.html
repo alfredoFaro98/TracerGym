@@ -237,8 +237,9 @@
             <div style="font-size: 11px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap;">Progressione</div>
             <div style="position: relative; flex: 1; max-width: 260px;">
                 <input type="text" id="wc-input" placeholder="Cerca esercizio…"
-                       class="tracer-input" style="padding: 5px 10px; height: 30px; font-size: 12px; width: 100%; border-radius: 6px;" autocomplete="off">
-                <div id="wc-dropdown" style="display:none; position:absolute; top:calc(100% + 3px); left:0; right:0; background:var(--panel); border:1px solid var(--border); border-radius:6px; z-index:200; max-height:180px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,.5);"></div>
+                       class="tracer-input" style="padding: 5px 10px; height: 30px; font-size: 12px; width: 100%; border-radius: 6px;" autocomplete="off"
+                       role="combobox" aria-expanded="false" aria-controls="wc-dropdown" aria-autocomplete="list">
+                <div id="wc-dropdown" role="listbox" aria-label="Esercizi trovati" style="display:none; position:absolute; top:calc(100% + 3px); left:0; right:0; background:var(--panel); border:1px solid var(--border); border-radius:6px; z-index:200; max-height:180px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,.5);"></div>
                 <div id="wc-preview" style="display:none; position:fixed; z-index:10000; width:168px; background:var(--panel); border:1px solid rgba(255,255,255,0.1); border-radius:12px; box-shadow:0 16px 36px rgba(0,0,0,0.5); padding:10px; flex-direction:column; gap:8px; box-sizing:border-box;">
                     <img style="width:100%; height:120px; object-fit:cover; border-radius:8px; display:block;">
                     <span style="font-size:11.5px; font-weight:700; color:#fff; line-height:1.3;"></span>
@@ -270,6 +271,10 @@
             </div>
             <div class="storico-filters" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex: 1; justify-content: flex-end;">
                 <form method="get" class="filter-form" style="display: flex; gap: 8px; align-items: center; justify-content: flex-end; flex-wrap: wrap;">
+                    <!-- Senza questo, cercare mentre guardi un anno passato
+                         riportava la lista all'anno corrente: il form non
+                         rimandava indietro ?year= e il default ripartiva. -->
+                    <input type="hidden" name="year" value="{{ selected_year }}">
                     <div class="storico-date-field{% if not request.GET.month %} is-empty{% endif %}">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ba0b3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                         <span class="storico-date-ph" aria-hidden="true">Mese</span>
@@ -1048,30 +1053,91 @@
     function hidePreview() { preview.style.display = 'none'; }
 
     /* --- dropdown --- */
+    // La voce "attiva" e' una sola, condivisa da mouse e tastiera: se il
+    // passaggio del mouse e le frecce tenessero due stati separati si
+    // vedrebbero due righe evidenziate insieme.
+    var results = [];
+    var activeIndex = -1;
+    // Senza questo, muovendo la selezione con le frecce basta che una voce
+    // finisca sotto il puntatore fermo perche' il mouseenter la sovrascriva.
+    var mouseMosso = false;
+
+    function items() {
+        return Array.prototype.slice.call(dropdown.children);
+    }
+
+    function setActive(i, scrolla) {
+        var els = items();
+        if (!els.length) return;
+        activeIndex = i;
+        els.forEach(function(el, idx) {
+            var on = idx === activeIndex;
+            el.style.background = on ? 'rgba(var(--acc-rgb),.12)' : 'transparent';
+            el.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        if (activeIndex < 0) {
+            input.removeAttribute('aria-activedescendant');
+            hidePreview();
+            return;
+        }
+        var el = els[activeIndex];
+        input.setAttribute('aria-activedescendant', el.id);
+        showPreview(results[activeIndex], el);
+        // Con la tendina piu' alta dei suoi 180px la voce raggiunta con le
+        // frecce finirebbe fuori dalla parte visibile. Lo scorrimento e'
+        // calcolato a mano invece di usare scrollIntoView, che muove anche la
+        // pagina: la lista scivolava sotto il cursore fermo e il mouseenter
+        // rubava la selezione alle frecce.
+        if (scrolla) {
+            var alto = el.offsetTop;
+            var basso = alto + el.offsetHeight;
+            if (alto < dropdown.scrollTop) {
+                dropdown.scrollTop = alto;
+            } else if (basso > dropdown.scrollTop + dropdown.clientHeight) {
+                dropdown.scrollTop = basso - dropdown.clientHeight;
+            }
+        }
+    }
+
+    function chiudiDropdown() {
+        dropdown.style.display = 'none';
+        input.setAttribute('aria-expanded', 'false');
+        input.removeAttribute('aria-activedescendant');
+        activeIndex = -1;
+        hidePreview();
+    }
+
     function showDropdown(q) {
-        var results = q
+        results = q
             ? EXERCISES.filter(function(e) { return e.nome.toLowerCase().indexOf(q.toLowerCase()) !== -1; }).slice(0, 10)
             : [];
-        if (!results.length) { dropdown.style.display = 'none'; hidePreview(); return; }
+        if (!results.length) { chiudiDropdown(); return; }
         dropdown.innerHTML = '';
-        results.forEach(function(e) {
+        results.forEach(function(e, idx) {
             var el = document.createElement('div');
+            el.id = 'wc-opt-' + idx;
             el.dataset.name = e.nome;
+            el.setAttribute('role', 'option');
+            el.setAttribute('aria-selected', 'false');
             el.style.cssText = 'padding:8px 12px; font-size:12.5px; color:#f0f0f3; cursor:pointer; border-bottom:1px solid var(--border);';
             el.textContent = e.nome;
-            el.addEventListener('mouseover', function() { el.style.background = 'rgba(var(--acc-rgb),.12)'; showPreview(e, el); });
-            el.addEventListener('mouseout', function() { el.style.background = 'transparent'; hidePreview(); });
+            el.addEventListener('mouseenter', function() { if (mouseMosso) setActive(idx, false); });
             dropdown.appendChild(el);
         });
         dropdown.style.display = 'block';
+        input.setAttribute('aria-expanded', 'true');
+        activeIndex = -1;
+        setActive(-1, false);
     }
+
+    dropdown.addEventListener('mousemove', function() { mouseMosso = true; });
+    dropdown.addEventListener('mouseleave', hidePreview);
 
     dropdown.addEventListener('mousedown', function(e) {
         var item = e.target.closest('[data-name]');
         if (!item) return;
         input.value = item.dataset.name;
-        dropdown.style.display = 'none';
-        hidePreview();
+        chiudiDropdown();
         loadChart(item.dataset.name);
     });
 
@@ -1082,15 +1148,45 @@
     });
 
     input.addEventListener('blur', function() {
-        setTimeout(function() { dropdown.style.display = 'none'; hidePreview(); }, 150);
+        setTimeout(chiudiDropdown, 150);
     });
 
     input.addEventListener('keydown', function(e) {
+        var aperta = dropdown.style.display === 'block' && items().length;
+
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            // Freccia giu' a tendina chiusa: la riapre sull'ultima ricerca,
+            // invece di non fare niente.
+            if (!aperta) {
+                if (e.key === 'ArrowDown') { showDropdown(input.value.trim()); aperta = items().length; }
+                if (!aperta) return;
+            }
+            e.preventDefault();
+            mouseMosso = false;
+            var n = items().length;
+            var passo = e.key === 'ArrowDown' ? 1 : -1;
+            // Dal fondo si torna in cima e viceversa.
+            setActive(((activeIndex + passo) % n + n) % n, true);
+            return;
+        }
+
+        if (e.key === 'Home' && aperta) { e.preventDefault(); setActive(0, true); return; }
+        if (e.key === 'End' && aperta) { e.preventDefault(); setActive(items().length - 1, true); return; }
+
+        if (e.key === 'Escape') {
+            if (aperta) { e.preventDefault(); chiudiDropdown(); }
+            return;
+        }
+
         if (e.key === 'Enter') {
             e.preventDefault();
-            dropdown.style.display = 'none';
-            var q = input.value.trim();
-            if (q) loadChart(q);
+            // Con una voce evidenziata vince quella; altrimenti resta il
+            // comportamento di prima, cioe' cercare quello che hai scritto.
+            var scelto = (aperta && activeIndex >= 0) ? results[activeIndex].nome : input.value.trim();
+            if (!scelto) return;
+            input.value = scelto;
+            chiudiDropdown();
+            loadChart(scelto);
         }
     });
 
