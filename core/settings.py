@@ -61,6 +61,13 @@ MAINTENANCE_MODE = False
 
 SESSION_COOKIE_AGE = 1800  # 30 minuti
 
+# Senza questo la scadenza viene fissata al momento del login e non si sposta
+# piu': la sessione moriva 30 minuti dopo l'accesso anche restando sull'app,
+# e il primo salvataggio dopo quel momento falliva. Con SESSION_SAVE_EVERY_REQUEST
+# la scadenza si sposta in avanti ad ogni richiesta, quindi i 30 minuti diventano
+# 30 minuti di inattivita' (e il "Ricordami" da 30 giorni si rinnova allo stesso modo).
+SESSION_SAVE_EVERY_REQUEST = True
+
 # Cookie di sessione e CSRF marcati "Secure" solo in produzione (PythonAnywhere e' HTTPS):
 # il browser non li invia mai su una connessione non cifrata. In locale restano normali,
 # altrimenti login/form non funzionerebbero girando su http://127.0.0.1.
@@ -69,11 +76,13 @@ CSRF_COOKIE_SECURE = IS_PRODUCTION
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'tracker.middleware.MaintenanceModeMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # Deve stare DOPO AuthenticationMiddleware: legge request.user per lasciare
+    # passare i superuser, e request.user esiste solo da qui in poi.
+    'tracker.middleware.MaintenanceModeMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]

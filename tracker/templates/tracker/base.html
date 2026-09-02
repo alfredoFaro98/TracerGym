@@ -13,6 +13,10 @@
          dopo un pull che cambia lo stylesheet il browser puo' continuare a
          servire la versione vecchia mentre l'HTML e' gia' aggiornato. -->
     <link rel="stylesheet" href="{% static 'tracker/style.css' %}?v={{ app_version }}">
+    <!-- Riallinea il token CSRF al cookie prima di ogni POST: senza questo, se
+         fai login o logout in un'altra scheda, le schede gia' aperte hanno in
+         pagina un token ormai vecchio e il primo salvataggio risponde 403. -->
+    <script src="{% static 'tracker/csrf.js' %}?v={{ app_version }}"></script>
 
     {% block extra_head %}{% endblock %}
 </head>
