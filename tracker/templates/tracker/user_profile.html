@@ -302,10 +302,16 @@
         placeholder.style.display = 'none';
         chartWrap.style.display = 'block';
 
+        // Colori presi dall'accent attivo come fa il grafico in Sonno: prima
+        // erano un verde fisso, che restava verde anche cambiando accent.
+        var rootStyle = getComputedStyle(document.documentElement);
+        var accRgb = (rootStyle.getPropertyValue('--acc-rgb').trim() || '124, 108, 246');
+        var acc2 = (rootStyle.getPropertyValue('--acc-2').trim() || '#8b7bf7');
+
         var ctx = canvas.getContext('2d');
         var fade = ctx.createLinearGradient(0, 0, 0, 200);
-        fade.addColorStop(0, 'rgba(96,160,96,.35)');
-        fade.addColorStop(1, 'rgba(96,160,96,0)');
+        fade.addColorStop(0, 'rgba(' + accRgb + ',.35)');
+        fade.addColorStop(1, 'rgba(' + accRgb + ',0)');
 
         new Chart(canvas, {
             type: 'line',
@@ -314,9 +320,9 @@
                 datasets: [{
                     label: 'Peso',
                     data: points.map(function(p) { return p.value; }),
-                    borderColor: '#60a060',
+                    borderColor: acc2,
                     backgroundColor: fade,
-                    pointBackgroundColor: '#60a060',
+                    pointBackgroundColor: acc2,
                     pointBorderColor: '#1b2d34',
                     pointBorderWidth: 2,
                     pointRadius: 3,

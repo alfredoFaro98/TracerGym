@@ -224,11 +224,15 @@
         {% else %}
         {% for day in days %}
         {% with day_key=day.data|date:"Y-m-d" %}
-        <div style="padding: 16px 20px; border-bottom: 1px solid var(--border); {% if day.status %}background: rgba(248,113,113,0.04);{% endif %}">
+        <!-- Il click per aprire/chiudere sta qui sulla card intera, non solo
+             sulla riga della data: i comandi veri (spunta, bersaglio, tendina
+             stato, e tutto il contenuto aperto) fermano la propagazione, cosi'
+             restano cliccabili senza richiudere il giorno. -->
+        <div onclick="toggleDay('{{ day_key }}')" style="padding: 16px 20px; border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; {% if day.status %}background: rgba(248,113,113,0.04);{% endif %}">
             <!-- Riga 1: solo chevron, selezione, data e conteggio. Prima qui
                  dentro stava anche tutto il blocco totali e su schermo stretto
                  il flex-wrap lo sparpagliava su due o tre righe diverse. -->
-            <div onclick="toggleDay('{{ day_key }}')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+            <div style="display: flex; align-items: center; gap: 8px;">
                 <svg id="day-chevron-{{ day_key }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 <input type="checkbox" class="macro-day-select-cb" data-day-key="{{ day_key }}" onclick="event.stopPropagation()" onchange="toggleMacroDaySelect(this)" title="Seleziona tutte le voci di questo giorno" style="width: 15px; height: 15px; accent-color: #f87171; cursor: pointer; flex-shrink: 0;">
                 <span style="flex: 1; min-width: 0; font-size: 13.5px; font-weight: 700; color: #f0f0f3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ day.data|date:"l d F Y"|capfirst }}</span>
@@ -246,16 +250,12 @@
                 {% else %}
                 <span title="Obiettivo non raggiunto" style="flex-shrink: 0; color: #f87171; font-size: 13px; font-weight: 700;">&#10005;</span>
                 {% endif %}
-                <span onclick="toggleDayGoalForm('{{ day_key }}')" title="Imposta obiettivo di questo giorno" style="flex-shrink: 0; cursor: pointer; font-size: 14px; padding: 4px; border-radius: 6px; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">&#127919;</span>
+                <span onclick="event.stopPropagation(); toggleDayGoalForm('{{ day_key }}')" title="Imposta obiettivo di questo giorno" style="flex-shrink: 0; cursor: pointer; font-size: 14px; padding: 4px; border-radius: 6px; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">&#127919;</span>
             </div>
 
-            <!-- Riga 3: stato del giorno, sempre visibile. -->
+            <!-- Riga 3: stato del giorno, sempre visibile. I badge stanno a
+                 sinistra e la tendina va a destra col margin-left:auto. -->
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
-                <select onchange="submitDayStatus('{{ day_key }}', this.value);" title="Stato di tracciamento del giorno" style="flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 5px 8px; border-radius: 6px; background: var(--panel); border: 1px solid var(--border); color: #9ba0b3; cursor: pointer; font-family: inherit;">
-                    <option value="" {% if not day.status %}selected{% endif %}>&#10003; Tracciato</option>
-                    <option value="parziale" {% if day.status == 'parziale' %}selected{% endif %}>&#9888;&#65039; Parziale</option>
-                    <option value="non_tracciato" {% if day.status == 'non_tracciato' %}selected{% endif %}>&#128683; Non tracciato</option>
-                </select>
                 {% if day.totals.junk_count %}
                 <span title="Voci di cibo spazzatura" style="font-size: 10.5px; font-weight: 700; color: #f0a875; background: rgba(240,168,117,0.14); padding: 3px 9px; border-radius: 6px; white-space: nowrap;">&#127828; {{ day.totals.junk_count }}</span>
                 {% endif %}
@@ -264,6 +264,11 @@
                 {% elif day.status == 'parziale' %}
                 <span style="background: rgba(240,168,117,0.14); color: #f0a875; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap;">&#9888;&#65039; PARZIALE</span>
                 {% endif %}
+                <select onclick="event.stopPropagation();" onchange="event.stopPropagation(); submitDayStatus('{{ day_key }}', this.value);" title="Stato di tracciamento del giorno" style="margin-left: auto; flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 5px 8px; border-radius: 6px; background: var(--panel); border: 1px solid var(--border); color: #9ba0b3; cursor: pointer; font-family: inherit;">
+                    <option value="" {% if not day.status %}selected{% endif %}>&#10003; Tracciato</option>
+                    <option value="parziale" {% if day.status == 'parziale' %}selected{% endif %}>&#9888;&#65039; Parziale</option>
+                    <option value="non_tracciato" {% if day.status == 'non_tracciato' %}selected{% endif %}>&#128683; Non tracciato</option>
+                </select>
             </div>
 
             <div id="day-goal-form-{{ day_key }}" style="display: none; margin-top: 10px;" onclick="event.stopPropagation();">
@@ -303,7 +308,7 @@
                 </form>
             </div>
 
-            <div id="day-body-{{ day_key }}" style="display: none; flex-direction: column; gap: 6px; margin-top: 12px;">
+            <div id="day-body-{{ day_key }}" onclick="event.stopPropagation();" style="display: none; flex-direction: column; gap: 6px; margin-top: 12px;">
                 {% for e in day.entries %}
                 {% include 'tracker/partials/macro_entry_row.html' with e=e day_key=day_key %}
                 {% endfor %}
