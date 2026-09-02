@@ -278,7 +278,7 @@
                     <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Cerca esercizio o note..." class="tracer-input" style="padding: 6px 10px; flex: 0 0 170px; font-size: 12px; height: 30px; border-radius: 6px;">
                     <button type="submit" class="btn-primary-gradient storico-filtra-btn" style="padding: 0 12px; height: 30px; font-size: 11px;">Filtra</button>
                     {% if request.GET.q or request.GET.month %}
-                    <a href="{% url 'dashboard' %}" style="display: flex; align-items: center; padding: 0 10px; height: 30px; border: 1px solid var(--border); border-radius: 6px; color: #f0f0f3; font-size: 11px; text-decoration: none;">Reset</a>
+                    <a href="{% url 'dashboard' %}" class="storico-reset-btn" style="display: flex; align-items: center; justify-content: center; padding: 0 10px; height: 30px; border: 1px solid var(--border); border-radius: 6px; color: #f0f0f3; font-size: 11px; text-decoration: none;">Reset</a>
                     {% endif %}
                 </form>
                 <span class="storico-count" style="font-size: 11px; color: #f0f0f3; font-family: 'JetBrains Mono', monospace; min-width: max-content;">
@@ -625,8 +625,21 @@
     /* Stessa logica: e' il form a non starci piu', quindi si misura la
        toolbar. A questo punto i filtri occupano gia' tutta la riga. */
     @container storico (max-width: 400px) {
-        .filter-form input[name="q"] { max-width: none !important; flex: 1 !important; min-width: 120px !important; }
-        .storico-filtra-btn { flex: 1 !important; }
+        /* Il form deve prendersi tutta la riga: e' un flex item dentro
+           .storico-filters e senza questo resta largo quanto il suo contenuto,
+           quindi i flex dei figli qui sotto non avrebbero spazio libero da
+           distribuire e "Filtra" si fermava a meta' riga con un buco a destra. */
+        .filter-form { flex: 1 1 100% !important; width: 100%; justify-content: flex-start !important; }
+        /* Crescono tutti, cosi' la riga arriva sempre al bordo destro: quello
+           che va a capo (Reset, o "Filtra" sui display piu' stretti) riempie la
+           riga nuova invece di restare orfano a sinistra. Il peso 100 contro 1
+           fa si' che, quando stanno sulla stessa riga, lo spazio che avanza se
+           lo prenda quasi tutto il campo di ricerca e i bottoni restino della
+           loro misura. La base di 90px e' scelta per far entrare Mese + ricerca
+           + Filtra su una riga sola fino a ~300px di schermo. */
+        .filter-form input[name="q"] { max-width: none !important; flex: 100 1 90px !important; min-width: 0 !important; }
+        .storico-filtra-btn { flex: 1 1 auto !important; }
+        .storico-reset-btn { flex: 1 1 auto !important; }
     }
 
     /* Pill per il filtro mese: sostituisce lo stile nativo dell'input

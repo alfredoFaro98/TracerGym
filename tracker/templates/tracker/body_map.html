@@ -799,7 +799,7 @@
             </svg>
         </div>
         <p class="hint-label">Passa il cursore su un muscolo per esplorarne la funzione e gli esercizi.</p>
-        <p class="hint-sub">10 gruppi muscolari interattivi</p>
+        <p class="hint-sub" id="muscleCount"></p>
         </div>
 
         <!-- Active state -->
@@ -980,6 +980,24 @@
     Object.assign(data, backData);
 
     let currentView    = 'front';
+
+    /* Il conteggio era scritto a mano ma soprattutto finiva in un elemento che
+       non esisteva: non c'era nessun id="muscleCount" nella pagina, quindi
+       getElementById tornava null, passare a "Posteriore" sollevava un
+       TypeError e il sottotitolo restava fermo su "10 gruppi muscolari
+       interattivi" anche nella vista posteriore, che di gruppi ne ha 11.
+       Adesso i muscoli li contiamo dall'SVG della vista attiva, cosi' il numero
+       non puo' piu' andare fuori sincrono se se ne aggiunge o toglie uno. */
+    function updateMuscleCount() {
+      const wrap = document.getElementById(currentView === 'front' ? 'frontView' : 'backView');
+      const el = document.getElementById('muscleCount');
+      if (!wrap || !el) return;
+      const n = wrap.querySelectorAll('.bodymap').length;
+      el.textContent = n === 1
+        ? '1 gruppo muscolare interattivo'
+        : n + ' gruppi muscolari interattivi';
+    }
+    updateMuscleCount();
     let lockedMuscle   = null;
     let currentTimeout = null;
     const hintState    = document.getElementById('hintState');
@@ -1006,8 +1024,7 @@
         document.getElementById('backView').classList.toggle('hidden-view', view === 'front');
         document.getElementById('viewLabel').textContent =
           'Corpo Umano \u2014 Vista ' + (view === 'front' ? 'Anteriore' : 'Posteriore');
-        document.getElementById('muscleCount').textContent =
-          (view === 'front' ? '10' : '11') + ' gruppi muscolari';
+        updateMuscleCount();
       });
     });
 
