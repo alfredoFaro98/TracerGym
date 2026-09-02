@@ -460,6 +460,15 @@
     .water-pill-x::after { transform: translate(-50%, -50%) rotate(-45deg); }
     .water-pill:hover .water-pill-x { opacity: 1; transform: scale(1); }
 
+    /* Da tablet in su i pulsanti acqua stanno su una riga tutta loro (il
+       blocco titolo occupa il 100% e li manda a capo): margin-left:auto li
+       spinge contro il bordo destro della card, allineati alla fine della
+       barra di progresso. Scoped sopra i 480px per non toccare il layout
+       mobile, dove .water-actions e' gia' flex:1 1 100%. */
+    @media (min-width: 481px) {
+        .water-actions { margin-left: auto; }
+    }
+
     /* Su mobile la riga dei pulsanti rapidi acqua e quella di inserimento
        manuale vanno impilate a piena larghezza ciascuna, invece di lasciare
        che tutti i controlli si accavallino su una riga sola troppo stretta. */
