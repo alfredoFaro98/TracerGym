@@ -215,6 +215,7 @@ def dashboard(request):
         'proteine_g': macro_goal_override.proteine_g,
         'carboidrati_g': macro_goal_override.carboidrati_g,
         'grassi_g': macro_goal_override.grassi_g,
+        'fibre_g': macro_goal_override.fibre_g,
     } if macro_goal_override else _macro_default_goals(profile)
     macro_today_totals = _macro_day_totals(MacroEntry.objects.filter(utente=request.user, data=today))
     macro_today_progress = {
@@ -2074,6 +2075,7 @@ def _macro_day_totals(day_entries):
         'proteine_g': round(sum(float(e.proteine_g) for e in day_entries), 1),
         'carboidrati_g': round(sum(float(e.carboidrati_g) for e in day_entries), 1),
         'grassi_g': round(sum(float(e.grassi_g) for e in day_entries), 1),
+        'fibre_g': round(sum(float(e.fibre_g) for e in day_entries), 1),
         'junk_count': sum(1 for e in day_entries if e.e_spazzatura),
     }
 
@@ -2084,6 +2086,7 @@ def _macro_default_goals(profile):
         'proteine_g': profile.obiettivo_proteine_g,
         'carboidrati_g': profile.obiettivo_carboidrati_g,
         'grassi_g': profile.obiettivo_grassi_g,
+        'fibre_g': profile.obiettivo_fibre_g,
     }
 
 
@@ -2094,7 +2097,10 @@ def _macro_goals_map(utente, year=None):
     if year:
         qs = qs.filter(data__year=year)
     return {
-        g.data: {'kcal': g.kcal, 'proteine_g': g.proteine_g, 'carboidrati_g': g.carboidrati_g, 'grassi_g': g.grassi_g}
+        g.data: {
+            'kcal': g.kcal, 'proteine_g': g.proteine_g, 'carboidrati_g': g.carboidrati_g,
+            'grassi_g': g.grassi_g, 'fibre_g': g.fibre_g,
+        }
         for g in qs
     }
 
@@ -2157,7 +2163,7 @@ def macro(request):
             'status': statuses_by_day.get(day),
         })
 
-    chart_data = {'kcal': [], 'proteine_g': [], 'carboidrati_g': [], 'grassi_g': []}
+    chart_data = {'kcal': [], 'proteine_g': [], 'carboidrati_g': [], 'grassi_g': [], 'fibre_g': []}
     for d in sorted(days, key=lambda x: x['data']):
         if d['status']:
             continue  # giorno non tracciato/parziale: escluso dall'andamento
@@ -2202,6 +2208,7 @@ def add_macro_entry(request):
                 proteine_g=_macro_decimal(request.POST, 'proteine_g'),
                 carboidrati_g=_macro_decimal(request.POST, 'carboidrati_g'),
                 grassi_g=_macro_decimal(request.POST, 'grassi_g'),
+                fibre_g=_macro_decimal(request.POST, 'fibre_g'),
                 nota=(request.POST.get('nota') or '').strip()[:100],
                 e_spazzatura=bool(request.POST.get('spazzatura')),
                 data=entry_data,
@@ -2230,6 +2237,7 @@ def edit_macro_entry(request, entry_id):
         entry.proteine_g = _macro_decimal(request.POST, 'proteine_g')
         entry.carboidrati_g = _macro_decimal(request.POST, 'carboidrati_g')
         entry.grassi_g = _macro_decimal(request.POST, 'grassi_g')
+        entry.fibre_g = _macro_decimal(request.POST, 'fibre_g')
         entry.nota = (request.POST.get('nota') or '').strip()[:100]
         entry.e_spazzatura = bool(request.POST.get('spazzatura'))
         if data_str:
@@ -2267,6 +2275,7 @@ def duplicate_macro_entry(request, entry_id):
         proteine_g=entry.proteine_g,
         carboidrati_g=entry.carboidrati_g,
         grassi_g=entry.grassi_g,
+        fibre_g=entry.fibre_g,
         nota=entry.nota,
         e_spazzatura=entry.e_spazzatura,
         data=target_data,
@@ -2291,6 +2300,7 @@ def duplicate_macro_entry(request, entry_id):
             'proteine_g': float(totals['proteine_g']),
             'carboidrati_g': float(totals['carboidrati_g']),
             'grassi_g': float(totals['grassi_g']),
+            'fibre_g': float(totals['fibre_g']),
         },
     })
 
@@ -2307,7 +2317,8 @@ def bulk_delete_macro_entries(request):
 def set_macro_goal(request):
     if request.method == 'POST':
         profile, _ = UserProfile.objects.get_or_create(user=request.user)
-        for field in ('obiettivo_kcal', 'obiettivo_proteine_g', 'obiettivo_carboidrati_g', 'obiettivo_grassi_g'):
+        for field in ('obiettivo_kcal', 'obiettivo_proteine_g', 'obiettivo_carboidrati_g',
+                      'obiettivo_grassi_g', 'obiettivo_fibre_g'):
             val = request.POST.get(field)
             if val and val.isdigit() and int(val) > 0:
                 setattr(profile, field, int(val))
@@ -2340,6 +2351,7 @@ def set_day_macro_goal(request):
                         'proteine_g': _macro_goal_int(request.POST, 'proteine_g'),
                         'carboidrati_g': _macro_goal_int(request.POST, 'carboidrati_g'),
                         'grassi_g': _macro_goal_int(request.POST, 'grassi_g'),
+                        'fibre_g': _macro_goal_int(request.POST, 'fibre_g'),
                     },
                 )
     return redirect(request.POST.get('next') or 'macro')

@@ -209,6 +209,18 @@
                     </div>
                 </div>
             </div>
+            <div>
+                <div style="display: flex; justify-content: space-between; font-size: 10.5px; margin-bottom: 3px;">
+                    <span style="color: #c7cbd6;">Fibre</span>
+                    <span id="macro-f-label" style="color: #9ba0b3;">{{ macro_today_totals.fibre_g|floatformat:"-1" }} / {{ macro_goals.fibre_g }} g</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span title="{% if macro_today_reached.fibre_g %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: {% if macro_today_reached.fibre_g %}#4ade80{% else %}#f87171{% endif %};">{% if macro_today_reached.fibre_g %}✓{% else %}✕{% endif %}</span>
+                    <div style="flex: 1; height: 5px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden;">
+                        <div id="macro-f-bar" style="height: 100%; width: {{ macro_today_progress.fibre_g }}%; background: #2dd4bf; border-radius: 3px; transition: width .3s;"></div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div style="margin-top: auto; text-align: right;">

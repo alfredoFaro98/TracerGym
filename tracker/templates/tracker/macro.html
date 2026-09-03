@@ -77,6 +77,18 @@
                     </div>
                 </div>
             </div>
+            <div>
+                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                    <span style="color: #c7cbd6;">Fibre</span>
+                    <span style="white-space: nowrap; flex-shrink: 0; color: #9ba0b3;">{{ today_totals.fibre_g|floatformat:"-1" }} / {{ goals.fibre_g }} g</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span title="{% if today_reached.fibre_g %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: {% if today_reached.fibre_g %}#4ade80{% else %}#f87171{% endif %};">{% if today_reached.fibre_g %}✓{% else %}✕{% endif %}</span>
+                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
+                        <div style="height: 100%; width: {{ today_progress.fibre_g }}%; background: #2dd4bf; border-radius: 4px; transition: width .3s;"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -107,6 +119,10 @@
                         <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">GRASSI (G)</span>
                         <input type="number" name="obiettivo_grassi_g" value="{{ default_goals.grassi_g }}" min="1" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
                     </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">FIBRE (G)</span>
+                        <input type="number" name="obiettivo_fibre_g" value="{{ default_goals.fibre_g }}" min="1" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
+                    </div>
                 </div>
                 {% if ultimo_peso %}
                 <button type="button" onclick="suggestProtein()" style="width: 100%; height: 40px; box-sizing: border-box; padding: 0 14px; font-size: 12.5px; font-weight: 600; background: rgba(106,159,216,0.12); border: 1px solid rgba(106,159,216,0.25); border-radius: 8px; color: #6a9fd8; cursor: pointer; font-family: inherit;">Suggerisci da peso corporeo</button>
@@ -123,7 +139,7 @@
     <div id="new-entry-form" style="display: none; margin-bottom: 24px;">
         <div class="tracer-card" style="padding: 18px 20px;">
             <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 4px;">Nuova voce</div>
-            <div style="font-size: 11.5px; color: #7d8296; margin-bottom: 12px;">Logga un pasto o il totale della giornata. Proteine/carboidrati/grassi sono facoltativi.</div>
+            <div style="font-size: 11.5px; color: #7d8296; margin-bottom: 12px;">Logga un pasto o il totale della giornata. Proteine/carboidrati/grassi/fibre sono facoltativi.</div>
             <form action="{% url 'add_macro_entry' %}" method="post" autocomplete="off" style="display: flex; flex-direction: column; gap: 12px;">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{% url 'macro' %}">
@@ -153,6 +169,10 @@
                     <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
                         <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">GRASSI (G)</span>
                         <input type="number" name="grassi_g" placeholder="Opz." min="0" step="0.1" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">FIBRE (G)</span>
+                        <input type="number" name="fibre_g" placeholder="Opz." min="0" step="0.1" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
                     </div>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 6px;">
@@ -260,7 +280,7 @@
                  icone azione a destra. -->
             <div class="day-row-totali" style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
                 <span style="flex-shrink: 0; background: rgba(var(--acc-rgb),0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;"><span id="day-kcal-{{ day_key }}">{{ day.totals.kcal }}</span> <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goals.kcal }} kcal</span></span>
-                <span id="day-macros-{{ day_key }}" class="day-macros" style="flex: 1; min-width: 0; font-size: 11px; color: #9ba0b3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">P {{ day.totals.proteine_g|floatformat:"-1" }}g &middot; C {{ day.totals.carboidrati_g|floatformat:"-1" }}g &middot; G {{ day.totals.grassi_g|floatformat:"-1" }}g</span>
+                <span id="day-macros-{{ day_key }}" class="day-macros" style="flex: 1; min-width: 0; font-size: 11px; color: #9ba0b3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">P {{ day.totals.proteine_g|floatformat:"-1" }}g &middot; C {{ day.totals.carboidrati_g|floatformat:"-1" }}g &middot; G {{ day.totals.grassi_g|floatformat:"-1" }}g &middot; F {{ day.totals.fibre_g|floatformat:"-1" }}g</span>
                 <div class="day-actions">
                     {% if day.reached %}
                     <span class="day-chip day-chip-ok" title="Obiettivo raggiunto">&#10003;</span>
@@ -319,8 +339,8 @@
                     <input type="hidden" name="data" value="{{ day_key }}">
                     <input type="hidden" name="next" value="{% url 'macro' %}">
                     <span style="font-size: 11px; color: #7d8296;">Obiettivo di questo giorno:</span>
-                    <!-- Tre colonne fisse: con quattro campi viene una riga da
-                         tre piu' uno, invece delle larghezze irregolari che
+                    <!-- Tre colonne fisse: con cinque campi vengono una riga da
+                         tre piu' due, invece delle larghezze irregolari che
                          dava il flex-wrap. -->
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
                         <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
@@ -338,6 +358,10 @@
                         <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
                             <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">GRASSI (G)</span>
                             <input type="number" name="grassi_g" value="{{ day.goals.grassi_g }}" min="0" class="tracer-input" style="width: 100%; height: 36px; box-sizing: border-box; padding: 7px 9px; font-size: 12px;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">FIBRE (G)</span>
+                            <input type="number" name="fibre_g" value="{{ day.goals.fibre_g }}" min="0" class="tracer-input" style="width: 100%; height: 36px; box-sizing: border-box; padding: 7px 9px; font-size: 12px;">
                         </div>
                     </div>
                     <!-- Griglia e non flex:1: con box-sizing border-box il
@@ -383,6 +407,7 @@
     <button type="button" class="metric-option" data-metric="proteine_g">Proteine</button>
     <button type="button" class="metric-option" data-metric="carboidrati_g">Carboidrati</button>
     <button type="button" class="metric-option" data-metric="grassi_g">Grassi</button>
+    <button type="button" class="metric-option" data-metric="fibre_g">Fibre</button>
 </div>
 
 <style>
@@ -835,7 +860,7 @@ function refreshMacroDayHeader(dayKey, count, totals) {
     var macrosEl = document.getElementById('day-macros-' + dayKey);
     if (macrosEl) {
         var fmt = function(v) { return (Math.round(v * 10) / 10).toString().replace('.', ','); };
-        macrosEl.textContent = 'P ' + fmt(totals.proteine_g) + 'g · C ' + fmt(totals.carboidrati_g) + 'g · G ' + fmt(totals.grassi_g) + 'g';
+        macrosEl.textContent = 'P ' + fmt(totals.proteine_g) + 'g · C ' + fmt(totals.carboidrati_g) + 'g · G ' + fmt(totals.grassi_g) + 'g · F ' + fmt(totals.fibre_g) + 'g';
     }
 }
 
@@ -927,9 +952,9 @@ function submitMacroBulkDelete() {
 
 (function() {
     var CHART_DATA = {{ chart_data_json|safe }};
-    var UNITS = { kcal: 'kcal', proteine_g: 'g', carboidrati_g: 'g', grassi_g: 'g' };
-    var LABELS = { kcal: 'Kcal', proteine_g: 'Proteine', carboidrati_g: 'Carboidrati', grassi_g: 'Grassi' };
-    var COLORS = { kcal: (getComputedStyle(document.documentElement).getPropertyValue('--acc-2').trim() || '#8b7bf7'), proteine_g: '#6a9fd8', carboidrati_g: '#4ade80', grassi_g: '#f0a875' };
+    var UNITS = { kcal: 'kcal', proteine_g: 'g', carboidrati_g: 'g', grassi_g: 'g', fibre_g: 'g' };
+    var LABELS = { kcal: 'Kcal', proteine_g: 'Proteine', carboidrati_g: 'Carboidrati', grassi_g: 'Grassi', fibre_g: 'Fibre' };
+    var COLORS = { kcal: (getComputedStyle(document.documentElement).getPropertyValue('--acc-2').trim() || '#8b7bf7'), proteine_g: '#6a9fd8', carboidrati_g: '#4ade80', grassi_g: '#f0a875', fibre_g: '#2dd4bf' };
     var placeholder = document.getElementById('metric-placeholder');
     var chartWrap = document.getElementById('metric-chart-wrap');
     var canvas = document.getElementById('metric-canvas');

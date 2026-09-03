@@ -87,6 +87,7 @@ class UserProfile(models.Model):
     obiettivo_proteine_g = models.PositiveIntegerField(default=140)
     obiettivo_carboidrati_g = models.PositiveIntegerField(default=250)
     obiettivo_grassi_g = models.PositiveIntegerField(default=70)
+    obiettivo_fibre_g = models.PositiveIntegerField(default=30)
     accent = models.CharField(max_length=20, choices=ACCENT_CHOICES, default='viola')
 
     def __str__(self):
@@ -142,7 +143,7 @@ class IntegratoreEntry(models.Model):
 
 
 class MacroEntry(models.Model):
-    # Voce di alimentazione (kcal + macro) in una giornata. Le altre 3 sono
+    # Voce di alimentazione (kcal + macro) in una giornata. Le altre 4 sono
     # facoltative: si puo' loggare solo le kcal se non si conosce la
     # scomposizione in macro di quel pasto.
     utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='macro_entries')
@@ -150,6 +151,7 @@ class MacroEntry(models.Model):
     proteine_g = models.DecimalField(max_digits=5, decimal_places=1, default=0)
     carboidrati_g = models.DecimalField(max_digits=5, decimal_places=1, default=0)
     grassi_g = models.DecimalField(max_digits=5, decimal_places=1, default=0)
+    fibre_g = models.DecimalField(max_digits=5, decimal_places=1, default=0)
     nota = models.CharField(max_length=100, blank=True, default='')
     e_spazzatura = models.BooleanField(default=False)
     data = models.DateField(default=timezone.now)
@@ -171,6 +173,7 @@ class MacroGoal(models.Model):
     proteine_g = models.PositiveIntegerField(default=0)
     carboidrati_g = models.PositiveIntegerField(default=0)
     grassi_g = models.PositiveIntegerField(default=0)
+    fibre_g = models.PositiveIntegerField(default=0)
 
     class Meta:
         ordering = ['-data']
