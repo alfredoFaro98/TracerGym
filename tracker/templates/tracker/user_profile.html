@@ -147,12 +147,12 @@
             </div>
             <div style="display: flex; flex-wrap: wrap; gap: 5px;">
                 {% for s in session.sets.all %}
-                {% if forloop.counter <= 6 %}
+                {% if forloop.counter <= 4 %}
                 <span style="padding: 2px 8px; border-radius: 20px; font-size: 10.5px; background: var(--panel); border: 1px solid var(--border); color: #6060a0;">{{ s.exercise.nome }}</span>
                 {% endif %}
                 {% endfor %}
-                {% if session.sets.count > 6 %}
-                <span style="padding: 2px 8px; border-radius: 20px; font-size: 10.5px; background: var(--panel); border: 1px solid var(--border); color: #f0f0f3;">+{{ session.sets.count|add:"-6" }} altre</span>
+                {% if session.sets.count > 4 %}
+                <span style="padding: 2px 8px; border-radius: 20px; font-size: 10.5px; background: var(--panel); border: 1px solid var(--border); color: #f0f0f3;">+{{ session.sets.count|add:"-4" }} altre</span>
                 {% endif %}
             </div>
         </a>
