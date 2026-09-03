@@ -258,19 +258,52 @@
             <!-- Riga 2, sempre visibile anche a giorno chiuso: kcal a sinistra,
                  riepilogo macro al centro (si accorcia lui se manca spazio),
                  icone azione a destra. -->
-            <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+            <div class="day-row-totali" style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
                 <span style="flex-shrink: 0; background: rgba(var(--acc-rgb),0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;"><span id="day-kcal-{{ day_key }}">{{ day.totals.kcal }}</span> <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goals.kcal }} kcal</span></span>
-                <span id="day-macros-{{ day_key }}" style="flex: 1; min-width: 0; font-size: 11px; color: #9ba0b3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">P {{ day.totals.proteine_g|floatformat:"-1" }}g &middot; C {{ day.totals.carboidrati_g|floatformat:"-1" }}g &middot; G {{ day.totals.grassi_g|floatformat:"-1" }}g</span>
-                {% if day.reached %}
-                <span title="Obiettivo raggiunto" style="flex-shrink: 0; color: #4ade80; font-size: 15px; font-weight: 700;">&#10003;</span>
-                {% else %}
-                <span title="Obiettivo non raggiunto" style="flex-shrink: 0; color: #f87171; font-size: 13px; font-weight: 700;">&#10005;</span>
-                {% endif %}
-                <span onclick="event.stopPropagation(); toggleDayGoalForm('{{ day_key }}')" title="Imposta obiettivo di questo giorno" style="flex-shrink: 0; cursor: pointer; font-size: 14px; padding: 4px; border-radius: 6px; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">&#127919;</span>
+                <span id="day-macros-{{ day_key }}" class="day-macros" style="flex: 1; min-width: 0; font-size: 11px; color: #9ba0b3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">P {{ day.totals.proteine_g|floatformat:"-1" }}g &middot; C {{ day.totals.carboidrati_g|floatformat:"-1" }}g &middot; G {{ day.totals.grassi_g|floatformat:"-1" }}g</span>
+                <div class="day-actions">
+                    {% if day.reached %}
+                    <span class="day-chip day-chip-ok" title="Obiettivo raggiunto">&#10003;</span>
+                    {% else %}
+                    <span class="day-chip day-chip-ko" title="Obiettivo non raggiunto">&#10005;</span>
+                    {% endif %}
+                    <span class="day-chip day-chip-goal" onclick="event.stopPropagation(); toggleDayGoalForm('{{ day_key }}')" title="Imposta obiettivo di questo giorno">&#127919;</span>
+                    <div class="day-status" onclick="event.stopPropagation();">
+                        <button type="button" class="day-status-btn {% if day.status == 'parziale' %}is-parziale{% elif day.status == 'non_tracciato' %}is-non-tracciato{% else %}is-tracciato{% endif %}" onclick="toggleDayStatusMenu(this)" aria-haspopup="true" aria-expanded="false" title="Stato di tracciamento del giorno">
+                            {% if day.status == 'parziale' %}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            <span>Parziale</span>
+                            {% elif day.status == 'non_tracciato' %}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/></svg>
+                            <span>Non tracciato</span>
+                            {% else %}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Tracciato</span>
+                            {% endif %}
+                            <svg class="day-status-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                        <div class="day-status-menu" hidden>
+                            <button type="button" class="day-status-opt opt-tracciato{% if not day.status %} is-active{% endif %}" onclick="submitDayStatus('{{ day_key }}', '')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>Tracciato</span>
+                            </button>
+                            <button type="button" class="day-status-opt opt-parziale{% if day.status == 'parziale' %} is-active{% endif %}" onclick="submitDayStatus('{{ day_key }}', 'parziale')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                <span>Parziale</span>
+                            </button>
+                            <button type="button" class="day-status-opt opt-non-tracciato{% if day.status == 'non_tracciato' %} is-active{% endif %}" onclick="submitDayStatus('{{ day_key }}', 'non_tracciato')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/></svg>
+                                <span>Non tracciato</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Riga 3: stato del giorno, sempre visibile. I badge stanno a
-                 sinistra e la tendina va a destra col margin-left:auto. -->
+            <!-- Riga 3: solo i badge. La tendina e' salita sulla riga dei kcal,
+                 quindi questa riga puo' non avere niente da mostrare: senza l'if
+                 resterebbe una fascia vuota alta 8px sotto ogni giornata. -->
+            {% if day.totals.junk_count or day.status %}
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
                 {% if day.totals.junk_count %}
                 <span title="Voci di cibo spazzatura" style="font-size: 10.5px; font-weight: 700; color: #f0a875; background: rgba(240,168,117,0.14); padding: 3px 9px; border-radius: 6px; white-space: nowrap;">&#127828; {{ day.totals.junk_count }}</span>
@@ -280,36 +313,8 @@
                 {% elif day.status == 'parziale' %}
                 <span style="background: rgba(240,168,117,0.14); color: #f0a875; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap;">&#9888;&#65039; PARZIALE</span>
                 {% endif %}
-                <div class="day-status" onclick="event.stopPropagation();">
-                    <button type="button" class="day-status-btn {% if day.status == 'parziale' %}is-parziale{% elif day.status == 'non_tracciato' %}is-non-tracciato{% else %}is-tracciato{% endif %}" onclick="toggleDayStatusMenu(this)" aria-haspopup="true" aria-expanded="false" title="Stato di tracciamento del giorno">
-                        {% if day.status == 'parziale' %}
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                        <span>Parziale</span>
-                        {% elif day.status == 'non_tracciato' %}
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/></svg>
-                        <span>Non tracciato</span>
-                        {% else %}
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        <span>Tracciato</span>
-                        {% endif %}
-                        <svg class="day-status-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                    </button>
-                    <div class="day-status-menu" hidden>
-                        <button type="button" class="day-status-opt opt-tracciato{% if not day.status %} is-active{% endif %}" onclick="submitDayStatus('{{ day_key }}', '')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            <span>Tracciato</span>
-                        </button>
-                        <button type="button" class="day-status-opt opt-parziale{% if day.status == 'parziale' %} is-active{% endif %}" onclick="submitDayStatus('{{ day_key }}', 'parziale')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                            <span>Parziale</span>
-                        </button>
-                        <button type="button" class="day-status-opt opt-non-tracciato{% if day.status == 'non_tracciato' %} is-active{% endif %}" onclick="submitDayStatus('{{ day_key }}', 'non_tracciato')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/></svg>
-                            <span>Non tracciato</span>
-                        </button>
-                    </div>
-                </div>
             </div>
+            {% endif %}
 
             <div id="day-goal-form-{{ day_key }}" style="display: none; margin-top: 10px;" onclick="event.stopPropagation();">
                 <form action="{% url 'set_day_macro_goal' %}" method="post" autocomplete="off" style="display: flex; flex-direction: column; gap: 10px;">
@@ -498,7 +503,6 @@
    ========================================================================== */
 .day-status {
   position: relative;
-  margin-left: auto;
   flex-shrink: 0;
 }
 
@@ -506,7 +510,9 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 9px;
+  /* stessa altezza dei chip accanto: a occhio due pixel si vedono */
+  height: 27px;
+  padding: 0 9px;
   border-radius: 7px;
   font-family: inherit;
   font-size: 11px;
@@ -541,6 +547,57 @@
   color: #f87171;
   background: rgba(248, 113, 113, 0.14);
   border-color: rgba(248, 113, 113, 0.3);
+}
+
+/* I tre comandi della giornata (esito obiettivo, bersaglio, stato) stanno
+   insieme in fondo alla riga dei kcal, non sparsi fra due righe. */
+.day-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* Spunta e bersaglio erano due glifi nudi di dimensioni diverse (15px e 14px,
+   uno con padding e uno senza): accanto alla pillola dello stato la fila
+   risultava sbilenca. Qui prendono la stessa scatola. */
+.day-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 27px;
+  padding: 0 7px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  border: 1px solid transparent;
+}
+.day-chip-ok { color: #4ade80; background: rgba(74, 222, 128, 0.12); border-color: rgba(74, 222, 128, 0.3); }
+.day-chip-ko { color: #f87171; background: rgba(248, 113, 113, 0.12); border-color: rgba(248, 113, 113, 0.3); }
+.day-chip-goal {
+  cursor: pointer;
+  background: rgba(var(--acc-rgb), 0.12);
+  border-color: rgba(var(--acc-rgb), 0.3);
+  transition: background .12s;
+}
+.day-chip-goal:hover { background: rgba(var(--acc-rgb), 0.22); }
+
+/* Su mobile i macro scendono sotto: con kcal e i tre comandi sulla stessa
+   riga non ci starebbero, e finivano tagliati dall'ellissi. */
+@media (max-width: 768px) {
+  /* Senza wrap sulla riga il flex-basis 100% qui sotto non manda i macro a
+     capo: li stringe soltanto, e kcal + i tre comandi sfondano il padding
+     della card. */
+  .day-row-totali { flex-wrap: wrap; }
+
+  .day-macros {
+    order: 1;
+    flex: 1 1 100% !important;
+    white-space: normal !important;
+  }
 }
 
 /* Ancorata sotto il grilletto e allineata al suo bordo destro, cosi' non esce
