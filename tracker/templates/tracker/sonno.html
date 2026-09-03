@@ -38,7 +38,7 @@
                         <input type="time" name="ora_letto" value="23:00" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;" required>
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
-                        <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">SVEGLIA</span>
+                        <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">SVEGLIA <span data-wake-day style="color: #565b6e;"></span></span>
                         <input type="time" name="ora_sveglia" value="07:00" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;" required>
                     </div>
                 </div>
@@ -129,8 +129,10 @@
                     <span style="flex-shrink: 0; font-size: 12.5px; font-weight: 700; color: #c7cbd6; white-space: nowrap;">{{ e.durata_label }}</span>
                 </div>
 
-                <!-- Sempre visibile, anche a riga chiusa. -->
-                <div style="display: flex; align-items: center; gap: 8px;">
+                <!-- Sempre visibile, anche a riga chiusa. Il rientro pareggia
+                     chevron (14px) e gap (10px) della riga sopra: senza, il
+                     badge partiva sotto la freccia invece che sotto la data. -->
+                <div style="display: flex; align-items: center; gap: 8px; padding-left: 24px;">
                     <span style="flex-shrink: 0; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; white-space: nowrap;
                         {% if e.qualita == 'ottima' %}color: var(--acc-4); background: rgba(var(--acc-rgb),0.16);
                         {% elif e.qualita == 'buona' %}color: #ffd580; background: rgba(255,213,128,0.14);
@@ -148,7 +150,7 @@
                 <!-- La nota stava nella riga principale e la sballava; qui ha
                      una riga sua e compare solo se c'e'. -->
                 {% if e.nota %}
-                <div style="font-size: 12px; color: #9ba0b3; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">&#128221; {{ e.nota }}</div>
+                <div style="font-size: 12px; color: #9ba0b3; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-left: 24px;">&#128221; {{ e.nota }}</div>
                 {% endif %}
             </div>
             <div id="sleep-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 12px 14px; margin: 4px 16px;">
@@ -168,7 +170,7 @@
                             <input type="time" name="ora_letto" value="{{ e.ora_letto|time:'H:i' }}" class="tracer-input" style="width: 100%; height: 38px; box-sizing: border-box;">
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 5px; min-width: 0;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">SVEGLIA</span>
+                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">SVEGLIA <span data-wake-day style="color: #565b6e;"></span></span>
                             <input type="time" name="ora_sveglia" value="{{ e.ora_sveglia|time:'H:i' }}" class="tracer-input" style="width: 100%; height: 38px; box-sizing: border-box;">
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 5px; min-width: 0;">
@@ -233,6 +235,53 @@ function toggleNewEntryForm() {
     var el = document.getElementById('new-entry-form');
     el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
+/* Nella lista ogni notte porta fra parentesi il giorno in cui ci si e'
+   svegliati, quando la sveglia cade oltre la mezzanotte. Nei form quel dato
+   si vedeva solo dopo aver salvato: qui viene calcolato mentre si compila,
+   con la stessa regola di SleepEntry.data_sveglia (sveglia <= ora di andare
+   a letto => e' il giorno dopo). */
+(function () {
+    var MESI = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu',
+                'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+
+    function minuti(hhmm) {
+        var m = /^(\d{1,2}):(\d{2})$/.exec(hhmm || '');
+        return m ? (+m[1]) * 60 + (+m[2]) : null;
+    }
+
+    function campi(form) {
+        return {
+            data: form.querySelector('[name="data"]'),
+            letto: form.querySelector('[name="ora_letto"]'),
+            sveglia: form.querySelector('[name="ora_sveglia"]')
+        };
+    }
+
+    function aggiorna(out, c) {
+        out.textContent = '';
+        if (!c.data || !c.letto || !c.sveglia || !c.data.value) return;
+        var letto = minuti(c.letto.value), sveglia = minuti(c.sveglia.value);
+        if (letto === null || sveglia === null) return;
+        // Sveglia dopo l'ora di andare a letto: stessa giornata, e anche la
+        // lista in quel caso non scrive nulla fra parentesi.
+        if (sveglia > letto) return;
+        var d = new Date(c.data.value + 'T00:00:00');
+        if (isNaN(d.getTime())) return;
+        d.setDate(d.getDate() + 1);
+        out.textContent = '(' + ('0' + d.getDate()).slice(-2) + ' ' + MESI[d.getMonth()] + ')';
+    }
+
+    document.querySelectorAll('[data-wake-day]').forEach(function (out) {
+        var form = out.closest('form');
+        if (!form) return;
+        var c = campi(form);
+        [c.data, c.letto, c.sveglia].forEach(function (el) {
+            if (el) el.addEventListener('input', function () { aggiorna(out, c); });
+        });
+        aggiorna(out, c);
+    });
+})();
+
 function toggleSleepEdit(id) {
     var edit = document.getElementById('sleep-edit-' + id);
     var chevron = document.getElementById('sleep-chevron-' + id);
