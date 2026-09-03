@@ -2,6 +2,15 @@
 
 {% block title %}Atleti - Workout Tracker{% endblock %}
 
+{% block extra_head %}
+<style>
+/* 768px e' la stessa soglia con cui style.css passa al layout mobile. */
+@media (max-width: 768px) {
+    .atleta-meta { display: none; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-container">
     <div style="margin-bottom: 24px;">
@@ -53,10 +62,4 @@
     {% endif %}
 </div>
 
-<style>
-/* 768px e' la stessa soglia con cui style.css passa al layout mobile. */
-@media (max-width: 768px) {
-    .atleta-meta { display: none; }
-}
-</style>
 {% endblock %}

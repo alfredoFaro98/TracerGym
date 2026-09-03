@@ -3,6 +3,330 @@
 
 {% block title %}Dashboard - Workout Tracker{% endblock %}
 
+{% block extra_head %}
+<style>
+    /* Tema violetto (allineato al redesign login/dashboard) */
+    .dash-add-btn {
+        background: var(--acc);
+        color: #fff;
+        border: none;
+        transition: background .15s, box-shadow .15s;
+        box-shadow: 0 8px 20px rgba(var(--acc-rgb),.35);
+    }
+    .dash-add-btn:hover { background: var(--acc-2); }
+
+    .water-quick-btn {
+        padding: 8px 14px;
+        background: rgba(var(--acc-rgb),0.12);
+        border: 1px solid rgba(var(--acc-rgb),0.2);
+        border-radius: 8px;
+        color: #b7bdf0;
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background .12s;
+        font-family: inherit;
+        white-space: nowrap;
+    }
+    .water-quick-btn:hover { background: rgba(var(--acc-rgb),0.22); }
+
+    .water-pill-x {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #f87171;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transform: scale(0.8);
+        transition: opacity .12s, transform .12s;
+        /* Niente glifo di testo: il carattere "×" non e' centrato nel suo
+           bounding box e restava sempre un po' storto nel tondino. La croce
+           e' disegnata con due pseudo-elementi, quindi perfettamente al
+           centro a prescindere dal font. */
+        padding: 0;
+        font-size: 0;
+    }
+    .water-pill-x::before,
+    .water-pill-x::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 8px;
+        height: 1.6px;
+        border-radius: 1px;
+        background: #fff;
+    }
+    .water-pill-x::before { transform: translate(-50%, -50%) rotate(45deg); }
+    .water-pill-x::after { transform: translate(-50%, -50%) rotate(-45deg); }
+    .water-pill:hover .water-pill-x { opacity: 1; transform: scale(1); }
+
+    /* Da tablet in su i pulsanti acqua stanno su una riga tutta loro (il
+       blocco titolo occupa il 100% e li manda a capo): margin-left:auto li
+       spinge contro il bordo destro della card, allineati alla fine della
+       barra di progresso. Scoped sopra i 480px per non toccare il layout
+       mobile, dove .water-actions e' gia' flex:1 1 100%. */
+    @media (min-width: 481px) {
+        .water-actions { margin-left: auto; }
+    }
+
+    /* Su mobile la riga dei pulsanti rapidi acqua e quella di inserimento
+       manuale vanno impilate a piena larghezza ciascuna, invece di lasciare
+       che tutti i controlli si accavallino su una riga sola troppo stretta. */
+    @media (max-width: 480px) {
+        /* min-width:0 ovunque: senza, i figli flex non scendono sotto la
+           larghezza intrinseca del loro contenuto (min-width:auto di default)
+           e su schermi stretti sbordano a destra fuori dalla card invece di
+           restringersi — le righe finivano piu' larghe della barra sopra. */
+        .water-quick-group { flex: 1 1 100% !important; min-width: 0; }
+        .water-quick-group form { flex: 1; min-width: 0; }
+        .water-quick-group .water-quick-btn { width: 100%; min-width: 0; padding-left: 4px; padding-right: 4px; }
+        .water-custom-form { flex: 1 1 100% !important; min-width: 0; }
+        .water-custom-form .water-time-input,
+        .water-custom-form .water-ml-input,
+        .water-custom-form button { flex: 1 1 0 !important; width: auto !important; flex-shrink: 1 !important; min-width: 0 !important; }
+
+        /* Ordine mobile: titolo, poi subito la barra di progresso, poi i
+           pulsanti azione (invece di lasciare la barra in fondo dopo tutto). */
+        .water-title-block { order: 1; }
+        .water-progress-wrap { order: 2; }
+        .water-actions { order: 3; flex: 1 1 100%; min-width: 0; }
+    }
+
+    .week-nav-btn {
+        background: none;
+        border: none;
+        color: #7d8296;
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        transition: color .12s;
+    }
+    .week-nav-btn:hover { color: #f0f0f3; }
+
+    .week-day-cell {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 0;
+        cursor: pointer;
+    }
+    .week-day-label { font-size: 9.5px; font-weight: 700; color: #565b6e; text-transform: uppercase; letter-spacing: .04em; }
+    .week-day-label.is-today { color: var(--acc-3); }
+    .week-day-number {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #c7cbd6;
+    }
+    .week-day-cell.is-today .week-day-number { background: var(--acc); color: #fff; font-weight: 700; }
+    .week-day-cell.is-selected .week-day-number { box-shadow: 0 0 0 2px var(--acc); }
+    .week-day-dot { width: 4px; height: 4px; border-radius: 50%; background: #565b6e; }
+    .week-day-dot.is-empty { background: transparent; }
+
+    .page-container .btn-primary-gradient {
+        background: var(--acc);
+    }
+    .page-container .btn-primary-gradient:hover { background: var(--acc-2); opacity: 1; }
+
+    .page-container .tracer-input:focus {
+        border-color: rgba(var(--acc-rgb),.5);
+    }
+
+    .page-container .badge-tag-default {
+        background: rgba(var(--acc-rgb),.12);
+        color: #b7bdf0;
+        border: 1px solid rgba(var(--acc-rgb),.2);
+    }
+
+
+    /* Personalizzazioni dark per cal-heatmap */
+    .ch-domain-text { fill: #a0a6af; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; }
+    .ch-subdomain-bg { fill: var(--card-solid); }
+    .graph-rect { stroke: var(--card-solid); stroke-width: 2px; rx: 2; ry: 2;}
+    .q1 { fill: var(--acc) !important; opacity: 0.25;}
+    .q2 { fill: var(--acc) !important; opacity: 0.45;}
+    .q3 { fill: var(--acc) !important; opacity: 0.65;}
+    .q4 { fill: var(--acc) !important; opacity: 0.85;}
+    .q5 { fill: var(--acc) !important; opacity: 1;}
+    .hover_cursor:hover { stroke: #ffffff; stroke-width: 1px; }
+
+    /* Fix Tooltip (Modale) Tagliato */
+    .ch-tooltip {
+        position: absolute !important;
+        z-index: 99999 !important;
+        background: var(--panel) !important;
+        color: #f0f0f3 !important;
+        border: 1px solid rgba(255,255,255,.08) !important;
+        border-radius: 6px !important;
+        padding: 8px 12px !important;
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-size: 12px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+        pointer-events: none;
+    }
+    .ch-tooltip::after { border-top-color: var(--panel) !important; }
+
+    .heatmap-scroll-wrap {
+        /* Layout a blocco (non flex): con flex + justify-content:center e
+        overflow-x:auto, arrotondamenti di sub-pixel fanno comparire una
+        scrollbar fantasma anche quando il contenuto entra per intero. */
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    #water-pills::-webkit-scrollbar { height: 4px; }
+    #water-pills::-webkit-scrollbar-track { background: transparent; }
+    #water-pills::-webkit-scrollbar-thumb { background: var(--surface-2); border-radius: 2px; }
+
+    /* La toolbar filtri (data, ricerca, filtra, conteggio) va sempre a capo
+       su una riga tutta sua sotto il titolo appena lo spazio si stringe,
+       invece di lasciare che un singolo controllo (es. il date picker)
+       resti "orfano" accanto al titolo mentre gli altri vanno a capo.
+
+       Le soglie qui sotto sono @container e non @media perche' quello che
+       decide se i controlli ci stanno e' la larghezza della TOOLBAR, non
+       quella della finestra: la card sta dentro .main-content, che perde
+       240px di sidebar. Con la vecchia soglia @media (max-width:900px)
+       restava scoperta una fascia (~950-1150px di finestra) in cui la
+       regola non era ancora scattata ma la toolbar era gia' sui 700px, e
+       il conteggio sessioni finiva a capo da solo sotto "Filtra" - lo
+       stesso orfano che questo blocco doveva evitare. */
+    .storico-toolbar {
+        container-type: inline-size;
+        container-name: storico;
+    }
+    @container storico (max-width: 720px) {
+        .storico-filters { flex: 1 1 100% !important; justify-content: flex-start !important; }
+        /* La riga con titolo resta da sola (i filtri vanno a capo sotto):
+           allarghiamola e spingiamo le icone import/export a destra invece
+           di lasciarle appiccicate al titolo. */
+        .storico-title-row { flex: 1 1 100%; }
+        .storico-io-icons { margin-left: auto; }
+        /* Qui lo spingiamo a destra sulla riga in cui finisce a capo; sopra
+           la soglia .storico-filters e' gia' justify-content:flex-end e un
+           margin-left:auto spaccherebbe form e conteggio, mandando il primo
+           a sinistra e il secondo all'estremo bordo destro. */
+        .storico-count { margin-left: auto; }
+    }
+    /* Quando la pillola di Programmazione Settimanale va a capo sotto il
+       titolo, centra sia il titolo che la pillola invece di lasciarli a
+       sinistra. */
+    @media (max-width: 600px) {
+        .week-title { flex: 1 1 100%; text-align: center; }
+        .week-controls-pill { flex: 1 1 100%; width: fit-content; margin: 0 auto; }
+    }
+    /* Stessa logica: e' il form a non starci piu', quindi si misura la
+       toolbar. A questo punto i filtri occupano gia' tutta la riga. */
+    @container storico (max-width: 400px) {
+        /* Il form deve prendersi tutta la riga: e' un flex item dentro
+           .storico-filters e senza questo resta largo quanto il suo contenuto,
+           quindi i flex dei figli qui sotto non avrebbero spazio libero da
+           distribuire e "Filtra" si fermava a meta' riga con un buco a destra. */
+        .filter-form { flex: 1 1 100% !important; width: 100%; justify-content: flex-start !important; }
+        /* Crescono tutti, cosi' la riga arriva sempre al bordo destro: quello
+           che va a capo (Reset, o "Filtra" sui display piu' stretti) riempie la
+           riga nuova invece di restare orfano a sinistra. Il peso 100 contro 1
+           fa si' che, quando stanno sulla stessa riga, lo spazio che avanza se
+           lo prenda quasi tutto il campo di ricerca e i bottoni restino della
+           loro misura. La base di 90px e' scelta per far entrare Mese + ricerca
+           + Filtra su una riga sola fino a ~300px di schermo. */
+        .filter-form input[name="q"] { max-width: none !important; flex: 100 1 90px !important; min-width: 0 !important; }
+        .storico-filtra-btn { flex: 1 1 auto !important; }
+        .storico-reset-btn { flex: 1 1 auto !important; }
+    }
+
+    /* Pill per il filtro mese: sostituisce lo stile nativo dell'input
+       type="month", che su schermi stretti va in crash grafico (icona e
+       testo si accavallano e compaiono trattini illeggibili). */
+    .storico-date-field {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--sunken);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0 8px;
+        height: 30px;
+        flex-shrink: 0;
+        /* Indispensabile: l'indicatore del calendario qui sotto e'
+           position:absolute con top/left/right/bottom a 0. Senza un
+           antenato posizionato si aggancia a un contenitore molto piu'
+           grande e diventa un'area cliccabile invisibile che copre anche
+           il campo di ricerca accanto: cliccando su "Cerca esercizio o
+           note" si apriva il selettore data invece del campo. */
+        position: relative;
+    }
+    .storico-date-field input[type="month"] {
+        background: transparent;
+        border: none;
+        outline: none;
+        padding: 0;
+        font-size: 12px;
+        color: #f0f0f3;
+        /* 74px non bastavano per il valore vero: in italiano il campo
+           renderizza "settembre 2026" e il testo veniva tagliato. */
+        width: 108px;
+        min-width: 0;
+        height: 100%;
+        font-family: inherit;
+    }
+
+    /* Il campo vuoto mostrava una fila di trattini ("--------- ---"): e' il
+       placeholder nativo di input[type=month], che vive nello shadow DOM del
+       browser e non si puo' ne' stilare ne' sostituire da CSS. Quando non c'e'
+       un valore azzeriamo l'input e mettiamo al suo posto la nostra etichetta.
+       L'input resta nel DOM perche' serve il suo name per la query GET; il
+       click continua a funzionare perche' ad aprire il calendario e' il
+       ::-webkit-calendar-picker-indicator qui sotto, steso su tutta la pill. */
+    .storico-date-ph {
+        display: none;
+        font-size: 12px;
+        color: #9ba0b3;
+        white-space: nowrap;
+        pointer-events: none;
+    }
+    .storico-date-field.is-empty .storico-date-ph { display: block; }
+    .storico-date-field.is-empty input[type="month"] { width: 0; opacity: 0; }
+    .storico-date-field input[type="month"]::-webkit-calendar-picker-indicator {
+        background: transparent;
+        color: transparent;
+        cursor: pointer;
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        width: auto; height: auto;
+    }
+
+    /* Sotto questa larghezza le pillow degli esercizi nello storico rischiano
+       di finire sotto i pulsanti azione (posizionati assoluti a destra), li
+       nascondiamo prima che si sovrappongano invece di aspettare la soglia
+       mobile generica. */
+    @media (max-width: 1100px) {
+        .session-pills { display: none !important; }
+    }
+
+    /* I pulsanti azione (PDF/duplica/elimina) sono posizionati assoluti sopra
+       la card: riserviamo sempre spazio a destra nel link cliccabile così
+       titolo e badge luogo vanno a capo prima di finirci sotto, invece di
+       scorrere dietro le icone. */
+    .session-row-link { padding-right: 130px !important; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-container">
     <!-- Header -->
@@ -414,328 +738,6 @@
 <script src="{% static 'tracker/year-heatmap.js' %}?v={{ app_version }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cal-heatmap/3.6.2/cal-heatmap.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cal-heatmap/3.6.2/cal-heatmap.css">
-
-<style>
-    /* Tema violetto (allineato al redesign login/dashboard) */
-    .dash-add-btn {
-        background: var(--acc);
-        color: #fff;
-        border: none;
-        transition: background .15s, box-shadow .15s;
-        box-shadow: 0 8px 20px rgba(var(--acc-rgb),.35);
-    }
-    .dash-add-btn:hover { background: var(--acc-2); }
-
-    .water-quick-btn {
-        padding: 8px 14px;
-        background: rgba(var(--acc-rgb),0.12);
-        border: 1px solid rgba(var(--acc-rgb),0.2);
-        border-radius: 8px;
-        color: #b7bdf0;
-        font-size: 12.5px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background .12s;
-        font-family: inherit;
-        white-space: nowrap;
-    }
-    .water-quick-btn:hover { background: rgba(var(--acc-rgb),0.22); }
-
-    .water-pill-x {
-        position: absolute;
-        top: -6px;
-        right: -6px;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background: #f87171;
-        color: #fff;
-        border: none;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transform: scale(0.8);
-        transition: opacity .12s, transform .12s;
-        /* Niente glifo di testo: il carattere "×" non e' centrato nel suo
-           bounding box e restava sempre un po' storto nel tondino. La croce
-           e' disegnata con due pseudo-elementi, quindi perfettamente al
-           centro a prescindere dal font. */
-        padding: 0;
-        font-size: 0;
-    }
-    .water-pill-x::before,
-    .water-pill-x::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 8px;
-        height: 1.6px;
-        border-radius: 1px;
-        background: #fff;
-    }
-    .water-pill-x::before { transform: translate(-50%, -50%) rotate(45deg); }
-    .water-pill-x::after { transform: translate(-50%, -50%) rotate(-45deg); }
-    .water-pill:hover .water-pill-x { opacity: 1; transform: scale(1); }
-
-    /* Da tablet in su i pulsanti acqua stanno su una riga tutta loro (il
-       blocco titolo occupa il 100% e li manda a capo): margin-left:auto li
-       spinge contro il bordo destro della card, allineati alla fine della
-       barra di progresso. Scoped sopra i 480px per non toccare il layout
-       mobile, dove .water-actions e' gia' flex:1 1 100%. */
-    @media (min-width: 481px) {
-        .water-actions { margin-left: auto; }
-    }
-
-    /* Su mobile la riga dei pulsanti rapidi acqua e quella di inserimento
-       manuale vanno impilate a piena larghezza ciascuna, invece di lasciare
-       che tutti i controlli si accavallino su una riga sola troppo stretta. */
-    @media (max-width: 480px) {
-        /* min-width:0 ovunque: senza, i figli flex non scendono sotto la
-           larghezza intrinseca del loro contenuto (min-width:auto di default)
-           e su schermi stretti sbordano a destra fuori dalla card invece di
-           restringersi — le righe finivano piu' larghe della barra sopra. */
-        .water-quick-group { flex: 1 1 100% !important; min-width: 0; }
-        .water-quick-group form { flex: 1; min-width: 0; }
-        .water-quick-group .water-quick-btn { width: 100%; min-width: 0; padding-left: 4px; padding-right: 4px; }
-        .water-custom-form { flex: 1 1 100% !important; min-width: 0; }
-        .water-custom-form .water-time-input,
-        .water-custom-form .water-ml-input,
-        .water-custom-form button { flex: 1 1 0 !important; width: auto !important; flex-shrink: 1 !important; min-width: 0 !important; }
-
-        /* Ordine mobile: titolo, poi subito la barra di progresso, poi i
-           pulsanti azione (invece di lasciare la barra in fondo dopo tutto). */
-        .water-title-block { order: 1; }
-        .water-progress-wrap { order: 2; }
-        .water-actions { order: 3; flex: 1 1 100%; min-width: 0; }
-    }
-
-    .week-nav-btn {
-        background: none;
-        border: none;
-        color: #7d8296;
-        cursor: pointer;
-        padding: 4px;
-        display: flex;
-        transition: color .12s;
-    }
-    .week-nav-btn:hover { color: #f0f0f3; }
-
-    .week-day-cell {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-        padding: 4px 0;
-        cursor: pointer;
-    }
-    .week-day-label { font-size: 9.5px; font-weight: 700; color: #565b6e; text-transform: uppercase; letter-spacing: .04em; }
-    .week-day-label.is-today { color: var(--acc-3); }
-    .week-day-number {
-        width: 26px;
-        height: 26px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12.5px;
-        font-weight: 600;
-        color: #c7cbd6;
-    }
-    .week-day-cell.is-today .week-day-number { background: var(--acc); color: #fff; font-weight: 700; }
-    .week-day-cell.is-selected .week-day-number { box-shadow: 0 0 0 2px var(--acc); }
-    .week-day-dot { width: 4px; height: 4px; border-radius: 50%; background: #565b6e; }
-    .week-day-dot.is-empty { background: transparent; }
-
-    .page-container .btn-primary-gradient {
-        background: var(--acc);
-    }
-    .page-container .btn-primary-gradient:hover { background: var(--acc-2); opacity: 1; }
-
-    .page-container .tracer-input:focus {
-        border-color: rgba(var(--acc-rgb),.5);
-    }
-
-    .page-container .badge-tag-default {
-        background: rgba(var(--acc-rgb),.12);
-        color: #b7bdf0;
-        border: 1px solid rgba(var(--acc-rgb),.2);
-    }
-
-
-    /* Personalizzazioni dark per cal-heatmap */
-    .ch-domain-text { fill: #a0a6af; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; }
-    .ch-subdomain-bg { fill: var(--card-solid); }
-    .graph-rect { stroke: var(--card-solid); stroke-width: 2px; rx: 2; ry: 2;}
-    .q1 { fill: var(--acc) !important; opacity: 0.25;}
-    .q2 { fill: var(--acc) !important; opacity: 0.45;}
-    .q3 { fill: var(--acc) !important; opacity: 0.65;}
-    .q4 { fill: var(--acc) !important; opacity: 0.85;}
-    .q5 { fill: var(--acc) !important; opacity: 1;}
-    .hover_cursor:hover { stroke: #ffffff; stroke-width: 1px; }
-
-    /* Fix Tooltip (Modale) Tagliato */
-    .ch-tooltip {
-        position: absolute !important;
-        z-index: 99999 !important;
-        background: var(--panel) !important;
-        color: #f0f0f3 !important;
-        border: 1px solid rgba(255,255,255,.08) !important;
-        border-radius: 6px !important;
-        padding: 8px 12px !important;
-        font-family: 'Space Grotesk', sans-serif !important;
-        font-size: 12px !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
-        pointer-events: none;
-    }
-    .ch-tooltip::after { border-top-color: var(--panel) !important; }
-
-    .heatmap-scroll-wrap {
-        /* Layout a blocco (non flex): con flex + justify-content:center e
-        overflow-x:auto, arrotondamenti di sub-pixel fanno comparire una
-        scrollbar fantasma anche quando il contenuto entra per intero. */
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    #water-pills::-webkit-scrollbar { height: 4px; }
-    #water-pills::-webkit-scrollbar-track { background: transparent; }
-    #water-pills::-webkit-scrollbar-thumb { background: var(--surface-2); border-radius: 2px; }
-
-    /* La toolbar filtri (data, ricerca, filtra, conteggio) va sempre a capo
-       su una riga tutta sua sotto il titolo appena lo spazio si stringe,
-       invece di lasciare che un singolo controllo (es. il date picker)
-       resti "orfano" accanto al titolo mentre gli altri vanno a capo.
-
-       Le soglie qui sotto sono @container e non @media perche' quello che
-       decide se i controlli ci stanno e' la larghezza della TOOLBAR, non
-       quella della finestra: la card sta dentro .main-content, che perde
-       240px di sidebar. Con la vecchia soglia @media (max-width:900px)
-       restava scoperta una fascia (~950-1150px di finestra) in cui la
-       regola non era ancora scattata ma la toolbar era gia' sui 700px, e
-       il conteggio sessioni finiva a capo da solo sotto "Filtra" - lo
-       stesso orfano che questo blocco doveva evitare. */
-    .storico-toolbar {
-        container-type: inline-size;
-        container-name: storico;
-    }
-    @container storico (max-width: 720px) {
-        .storico-filters { flex: 1 1 100% !important; justify-content: flex-start !important; }
-        /* La riga con titolo resta da sola (i filtri vanno a capo sotto):
-           allarghiamola e spingiamo le icone import/export a destra invece
-           di lasciarle appiccicate al titolo. */
-        .storico-title-row { flex: 1 1 100%; }
-        .storico-io-icons { margin-left: auto; }
-        /* Qui lo spingiamo a destra sulla riga in cui finisce a capo; sopra
-           la soglia .storico-filters e' gia' justify-content:flex-end e un
-           margin-left:auto spaccherebbe form e conteggio, mandando il primo
-           a sinistra e il secondo all'estremo bordo destro. */
-        .storico-count { margin-left: auto; }
-    }
-    /* Quando la pillola di Programmazione Settimanale va a capo sotto il
-       titolo, centra sia il titolo che la pillola invece di lasciarli a
-       sinistra. */
-    @media (max-width: 600px) {
-        .week-title { flex: 1 1 100%; text-align: center; }
-        .week-controls-pill { flex: 1 1 100%; width: fit-content; margin: 0 auto; }
-    }
-    /* Stessa logica: e' il form a non starci piu', quindi si misura la
-       toolbar. A questo punto i filtri occupano gia' tutta la riga. */
-    @container storico (max-width: 400px) {
-        /* Il form deve prendersi tutta la riga: e' un flex item dentro
-           .storico-filters e senza questo resta largo quanto il suo contenuto,
-           quindi i flex dei figli qui sotto non avrebbero spazio libero da
-           distribuire e "Filtra" si fermava a meta' riga con un buco a destra. */
-        .filter-form { flex: 1 1 100% !important; width: 100%; justify-content: flex-start !important; }
-        /* Crescono tutti, cosi' la riga arriva sempre al bordo destro: quello
-           che va a capo (Reset, o "Filtra" sui display piu' stretti) riempie la
-           riga nuova invece di restare orfano a sinistra. Il peso 100 contro 1
-           fa si' che, quando stanno sulla stessa riga, lo spazio che avanza se
-           lo prenda quasi tutto il campo di ricerca e i bottoni restino della
-           loro misura. La base di 90px e' scelta per far entrare Mese + ricerca
-           + Filtra su una riga sola fino a ~300px di schermo. */
-        .filter-form input[name="q"] { max-width: none !important; flex: 100 1 90px !important; min-width: 0 !important; }
-        .storico-filtra-btn { flex: 1 1 auto !important; }
-        .storico-reset-btn { flex: 1 1 auto !important; }
-    }
-
-    /* Pill per il filtro mese: sostituisce lo stile nativo dell'input
-       type="month", che su schermi stretti va in crash grafico (icona e
-       testo si accavallano e compaiono trattini illeggibili). */
-    .storico-date-field {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        background: var(--sunken);
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        padding: 0 8px;
-        height: 30px;
-        flex-shrink: 0;
-        /* Indispensabile: l'indicatore del calendario qui sotto e'
-           position:absolute con top/left/right/bottom a 0. Senza un
-           antenato posizionato si aggancia a un contenitore molto piu'
-           grande e diventa un'area cliccabile invisibile che copre anche
-           il campo di ricerca accanto: cliccando su "Cerca esercizio o
-           note" si apriva il selettore data invece del campo. */
-        position: relative;
-    }
-    .storico-date-field input[type="month"] {
-        background: transparent;
-        border: none;
-        outline: none;
-        padding: 0;
-        font-size: 12px;
-        color: #f0f0f3;
-        /* 74px non bastavano per il valore vero: in italiano il campo
-           renderizza "settembre 2026" e il testo veniva tagliato. */
-        width: 108px;
-        min-width: 0;
-        height: 100%;
-        font-family: inherit;
-    }
-
-    /* Il campo vuoto mostrava una fila di trattini ("--------- ---"): e' il
-       placeholder nativo di input[type=month], che vive nello shadow DOM del
-       browser e non si puo' ne' stilare ne' sostituire da CSS. Quando non c'e'
-       un valore azzeriamo l'input e mettiamo al suo posto la nostra etichetta.
-       L'input resta nel DOM perche' serve il suo name per la query GET; il
-       click continua a funzionare perche' ad aprire il calendario e' il
-       ::-webkit-calendar-picker-indicator qui sotto, steso su tutta la pill. */
-    .storico-date-ph {
-        display: none;
-        font-size: 12px;
-        color: #9ba0b3;
-        white-space: nowrap;
-        pointer-events: none;
-    }
-    .storico-date-field.is-empty .storico-date-ph { display: block; }
-    .storico-date-field.is-empty input[type="month"] { width: 0; opacity: 0; }
-    .storico-date-field input[type="month"]::-webkit-calendar-picker-indicator {
-        background: transparent;
-        color: transparent;
-        cursor: pointer;
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        width: auto; height: auto;
-    }
-
-    /* Sotto questa larghezza le pillow degli esercizi nello storico rischiano
-       di finire sotto i pulsanti azione (posizionati assoluti a destra), li
-       nascondiamo prima che si sovrappongano invece di aspettare la soglia
-       mobile generica. */
-    @media (max-width: 1100px) {
-        .session-pills { display: none !important; }
-    }
-
-    /* I pulsanti azione (PDF/duplica/elimina) sono posizionati assoluti sopra
-       la card: riserviamo sempre spazio a destra nel link cliccabile così
-       titolo e badge luogo vanno a capo prima di finirci sotto, invece di
-       scorrere dietro le icone. */
-    .session-row-link { padding-right: 130px !important; }
-</style>
 
 <script>
         function toggleWaterGoalForm() {

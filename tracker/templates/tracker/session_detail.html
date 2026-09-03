@@ -2,6 +2,278 @@
 
 {% block title %}Allenamento - Workout Tracker{% endblock %}
 
+{% block extra_head %}
+<style>
+#ex-dropdown {
+    position: fixed;
+    z-index: 9999;
+    /* Galleggia sopra il form: serve un fondo opaco, non un overlay. */
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+    max-height: 220px;
+    overflow-y: auto;
+    box-shadow: 0 8px 24px rgba(0,0,0,.5);
+}
+#ex-dropdown .ex-item {
+    padding: 9px 14px;
+    font-size: 12.5px;
+    color: #8080a0;
+    cursor: pointer;
+    transition: background .08s, color .08s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#ex-dropdown .ex-item:hover,
+#ex-dropdown .ex-item.ex-active {
+    background: var(--surface-2);
+    color: #f0f0f3;
+}
+#ex-preview {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    width: 168px;
+    background: var(--panel);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    box-shadow: 0 16px 36px rgba(0,0,0,0.5);
+    padding: 10px;
+    flex-direction: column;
+    gap: 8px;
+    box-sizing: border-box;
+}
+#ex-preview img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+}
+#ex-preview span {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
+}
+.exercise-group { transition: opacity .15s; }
+.exercise-group.dnd-over { outline: 1px solid rgba(var(--acc-rgb),.35); border-radius: 4px; }
+.drag-handle:hover { color: #5a5a78 !important; }
+
+/* Riga esercizio su mobile. Il badge "N serie" stava dentro la colonna del
+   contenuto insieme a nome e tag: quando il tag andava a capo il badge
+   scendeva con lui, e da riga a riga badge e cestino non erano piu' in
+   colonna. Ora sono due colonne loro della griglia, quindi restano
+   incolonnati qualunque cosa faccia il contenuto. */
+@media (max-width: 768px) {
+    .ex-row {
+        display: grid !important;
+        grid-template-columns: 16px 18px 1fr auto 32px;
+        gap: 12px;
+        align-items: center;
+        padding-right: 16px !important;
+    }
+
+    /* Nome sopra, tag sotto, sempre: cosi' l'altezza della riga non dipende
+       da quanti tag ha l'esercizio ne' da quanto sono lunghi. */
+    .ex-row-main {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        flex-wrap: nowrap !important;
+        gap: 4px !important;
+    }
+
+    /* Anche il chip resta su una riga: "DELTOIDE ANTERIORE E LATERALE" nella
+       colonna piu' stretta andava a capo su tre righe e quelle righe erano
+       alte il doppio delle altre. */
+    .ex-row-main > .badge-tag {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Il nome si tronca invece di allargare la colonna: overflow-wrap:anywhere
+       lo mandava a capo su due o tre righe e spingeva giu' tutto il resto. */
+    .ex-row-name {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow-wrap: normal !important;
+    }
+
+    /* Il margine destro serviva a staccare il cestino dal bordo quando la riga
+       era un flex; ora se ne occupa il padding della griglia. */
+    .ex-row-del {
+        margin-right: 0 !important;
+    }
+    .ex-row-del > button {
+        width: 32px !important;
+        height: 32px !important;
+    }
+}
+.set-row-wrap { transition: opacity .15s; }
+.set-row-wrap.dnd-over > div:first-child { outline: 1px solid rgba(var(--acc-rgb),.35); border-radius: 9px; }
+.set-drag-handle:hover { color: #8a8fa5 !important; }
+.mpill-label input[type="checkbox"] { display: none; }
+.mpill-label span {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 10.5px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    color: #f0f0f3;
+    cursor: pointer;
+    transition: all .12s;
+    user-select: none;
+}
+.mpill-label input:checked + span {
+    background: rgba(138,99,210,.15);
+    border-color: rgba(138,99,210,.35);
+    color: #a070e0;
+}
+.mpill-label span:hover { border-color: #3a3a5a; color: #7070a0; }
+
+/* Tema violetto (allineato al redesign dashboard/login) */
+.page-container .btn-primary-gradient,
+#new-ex-modal .btn-primary-gradient {
+    background: var(--acc);
+    box-shadow: none;
+}
+.page-container .btn-primary-gradient:hover,
+#new-ex-modal .btn-primary-gradient:hover { background: var(--acc-2); opacity: 1; }
+
+.page-container .tracer-input {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.08);
+}
+.page-container .tracer-input:focus {
+    border-color: rgba(var(--acc-rgb),.5);
+}
+
+.page-container .badge-tag-default {
+    background: rgba(var(--acc-rgb),.12);
+    color: #b7bdf0;
+    border: 1px solid rgba(var(--acc-rgb),.2);
+}
+
+#new-ex-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.75); align-items: center; justify-content: center; }
+#new-ex-modal.open { display: flex; }
+#new-ex-modal-box { background: var(--panel); border: 1px solid rgba(var(--acc-rgb),0.18); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 16px; padding: 24px; width: 100%; max-width: 460px; margin: 16px; }
+.modal-label { display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px; }
+.modal-title { font-size: 11px; font-weight: 700; color: #838a9e; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 18px; }
+
+/* Dati sessione: sotto questa soglia i campi vanno a capo come prima; sopra
+   restano tutti su un'unica riga, Salva e Annulla compresi, restringendosi
+   invece di mandare a capo gli ultimi pulsanti. */
+@media (min-width: 1200px) {
+    .session-meta-form { flex-wrap: nowrap !important; }
+}
+
+/* L'icona di export JSON e' un quadrato senza testo: l'etichetta serve solo
+   nella versione a pill di mobile. */
+.header-export-label { display: none; }
+
+/* Header su schermi stretti: titolo su una riga sua, poi due righe da tre
+   pill che riempiono la larghezza — prima i due dati (serie, recupero), poi
+   le azioni. */
+@media (max-width: 560px) {
+    .header-left-col { width: 100%; }
+    .header-title-row > h1 { flex: 1 1 100%; }
+
+    /* Nel DOM "Modifica dettagli" sta attaccato al titolo, che su desktop e'
+       l'ordine giusto. Qui i due badge passano davanti e l'azione chiude la
+       riga: si leggono prima i numeri, poi cosa ci si puo' fare. */
+    .header-title-row > .header-badge { order: 1; }
+    .header-title-row > button { order: 2; }
+
+    /* Gap piu' stretti dei 12/10px inline: con tre pill per riga quei 4px in
+       piu' bastavano a mandare l'ultima a capo su un telefono da 360px. */
+    .header-title-row { gap: 8px !important; }
+    .header-actions-row { width: 100%; gap: 8px !important; }
+
+    /* Ogni controllo cresce per riempire la riga invece di accalcarsi a
+       sinistra lasciando vuoto a destra. La base e' auto e non 0: a base 0
+       finirebbero tutti alla stessa larghezza e le etichette lunghe
+       ('Modifica dettagli', 'Duplica Sessione') verrebbero tagliate. Cosi'
+       ognuno parte dal proprio testo e si spartisce lo spazio che avanza. */
+    .header-title-row > .header-pill,
+    .header-actions-row > .header-pill,
+    .header-actions-row > form {
+        flex: 1 1 auto !important;
+        width: auto !important;
+    }
+    .header-actions-row > form > .header-pill { width: 100% !important; }
+
+    /* Sei controlli con sei misure diverse (badge 7px/14px, pulsanti 9px/16px,
+       icona export quadrata 36px): messi su due righe lo sfalsamento si
+       vedeva. Stessa altezza, stesso raggio, stesso bordo d'accento per tutti.
+       !important perche' quelle misure stanno sugli attributi style. */
+    .header-pill {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        height: 38px !important;
+        padding: 0 8px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        border-radius: 9px !important;
+        white-space: nowrap;
+        /* Stesso fondo, stesso testo, stesso bordo per tutte: i tre livelli di
+           riempimento che arrivavano dagli style inline (accento pieno sul
+           conteggio, accento tenue su Esporta PDF, trasparente sulle altre)
+           facevano sembrare le sei pill tre gruppi diversi. */
+        background: rgba(255, 255, 255, 0.04) !important;
+        color: #c7cbd6 !important;
+        border: 1px solid rgba(var(--acc-rgb), 0.35) !important;
+    }
+
+    /* Unica eccezione: l'azione distruttiva resta riconoscibile. */
+    .header-pill-danger {
+        background: rgba(248, 113, 113, 0.1) !important;
+        color: #f87171 !important;
+        border-color: rgba(248, 113, 113, 0.35) !important;
+    }
+
+    /* A questa larghezza la pill dell'export ha spazio per dirsi per esteso. */
+    .header-export-label { display: inline; }
+}
+
+/* Pannello "Aggiungi serie": l'intestazione lo apre e chiude. Su desktop sta
+   nella colonna di fianco e parte aperto; su mobile finisce sopra la lista,
+   quindi parte chiuso per non spingerla fuori schermo. */
+#add-set-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #838a9e;
+    text-align: left;
+}
+#add-set-toggle:hover { color: #c7cbd6; }
+#add-set-chevron { flex-shrink: 0; transition: transform .18s; }
+/* display sta qui e non inline: uno style inline vincerebbe su questa
+   regola e il pannello non si chiuderebbe mai. */
+#add-set-body { display: flex; flex-direction: column; gap: 16px; }
+#add-set-card.is-collapsed #add-set-body { display: none; }
+#add-set-card.is-collapsed #add-set-chevron { transform: rotate(-90deg); }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-container">
     <!-- Header -->
@@ -463,276 +735,6 @@
     </div>
 </div>
 {% endif %}
-
-<style>
-#ex-dropdown {
-    position: fixed;
-    z-index: 9999;
-    /* Galleggia sopra il form: serve un fondo opaco, non un overlay. */
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 0 0 8px 8px;
-    overflow: hidden;
-    max-height: 220px;
-    overflow-y: auto;
-    box-shadow: 0 8px 24px rgba(0,0,0,.5);
-}
-#ex-dropdown .ex-item {
-    padding: 9px 14px;
-    font-size: 12.5px;
-    color: #8080a0;
-    cursor: pointer;
-    transition: background .08s, color .08s;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-#ex-dropdown .ex-item:hover,
-#ex-dropdown .ex-item.ex-active {
-    background: var(--surface-2);
-    color: #f0f0f3;
-}
-#ex-preview {
-    display: none;
-    position: fixed;
-    z-index: 10000;
-    width: 168px;
-    background: var(--panel);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    box-shadow: 0 16px 36px rgba(0,0,0,0.5);
-    padding: 10px;
-    flex-direction: column;
-    gap: 8px;
-    box-sizing: border-box;
-}
-#ex-preview img {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 8px;
-    display: block;
-}
-#ex-preview span {
-    font-size: 11.5px;
-    font-weight: 700;
-    color: #fff;
-    line-height: 1.3;
-}
-.exercise-group { transition: opacity .15s; }
-.exercise-group.dnd-over { outline: 1px solid rgba(var(--acc-rgb),.35); border-radius: 4px; }
-.drag-handle:hover { color: #5a5a78 !important; }
-
-/* Riga esercizio su mobile. Il badge "N serie" stava dentro la colonna del
-   contenuto insieme a nome e tag: quando il tag andava a capo il badge
-   scendeva con lui, e da riga a riga badge e cestino non erano piu' in
-   colonna. Ora sono due colonne loro della griglia, quindi restano
-   incolonnati qualunque cosa faccia il contenuto. */
-@media (max-width: 768px) {
-    .ex-row {
-        display: grid !important;
-        grid-template-columns: 16px 18px 1fr auto 32px;
-        gap: 12px;
-        align-items: center;
-        padding-right: 16px !important;
-    }
-
-    /* Nome sopra, tag sotto, sempre: cosi' l'altezza della riga non dipende
-       da quanti tag ha l'esercizio ne' da quanto sono lunghi. */
-    .ex-row-main {
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        flex-wrap: nowrap !important;
-        gap: 4px !important;
-    }
-
-    /* Anche il chip resta su una riga: "DELTOIDE ANTERIORE E LATERALE" nella
-       colonna piu' stretta andava a capo su tre righe e quelle righe erano
-       alte il doppio delle altre. */
-    .ex-row-main > .badge-tag {
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    /* Il nome si tronca invece di allargare la colonna: overflow-wrap:anywhere
-       lo mandava a capo su due o tre righe e spingeva giu' tutto il resto. */
-    .ex-row-name {
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow-wrap: normal !important;
-    }
-
-    /* Il margine destro serviva a staccare il cestino dal bordo quando la riga
-       era un flex; ora se ne occupa il padding della griglia. */
-    .ex-row-del {
-        margin-right: 0 !important;
-    }
-    .ex-row-del > button {
-        width: 32px !important;
-        height: 32px !important;
-    }
-}
-.set-row-wrap { transition: opacity .15s; }
-.set-row-wrap.dnd-over > div:first-child { outline: 1px solid rgba(var(--acc-rgb),.35); border-radius: 9px; }
-.set-drag-handle:hover { color: #8a8fa5 !important; }
-.mpill-label input[type="checkbox"] { display: none; }
-.mpill-label span {
-    display: inline-block;
-    padding: 3px 9px;
-    border-radius: 20px;
-    font-size: 10.5px;
-    font-weight: 600;
-    border: 1px solid var(--border);
-    color: #f0f0f3;
-    cursor: pointer;
-    transition: all .12s;
-    user-select: none;
-}
-.mpill-label input:checked + span {
-    background: rgba(138,99,210,.15);
-    border-color: rgba(138,99,210,.35);
-    color: #a070e0;
-}
-.mpill-label span:hover { border-color: #3a3a5a; color: #7070a0; }
-
-/* Tema violetto (allineato al redesign dashboard/login) */
-.page-container .btn-primary-gradient,
-#new-ex-modal .btn-primary-gradient {
-    background: var(--acc);
-    box-shadow: none;
-}
-.page-container .btn-primary-gradient:hover,
-#new-ex-modal .btn-primary-gradient:hover { background: var(--acc-2); opacity: 1; }
-
-.page-container .tracer-input {
-    background: rgba(255,255,255,0.05);
-    border-color: rgba(255,255,255,0.08);
-}
-.page-container .tracer-input:focus {
-    border-color: rgba(var(--acc-rgb),.5);
-}
-
-.page-container .badge-tag-default {
-    background: rgba(var(--acc-rgb),.12);
-    color: #b7bdf0;
-    border: 1px solid rgba(var(--acc-rgb),.2);
-}
-
-#new-ex-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.75); align-items: center; justify-content: center; }
-#new-ex-modal.open { display: flex; }
-#new-ex-modal-box { background: var(--panel); border: 1px solid rgba(var(--acc-rgb),0.18); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-radius: 16px; padding: 24px; width: 100%; max-width: 460px; margin: 16px; }
-.modal-label { display: block; font-size: 10px; font-weight: 700; color: #7d8296; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px; }
-.modal-title { font-size: 11px; font-weight: 700; color: #838a9e; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 18px; }
-
-/* Dati sessione: sotto questa soglia i campi vanno a capo come prima; sopra
-   restano tutti su un'unica riga, Salva e Annulla compresi, restringendosi
-   invece di mandare a capo gli ultimi pulsanti. */
-@media (min-width: 1200px) {
-    .session-meta-form { flex-wrap: nowrap !important; }
-}
-
-/* L'icona di export JSON e' un quadrato senza testo: l'etichetta serve solo
-   nella versione a pill di mobile. */
-.header-export-label { display: none; }
-
-/* Header su schermi stretti: titolo su una riga sua, poi due righe da tre
-   pill che riempiono la larghezza — prima i due dati (serie, recupero), poi
-   le azioni. */
-@media (max-width: 560px) {
-    .header-left-col { width: 100%; }
-    .header-title-row > h1 { flex: 1 1 100%; }
-
-    /* Nel DOM "Modifica dettagli" sta attaccato al titolo, che su desktop e'
-       l'ordine giusto. Qui i due badge passano davanti e l'azione chiude la
-       riga: si leggono prima i numeri, poi cosa ci si puo' fare. */
-    .header-title-row > .header-badge { order: 1; }
-    .header-title-row > button { order: 2; }
-
-    /* Gap piu' stretti dei 12/10px inline: con tre pill per riga quei 4px in
-       piu' bastavano a mandare l'ultima a capo su un telefono da 360px. */
-    .header-title-row { gap: 8px !important; }
-    .header-actions-row { width: 100%; gap: 8px !important; }
-
-    /* Ogni controllo cresce per riempire la riga invece di accalcarsi a
-       sinistra lasciando vuoto a destra. La base e' auto e non 0: a base 0
-       finirebbero tutti alla stessa larghezza e le etichette lunghe
-       ('Modifica dettagli', 'Duplica Sessione') verrebbero tagliate. Cosi'
-       ognuno parte dal proprio testo e si spartisce lo spazio che avanza. */
-    .header-title-row > .header-pill,
-    .header-actions-row > .header-pill,
-    .header-actions-row > form {
-        flex: 1 1 auto !important;
-        width: auto !important;
-    }
-    .header-actions-row > form > .header-pill { width: 100% !important; }
-
-    /* Sei controlli con sei misure diverse (badge 7px/14px, pulsanti 9px/16px,
-       icona export quadrata 36px): messi su due righe lo sfalsamento si
-       vedeva. Stessa altezza, stesso raggio, stesso bordo d'accento per tutti.
-       !important perche' quelle misure stanno sugli attributi style. */
-    .header-pill {
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        height: 38px !important;
-        padding: 0 8px !important;
-        font-size: 12px !important;
-        font-weight: 600 !important;
-        border-radius: 9px !important;
-        white-space: nowrap;
-        /* Stesso fondo, stesso testo, stesso bordo per tutte: i tre livelli di
-           riempimento che arrivavano dagli style inline (accento pieno sul
-           conteggio, accento tenue su Esporta PDF, trasparente sulle altre)
-           facevano sembrare le sei pill tre gruppi diversi. */
-        background: rgba(255, 255, 255, 0.04) !important;
-        color: #c7cbd6 !important;
-        border: 1px solid rgba(var(--acc-rgb), 0.35) !important;
-    }
-
-    /* Unica eccezione: l'azione distruttiva resta riconoscibile. */
-    .header-pill-danger {
-        background: rgba(248, 113, 113, 0.1) !important;
-        color: #f87171 !important;
-        border-color: rgba(248, 113, 113, 0.35) !important;
-    }
-
-    /* A questa larghezza la pill dell'export ha spazio per dirsi per esteso. */
-    .header-export-label { display: inline; }
-}
-
-/* Pannello "Aggiungi serie": l'intestazione lo apre e chiude. Su desktop sta
-   nella colonna di fianco e parte aperto; su mobile finisce sopra la lista,
-   quindi parte chiuso per non spingerla fuori schermo. */
-#add-set-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    width: 100%;
-    padding: 0;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 11.5px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    color: #838a9e;
-    text-align: left;
-}
-#add-set-toggle:hover { color: #c7cbd6; }
-#add-set-chevron { flex-shrink: 0; transition: transform .18s; }
-/* display sta qui e non inline: uno style inline vincerebbe su questa
-   regola e il pannello non si chiuderebbe mai. */
-#add-set-body { display: flex; flex-direction: column; gap: 16px; }
-#add-set-card.is-collapsed #add-set-body { display: none; }
-#add-set-card.is-collapsed #add-set-chevron { transform: rotate(-90deg); }
-</style>
 
 <!-- Contenuto nascosto usato per il PDF. position:absolute fuori
      schermo (non display:none puro) cosi' quando exportPDF() lo rende

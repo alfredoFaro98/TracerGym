@@ -2,6 +2,30 @@
 
 {% block title %}Sessione di {{ target_user.username }} - Workout Tracker{% endblock %}
 
+{% block extra_head %}
+<style>
+.load-pct-chip {
+    padding: 5px 9px;
+    height: 28px;
+    background: var(--sunken);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: #7878a0;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .12s;
+}
+.load-pct-chip:hover { border-color: #2c2c48; color: #c0c0e0; }
+.load-pct-chip.active {
+    background: rgba(var(--acc-rgb),0.14);
+    border-color: rgba(var(--acc-rgb),0.4);
+    color: #b7bdf0;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-container">
 
@@ -122,25 +146,4 @@ function updateLoadChips(val) {
     });
 }
 </script>
-<style>
-.load-pct-chip {
-    padding: 5px 9px;
-    height: 28px;
-    background: var(--sunken);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: #7878a0;
-    font-size: 11.5px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all .12s;
-}
-.load-pct-chip:hover { border-color: #2c2c48; color: #c0c0e0; }
-.load-pct-chip.active {
-    background: rgba(var(--acc-rgb),0.14);
-    border-color: rgba(var(--acc-rgb),0.4);
-    color: #b7bdf0;
-}
-</style>
 {% endblock %}

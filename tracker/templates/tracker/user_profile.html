@@ -9,6 +9,43 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cal-heatmap/3.6.2/cal-heatmap.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cal-heatmap/3.6.2/cal-heatmap.css">
 {% if is_own %}<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>{% endif %}
+<style>
+    /* Tema violetto (allineato al redesign dashboard) */
+
+    .ch-domain-text { fill: #a0a6af; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; }
+    .ch-subdomain-bg { fill: var(--card-solid); }
+    .graph-rect { stroke: var(--card-solid); stroke-width: 2px; rx: 2; ry: 2;}
+    .q1 { fill: var(--acc) !important; opacity: 0.25;}
+    .q2 { fill: var(--acc) !important; opacity: 0.45;}
+    .q3 { fill: var(--acc) !important; opacity: 0.65;}
+    .q4 { fill: var(--acc) !important; opacity: 0.85;}
+    .q5 { fill: var(--acc) !important; opacity: 1;}
+    .hover_cursor:hover { stroke: #ffffff; stroke-width: 1px; }
+
+    .ch-tooltip {
+        position: absolute !important;
+        z-index: 99999 !important;
+        background: var(--panel) !important;
+        color: #f0f0f3 !important;
+        border: 1px solid rgba(255,255,255,.08) !important;
+        border-radius: 6px !important;
+        padding: 8px 12px !important;
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-size: 12px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+        pointer-events: none;
+    }
+    .ch-tooltip::after { border-top-color: var(--panel) !important; }
+
+    .heatmap-scroll-wrap {
+        /* Layout a blocco (non flex): con flex + justify-content:center e
+        overflow-x:auto, arrotondamenti di sub-pixel fanno comparire una
+        scrollbar fantasma anche quando il contenuto entra per intero. */
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: visible;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -164,43 +201,6 @@
 </div>
 
 {% if not private %}
-<style>
-    /* Tema violetto (allineato al redesign dashboard) */
-
-    .ch-domain-text { fill: #a0a6af; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; }
-    .ch-subdomain-bg { fill: var(--card-solid); }
-    .graph-rect { stroke: var(--card-solid); stroke-width: 2px; rx: 2; ry: 2;}
-    .q1 { fill: var(--acc) !important; opacity: 0.25;}
-    .q2 { fill: var(--acc) !important; opacity: 0.45;}
-    .q3 { fill: var(--acc) !important; opacity: 0.65;}
-    .q4 { fill: var(--acc) !important; opacity: 0.85;}
-    .q5 { fill: var(--acc) !important; opacity: 1;}
-    .hover_cursor:hover { stroke: #ffffff; stroke-width: 1px; }
-
-    .ch-tooltip {
-        position: absolute !important;
-        z-index: 99999 !important;
-        background: var(--panel) !important;
-        color: #f0f0f3 !important;
-        border: 1px solid rgba(255,255,255,.08) !important;
-        border-radius: 6px !important;
-        padding: 8px 12px !important;
-        font-family: 'Space Grotesk', sans-serif !important;
-        font-size: 12px !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
-        pointer-events: none;
-    }
-    .ch-tooltip::after { border-top-color: var(--panel) !important; }
-
-    .heatmap-scroll-wrap {
-        /* Layout a blocco (non flex): con flex + justify-content:center e
-        overflow-x:auto, arrotondamenti di sub-pixel fanno comparire una
-        scrollbar fantasma anche quando il contenuto entra per intero. */
-        width: 100%;
-        overflow-x: auto;
-        overflow-y: visible;
-    }
-</style>
 <script>
     function changeYear(delta) {
         var currentYear = parseInt('{{ selected_year }}');

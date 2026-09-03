@@ -2,6 +2,24 @@
 
 {% block title %}Sonno - Workout Tracker{% endblock %}
 
+{% block extra_head %}
+<style>
+.dash-add-btn {
+    background: var(--acc);
+    color: #fff;
+    border: none;
+    transition: background .15s, box-shadow .15s;
+    box-shadow: 0 8px 20px rgba(var(--acc-rgb),.35);
+}
+.dash-add-btn:hover { background: var(--acc-2); }
+
+.page-container .btn-primary-gradient {
+    background: var(--acc);
+}
+.page-container .btn-primary-gradient:hover { background: var(--acc-2); opacity: 1; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-container">
     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 20px;">
@@ -212,22 +230,6 @@
         {% endif %}
     </div>
 </div>
-
-<style>
-.dash-add-btn {
-    background: var(--acc);
-    color: #fff;
-    border: none;
-    transition: background .15s, box-shadow .15s;
-    box-shadow: 0 8px 20px rgba(var(--acc-rgb),.35);
-}
-.dash-add-btn:hover { background: var(--acc-2); }
-
-.page-container .btn-primary-gradient {
-    background: var(--acc);
-}
-.page-container .btn-primary-gradient:hover { background: var(--acc-2); opacity: 1; }
-</style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script>
