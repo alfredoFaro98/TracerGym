@@ -244,6 +244,35 @@ input[type=number] { -moz-appearance: textfield; }
   border-color: rgba(var(--acc-rgb),.45);
 }
 
+/* ==========================================================================
+   Tendine native dei <select>. La lista che si apre non e' disegnata dal CSS
+   della pagina ma dal browser, e restava chiara (fondo bianco, riga attiva
+   blu, testo scuro) in mezzo al tema scuro. Servono due cose insieme:
+
+   - color-scheme su :root, non solo su body. Su body dice al browser come
+     dipingere il documento, ma i popup dei controlli guardano la radice: e'
+     per questo che la tendina restava chiara nonostante body e .tracer-input
+     lo dichiarassero gia'.
+   - il colore esplicito su option/optgroup, per i browser che il popup lo
+     disegnano comunque con i propri colori di default.
+
+   La regola su select copre anche i pochi select senza .tracer-input (es. lo
+   stato del giorno nella lista di Alimentazione).
+   ========================================================================== */
+:root {
+  color-scheme: dark;
+}
+
+select {
+  color-scheme: dark;
+}
+
+select option,
+select optgroup {
+  background-color: var(--panel);
+  color: #f0f0f3;
+}
+
 .tracer-card {
   background: var(--surface); 
   border: 1px solid var(--border); 
