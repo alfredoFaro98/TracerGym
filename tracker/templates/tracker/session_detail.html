@@ -11,15 +11,15 @@
                 <h1 id="date-label" style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: #f0f0f3; letter-spacing: -0.3px; margin: 0; white-space: nowrap;">
                     {% if session.nome %}{{ session.nome }} <span style="font-weight: 500; color: #9ba0b3;">&middot; {{ session.data|date:"l d F Y"|capfirst }}</span>{% else %}{{ session.data|date:"l d F Y"|capfirst }}{% endif %}
                 </h1>
-                <button onclick="toggleDateEdit()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #c7cbd6; font-size: 12.5px; font-weight: 600; padding: 7px 14px; border-radius: 8px; cursor: pointer; white-space: nowrap; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">Modifica dettagli</button>
+                <button onclick="toggleDateEdit()" class="header-pill" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #c7cbd6; font-size: 12.5px; font-weight: 600; padding: 7px 14px; border-radius: 8px; cursor: pointer; white-space: nowrap; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">Modifica dettagli</button>
                 <!-- Badge riepilogo accanto al titolo: stanno sulla stessa riga
                      di "Modifica dettagli" cosi' su schermi stretti l'header
                      resta su due righe di pulsanti invece di tre. -->
-                <div class="header-badge" style="background: var(--acc); color: #fff; font-size: 13.5px; font-weight: 700; padding: 7px 14px; border-radius: 9px; white-space: nowrap;">
+                <div class="header-badge header-pill header-badge-count" style="background: var(--acc); color: #fff; font-size: 13.5px; font-weight: 700; padding: 7px 14px; border-radius: 9px; white-space: nowrap;">
                     {{ session.sets.count }} serie
                 </div>
-                <div class="header-badge" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 13.5px; font-weight: 600; padding: 7px 14px; border-radius: 9px; white-space: nowrap;">
-                    ⏱ {{ total_rest_label }}<span class="header-badge-long"> recupero</span>
+                <div class="header-badge header-pill" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 13.5px; font-weight: 600; padding: 7px 14px; border-radius: 9px; white-space: nowrap;">
+                    ⏱ {{ total_rest_label }} recupero
                 </div>
             </div>
 
@@ -81,16 +81,16 @@
         <div class="header-actions-row" style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
             <form action="{% url 'duplicate_session' session.id %}" method="post">
                 {% csrf_token %}
-                <button type="submit" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">Duplica Sessione</button>
+                <button type="submit" class="header-pill" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">Duplica Sessione</button>
             </form>
-            <button type="button" onclick="exportPDF()" style="background: rgba(var(--acc-rgb),0.14); border: 1px solid rgba(var(--acc-rgb),0.4); color: #b7bdf0; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.14)'">Esporta PDF</button>
-            <a href="{% url 'export_session' session.id %}" title="Esporta sessione JSON" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#c7cbd6;text-decoration:none;transition:background .12s;flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
-                <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            <button type="button" onclick="exportPDF()" class="header-pill" style="background: rgba(var(--acc-rgb),0.14); border: 1px solid rgba(var(--acc-rgb),0.4); color: #b7bdf0; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.14)'">Esporta PDF</button>
+            <a href="{% url 'export_session' session.id %}" title="Esporta sessione JSON" class="header-pill" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#c7cbd6;text-decoration:none;transition:background .12s;flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg><span class="header-export-label">Esporta</span>
             </a>
             {% if exercise_groups or circuit_items %}
             <form action="{% url 'clear_session' session.id %}" method="post" onsubmit="return confirm('Eliminare tutte le {{ session.sets.count }} serie{% if circuit_items %} e i {{ circuit_items|length }} circuiti{% endif %} di questa sessione? L\'azione è irreversibile.');">
                 {% csrf_token %}
-                <button type="submit" style="background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.25); color: #f87171; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Svuota Sessione</button>
+                <button type="submit" class="header-pill" style="background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.25); color: #f87171; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Svuota Sessione</button>
             </form>
             {% endif %}
         </div>
@@ -580,26 +580,69 @@
     .session-meta-form { flex-wrap: nowrap !important; }
 }
 
-/* Su schermi stretti i badge di riepilogo si compattano (e "recupero"
-   sparisce, resta il solo tempo) cosi' stanno sulla stessa riga di
-   "Modifica dettagli": l'header resta su due righe di pulsanti, non tre. */
-@media (max-width: 560px) {
-    .header-badge { font-size: 12px !important; padding: 6px 10px !important; }
-    .header-badge-long { display: none; }
+/* L'icona di export JSON e' un quadrato senza testo: l'etichetta serve solo
+   nella versione a pill di mobile. */
+.header-export-label { display: none; }
 
-    /* I pulsanti dell'header occupano tutta la riga invece di accalcarsi a
-       sinistra lasciando vuoto a destra: ogni elemento cresce in proporzione
-       (min-width:0 perche' altrimenti non scenderebbero sotto la larghezza
-       del testo). L'icona di export JSON resta quadrata. */
+/* Header su schermi stretti: titolo su una riga sua, poi due righe da tre
+   pill che riempiono la larghezza — prima i due dati (serie, recupero), poi
+   le azioni. */
+@media (max-width: 560px) {
     .header-left-col { width: 100%; }
     .header-title-row > h1 { flex: 1 1 100%; }
-    .header-title-row > button,
-    .header-title-row > .header-badge { flex: 1; min-width: 0; text-align: center; }
 
-    .header-actions-row { width: 100%; }
-    .header-actions-row > form { flex: 1; min-width: 0; }
-    .header-actions-row > form > button { width: 100%; }
-    .header-actions-row > button { flex: 1; min-width: 0; }
+    /* Nel DOM "Modifica dettagli" sta attaccato al titolo, che su desktop e'
+       l'ordine giusto. Qui i due badge passano davanti e l'azione chiude la
+       riga: si leggono prima i numeri, poi cosa ci si puo' fare. */
+    .header-title-row > .header-badge { order: 1; }
+    .header-title-row > button { order: 2; }
+
+    /* Gap piu' stretti dei 12/10px inline: con tre pill per riga quei 4px in
+       piu' bastavano a mandare l'ultima a capo su un telefono da 360px. */
+    .header-title-row { gap: 8px !important; }
+    .header-actions-row { width: 100%; gap: 8px !important; }
+
+    /* Ogni controllo cresce per riempire la riga invece di accalcarsi a
+       sinistra lasciando vuoto a destra. La base e' auto e non 0: a base 0
+       finirebbero tutti alla stessa larghezza e le etichette lunghe
+       ('Modifica dettagli', 'Duplica Sessione') verrebbero tagliate. Cosi'
+       ognuno parte dal proprio testo e si spartisce lo spazio che avanza. */
+    .header-title-row > .header-pill,
+    .header-actions-row > .header-pill,
+    .header-actions-row > form {
+        flex: 1 1 auto !important;
+        width: auto !important;
+    }
+    .header-actions-row > form > .header-pill { width: 100% !important; }
+
+    /* Sei controlli con sei misure diverse (badge 7px/14px, pulsanti 9px/16px,
+       icona export quadrata 36px): messi su due righe lo sfalsamento si
+       vedeva. Stessa altezza, stesso raggio, stesso bordo d'accento per tutti.
+       !important perche' quelle misure stanno sugli attributi style. */
+    .header-pill {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        height: 38px !important;
+        padding: 0 8px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        border-radius: 9px !important;
+        border: 1px solid rgba(var(--acc-rgb), 0.35) !important;
+        white-space: nowrap;
+    }
+
+    /* Il conteggio non e' piu' il blocco d'accento pieno ma una pill come le
+       altre, con il tono piu' marcato a tenerlo primo per peso visivo. */
+    .header-badge-count {
+        background: rgba(var(--acc-rgb), 0.18) !important;
+        color: var(--acc-4) !important;
+        border-color: rgba(var(--acc-rgb), 0.5) !important;
+    }
+
+    /* A questa larghezza la pill dell'export ha spazio per dirsi per esteso. */
+    .header-export-label { display: inline; }
 }
 
 /* Pannello "Aggiungi serie": l'intestazione lo apre e chiude. Su desktop sta
