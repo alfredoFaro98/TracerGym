@@ -403,3 +403,124 @@ a { text-decoration: none; }
       font-size: 9px;
   }
 }
+
+/* ==========================================================================
+   Pannelli di modifica rapida: le schede inline che si aprono sotto una riga
+   (assunzione integratori, sorso d'acqua, misurazione, macro, set, circuito,
+   obiettivo del giorno...). Erano una ventina di copie degli stessi stili
+   inline, e le copie avevano gia' iniziato a divergere fra loro. Qui restano
+   due classi: .quick-form per i campi, .quick-actions per i pulsanti.
+
+   Nota: nessuna di queste regole tocca `display` sul form. Diversi pannelli
+   vengono aperti e chiusi dal JS scrivendo `style.display`, quindi il layout
+   mobile e' ottenuto con i flex-basis dei figli e non passando la riga a
+   griglia, che avrebbe richiesto un !important su display e tenuto aperti i
+   pannelli chiusi.
+   ========================================================================== */
+
+/* Riga pulsanti. Salva e Annulla stanno affiancati ma non pesano uguale: il
+   primario prende due terzi, l'annulla uno. flex-basis 0 (implicito in
+   flex: N) piu' min-width 0 rende il rapporto esatto anche con box-sizing
+   border-box, che altrimenti gonfierebbe le basi con il padding orizzontale. */
+.quick-actions {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  /* Stacca i pulsanti dall'ultimo campo: attaccati sembravano parte del form. */
+  margin-top: 6px;
+}
+.quick-actions > * {
+  min-width: 0;
+}
+.quick-actions > .btn-primary-gradient {
+  flex: 2;
+}
+.quick-actions > .btn-cancel {
+  flex: 1;
+}
+
+/* La riga dei campi. Le stesse quattro dichiarazioni che stavano inline in
+   ogni pannello: dove l'inline c'e' ancora vince lui, con gli stessi valori. */
+.quick-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+/* Gruppo etichetta + campo dentro un pannello. */
+.quick-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* Footer dei modali (Annulla a sinistra, conferma a destra, allineati a fine
+   riga): su desktop resta la convenzione di sempre, il rapporto 2:1 a tutta
+   larghezza scatta solo sotto i 768px. */
+.quick-actions-end {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+/* Spaziatore che su desktop spinge i pulsanti a fine riga. In colonna non ha
+   piu' senso e si porterebbe via mezza riga: viene tolto sotto i 768px. */
+.quick-spacer {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  /* Quattro campi corti (Tipo/Grammi/Data/Orario e simili) pensati per stare
+     su una riga sola andavano a capo a caso, ognuno largo quanto i suoi px
+     inline. Con basis a meta' riga ne stanno esattamente due per riga e sono
+     larghi uguale. !important perche' il flex sta sull'attributo style.
+     La basis e' 50% meno 8px per assorbire i gap (8-12px) dei vari pannelli:
+     flex-grow 1 riporta poi le due colonne a riempire la riga. */
+  .quick-form > .quick-field {
+    flex: 1 1 calc(50% - 8px) !important;
+    min-width: 0;
+  }
+
+  /* Campi che a meta' riga non ci stanno (note, nomi) e la riga pulsanti
+     prendono la riga intera. */
+  .quick-form > .quick-span-2,
+  .quick-form > .quick-actions {
+    flex: 1 1 100% !important;
+  }
+
+  /* Altezza unica per tutti i campi del pannello: le larghezze in px degli
+     inline servivano alla riga desktop, qui decide la colonna. */
+  .quick-form .tracer-input {
+    width: 100% !important;
+    height: 40px;
+    box-sizing: border-box;
+  }
+
+  /* Fuori da un .quick-form (pannelli gia' in colonna) la riga pulsanti deve
+     comunque prendere tutta la larghezza invece di stringersi sul contenuto. */
+  .quick-actions {
+    width: 100%;
+  }
+
+  /* Sul telefono anche il footer del modale diventa la riga 2:1: allineare a
+     destra due pulsanti stretti lascia mezza riga vuota e bersagli piccoli. */
+  .quick-actions-end {
+    justify-content: stretch;
+    margin-top: 6px;
+  }
+  .quick-actions-end > .btn-primary-gradient {
+    flex: 2;
+  }
+  .quick-actions-end > .btn-cancel {
+    flex: 1;
+  }
+  .quick-actions-end > * {
+    min-width: 0;
+  }
+
+  .quick-form > .quick-spacer {
+    display: none;
+  }
+}

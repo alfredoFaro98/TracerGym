@@ -25,42 +25,44 @@ server e la inserisce nel DOM senza ricaricare la pagina.
         </form>
     </div>
     <div id="macro-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
-        <form action="{% url 'edit_macro_entry' e.id %}" method="post" autocomplete="off" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
+        <form class="quick-form" action="{% url 'edit_macro_entry' e.id %}" method="post" autocomplete="off" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
             {% csrf_token %}
             <input type="hidden" name="next" value="{% url 'macro' %}">
-            <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px;">
                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">KCAL</span>
                 <input type="number" name="kcal" value="{{ e.kcal }}" class="tracer-input" style="width: 90px;" min="1">
             </div>
-            <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px;">
                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">PROTEINE (G)</span>
                 <input type="number" name="proteine_g" value="{{ e.proteine_g|unlocalize }}" class="tracer-input" style="width: 80px;" min="0" step="0.1">
             </div>
-            <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px;">
                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">CARBOIDRATI (G)</span>
                 <input type="number" name="carboidrati_g" value="{{ e.carboidrati_g|unlocalize }}" class="tracer-input" style="width: 80px;" min="0" step="0.1">
             </div>
-            <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px;">
                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">GRASSI (G)</span>
                 <input type="number" name="grassi_g" value="{{ e.grassi_g|unlocalize }}" class="tracer-input" style="width: 80px;" min="0" step="0.1">
             </div>
-            <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px;">
                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
                 <input type="date" name="data" value="{{ e.data|date:'Y-m-d' }}" class="tracer-input" style="width: 150px;">
             </div>
-            <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px;">
                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
                 <input type="time" name="ora" value="{{ e.creato_il|date:'H:i' }}" class="tracer-input" style="width: 100px;">
             </div>
-            <div style="display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px;">
+            <div class="quick-field quick-span-2" style="display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px;">
                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">NOTA</span>
                 <input type="text" name="nota" value="{{ e.nota }}" placeholder="Es. Pranzo" maxlength="100" class="tracer-input" style="width: 100%;">
             </div>
             <label style="display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; cursor: pointer; font-size: 12px; color: #c7cbd6; white-space: nowrap;">
                 <input type="checkbox" name="spazzatura" {% if e.e_spazzatura %}checked{% endif %} style="accent-color: #f0a875;"> 🍔 Cibo spazzatura
             </label>
-            <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
-            <button type="button" onclick="toggleMacroEdit('{{ e.id }}')" class="btn-cancel" style="padding: 8px 16px; font-size: 12.5px;">Annulla</button>
+            <div class="quick-actions">
+                <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
+                <button type="button" onclick="toggleMacroEdit('{{ e.id }}')" class="btn-cancel" style="padding: 8px 16px; font-size: 12.5px;">Annulla</button>
+            </div>
         </form>
     </div>
     <div id="macro-dup-{{ e.id }}" style="display: none; align-items: center; gap: 8px; background: rgba(74,222,128,0.06); border: 1px solid rgba(74,222,128,0.25); border-radius: 9px; padding: 10px 14px; margin-top: 4px; flex-wrap: wrap;">

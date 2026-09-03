@@ -46,9 +46,9 @@
                     <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">NOTA</span>
                     <input type="text" name="nota" placeholder="Es. sveglio più volte, rumori esterni..." maxlength="200" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                    <button type="submit" class="btn-primary-gradient" style="width: 100%; height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Salva</button>
-                    <button type="button" onclick="toggleNewEntryForm()" class="btn-cancel" style="width: 100%; height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Annulla</button>
+                <div class="quick-actions">
+                    <button type="submit" class="btn-primary-gradient" style="height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Salva</button>
+                    <button type="button" onclick="toggleNewEntryForm()" class="btn-cancel" style="height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Annulla</button>
                 </div>
             </form>
         </div>
@@ -187,9 +187,9 @@
                     <!-- Griglia e non flex:1: con box-sizing border-box il
                          flex-basis comprende il padding, quindi le due meta'
                          non verrebbero uguali. -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                        <button type="submit" class="btn-primary-gradient" style="width: 100%; height: 38px; box-sizing: border-box; padding: 0 16px; font-size: 12.5px;">Salva</button>
-                        <button type="button" onclick="toggleSleepEdit('{{ e.id }}')" class="btn-cancel" style="width: 100%; height: 38px; box-sizing: border-box; padding: 0 16px; font-size: 12.5px;">Annulla</button>
+                    <div class="quick-actions">
+                        <button type="submit" class="btn-primary-gradient" style="height: 38px; box-sizing: border-box; padding: 0 16px; font-size: 12.5px;">Salva</button>
+                        <button type="button" onclick="toggleSleepEdit('{{ e.id }}')" class="btn-cancel" style="height: 38px; box-sizing: border-box; padding: 0 16px; font-size: 12.5px;">Annulla</button>
                     </div>
                 </form>
             </div>

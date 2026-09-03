@@ -34,46 +34,48 @@
             </div>
             {% endif %}
 
-            <form id="date-form" class="session-meta-form" action="{% url 'edit_session_date' session.id %}" method="post" style="display:none; flex-wrap: wrap; align-items: flex-end; gap: 10px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 14px 16px; margin-top: 2px;">
+            <form id="date-form" class="session-meta-form quick-form" action="{% url 'edit_session_date' session.id %}" method="post" style="display:none; flex-wrap: wrap; align-items: flex-end; gap: 10px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 14px 16px; margin-top: 2px;">
                 {% csrf_token %}
-                <div style="display: flex; flex-direction: column; gap: 5px; flex: 1 1 130px; min-width: 0;">
+                <div class="quick-field quick-span-2" style="display: flex; flex-direction: column; gap: 5px; flex: 1 1 130px; min-width: 0;">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">NOME</span>
                     <input type="text" name="nome" value="{{ session.nome }}" maxlength="50" placeholder="Es. Push Day" class="tracer-input" style="width: 100%;">
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 5px; flex: 0 0 150px; min-width: 0;">
+                <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px; flex: 0 0 150px; min-width: 0;">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
                     <input type="date" name="data" value="{{ session.data|date:'Y-m-d' }}" class="tracer-input" style="width: 100%;">
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 5px; flex: 0 0 100px; min-width: 0;">
+                <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px; flex: 0 0 100px; min-width: 0;">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
                     <input type="time" name="orario" value="{% if session.orario %}{{ session.orario|time:'H:i' }}{% endif %}" class="tracer-input" style="width: 100%;">
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 5px; flex: 0 0 100px; min-width: 0;">
+                <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px; flex: 0 0 100px; min-width: 0;">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO FINE</span>
                     <input type="time" name="orario_fine" value="{% if session.orario_fine %}{{ session.orario_fine|time:'H:i' }}{% endif %}" class="tracer-input" style="width: 100%;">
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 5px; flex: 1 1 110px; min-width: 0;">
+                <div class="quick-field quick-span-2" style="display: flex; flex-direction: column; gap: 5px; flex: 1 1 110px; min-width: 0;">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">LUOGO</span>
                     <input type="text" name="luogo" value="{{ session.luogo }}" placeholder="Es. Palestra" class="tracer-input" style="width: 100%;">
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 5px; flex: 1 1 80px; min-width: 0;">
+                <div class="quick-field quick-span-2" style="display: flex; flex-direction: column; gap: 5px; flex: 1 1 80px; min-width: 0;">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DURATA (MIN)</span>
                     <input type="number" name="durata_minuti" value="{{ session.durata_minuti|default:'' }}" min="0" placeholder="Opz." class="tracer-input" style="width: 100%;">
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 5px; flex: 1 1 90px; min-width: 0;">
+                <div class="quick-field quick-span-2" style="display: flex; flex-direction: column; gap: 5px; flex: 1 1 90px; min-width: 0;">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">PESO ATLETA (KG)</span>
                     <input type="number" step="0.1" name="peso_kg" value="{{ session.peso_kg|default_if_none:''|stringformat:'s' }}" min="0" placeholder="Opz." class="tracer-input" style="width: 100%;">
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 5px; flex: 1 1 90px; min-width: 0;">
+                <div class="quick-field quick-span-2" style="display: flex; flex-direction: column; gap: 5px; flex: 1 1 90px; min-width: 0;">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ALTEZZA ATLETA (CM)</span>
                     <input type="number" step="0.1" name="altezza_cm" value="{{ session.altezza_cm|default_if_none:''|stringformat:'s' }}" min="0" placeholder="Opz." class="tracer-input" style="width: 100%;">
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 5px; flex: 2 1 150px; min-width: 0;">
+                <div class="quick-field quick-span-2" style="display: flex; flex-direction: column; gap: 5px; flex: 2 1 150px; min-width: 0;">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">COMPAGNI DI ALLENAMENTO</span>
                     <input type="text" name="compagni_allenamento" value="{{ session.compagni_allenamento }}" placeholder="Es. Mario, Luca" class="tracer-input" style="width: 100%;">
                 </div>
-                <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
-                <button type="button" onclick="toggleDateEdit()" class="btn-cancel" style="padding: 8px 16px; font-size: 12.5px;">Annulla</button>
+                <div class="quick-actions">
+                    <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
+                    <button type="button" onclick="toggleDateEdit()" class="btn-cancel" style="padding: 8px 16px; font-size: 12.5px;">Annulla</button>
+                </div>
             </form>
         </div>
         <div class="header-actions-row" style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
@@ -111,7 +113,7 @@
                 {% if error_exercise %}
                 <div style="padding: 9px 13px; background: rgba(248,81,73,.08); border: 1px solid rgba(248,81,73,.25); border-radius: 7px; font-size: 12px; color: #f85149;">{{ error_exercise }}</div>
                 {% endif %}
-                <div style="display: flex; flex-direction: column; gap: 6px;">
+                <div class="quick-field" style="gap: 6px;">
                     <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #7d8296;">ESERCIZIO</span>
                     <div style="display: flex; gap: 6px;">
                         <input type="text" id="exercise_name" name="exercise_name" class="tracer-input" placeholder="Cerca esercizio dalla lista…" required autocomplete="off" data-valid="false" style="height: 40px; box-sizing: border-box; flex: 1; min-width: 0;">
@@ -206,9 +208,9 @@
 
                 <!-- Griglia e non flex:1: con box-sizing border-box il flex-basis
                      comprende il padding, quindi le due meta' non verrebbero uguali. -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                    <button type="submit" class="btn-primary-gradient" style="width: 100%; height: 44px; box-sizing: border-box; padding: 0 12px; font-size: 14px; box-shadow: 0 10px 24px rgba(var(--acc-rgb),0.3);">Aggiungi Serie</button>
-                    <button type="button" onclick="toggleAddSet()" class="btn-cancel" style="width: 100%; height: 44px; box-sizing: border-box; padding: 0 12px; font-size: 14px;">Annulla</button>
+                <div class="quick-actions">
+                    <button type="submit" class="btn-primary-gradient" style="height: 44px; box-sizing: border-box; padding: 0 12px; font-size: 14px; box-shadow: 0 10px 24px rgba(var(--acc-rgb),0.3);">Aggiungi Serie</button>
+                    <button type="button" onclick="toggleAddSet()" class="btn-cancel" style="height: 44px; box-sizing: border-box; padding: 0 12px; font-size: 14px;">Annulla</button>
                 </div>
             </form>
         </div>
@@ -230,7 +232,7 @@
                         <button id="edit-all-btn" onclick="startEditAll()" style="padding: 0; background: transparent; border: none; color: var(--acc-4); font-size: 12.5px; font-weight: 600; cursor: pointer; transition: color .12s; white-space: nowrap;" onmouseover="this.style.color='#c2b6ff'" onmouseout="this.style.color='var(--acc-4)'">Modifica tutto</button>
                         <span id="edit-all-actions" style="display: none; align-items: center; gap: 10px;">
                             <span id="edit-all-status" style="font-size: 12px; color: #7d8296; white-space: nowrap;"></span>
-                            <button type="button" onclick="saveAllRows()" style="padding: 5px 12px; font-size: 12.5px; font-weight: 600; background: rgba(74,222,128,0.14); border: none; border-radius: 7px; color: #4ade80; cursor: pointer; white-space: nowrap;">Salva tutto</button>
+                            <button type="button" onclick="saveAllRows()" style="padding: 5px 12px; font-size: 12.5px; font-weight: 600; background: rgba(var(--acc-rgb),0.16); border: none; border-radius: 7px; color: var(--acc-4); cursor: pointer; white-space: nowrap;">Salva tutto</button>
                             <button type="button" onclick="cancelEditAll()" style="padding: 5px 12px; font-size: 12.5px; font-weight: 600; background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; color: #c7cbd6; cursor: pointer; white-space: nowrap;">Annulla tutto</button>
                         </span>
                     </div>
@@ -259,7 +261,7 @@
                             {% for tag in group.exercise.tags.all %}
                                 <span class="badge-tag badge-tag-default">{{ tag.nome }}</span>
                             {% endfor %}
-                            <div style="flex: 1;"></div>
+                            <div class="quick-spacer"></div>
                             <span data-set-count-badge style="background: rgba(var(--acc-rgb),0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 7px; white-space: nowrap;">{{ group.count }} serie</span>
                         </div>
                         <form action="{% url 'delete_exercise_sets' session.id group.exercise.id %}" method="post" onclick="event.stopPropagation()" onsubmit="return confirm('Eliminare tutte le serie di {{ group.exercise.nome }}?');" style="margin-right: 10px;">
@@ -305,22 +307,24 @@
                     </div>
                     <!-- Inline edit circuit form -->
                     <div id="circuit-edit-{{ item.circuit.id }}" style="display: none; flex-direction: column; gap: 14px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 14px 16px; margin-bottom: 6px;">
-                        <form action="{% url 'edit_circuit' item.circuit.id %}" method="post" novalidate style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
+                        <form class="quick-form" action="{% url 'edit_circuit' item.circuit.id %}" method="post" novalidate style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
                             {% csrf_token %}
-                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <div class="quick-field" style="display: flex; flex-direction: column; gap: 6px;">
                                 <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">NOME</span>
                                 <input type="text" name="nome" value="{{ item.circuit.nome }}" class="tracer-input" style="width: 140px;" placeholder="Circuito A">
                             </div>
-                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <div class="quick-field" style="display: flex; flex-direction: column; gap: 6px;">
                                 <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">ROUND</span>
                                 <input type="number" name="rounds" value="{{ item.circuit.rounds }}" class="tracer-input" style="width: 70px; background: rgba(var(--acc-rgb),0.1); border-color: var(--acc);" min="1" required>
                             </div>
-                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <div class="quick-field" style="display: flex; flex-direction: column; gap: 6px;">
                                 <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RECUPERO TRA ROUND (S)</span>
                                 <input type="number" name="rest_tra_round" value="{{ item.circuit.rest_tra_round|default:'' }}" class="tracer-input" style="width: 100px;" min="0" placeholder="Opc.">
                             </div>
-                            <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13.5px;">Salva</button>
-                            <button type="button" onclick="toggleCircuitEdit({{ item.circuit.id }})" class="btn-cancel" style="padding: 10px 20px; font-size: 13.5px;">Annulla</button>
+                            <div class="quick-actions">
+                                <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13.5px;">Salva</button>
+                                <button type="button" onclick="toggleCircuitEdit({{ item.circuit.id }})" class="btn-cancel" style="padding: 10px 20px; font-size: 13.5px;">Annulla</button>
+                            </div>
                         </form>
                     </div>
                     <!-- Circuit body (collapsible) -->
@@ -346,19 +350,21 @@
                                 <form action="{% url 'session_detail' session.id %}" method="post" style="display: flex; flex-direction: column; gap: 10px;">
                                     {% csrf_token %}
                                     <input type="hidden" name="circuit_id" value="{{ item.circuit.id }}">
-                                    <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
-                                    <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">ESERCIZIO</span><input type="text" name="exercise_name" class="tracer-input" style="width: 160px;" placeholder="Cerca esercizio…" required autocomplete="off" data-valid="false"></div>
-                                    <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">REPS</span><input type="number" name="reps" class="tracer-input" style="width: 60px;" placeholder="10" min="1"></div>
-                                    <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">DURATA (S)</span><input type="number" name="durata" class="tracer-input" style="width: 70px;" placeholder="Opc." min="1"></div>
-                                    <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">PESO (KG)</span><input type="number" step="0.5" name="weight" class="tracer-input" style="width: 70px;" placeholder="Opc." min="0"></div>
-                                    <div style="display: flex; flex-direction: column; gap: 5px;"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RECUPERO (S)</span><input type="number" name="rest_time" class="tracer-input" style="width: 70px;" placeholder="Opc." min="0"></div>
+                                    <div class="quick-form">
+                                    <div class="quick-field"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">ESERCIZIO</span><input type="text" name="exercise_name" class="tracer-input" style="width: 160px;" placeholder="Cerca esercizio…" required autocomplete="off" data-valid="false"></div>
+                                    <div class="quick-field"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">REPS</span><input type="number" name="reps" class="tracer-input" style="width: 60px;" placeholder="10" min="1"></div>
+                                    <div class="quick-field"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">DURATA (S)</span><input type="number" name="durata" class="tracer-input" style="width: 70px;" placeholder="Opc." min="1"></div>
+                                    <div class="quick-field"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">PESO (KG)</span><input type="number" step="0.5" name="weight" class="tracer-input" style="width: 70px;" placeholder="Opc." min="0"></div>
+                                    <div class="quick-field"><span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RECUPERO (S)</span><input type="number" name="rest_time" class="tracer-input" style="width: 70px;" placeholder="Opc." min="0"></div>
                                     </div>
-                                    <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
+                                    <div class="quick-form">
                                     <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;"><input type="checkbox" name="per_lato" style="width: 13px; height: 13px; accent-color: var(--acc); cursor: pointer;"><span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">Per lato</span></label>
                                     <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;"><input type="checkbox" name="a_cedimento" style="width: 13px; height: 13px; accent-color: var(--acc); cursor: pointer;"><span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">A cedimento</span></label>
-                                    <div style="flex: 1;"></div>
-                                    <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Aggiungi</button>
-                                    <button type="button" onclick="toggleCircuitAddForm({{ item.circuit.id }})" class="btn-cancel" style="padding: 8px 16px; font-size: 12.5px;">Annulla</button>
+                                    <div class="quick-spacer"></div>
+                                    <div class="quick-actions">
+                                        <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Aggiungi</button>
+                                        <button type="button" onclick="toggleCircuitAddForm({{ item.circuit.id }})" class="btn-cancel" style="padding: 8px 16px; font-size: 12.5px;">Annulla</button>
+                                    </div>
                                     </div>
                                 </form>
                             </div>
@@ -382,12 +388,12 @@
                 <div id="new-circuit-form" style="display: none; margin-top: 12px;">
                     <div class="tracer-card" style="padding: 18px 20px; display: flex; flex-direction: column; gap: 14px;">
                         <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #838a9e;">NUOVO CIRCUITO</span>
-                        <form action="{% url 'create_circuit' session.id %}" method="post" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
+                        <form action="{% url 'create_circuit' session.id %}" method="post" class="quick-form" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
                             {% csrf_token %}
-                            <div style="display: flex; flex-direction: column; gap: 6px;"><span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">NOME (OPZ.)</span><input type="text" name="nome" class="tracer-input" style="width: 160px;" placeholder="Circuito A"></div>
-                            <div style="display: flex; flex-direction: column; gap: 6px;"><span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">ROUND</span><input type="number" name="rounds" class="tracer-input" style="width: 70px; background: rgba(var(--acc-rgb),0.1); border-color: var(--acc);" value="3" min="1" required></div>
-                            <div style="display: flex; flex-direction: column; gap: 6px;"><span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RECUPERO TRA ROUND (S)</span><input type="number" name="rest_tra_round" class="tracer-input" style="width: 100px;" placeholder="Opc." min="0"></div>
-                            <div style="display: flex; gap: 10px; align-items: flex-end;">
+                            <div class="quick-field" style="gap: 6px;"><span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">NOME (OPZ.)</span><input type="text" name="nome" class="tracer-input" style="width: 160px;" placeholder="Circuito A"></div>
+                            <div class="quick-field" style="gap: 6px;"><span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">ROUND</span><input type="number" name="rounds" class="tracer-input" style="width: 70px; background: rgba(var(--acc-rgb),0.1); border-color: var(--acc);" value="3" min="1" required></div>
+                            <div class="quick-field" style="gap: 6px;"><span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RECUPERO TRA ROUND (S)</span><input type="number" name="rest_tra_round" class="tracer-input" style="width: 100px;" placeholder="Opc." min="0"></div>
+                            <div class="quick-actions">
                                 <button type="submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13.5px;">Crea Circuito</button>
                                 <button type="button" onclick="toggleNewCircuitForm()" class="btn-cancel" style="padding: 10px 20px; font-size: 13.5px;">Annulla</button>
                             </div>
@@ -397,14 +403,14 @@
                 <div id="import-circuit-form" style="display: none; margin-top: 12px;">
                     <div class="tracer-card" style="padding: 18px 20px; display: flex; flex-direction: column; gap: 14px;">
                         <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #838a9e;">IMPORTA CIRCUITO DA UN'ALTRA GIORNATA</span>
-                        <form action="{% url 'import_circuit' session.id %}" method="post" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
+                        <form action="{% url 'import_circuit' session.id %}" method="post" class="quick-form" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
                             {% csrf_token %}
                             <input type="hidden" name="circuit_id" id="import-circuit-id">
-                            <div style="display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 240px;">
+                            <div class="quick-field quick-span-2" style="display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 240px;">
                                 <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">CERCA CIRCUITO</span>
                                 <input type="text" id="import-circuit-search" class="tracer-input" placeholder="Cerca per nome o esercizio…" autocomplete="off">
                             </div>
-                            <div style="display: flex; gap: 10px; align-items: flex-end;">
+                            <div class="quick-actions">
                                 <button type="submit" id="import-circuit-submit" class="btn-primary-gradient" style="padding: 10px 20px; font-size: 13.5px;" disabled>Importa</button>
                                 <button type="button" onclick="toggleImportCircuitForm()" class="btn-cancel" style="padding: 10px 20px; font-size: 13.5px;">Annulla</button>
                             </div>
@@ -448,7 +454,7 @@
                 <span id="new-ex-immagine-error" style="display:none; font-size: 11px; color: #f85149; margin-top: 5px;"></span>
                 <img id="new-ex-immagine-preview" style="display:none; margin-top: 8px; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: var(--sunken);">
             </div>
-            <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
+            <div class="quick-actions-end">
                 <button type="button" onclick="closeNewExModal()" class="btn-cancel" style="padding: 0 20px; height: 34px; font-size: 12px;">Annulla</button>
                 <button type="submit" id="new-ex-submit" class="btn-primary-gradient" style="padding: 0 20px; height: 34px; font-size: 12px; font-weight: 600;">Crea esercizio</button>
             </div>

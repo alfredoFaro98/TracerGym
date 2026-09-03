@@ -27,7 +27,7 @@ in_circuit: True per le serie dentro un circuito (niente checkbox di selezione,
         {% if set.rest_time %} · {{ set.rest_time }}s{% endif %}
         {% if set.carrucole %} · <span style="font-size: 11px; color: #6a9fd8;">{{ set.carrucole }} carrucol{{ set.carrucole|pluralize:"a,e" }}</span>{% endif %}
         </span>
-        <div style="flex: 1;"></div>
+        <div class="quick-spacer"></div>
         <span onclick="toggleEditRow('{{ set.id }}')" style="font-size: 12px; font-weight: 600; color: #a996ff; padding: 6px 12px; border-radius: 7px; background: rgba(124,108,246,0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(124,108,246,0.22)'" onmouseout="this.style.background='rgba(124,108,246,0.12)'">Modifica</span>
         <form data-ajax-row="duplicate" action="{% url 'duplicate_set' set.id %}" method="post" style="display:inline;">
             {% csrf_token %}
@@ -47,29 +47,29 @@ in_circuit: True per le serie dentro un circuito (niente checkbox di selezione,
         {% endcomment %}
         <form data-ajax-row="edit" action="{% url 'edit_set' set.id %}" method="post" novalidate style="display: flex; flex-direction: column; gap: 10px;">
             {% csrf_token %}
-            <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
-            <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div class="quick-form">
+            <div class="quick-field">
                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">ESERCIZIO</span>
                 <input type="text" name="exercise_name" value="{{ set.exercise.nome }}" data-valid="true" class="tracer-input" style="width: 150px; border-color: #7c6cf6;" autocomplete="off">
             </div>
-            <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div class="quick-field">
                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">REPS</span>
                 <input type="number" name="reps" value="{{ set.reps|default:'' }}" class="tracer-input" style="width: 60px;" min="1">
             </div>
-            <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div class="quick-field">
                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">DURATA (S)</span>
                 <input type="number" name="durata" value="{{ set.durata|default:'' }}" class="tracer-input" style="width: 70px;" min="1">
             </div>
-            <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div class="quick-field">
                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">PESO (KG)</span>
                 <input type="number" step="any" name="weight" value="{{ set.weight|default_if_none:''|stringformat:'s' }}" class="tracer-input" style="width: 70px;" min="0">
             </div>
-            <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div class="quick-field">
                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RECUPERO (S)</span>
                 <input type="number" name="rest_time" value="{{ set.rest_time|default:'' }}" class="tracer-input" style="width: 70px; background: rgba(124,108,246,0.1); border-color: #7c6cf6;" min="0">
             </div>
             </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
+            <div class="quick-form">
             <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;">
                 <input type="checkbox" name="per_lato" {% if set.per_lato %}checked{% endif %} style="width: 13px; height: 13px; accent-color: #7c6cf6; cursor: pointer;">
                 <span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">Per lato</span>
@@ -91,7 +91,7 @@ in_circuit: True per le serie dentro un circuito (niente checkbox di selezione,
                 <span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">+Sbarra</span>
             </label>
             <div id="barra-wrap-{{ set.id }}" data-barra-show="{% if set.barra_kg %}1{% else %}0{% endif %}" style="display:none; align-items: flex-end; gap: 6px;">
-                <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div class="quick-field">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">SBARRA (KG)</span>
                     <input type="number" step="any" name="barra_kg" id="barra-input-{{ set.id }}" value="{{ set.barra_kg|default_if_none:''|stringformat:'s' }}" class="tracer-input" style="width: 70px;" min="0">
                 </div>
@@ -101,14 +101,16 @@ in_circuit: True per le serie dentro un circuito (niente checkbox di selezione,
                 <span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">+Carrucole</span>
             </label>
             <div id="carrucole-wrap-{{ set.id }}" data-carrucole-show="{% if set.carrucole %}1{% else %}0{% endif %}" style="display:none; align-items: flex-end; gap: 6px;">
-                <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div class="quick-field">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">CARRUCOLE</span>
                     <input type="number" step="1" name="carrucole" id="carrucole-input-{{ set.id }}" value="{{ set.carrucole|default_if_none:''|stringformat:'s' }}" class="tracer-input" style="width: 60px;" min="0">
                 </div>
             </div>
-            <div style="flex: 1;"></div>
-            <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
-            <button type="button" onclick="toggleEditRow('{{ set.id }}')" class="btn-cancel" style="padding: 8px 16px; font-size: 12.5px;">Annulla</button>
+            <div class="quick-spacer"></div>
+            <div class="quick-actions">
+                <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
+                <button type="button" onclick="toggleEditRow('{{ set.id }}')" class="btn-cancel" style="padding: 8px 16px; font-size: 12.5px;">Annulla</button>
+            </div>
             </div>
         </form>
     </div>

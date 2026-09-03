@@ -120,15 +120,17 @@
 
         <!-- Form obiettivo (nascosto) -->
         <div id="water-goal-form" style="display:none; margin-top: 16px;">
-            <form action="{% url 'set_water_goal' %}" method="post" style="display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap;">
+            <form class="quick-form" action="{% url 'set_water_goal' %}" method="post" style="display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap;">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                <div>
+                <div class="quick-span-2">
                     <label style="display: block; font-size: 9.5px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Obiettivo giornaliero (ml)</label>
                     <input type="number" name="obiettivo_ml" value="{{ water_goal_ml }}" class="tracer-input" style="width: 110px;" min="100" step="50">
                 </div>
-                <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12px;">Salva</button>
-                <button type="button" onclick="toggleWaterGoalForm()" class="btn-cancel" style="padding: 8px 16px; font-size: 12px;">Annulla</button>
+                <div class="quick-actions">
+                    <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12px;">Salva</button>
+                    <button type="button" onclick="toggleWaterGoalForm()" class="btn-cancel" style="padding: 8px 16px; font-size: 12px;">Annulla</button>
+                </div>
             </form>
         </div>
 

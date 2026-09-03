@@ -44,9 +44,9 @@
                     <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">ML</span>
                     <input type="number" name="quantita_ml" placeholder="es. 250" min="1" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                    <button type="submit" class="btn-primary-gradient" style="width: 100%; height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Aggiungi</button>
-                    <button type="button" onclick="toggleNewEntryForm()" class="btn-cancel" style="width: 100%; height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Annulla</button>
+                <div class="quick-actions">
+                    <button type="submit" class="btn-primary-gradient" style="height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Aggiungi</button>
+                    <button type="button" onclick="toggleNewEntryForm()" class="btn-cancel" style="height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Annulla</button>
                 </div>
             </form>
         </div>
@@ -115,8 +115,10 @@
                     <span style="font-size: 11px; color: #7d8296;">Obiettivo di questo giorno:</span>
                     <input type="number" name="obiettivo_ml" value="{{ day.goal_ml }}" min="100" step="50" class="tracer-input" style="width: 100px; padding: 7px 9px; font-size: 12px;">
                     <span style="font-size: 11px; color: #7d8296;">ml</span>
-                    <button type="submit" class="btn-primary-gradient" style="padding: 7px 14px; font-size: 12px;">Salva</button>
-                    <button type="button" onclick="toggleDayGoalForm('{{ day_key }}')" class="btn-cancel" style="padding: 7px 14px; font-size: 12px;">Annulla</button>
+                    <div class="quick-actions">
+                        <button type="submit" class="btn-primary-gradient" style="padding: 7px 14px; font-size: 12px;">Salva</button>
+                        <button type="button" onclick="toggleDayGoalForm('{{ day_key }}')" class="btn-cancel" style="padding: 7px 14px; font-size: 12px;">Annulla</button>
+                    </div>
                 </form>
             </div>
 
@@ -135,23 +137,25 @@
                         </form>
                     </div>
                     <div id="water-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
-                        <form action="{% url 'edit_water_entry' e.id %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
+                        <form class="quick-form" action="{% url 'edit_water_entry' e.id %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
                             {% csrf_token %}
                             <input type="hidden" name="next" value="{% url 'water_history' %}">
-                            <div style="display: flex; flex-direction: column; gap: 5px;">
+                            <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px;">
                                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ML</span>
                                 <input type="number" name="quantita_ml" value="{{ e.quantita_ml }}" class="tracer-input" style="width: 80px;" min="1">
                             </div>
-                            <div style="display: flex; flex-direction: column; gap: 5px;">
+                            <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px;">
                                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">DATA</span>
                                 <input type="date" name="data" value="{{ e.data|date:'Y-m-d' }}" class="tracer-input" style="width: 150px;">
                             </div>
-                            <div style="display: flex; flex-direction: column; gap: 5px;">
+                            <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px;">
                                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
                                 <input type="time" name="ora" value="{{ e.creato_il|date:'H:i' }}" class="tracer-input" style="width: 100px;">
                             </div>
-                            <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
-                            <button type="button" onclick="toggleWaterEdit('{{ e.id }}')" class="btn-cancel" style="padding: 8px 16px; font-size: 12.5px;">Annulla</button>
+                            <div class="quick-actions">
+                                <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
+                                <button type="button" onclick="toggleWaterEdit('{{ e.id }}')" class="btn-cancel" style="padding: 8px 16px; font-size: 12.5px;">Annulla</button>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -174,9 +178,9 @@
                                     <input type="time" name="ora" value="{% now 'H:i' %}" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
                                 </div>
                             </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                                <button type="submit" class="btn-primary-gradient" style="width: 100%; height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Aggiungi</button>
-                                <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" class="btn-cancel" style="width: 100%; height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Annulla</button>
+                            <div class="quick-actions">
+                                <button type="submit" class="btn-primary-gradient" style="height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Aggiungi</button>
+                                <button type="button" onclick="toggleDayAddForm('{{ day_key }}')" class="btn-cancel" style="height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Annulla</button>
                             </div>
                         </form>
                     </div>

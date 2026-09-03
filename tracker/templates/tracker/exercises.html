@@ -262,9 +262,9 @@
                     <span id="add-immagine-error" style="display:none; font-size: 11px; color: #f85149;"></span>
                     <img id="add-immagine-preview" style="display:none; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: var(--sunken);">
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                    <button type="submit" class="btn-primary-gradient" style="width: 100%; height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Aggiungi</button>
-                    <button type="button" onclick="document.getElementById('add-form').style.display='none'" class="btn-cancel" style="width: 100%; height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Annulla</button>
+                <div class="quick-actions">
+                    <button type="submit" class="btn-primary-gradient" style="height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Aggiungi</button>
+                    <button type="button" onclick="document.getElementById('add-form').style.display='none'" class="btn-cancel" style="height: 40px; box-sizing: border-box; padding: 0 16px; font-size: 13px;">Annulla</button>
                 </div>
             </form>
         </div>
@@ -418,7 +418,7 @@
                 <img id="edit-immagine-preview" style="display:none; margin-top: 8px; max-width: 100%; max-height: 160px; border-radius: 8px; object-fit: contain; background: var(--sunken);">
             </div>
             <div id="edit-immagine-limit-msg" style="display:none; font-size: 10.5px; color: #565b6e;">Questo esercizio ha già un'immagine. Per sostituirla, eliminala prima dalla scheda dell'esercizio (clicca sul nome nell'elenco).</div>
-            <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
+            <div class="quick-actions-end">
                 <button type="button" onclick="closeEdit()" class="btn-cancel" style="padding: 0 20px; height: 34px; font-size: 12px;">Annulla</button>
                 <button type="submit" class="btn-primary-gradient" style="padding: 0 20px; height: 34px; font-size: 12px; font-weight: 600;">Salva</button>
             </div>
