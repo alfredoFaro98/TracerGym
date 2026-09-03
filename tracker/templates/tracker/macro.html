@@ -280,11 +280,35 @@
                 {% elif day.status == 'parziale' %}
                 <span style="background: rgba(240,168,117,0.14); color: #f0a875; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap;">&#9888;&#65039; PARZIALE</span>
                 {% endif %}
-                <select onclick="event.stopPropagation();" onchange="event.stopPropagation(); submitDayStatus('{{ day_key }}', this.value);" title="Stato di tracciamento del giorno" style="margin-left: auto; flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 5px 8px; border-radius: 6px; background: var(--panel); border: 1px solid var(--border); color: #9ba0b3; cursor: pointer; font-family: inherit;">
-                    <option value="" {% if not day.status %}selected{% endif %}>&#10003; Tracciato</option>
-                    <option value="parziale" {% if day.status == 'parziale' %}selected{% endif %}>&#9888;&#65039; Parziale</option>
-                    <option value="non_tracciato" {% if day.status == 'non_tracciato' %}selected{% endif %}>&#128683; Non tracciato</option>
-                </select>
+                <div class="day-status" onclick="event.stopPropagation();">
+                    <button type="button" class="day-status-btn {% if day.status == 'parziale' %}is-parziale{% elif day.status == 'non_tracciato' %}is-non-tracciato{% else %}is-tracciato{% endif %}" onclick="toggleDayStatusMenu(this)" aria-haspopup="true" aria-expanded="false" title="Stato di tracciamento del giorno">
+                        {% if day.status == 'parziale' %}
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        <span>Parziale</span>
+                        {% elif day.status == 'non_tracciato' %}
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/></svg>
+                        <span>Non tracciato</span>
+                        {% else %}
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Tracciato</span>
+                        {% endif %}
+                        <svg class="day-status-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="day-status-menu" hidden>
+                        <button type="button" class="day-status-opt opt-tracciato{% if not day.status %} is-active{% endif %}" onclick="submitDayStatus('{{ day_key }}', '')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Tracciato</span>
+                        </button>
+                        <button type="button" class="day-status-opt opt-parziale{% if day.status == 'parziale' %} is-active{% endif %}" onclick="submitDayStatus('{{ day_key }}', 'parziale')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            <span>Parziale</span>
+                        </button>
+                        <button type="button" class="day-status-opt opt-non-tracciato{% if day.status == 'non_tracciato' %} is-active{% endif %}" onclick="submitDayStatus('{{ day_key }}', 'non_tracciato')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/></svg>
+                            <span>Non tracciato</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div id="day-goal-form-{{ day_key }}" style="display: none; margin-top: 10px;" onclick="event.stopPropagation();">
@@ -466,6 +490,164 @@
 }
 .metric-option:hover { background: rgba(255,255,255,0.06); }
 .metric-option.active { background: var(--acc); color: #fff; }
+/* ==========================================================================
+   Stato del giorno. Era un <select> nativo: la lista si apriva col disegno
+   del sistema, senza icone ne' colori per distinguere i tre stati, e restava
+   sempre grigia qualunque fosse lo stato scelto. Qui il grilletto prende il
+   colore dello stato corrente e la tendina e' disegnata dalla pagina.
+   ========================================================================== */
+.day-status {
+  position: relative;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.day-status-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: transparent;
+  transition: background .12s;
+}
+.day-status-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+.day-status-btn .day-status-chevron {
+  width: 11px;
+  height: 11px;
+  opacity: .75;
+  transition: transform .15s;
+}
+.day-status-btn[aria-expanded="true"] .day-status-chevron { transform: rotate(180deg); }
+
+/* Il grilletto dice a colpo d'occhio in che stato e' il giorno. */
+.day-status-btn.is-tracciato {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.12);
+  border-color: rgba(74, 222, 128, 0.3);
+}
+.day-status-btn.is-parziale {
+  color: #f0a875;
+  background: rgba(240, 168, 117, 0.14);
+  border-color: rgba(240, 168, 117, 0.3);
+}
+.day-status-btn.is-non-tracciato {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.14);
+  border-color: rgba(248, 113, 113, 0.3);
+}
+
+/* Ancorata sotto il grilletto e allineata al suo bordo destro, cosi' non esce
+   dalla card sulle righe strette. */
+/* L'attributo hidden nasconde solo finche' nessuno dichiara un display: il
+   display:flex qui sotto lo batteva, e le tendine restavano tutte visibili
+   anche da chiuse. */
+.day-status-menu[hidden] { display: none; }
+
+.day-status-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 60;
+  min-width: 172px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 5px;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .45);
+}
+
+.day-status-opt {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: #c7cbd6;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .12s, color .12s;
+}
+.day-status-opt svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+/* L'icona porta il colore dello stato anche quando l'opzione non e' quella
+   attiva: e' il colore a distinguere le tre voci, non il testo. */
+.opt-tracciato svg { color: var(--acc-4); }
+.opt-parziale svg { color: #f0a875; }
+.opt-non-tracciato svg { color: #f87171; }
+
+.day-status-opt:hover { background: rgba(255, 255, 255, 0.06); }
+
+/* La scelta corrente resta evidenziata con un fondo tenue del proprio colore. */
+.day-status-opt.is-active { color: #f0f0f3; }
+.opt-tracciato.is-active { background: rgba(var(--acc-rgb), 0.16); color: var(--acc-4); }
+.opt-parziale.is-active { background: rgba(240, 168, 117, 0.16); color: #f0a875; }
+.opt-non-tracciato.is-active { background: rgba(248, 113, 113, 0.16); color: #f87171; }
+/* ==========================================================================
+   Riga di una voce di alimentazione. Era un unico flex con wrap: su schermo
+   stretto l'orario finiva a capo per conto suo e i tre pulsanti si
+   accalcavano a sinistra con larghezze diverse fra loro. Qui sotto i 768px
+   la riga prende tre fasce: dati + orario a filo destro, nota, pulsanti.
+   Su desktop resta la riga unica di sempre.
+   ========================================================================== */
+.macro-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  /* L'orario chiude la riga dei dati invece di andare dove capita. */
+  .macro-time { margin-left: auto; }
+
+  /* Nota e pulsanti prendono una fascia loro. */
+  .macro-note,
+  .macro-actions { flex: 1 1 100%; }
+
+  /* Lo spaziatore serviva a spingere i pulsanti a destra nella riga unica:
+     a fasce non ha piu' niente da spingere e si porterebbe via una riga. */
+  .macro-spacer { display: none; }
+
+  /* Tre pulsanti della stessa larghezza, nell'ordine primario -> neutro ->
+     distruttivo. Il form dell'elimina e' lui stesso una delle tre celle.
+
+     Griglia e non flex:1: con box-sizing border-box il flex-basis 0 non
+     scende sotto il padding dell'elemento, quindi i due span (12px per lato)
+     partivano da 24px e il form da 0. La crescita era uguale per tutti e tre
+     ma le larghezze finali no: 115/115/89. */
+  .macro-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .macro-actions > * { min-width: 0; }
+  .macro-actions .macro-btn-del { display: flex; }
+  .macro-actions .macro-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    /* "Importa" diventa "Importato ✓ (altro giorno)" per un attimo dopo
+       l'importazione: senza ellissi quel testo sfonderebbe la sua cella. */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
@@ -482,7 +664,35 @@ function toggleDayStatusForm() {
     var el = document.getElementById('day-status-form');
     el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
+/* Tendina dello stato del giorno. Ne puo' esistere una per ogni giornata in
+   elenco, quindi aprirne una chiude tutte le altre, e un solo listener sul
+   documento le chiude tutte al click fuori. Il click dentro la tendina non
+   deve arrivare alla card, che altrimenti chiuderebbe la giornata: se ne
+   occupa lo stopPropagation sul contenitore. */
+function toggleDayStatusMenu(btn) {
+    var menu = btn.parentElement.querySelector('.day-status-menu');
+    var apri = menu.hidden;
+    chiudiTendineStato();
+    menu.hidden = !apri;
+    btn.setAttribute('aria-expanded', apri ? 'true' : 'false');
+}
+
+function chiudiTendineStato() {
+    document.querySelectorAll('.day-status-menu').forEach(function (m) { m.hidden = true; });
+    document.querySelectorAll('.day-status-btn').forEach(function (b) {
+        b.setAttribute('aria-expanded', 'false');
+    });
+}
+
+document.addEventListener('click', function (e) {
+    if (!e.target.closest('.day-status')) chiudiTendineStato();
+});
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') chiudiTendineStato();
+});
+
 function submitDayStatus(dayKey, stato) {
+    chiudiTendineStato();
     var form = document.createElement('form');
     form.method = 'post';
     form.action = "{% url 'set_macro_day_status' %}";

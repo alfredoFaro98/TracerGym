@@ -13,16 +13,18 @@ server e la inserisce nel DOM senza ricaricare la pagina.
         {% if e.proteine_g %}<span style="font-size: 12px; color: #6a9fd8;">P {{ e.proteine_g|floatformat:"-1" }}g</span>{% endif %}
         {% if e.carboidrati_g %}<span style="font-size: 12px; color: #4ade80;">C {{ e.carboidrati_g|floatformat:"-1" }}g</span>{% endif %}
         {% if e.grassi_g %}<span style="font-size: 12px; color: #f0a875;">G {{ e.grassi_g|floatformat:"-1" }}g</span>{% endif %}
-        <span style="font-size: 12px; color: #7d8296;">{{ e.creato_il|date:"H:i" }}</span>
-        {% if e.nota %}<span style="font-size: 12px; color: #9ba0b3; font-style: italic;">📝 {{ e.nota }}</span>{% endif %}
-        <div style="flex: 1;"></div>
-        <span onclick="toggleMacroEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: var(--acc-4); padding: 6px 12px; border-radius: 7px; background: rgba(var(--acc-rgb),0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.12)'">Modifica</span>
-        <span id="macro-dup-btn-{{ e.id }}" onclick="toggleMacroDuplicate('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: #4ade80; padding: 6px 12px; border-radius: 7px; background: rgba(74,222,128,0.1); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(74,222,128,0.2)'" onmouseout="this.style.background='rgba(74,222,128,0.1)'">Importa</span>
-        <form action="{% url 'delete_macro_entry' e.id %}" method="post" style="display:inline;" onsubmit="return confirm('Eliminare questa voce?');">
-            {% csrf_token %}
-            <input type="hidden" name="next" value="{% url 'macro' %}">
-            <button type="submit" style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
-        </form>
+        <span class="macro-time" style="font-size: 12px; color: #7d8296;">{{ e.creato_il|date:"H:i" }}</span>
+        {% if e.nota %}<span class="macro-note" style="font-size: 12px; color: #9ba0b3; font-style: italic;">📝 {{ e.nota }}</span>{% endif %}
+        <div class="macro-spacer" style="flex: 1;"></div>
+        <div class="macro-actions">
+            <span class="macro-btn macro-btn-edit" onclick="toggleMacroEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: #a996ff; padding: 6px 12px; border-radius: 7px; background: rgba(124,108,246,0.14); border: 1px solid rgba(124,108,246,0.4); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(124,108,246,0.24)'" onmouseout="this.style.background='rgba(124,108,246,0.14)'">Modifica</span>
+            <span id="macro-dup-btn-{{ e.id }}" class="macro-btn macro-btn-dup" onclick="toggleMacroDuplicate('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: #c7cbd6; padding: 6px 12px; border-radius: 7px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">Importa</span>
+            <form action="{% url 'delete_macro_entry' e.id %}" method="post" class="macro-btn-del" onsubmit="return confirm('Eliminare questa voce?');">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'macro' %}">
+                <button type="submit" class="macro-btn" style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); cursor: pointer; font-family: inherit; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
+            </form>
+        </div>
     </div>
     <div id="macro-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
         <form class="quick-form" action="{% url 'edit_macro_entry' e.id %}" method="post" autocomplete="off" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
