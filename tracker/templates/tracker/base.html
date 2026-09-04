@@ -75,7 +75,7 @@
 
                 {% with is_active=current_url|in_list:"integratori" %}
                 <a href="{% url 'integratori' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if is_active %} data-menu-active="1"{% endif %}{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><rect x="4" y="2.5" width="16" height="4.3" rx="1.4"></rect><path d="M6 6.8h12v12a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 6 18.8V6.8Z"></path><path d="M9 14h6"></path></svg>
                     <span class="menu-text">Integratori</span>
                 </a>
                 {% endwith %}
