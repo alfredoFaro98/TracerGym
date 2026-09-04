@@ -1348,6 +1348,13 @@
         if (s.weight && s.barra_kg) weightLabel = s.weight + '+' + s.barra_kg + 'sbarra';
         else if (s.weight) weightLabel = s.weight + ' kg';
         else if (s.barra_kg) weightLabel = 'sbarra ' + s.barra_kg + ' kg';
+        // La zavorra si aggiunge a quello che c'e' gia': puo' accompagnare un
+        // peso, oppure essere l'unico carico di un esercizio a corpo libero.
+        if (s.zavorra_kg) {
+            weightLabel = weightLabel
+                ? weightLabel + '+' + s.zavorra_kg + 'zav'
+                : 'zavorra ' + s.zavorra_kg + ' kg';
+        }
         if (repsLabel && weightLabel) parts.push(repsLabel + ' \xd7 ' + weightLabel);
         else if (repsLabel) parts.push(repsLabel);
         else if (weightLabel) parts.push(weightLabel);

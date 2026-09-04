@@ -450,6 +450,15 @@
                     <input type="number" step="any" name="barra_kg" id="barra-input-add" class="tracer-input" placeholder="20" min="0" style="height: 40px; box-sizing: border-box; width: 80px;">
                 </div>
 
+                <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;" onclick="toggleZavorraAdd(event)" title="Peso appeso al corpo (cintura, giubbotto) negli esercizi a corpo libero.">
+                    <input type="checkbox" id="zavorra-check-add" style="width: 15px; height: 15px; accent-color: var(--acc); cursor: pointer;">
+                    <span style="font-size: 12.5px; color: #c7cbd6;">+Zavorra</span>
+                </label>
+                <div id="zavorra-wrap-add" style="display:none;">
+                    <span style="display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296; margin-bottom: 6px;">ZAVORRA (KG)</span>
+                    <input type="number" step="any" name="zavorra_kg" id="zavorra-input-add" class="tracer-input" placeholder="10" min="0" style="height: 40px; box-sizing: border-box; width: 80px;">
+                </div>
+
                 <label style="display: flex; align-items: center; gap: 7px; cursor: pointer;" onclick="toggleCarrucoleAdd(event)" title="Numero di carrucole della macchina in questa palestra (puo' cambiare da palestra a palestra).">
                     <input type="checkbox" id="carrucole-check-add" style="width: 15px; height: 15px; accent-color: var(--acc); cursor: pointer;">
                     <span style="font-size: 12.5px; color: #c7cbd6;">+Carrucole</span>
@@ -781,7 +790,7 @@
                 <tr style="border: 1px solid #ddd;">
                     <td style="padding: 5px 10px; border: 1px solid #ddd; color: #999;">{{ forloop.counter }}</td>
                     <td style="padding: 5px 10px; border: 1px solid #ddd; font-weight: 700;">{% if set.durata and set.reps %}{{ set.reps }} × {{ set.durata }}s{% elif set.durata %}{{ set.durata }}s{% else %}{{ set.reps }}{% endif %}</td>
-                    <td style="padding: 5px 10px; border: 1px solid #ddd;">{% if set.avviamento %}<span style="font-size: 9px; color: #6a9fd8; font-weight: 700; margin-right: 4px;">AVV</span>{% endif %}{% if set.a_cedimento %}<span style="font-size: 9px; color: #e05a6a; font-weight: 700; margin-right: 4px;">CED</span>{% endif %}{% if set.richiamo %}<span style="font-size: 9px; color: #2dd4bf; font-weight: 700; margin-right: 4px;">RICH</span>{% endif %}{{ set.weight|default:"-" }}{% if set.barra_kg %} <span style="font-size: 10px; color: #5a8a3a;">+{{ set.barra_kg }} sbarra</span>{% endif %}{% if set.per_lato %} <span style="font-size: 10px; color: #888;">(per lato)</span>{% endif %}</td>
+                    <td style="padding: 5px 10px; border: 1px solid #ddd;">{% if set.avviamento %}<span style="font-size: 9px; color: #6a9fd8; font-weight: 700; margin-right: 4px;">AVV</span>{% endif %}{% if set.a_cedimento %}<span style="font-size: 9px; color: #e05a6a; font-weight: 700; margin-right: 4px;">CED</span>{% endif %}{% if set.richiamo %}<span style="font-size: 9px; color: #2dd4bf; font-weight: 700; margin-right: 4px;">RICH</span>{% endif %}{{ set.weight|default:"-" }}{% if set.barra_kg %} <span style="font-size: 10px; color: #5a8a3a;">+{{ set.barra_kg }} sbarra</span>{% endif %}{% if set.zavorra_kg %} <span style="font-size: 10px; color: #96702a;">+{{ set.zavorra_kg }} zavorra</span>{% endif %}{% if set.per_lato %} <span style="font-size: 10px; color: #888;">(per lato)</span>{% endif %}</td>
                     <td style="padding: 5px 10px; border: 1px solid #ddd;">{{ set.rest_time|default:"-" }}</td>
                 </tr>
                 {% endfor %}
@@ -806,7 +815,7 @@
                     <tr>
                         <td style="padding: 4px 8px; border: 1px solid #ddd; color: #999;">{{ forloop.counter }}</td>
                         <td style="padding: 4px 8px; border: 1px solid #ddd; font-weight: 700;">{% if set.durata and set.reps %}{{ set.reps }} &times; {{ set.durata }}s{% elif set.durata %}{{ set.durata }}s{% elif set.a_cedimento %}CED{% elif set.reps %}{{ set.reps }}{% else %}&mdash;{% endif %}</td>
-                        <td style="padding: 4px 8px; border: 1px solid #ddd;">{% if set.avviamento %}<span style="font-size: 9px; color: #6a9fd8; font-weight: 700; margin-right: 4px;">AVV</span>{% endif %}{% if set.a_cedimento %}<span style="font-size: 9px; color: #e05a6a; font-weight: 700; margin-right: 4px;">CED</span>{% endif %}{% if set.richiamo %}<span style="font-size: 9px; color: #2dd4bf; font-weight: 700; margin-right: 4px;">RICH</span>{% endif %}{{ set.weight|default:"&mdash;" }}{% if set.barra_kg %} <span style="font-size: 10px; color: #5a8a3a;">+{{ set.barra_kg }} sbarra</span>{% endif %}{% if set.per_lato %} <span style="font-size: 10px; color: #888;">(per lato)</span>{% endif %}</td>
+                        <td style="padding: 4px 8px; border: 1px solid #ddd;">{% if set.avviamento %}<span style="font-size: 9px; color: #6a9fd8; font-weight: 700; margin-right: 4px;">AVV</span>{% endif %}{% if set.a_cedimento %}<span style="font-size: 9px; color: #e05a6a; font-weight: 700; margin-right: 4px;">CED</span>{% endif %}{% if set.richiamo %}<span style="font-size: 9px; color: #2dd4bf; font-weight: 700; margin-right: 4px;">RICH</span>{% endif %}{{ set.weight|default:"&mdash;" }}{% if set.barra_kg %} <span style="font-size: 10px; color: #5a8a3a;">+{{ set.barra_kg }} sbarra</span>{% endif %}{% if set.zavorra_kg %} <span style="font-size: 10px; color: #96702a;">+{{ set.zavorra_kg }} zavorra</span>{% endif %}{% if set.per_lato %} <span style="font-size: 10px; color: #888;">(per lato)</span>{% endif %}</td>
                         <td style="padding: 4px 8px; border: 1px solid #ddd;">{{ set.rest_time|default:"&mdash;" }}</td>
                     </tr>
                     {% endfor %}
@@ -957,6 +966,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('[data-barra-show="1"]').forEach(function(el) {
         el.style.display = 'flex';
     });
+    document.querySelectorAll('[data-zavorra-show="1"]').forEach(function(el) {
+        el.style.display = 'flex';
+    });
     document.querySelectorAll('[data-carrucole-show="1"]').forEach(function(el) {
         el.style.display = 'flex';
     });
@@ -1102,6 +1114,15 @@ function toggleBarraAdd(e) {
     if (cb.checked && !input.value) input.value = '20';
     else if (!cb.checked) input.value = '';
 }
+function toggleZavorraAdd(e) {
+    e.preventDefault();
+    var cb = document.getElementById('zavorra-check-add');
+    cb.checked = !cb.checked;
+    var wrap = document.getElementById('zavorra-wrap-add');
+    var input = document.getElementById('zavorra-input-add');
+    wrap.style.display = cb.checked ? 'block' : 'none';
+    if (!cb.checked) input.value = '';
+}
 function toggleCarrucoleAdd(e) {
     e.preventDefault();
     var cb = document.getElementById('carrucole-check-add');
@@ -1145,6 +1166,15 @@ function toggleBarraEdit(e, id) {
     wrap.style.display = cb.checked ? 'flex' : 'none';
     if (cb.checked && !input.value) input.value = '20';
     else if (!cb.checked) input.value = '';
+}
+function toggleZavorraEdit(e, id) {
+    e.preventDefault();
+    var cb = document.getElementById('zavorra-check-' + id);
+    cb.checked = !cb.checked;
+    var wrap = document.getElementById('zavorra-wrap-' + id);
+    var input = document.getElementById('zavorra-input-' + id);
+    wrap.style.display = cb.checked ? 'flex' : 'none';
+    if (!cb.checked) input.value = '';
 }
 function toggleCarrucoleEdit(e, id) {
     e.preventDefault();
@@ -1528,6 +1558,8 @@ function toggleCarrucoleEdit(e, id) {
         if (exInput && window.__attachExerciseAutocomplete) window.__attachExerciseAutocomplete(exInput);
         var barraWrap = wrapEl.querySelector('[data-barra-show="1"]');
         if (barraWrap) barraWrap.style.display = 'flex';
+        var zavorraWrap = wrapEl.querySelector('[data-zavorra-show="1"]');
+        if (zavorraWrap) zavorraWrap.style.display = 'flex';
         var carrucoleWrap = wrapEl.querySelector('[data-carrucole-show="1"]');
         if (carrucoleWrap) carrucoleWrap.style.display = 'flex';
     }

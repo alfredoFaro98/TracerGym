@@ -21,8 +21,8 @@ in_circuit: True per le serie dentro un circuito (niente checkbox di selezione,
         {% elif set.durata %}<b>{{ set.durata }}</b>s
         {% elif set.reps %}<b>{{ set.reps }}</b> reps
         {% endif %}
-        {% if set.weight or set.barra_kg %}
-            {% if set.weight %} × <b>{{ set.weight }}</b> kg{% endif %}{% if set.barra_kg %} <span style="font-size: 11px; color: #a0c878;">+{{ set.barra_kg }} sbarra</span>{% endif %}{% if set.per_lato %} <span style="font-size: 11.5px; font-weight: 600; color: #f0a875;">/ lato</span>{% endif %}
+        {% if set.weight or set.barra_kg or set.zavorra_kg %}
+            {% if set.weight %} × <b>{{ set.weight }}</b> kg{% endif %}{% if set.barra_kg %} <span style="font-size: 11px; color: #a0c878;">+{{ set.barra_kg }} sbarra</span>{% endif %}{% if set.zavorra_kg %} <span style="font-size: 11px; color: #d8a657;">+{{ set.zavorra_kg }} zavorra</span>{% endif %}{% if set.per_lato %} <span style="font-size: 11.5px; font-weight: 600; color: #f0a875;">/ lato</span>{% endif %}
         {% endif %}
         {% if set.rest_time %} · {{ set.rest_time }}s{% endif %}
         {% if set.carrucole %} · <span style="font-size: 11px; color: #6a9fd8;">{{ set.carrucole }} carrucol{{ set.carrucole|pluralize:"a,e" }}</span>{% endif %}
@@ -94,6 +94,16 @@ in_circuit: True per le serie dentro un circuito (niente checkbox di selezione,
                 <div class="quick-field">
                     <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">SBARRA (KG)</span>
                     <input type="number" step="any" name="barra_kg" id="barra-input-{{ set.id }}" value="{{ set.barra_kg|default_if_none:''|stringformat:'s' }}" class="tracer-input" style="width: 70px;" min="0">
+                </div>
+            </div>
+            <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;" onclick="toggleZavorraEdit(event, '{{ set.id }}')">
+                <input type="checkbox" id="zavorra-check-{{ set.id }}" {% if set.zavorra_kg %}checked{% endif %} style="width: 13px; height: 13px; accent-color: #7c6cf6; cursor: pointer;">
+                <span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">+Zavorra</span>
+            </label>
+            <div id="zavorra-wrap-{{ set.id }}" data-zavorra-show="{% if set.zavorra_kg %}1{% else %}0{% endif %}" style="display:none; align-items: flex-end; gap: 6px;">
+                <div class="quick-field">
+                    <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">ZAVORRA (KG)</span>
+                    <input type="number" step="any" name="zavorra_kg" id="zavorra-input-{{ set.id }}" value="{{ set.zavorra_kg|default_if_none:''|stringformat:'s' }}" class="tracer-input" style="width: 70px;" min="0">
                 </div>
             </div>
             <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;" onclick="toggleCarrucoleEdit(event, '{{ set.id }}')">

@@ -192,7 +192,7 @@ def dashboard(request):
     last_set = (
         WorkoutSet.objects
         .filter(session__utente=request.user)
-        .filter(models.Q(weight__isnull=False) | models.Q(barra_kg__isnull=False))
+        .filter(models.Q(weight__isnull=False) | models.Q(barra_kg__isnull=False) | models.Q(zavorra_kg__isnull=False))
         .order_by('-session__data', '-id')
         .select_related('exercise')
         .first()
@@ -360,6 +360,7 @@ def weekly_sessions_data(request):
         if ws.durata: entry['durata'] = ws.durata
         if ws.a_cedimento: entry['a_cedimento'] = True
         if ws.barra_kg is not None: entry['barra_kg'] = float(ws.barra_kg)
+        if ws.zavorra_kg is not None: entry['zavorra_kg'] = float(ws.zavorra_kg)
         if ws.carrucole: entry['carrucole'] = ws.carrucole
         if ws.per_lato: entry['per_lato'] = True
         if ws.rest_time: entry['rest_time'] = ws.rest_time
@@ -436,6 +437,7 @@ def session_detail(request, session_id):
         a_cedimento = request.POST.get('a_cedimento') == 'on'
         richiamo = request.POST.get('richiamo') == 'on'
         barra_kg = request.POST.get('barra_kg') or None
+        zavorra_kg = request.POST.get('zavorra_kg') or None
         carrucole = request.POST.get('carrucole') or None
         circuit_id = request.POST.get('circuit_id') or None
         add_default_warmup = request.POST.get('aggiungi_avviamento_default') == 'on'
@@ -512,6 +514,7 @@ def session_detail(request, session_id):
                 a_cedimento=False,
                 richiamo=False,
                 barra_kg=barra_kg,
+                zavorra_kg=zavorra_kg,
                 carrucole=carrucole,
                 circuit=circuit,
             )
@@ -531,6 +534,7 @@ def session_detail(request, session_id):
                 a_cedimento=a_cedimento,
                 richiamo=richiamo,
                 barra_kg=barra_kg,
+                zavorra_kg=zavorra_kg,
                 carrucole=carrucole,
                 circuit=circuit,
             )
@@ -635,8 +639,8 @@ def import_circuit(request, session_id):
                     reps=s.reps, durata=s.durata, weight=s.weight,
                     rest_time=s.rest_time, per_lato=s.per_lato,
                     avviamento=s.avviamento, a_cedimento=s.a_cedimento,
-                    richiamo=s.richiamo, barra_kg=s.barra_kg, carrucole=s.carrucole,
-                    order=base_order + i,
+                    richiamo=s.richiamo, barra_kg=s.barra_kg, zavorra_kg=s.zavorra_kg,
+                    carrucole=s.carrucole, order=base_order + i,
                 )
             url = reverse('session_detail', kwargs={'session_id': session_id})
             return redirect(f'{url}?opencircuit={new_circuit.id}')
@@ -732,6 +736,7 @@ def duplicate_set(request, set_id):
             a_cedimento=original.a_cedimento,
             richiamo=original.richiamo,
             barra_kg=original.barra_kg,
+            zavorra_kg=original.zavorra_kg,
             carrucole=original.carrucole,
             order=original.order + 1,
             circuit=original.circuit,
@@ -760,6 +765,7 @@ def edit_set(request, set_id):
         workout_set.a_cedimento = request.POST.get('a_cedimento') == 'on'
         workout_set.richiamo = request.POST.get('richiamo') == 'on'
         workout_set.barra_kg = request.POST.get('barra_kg') or None
+        workout_set.zavorra_kg = request.POST.get('zavorra_kg') or None
         workout_set.carrucole = request.POST.get('carrucole') or None
         workout_set.save()
     return JsonResponse({'ok': True, 'html': _render_set_row(request, workout_set)})
@@ -787,7 +793,7 @@ def duplicate_session(request, session_id):
                 rest_time=s.rest_time, per_lato=s.per_lato,
                 avviamento=s.avviamento, a_cedimento=s.a_cedimento,
                 richiamo=s.richiamo,
-                barra_kg=s.barra_kg, carrucole=s.carrucole, order=s.order,
+                barra_kg=s.barra_kg, zavorra_kg=s.zavorra_kg, carrucole=s.carrucole, order=s.order,
             )
         for c in original.circuits.order_by('order', 'id'):
             new_circuit = Circuit.objects.create(
@@ -801,7 +807,7 @@ def duplicate_session(request, session_id):
                     rest_time=s.rest_time, per_lato=s.per_lato,
                     avviamento=s.avviamento, a_cedimento=s.a_cedimento,
                     richiamo=s.richiamo,
-                    barra_kg=s.barra_kg, carrucole=s.carrucole, order=s.order, circuit=new_circuit,
+                    barra_kg=s.barra_kg, zavorra_kg=s.zavorra_kg, carrucole=s.carrucole, order=s.order, circuit=new_circuit,
                 )
         return redirect('session_detail', session_id=new_session.id)
     return redirect('session_detail', session_id=session_id)
@@ -969,6 +975,7 @@ def _export_set_dict(s):
         'a_cedimento': s.a_cedimento,
         'richiamo': s.richiamo,
         'barra_kg': float(s.barra_kg) if s.barra_kg is not None else None,
+        'zavorra_kg': float(s.zavorra_kg) if s.zavorra_kg is not None else None,
         'carrucole': s.carrucole,
         'durata': s.durata,
         'order': s.order,
@@ -1025,6 +1032,7 @@ def _import_set_kwargs(s):
         a_cedimento=bool(s.get('a_cedimento', False)),
         richiamo=bool(s.get('richiamo', False)),
         barra_kg=s.get('barra_kg'),
+        zavorra_kg=s.get('zavorra_kg'),
         carrucole=s.get('carrucole'),
         durata=s.get('durata'),
     )
@@ -1311,8 +1319,8 @@ def exercise_weight_history(request):
     rows = (
         WorkoutSet.objects
         .filter(session__utente=request.user, exercise=exercise)
-        .filter(models.Q(weight__isnull=False) | models.Q(barra_kg__isnull=False))
-        .values('session__data', 'session__luogo', 'weight', 'barra_kg', 'per_lato')
+        .filter(models.Q(weight__isnull=False) | models.Q(barra_kg__isnull=False) | models.Q(zavorra_kg__isnull=False))
+        .values('session__data', 'session__luogo', 'weight', 'barra_kg', 'zavorra_kg', 'per_lato')
         .order_by('session__data')
     )
 
@@ -1322,9 +1330,11 @@ def exercise_weight_history(request):
     for r in rows:
         weight = float(r['weight'] or 0)
         barra = float(r['barra_kg'] or 0)
-        # "Per lato" raddoppia solo il peso caricato, la sbarra e' un pezzo
-        # solo e va contata una volta sola indipendentemente dal lato.
-        total = (weight * 2 if r['per_lato'] else weight) + barra
+        zavorra = float(r['zavorra_kg'] or 0)
+        # "Per lato" raddoppia solo il peso caricato: la sbarra e' un pezzo
+        # solo e la zavorra e' una cintura sola, vanno contate una volta sola
+        # indipendentemente dal lato.
+        total = (weight * 2 if r['per_lato'] else weight) + barra + zavorra
         luogo = (r['session__luogo'] or '').strip()
         d = r['session__data'].strftime('%Y-%m-%d')
         key = (luogo, d)
@@ -1555,7 +1565,8 @@ def import_session_from_user(request, username, session_id):
             reps=s.reps, durata=s.durata, weight=scaled_weight(s.weight),
             rest_time=s.rest_time, per_lato=s.per_lato,
             avviamento=s.avviamento, a_cedimento=s.a_cedimento, richiamo=s.richiamo,
-            barra_kg=s.barra_kg, carrucole=s.carrucole, order=s.order,
+            barra_kg=s.barra_kg, zavorra_kg=scaled_weight(s.zavorra_kg),
+            carrucole=s.carrucole, order=s.order,
         )
     for c in original.circuits.order_by('order', 'id'):
         new_circuit = Circuit.objects.create(
@@ -1568,7 +1579,8 @@ def import_session_from_user(request, username, session_id):
                 reps=s.reps, durata=s.durata, weight=scaled_weight(s.weight),
                 rest_time=s.rest_time, per_lato=s.per_lato,
                 avviamento=s.avviamento, a_cedimento=s.a_cedimento, richiamo=s.richiamo,
-                barra_kg=s.barra_kg, carrucole=s.carrucole, order=s.order, circuit=new_circuit,
+                barra_kg=s.barra_kg, zavorra_kg=scaled_weight(s.zavorra_kg),
+                carrucole=s.carrucole, order=s.order, circuit=new_circuit,
             )
 
     return redirect('session_detail', session_id=new_session.id)

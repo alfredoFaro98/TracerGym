@@ -249,6 +249,11 @@ class WorkoutSet(models.Model):
     a_cedimento = models.BooleanField(default=False)
     richiamo = models.BooleanField(default=False)
     barra_kg = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    # Peso appeso al corpo (cintura, giubbotto) negli esercizi a corpo libero.
+    # Come barra_kg e' un carico che si somma a weight e non lo sostituisce:
+    # ci sono casi con entrambi (es. dip alla macchina assistita zavorrato).
+    # Sta sulla serie e non sull'esercizio perche' cambia di serie in serie.
+    zavorra_kg = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     circuit = models.ForeignKey('Circuit', on_delete=models.SET_NULL, null=True, blank=True, related_name='sets')
     rest_time = models.PositiveIntegerField(null=True, blank=True, help_text="Recupero in secondi")
     # Numero di carrucole usate per questa serie: e' una proprieta' della
