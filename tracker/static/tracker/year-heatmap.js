@@ -18,6 +18,18 @@ window.TracerHeatmap = (function () {
     var DAY_LABELS = ['Lun', '', 'Mer', '', 'Ven', '', ''];
     var GAP = 3;
     var LABEL_COL = 30;
+    // Anello sul giorno corrente. E' un box-shadow inset e non un border
+    // perche' cosi' non occupa spazio: la cella resta della stessa dimensione
+    // e la griglia non si sposta di un pixel. Bianco e non accento, se no
+    // sparirebbe sulle celle dei livelli alti, che sono gia' accento pieno.
+    var TODAY_RING = 'rgba(255,255,255,.92)';
+
+    // Data locale del browser nello stesso formato con cui sono costruite le
+    // celle, cosi' il confronto e' fra stringhe omogenee.
+    function todayKey() {
+        var now = new Date();
+        return now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
+    }
 
     function accentRgb() {
         return (getComputedStyle(document.documentElement).getPropertyValue('--acc-rgb').trim() || '124, 108, 246');
@@ -127,6 +139,7 @@ window.TracerHeatmap = (function () {
         var grid = document.createElement('div');
         grid.style.cssText = 'display:grid;' + colsCss + 'grid-template-rows:repeat(7,1fr);grid-auto-flow:column;flex:1;min-width:0;';
 
+        var oggi = todayKey();
         var day2 = new Date(start);
         for (var i = 0; i < weeks * 7; i++) {
             var cell = document.createElement('div');
@@ -136,6 +149,7 @@ window.TracerHeatmap = (function () {
                 cell.style.background = opts.colorFor(dateStr);
                 cell.setAttribute('data-hmcell', '1');
                 cell.dataset.hmlabel = opts.labelFor(dateStr, day2.getDate(), MONTHS_SHORT[day2.getMonth()]);
+                if (dateStr === oggi) cell.style.boxShadow = 'inset 0 0 0 1.5px ' + TODAY_RING;
             } else {
                 cell.style.background = 'transparent';
             }
@@ -206,6 +220,7 @@ window.TracerHeatmap = (function () {
             grid.appendChild(vuota);
         }
 
+        var oggi = todayKey();
         var giorni = new Date(year, month + 1, 0).getDate();
         for (var d = 1; d <= giorni; d++) {
             var dateStr = year + '-' + pad(month + 1) + '-' + pad(d);
@@ -213,6 +228,7 @@ window.TracerHeatmap = (function () {
             cell.style.cssText = 'aspect-ratio:1;border-radius:7px;background:' + opts.colorFor(dateStr) + ';';
             cell.setAttribute('data-hmcell', '1');
             cell.dataset.hmlabel = opts.labelFor(dateStr, d, MONTHS_SHORT[month]);
+            if (dateStr === oggi) cell.style.boxShadow = 'inset 0 0 0 2px ' + TODAY_RING;
             grid.appendChild(cell);
         }
         container.appendChild(grid);
