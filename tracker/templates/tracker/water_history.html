@@ -68,10 +68,6 @@
 
 {% block content %}
 <div class="page-container">
-    <a href="{% url 'dashboard' %}" style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #787890; text-decoration: none; margin-bottom: 20px; transition: color .12s;" onmouseover="this.style.color='#c7cbd6'" onmouseout="this.style.color='#787890'">
-        ← Dashboard
-    </a>
-
     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 20px;">
         <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: #f0f0f3; margin: 0;">💧 Storico Acqua</h1>
         <button type="button" onclick="toggleNewEntryForm()" class="dash-add-btn" title="Aggiungi bevuta" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;">
