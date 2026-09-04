@@ -16,7 +16,6 @@ server e la inserisce nel DOM senza ricaricare la pagina.
         {% if e.fibre_g %}<span style="font-size: 12px; color: #2dd4bf;">F {{ e.fibre_g|floatformat:"-1" }}g</span>{% endif %}
         <span class="macro-time" style="font-size: 12px; color: #7d8296;">{{ e.creato_il|date:"H:i" }}</span>
         {% if e.nota %}<span class="macro-note" style="font-size: 12px; color: #9ba0b3; font-style: italic;">📝 {{ e.nota }}</span>{% endif %}
-        <div class="macro-spacer" style="flex: 1;"></div>
         <div class="macro-actions">
             <span class="macro-btn macro-btn-edit" onclick="toggleMacroEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: #a996ff; padding: 6px 12px; border-radius: 7px; background: rgba(124,108,246,0.14); border: 1px solid rgba(124,108,246,0.4); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(124,108,246,0.24)'" onmouseout="this.style.background='rgba(124,108,246,0.14)'">Modifica</span>
             <span id="macro-dup-btn-{{ e.id }}" class="macro-btn macro-btn-dup" onclick="toggleMacroDuplicate('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: #c7cbd6; padding: 6px 12px; border-radius: 7px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">Importa</span>

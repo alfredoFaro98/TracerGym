@@ -298,6 +298,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  /* A destra con un margine automatico e non con uno spaziatore flex prima:
+     lo spaziatore vive sulla prima riga, quindi quando i pulsanti vanno a
+     capo (nota lunga) si ritrovano su una riga dove non c'e' niente che li
+     spinga e si accostano a sinistra. Il margine automatico invece assorbe
+     lo spazio libero della riga su cui i pulsanti finiscono davvero. */
+  margin-left: auto;
 }
 
 @media (max-width: 768px) {
@@ -307,10 +313,6 @@
   /* Nota e pulsanti prendono una fascia loro. */
   .macro-note,
   .macro-actions { flex: 1 1 100%; }
-
-  /* Lo spaziatore serviva a spingere i pulsanti a destra nella riga unica:
-     a fasce non ha piu' niente da spingere e si porterebbe via una riga. */
-  .macro-spacer { display: none; }
 
   /* Tre pulsanti della stessa larghezza, nell'ordine primario -> neutro ->
      distruttivo. Il form dell'elimina e' lui stesso una delle tre celle.
