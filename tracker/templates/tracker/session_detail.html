@@ -157,7 +157,7 @@
 
 .page-container .badge-tag-default {
     background: rgba(var(--acc-rgb),.12);
-    color: #b7bdf0;
+    color: var(--acc-soft);
     border: 1px solid rgba(var(--acc-rgb),.2);
 }
 
@@ -355,7 +355,7 @@
                 {% csrf_token %}
                 <button type="submit" class="header-pill" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">Duplica Sessione</button>
             </form>
-            <button type="button" onclick="exportPDF()" class="header-pill" style="background: rgba(var(--acc-rgb),0.14); border: 1px solid rgba(var(--acc-rgb),0.4); color: #b7bdf0; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.14)'">Esporta PDF</button>
+            <button type="button" onclick="exportPDF()" class="header-pill" style="background: rgba(var(--acc-rgb),0.14); border: 1px solid rgba(var(--acc-rgb),0.4); color: var(--acc-soft); font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 9px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.14)'">Esporta PDF</button>
             <a href="{% url 'export_session' session.id %}" title="Esporta sessione JSON" class="header-pill" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#c7cbd6;text-decoration:none;transition:background .12s;flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
                 <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg><span class="header-export-label">Esporta</span>
             </a>
@@ -511,8 +511,8 @@
                         <span style="font-size: 12.5px; color: #7d8296; white-space: nowrap; line-height: 1.4;">{{ exercise_groups|length }} esercizi · {{ session.sets.count }} serie</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
-                        <button id="toggle-all-btn" data-count="{{ exercise_groups|length }}" onclick="toggleAllGroups(this)" style="padding: 0; background: transparent; border: none; color: var(--acc-4); font-size: 12.5px; font-weight: 600; cursor: pointer; transition: color .12s; white-space: nowrap;" onmouseover="this.style.color='color-mix(in srgb, var(--acc-4) 70%, #fff)'" onmouseout="this.style.color='var(--acc-4)'">Espandi tutto</button>
-                        <button id="edit-all-btn" onclick="startEditAll()" style="padding: 0; background: transparent; border: none; color: var(--acc-4); font-size: 12.5px; font-weight: 600; cursor: pointer; transition: color .12s; white-space: nowrap;" onmouseover="this.style.color='color-mix(in srgb, var(--acc-4) 70%, #fff)'" onmouseout="this.style.color='var(--acc-4)'">Modifica tutto</button>
+                        <button id="toggle-all-btn" data-count="{{ exercise_groups|length }}" onclick="toggleAllGroups(this)" style="padding: 0; background: transparent; border: none; color: var(--acc-4); font-size: 12.5px; font-weight: 600; cursor: pointer; transition: color .12s; white-space: nowrap;" onmouseover="this.style.color='var(--acc-5)'" onmouseout="this.style.color='var(--acc-4)'">Espandi tutto</button>
+                        <button id="edit-all-btn" onclick="startEditAll()" style="padding: 0; background: transparent; border: none; color: var(--acc-4); font-size: 12.5px; font-weight: 600; cursor: pointer; transition: color .12s; white-space: nowrap;" onmouseover="this.style.color='var(--acc-5)'" onmouseout="this.style.color='var(--acc-4)'">Modifica tutto</button>
                         <span id="edit-all-actions" style="display: none; align-items: center; gap: 10px;">
                             <span id="edit-all-status" style="font-size: 12px; color: #7d8296; white-space: nowrap;"></span>
                             <button type="button" onclick="saveAllRows()" style="padding: 5px 12px; font-size: 12.5px; font-weight: 600; background: rgba(var(--acc-rgb),0.16); border: none; border-radius: 7px; color: var(--acc-4); cursor: pointer; white-space: nowrap;">Salva tutto</button>
@@ -545,7 +545,7 @@
                                 <span class="badge-tag badge-tag-default">{{ tag.nome }}</span>
                             {% endfor %}
                         </div>
-                        <span data-set-count-badge class="ex-row-badge" style="background: rgba(var(--acc-rgb),0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 7px; white-space: nowrap;">{{ group.count }} serie</span>
+                        <span data-set-count-badge class="ex-row-badge" style="background: rgba(var(--acc-rgb),0.14); color: var(--acc-soft); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 7px; white-space: nowrap;">{{ group.count }} serie</span>
                         <form class="ex-row-del" action="{% url 'delete_exercise_sets' session.id group.exercise.id %}" method="post" onclick="event.stopPropagation()" onsubmit="return confirm('Eliminare tutte le serie di {{ group.exercise.nome }}?');" style="margin-right: 10px;">
                             {% csrf_token %}
                             <button type="submit" style="width: 30px; height: 30px; background: rgba(248,113,113,0.12); border: none; border-radius: 8px; color: #f87171; font-size: 12px; cursor: pointer; flex-shrink: 0; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.22)'" onmouseout="this.style.background='rgba(248,113,113,0.12)'">🗑</button>
@@ -579,7 +579,7 @@
                             <span style="font-size: 12px; color: #7d8296;">{{ item.circuit.rounds }} round{% if item.circuit.rest_tra_round %} &middot; {{ item.circuit.rest_tra_round }}s recupero{% endif %}</span>
                         </div>
                         <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
-                            <span style="background: rgba(var(--acc-rgb),0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 7px; white-space: nowrap;">{{ item.circuit.rounds }} round</span>
+                            <span style="background: rgba(var(--acc-rgb),0.14); color: var(--acc-soft); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 7px; white-space: nowrap;">{{ item.circuit.rounds }} round</span>
                             <span onclick="event.stopPropagation(); toggleCircuitEdit({{ item.circuit.id }})" style="font-size: 12px; font-weight: 600; color: var(--acc-4); padding: 6px 12px; border-radius: 7px; background: rgba(var(--acc-rgb),0.12); cursor: pointer; white-space: nowrap; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.12)'">Modifica</span>
                             <form action="{% url 'delete_circuit' item.circuit.id %}" method="post" style="display:inline;" onclick="event.stopPropagation()" onsubmit="return confirm('Eliminare circuito e tutte le sue serie?');">
                                 {% csrf_token %}

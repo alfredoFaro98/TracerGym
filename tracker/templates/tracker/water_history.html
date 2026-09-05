@@ -23,7 +23,7 @@
     background: rgba(var(--acc-rgb),0.12);
     border: 1px solid rgba(var(--acc-rgb),0.2);
     border-radius: 8px;
-    color: #b7bdf0;
+    color: var(--acc-soft);
     font-size: 12.5px;
     font-weight: 600;
     cursor: pointer;
@@ -149,7 +149,7 @@
                     <span style="font-size: 11.5px; color: #7d8296;">{{ day.entries|length }} bevut{{ day.entries|length|pluralize:"a,e" }}</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="background: rgba(var(--acc-rgb),0.14); color: #b7bdf0; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;">{{ day.total_l|floatformat:"-2" }} L <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goal_l|floatformat:"-2" }} L</span></span>
+                    <span style="background: rgba(var(--acc-rgb),0.14); color: var(--acc-soft); font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;">{{ day.total_l|floatformat:"-2" }} L <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goal_l|floatformat:"-2" }} L</span></span>
                     {% if day.reached %}
                     <span title="Obiettivo raggiunto" style="color: #4ade80; font-size: 15px; font-weight: 700;">✓</span>
                     {% else %}

@@ -4,16 +4,21 @@
    Accent color: [data-accent] su <html> (impostato in base.html dal profilo
    utente via tracker.context_processors.appearance) controlla solo il colore
    di brand/interazione (bottoni, stati attivi, link, progress bar) — non
-   tocca sfondi/testo/bordi. --acc/--acc-2/--acc-3/--acc-4 sono gli stessi 4
-   toni di viola gia' usati ovunque nei template (dal piu' scuro al piu'
-   chiaro); --acc-rgb permette rgba(var(--acc-rgb), X) per le versioni
-   trasparenti. Il default (nessun attributo) riproduce il viola di sempre.
+   tocca sfondi/testo/bordi. --acc/--acc-2/--acc-3/--acc-4/--acc-5 sono i
+   toni gia' usati ovunque nei template (dal piu' scuro al piu' chiaro), con
+   --acc-5 riservato agli hover di testo; --acc-soft e' la versione chiara e
+   desaturata, per il testo che sta sopra uno sfondo gia' tinto di accento
+   (badge, pill, bottoni water) dove il tono pieno sarebbe troppo carico.
+   --acc-rgb permette rgba(var(--acc-rgb), X) per le versioni trasparenti.
+   Il default (nessun attributo) riproduce il viola di sempre.
    ========================================================================== */
 :root {
   --acc: #7c6cf6;
   --acc-2: #8b7bf7;
   --acc-3: #9d8ffb;
   --acc-4: #a996ff;
+  --acc-5: #c2b6ff;
+  --acc-soft: #b7bdf0;
   --acc-rgb: 124, 108, 246;
 }
 [data-accent="corallo"] {
@@ -21,6 +26,8 @@
   --acc-2: #fb9b4b;
   --acc-3: #ffa860;
   --acc-4: #ffae6b;
+  --acc-5: #ffc48f;
+  --acc-soft: #f0c4a0;
   --acc-rgb: 251, 146, 60;
 }
 [data-accent="lime"] {
@@ -28,6 +35,8 @@
   --acc-2: #a9e843;
   --acc-3: #b4ef55;
   --acc-4: #baf658;
+  --acc-5: #cef983;
+  --acc-soft: #d0eda8;
   --acc-rgb: 163, 230, 53;
 }
 [data-accent="teal"] {
@@ -35,6 +44,8 @@
   --acc-2: #3ad7c3;
   --acc-3: #4ae0cd;
   --acc-4: #4ce8d5;
+  --acc-5: #7ff0e3;
+  --acc-soft: #a0e4dc;
   --acc-rgb: 45, 212, 191;
 }
 [data-accent="verde"] {
@@ -42,6 +53,8 @@
   --acc-2: #3dd462;
   --acc-3: #4cdd70;
   --acc-4: #4ee674;
+  --acc-5: #82ee9d;
+  --acc-soft: #a8e6b8;
   --acc-rgb: 48, 209, 88;
 }
 
