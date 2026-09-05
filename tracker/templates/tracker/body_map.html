@@ -11,8 +11,12 @@
       --bg: #132025;
       --bg2: #182a30;
       --muscle-default: #252741;
-      --muscle-hover: #fe5b7f;
-      --glow: rgba(254, 91, 127, 0.45);
+      /* L'evidenziazione del muscolo e tutto cio' che compare insieme a
+         lei (alone, tooltip, etichette e pallini del pannello) erano
+         bloccati sul rosa di questa pagina, l'unico punto dell'app che
+         non seguiva il colore scelto. Ora derivano dall'accento. */
+      --muscle-hover: var(--acc);
+      --glow: rgba(var(--acc-rgb), 0.45);
       --outline: #484a68;
       --text: #e4e6f4;
       --text-muted: #9ba0b3;
@@ -44,13 +48,6 @@
       display: flex;
       align-items: center;
       gap: 10px;
-    }
-
-    .header-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--muscle-hover);
     }
 
     /* Il titolo ora e' .page-title (style.css), come in ogni altra sezione.
@@ -302,7 +299,7 @@
       background: rgba(19, 32, 37, 0.92);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(254, 91, 127, 0.25);
+      border: 1px solid rgba(var(--acc-rgb), 0.25);
       color: var(--muscle-hover);
       font-family: 'DM Sans', system-ui, sans-serif;
       font-size: 11px;
@@ -568,7 +565,6 @@
 <!-- Header -->
 <header class="header" style="padding: 16px 24px; flex-shrink: 0; border-bottom: 1px solid var(--border);">
 <div class="header-title" style="display:flex; align-items:center; gap:10px;">
-    <div class="header-dot"></div>
     <div style="display:flex; flex-direction:column; gap:2px;">
         <h1 class="page-title">🧍 Mappa Muscolare</h1>
         <span id="viewLabel" class="header-view-label">Vista anteriore</span>
@@ -594,7 +590,7 @@
         <svg viewBox="0 0 660.46 1206.46" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <radialGradient id="jointradial" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-              <stop offset="0%" style="stop-color: rgb(254, 91, 127); stop-opacity: 0.6;"/>
+              <stop offset="0%" style="stop-color: var(--acc); stop-opacity: 0.6;"/>
               <stop offset="100%" style="stop-color: rgb(231, 236, 239); stop-opacity: 0;"/>
             </radialGradient>
           </defs>
@@ -755,7 +751,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 660.46 1206.46">
             <defs>
               <radialGradient id="jrb" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-                <stop offset="0%" style="stop-color:#fe5b7f;stop-opacity:0.6"/>
+                <stop offset="0%" style="stop-color:var(--acc);stop-opacity:0.6"/>
                 <stop offset="100%" style="stop-color:#e7ecef;stop-opacity:0"/>
               </radialGradient>
             </defs>
