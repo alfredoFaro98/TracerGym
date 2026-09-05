@@ -670,7 +670,7 @@
 
                 <!-- Azioni Rapide Assolute -->
                 <div style="position: absolute; right: 18px; top: 50%; transform: translateY(-50%); z-index: 2; display: flex; gap: 6px;">
-                    <a href="{% url 'session_detail' session.id %}?pdf=1" title="Scarica PDF" style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; background: rgba(var(--acc-rgb),.12); border: 1px solid rgba(var(--acc-rgb),.22); border-radius: 6px; color: var(--acc-4); transition: all .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),.22)';this.style.color='#c2b6ff'" onmouseout="this.style.background='rgba(var(--acc-rgb),.12)';this.style.color='var(--acc-4)'">
+                    <a href="{% url 'session_detail' session.id %}?pdf=1" title="Scarica PDF" style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; background: rgba(var(--acc-rgb),.12); border: 1px solid rgba(var(--acc-rgb),.22); border-radius: 6px; color: var(--acc-4); transition: all .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),.22)';this.style.color='color-mix(in srgb, var(--acc-4) 70%, #fff)'" onmouseout="this.style.background='rgba(var(--acc-rgb),.12)';this.style.color='var(--acc-4)'">
                         <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
                     </a>
                     <form action="{% url 'duplicate_session' session.id %}" method="post" title="Duplica Sessione a oggi">

@@ -132,9 +132,9 @@
     user-select: none;
 }
 .mpill-label input:checked + span {
-    background: rgba(138,99,210,.15);
-    border-color: rgba(138,99,210,.35);
-    color: #a070e0;
+    background: rgba(var(--acc-rgb),.15);
+    border-color: rgba(var(--acc-rgb),.35);
+    color: var(--acc-4);
 }
 .mpill-label span:hover { border-color: #3a3a5a; color: #7070a0; }
 
@@ -511,8 +511,8 @@
                         <span style="font-size: 12.5px; color: #7d8296; white-space: nowrap; line-height: 1.4;">{{ exercise_groups|length }} esercizi · {{ session.sets.count }} serie</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
-                        <button id="toggle-all-btn" data-count="{{ exercise_groups|length }}" onclick="toggleAllGroups(this)" style="padding: 0; background: transparent; border: none; color: #a996ff; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: color .12s; white-space: nowrap;" onmouseover="this.style.color='#c2b6ff'" onmouseout="this.style.color='#a996ff'">Espandi tutto</button>
-                        <button id="edit-all-btn" onclick="startEditAll()" style="padding: 0; background: transparent; border: none; color: #a996ff; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: color .12s; white-space: nowrap;" onmouseover="this.style.color='#c2b6ff'" onmouseout="this.style.color='#a996ff'">Modifica tutto</button>
+                        <button id="toggle-all-btn" data-count="{{ exercise_groups|length }}" onclick="toggleAllGroups(this)" style="padding: 0; background: transparent; border: none; color: var(--acc-4); font-size: 12.5px; font-weight: 600; cursor: pointer; transition: color .12s; white-space: nowrap;" onmouseover="this.style.color='color-mix(in srgb, var(--acc-4) 70%, #fff)'" onmouseout="this.style.color='var(--acc-4)'">Espandi tutto</button>
+                        <button id="edit-all-btn" onclick="startEditAll()" style="padding: 0; background: transparent; border: none; color: var(--acc-4); font-size: 12.5px; font-weight: 600; cursor: pointer; transition: color .12s; white-space: nowrap;" onmouseover="this.style.color='color-mix(in srgb, var(--acc-4) 70%, #fff)'" onmouseout="this.style.color='var(--acc-4)'">Modifica tutto</button>
                         <span id="edit-all-actions" style="display: none; align-items: center; gap: 10px;">
                             <span id="edit-all-status" style="font-size: 12px; color: #7d8296; white-space: nowrap;"></span>
                             <button type="button" onclick="saveAllRows()" style="padding: 5px 12px; font-size: 12.5px; font-weight: 600; background: rgba(var(--acc-rgb),0.16); border: none; border-radius: 7px; color: var(--acc-4); cursor: pointer; white-space: nowrap;">Salva tutto</button>

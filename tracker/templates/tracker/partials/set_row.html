@@ -28,7 +28,7 @@ in_circuit: True per le serie dentro un circuito (niente checkbox di selezione,
         {% if set.carrucole %} · <span style="font-size: 11px; color: #6a9fd8;">{{ set.carrucole }} carrucol{{ set.carrucole|pluralize:"a,e" }}</span>{% endif %}
         </span>
         <div class="quick-spacer"></div>
-        <span onclick="toggleEditRow('{{ set.id }}')" style="font-size: 12px; font-weight: 600; color: #a996ff; padding: 6px 12px; border-radius: 7px; background: rgba(124,108,246,0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(124,108,246,0.22)'" onmouseout="this.style.background='rgba(124,108,246,0.12)'">Modifica</span>
+        <span onclick="toggleEditRow('{{ set.id }}')" style="font-size: 12px; font-weight: 600; color: var(--acc-4); padding: 6px 12px; border-radius: 7px; background: rgba(var(--acc-rgb),0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.12)'">Modifica</span>
         <form data-ajax-row="duplicate" action="{% url 'duplicate_set' set.id %}" method="post" style="display:inline;">
             {% csrf_token %}
             <button type="submit" style="font-size: 12px; font-weight: 600; color: #4ade80; padding: 6px 12px; border-radius: 7px; background: rgba(74,222,128,0.1); border: none; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(74,222,128,0.2)'" onmouseout="this.style.background='rgba(74,222,128,0.1)'">Duplica</button>
@@ -39,7 +39,7 @@ in_circuit: True per le serie dentro un circuito (niente checkbox di selezione,
         </form>
     </div>
     <!-- Form modifica inline -->
-    <div id="edit-row-{{ set.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(124,108,246,0.06); border: 1px solid rgba(124,108,246,0.3); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
+    <div id="edit-row-{{ set.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
         {% comment %}
         Due gruppi flex distinti (campi sopra, controlli sotto) invece di
         un'unica riga con wrap: cosi' quando il contenitore si stringe il
@@ -50,7 +50,7 @@ in_circuit: True per le serie dentro un circuito (niente checkbox di selezione,
             <div class="quick-form">
             <div class="quick-field">
                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">ESERCIZIO</span>
-                <input type="text" name="exercise_name" value="{{ set.exercise.nome }}" data-valid="true" class="tracer-input" style="width: 150px; border-color: #7c6cf6;" autocomplete="off">
+                <input type="text" name="exercise_name" value="{{ set.exercise.nome }}" data-valid="true" class="tracer-input" style="width: 150px; border-color: var(--acc);" autocomplete="off">
             </div>
             <div class="quick-field">
                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">REPS</span>
@@ -66,28 +66,28 @@ in_circuit: True per le serie dentro un circuito (niente checkbox di selezione,
             </div>
             <div class="quick-field">
                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">RECUPERO (S)</span>
-                <input type="number" name="rest_time" value="{{ set.rest_time|default:'' }}" class="tracer-input" style="width: 70px; background: rgba(124,108,246,0.1); border-color: #7c6cf6;" min="0">
+                <input type="number" name="rest_time" value="{{ set.rest_time|default:'' }}" class="tracer-input" style="width: 70px; background: rgba(var(--acc-rgb),0.1); border-color: var(--acc);" min="0">
             </div>
             </div>
             <div class="quick-form">
             <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;">
-                <input type="checkbox" name="per_lato" {% if set.per_lato %}checked{% endif %} style="width: 13px; height: 13px; accent-color: #7c6cf6; cursor: pointer;">
+                <input type="checkbox" name="per_lato" {% if set.per_lato %}checked{% endif %} style="width: 13px; height: 13px; accent-color: var(--acc); cursor: pointer;">
                 <span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">Per lato</span>
             </label>
             <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;">
-                <input type="checkbox" name="avviamento" {% if set.avviamento %}checked{% endif %} style="width: 13px; height: 13px; accent-color: #7c6cf6; cursor: pointer;">
+                <input type="checkbox" name="avviamento" {% if set.avviamento %}checked{% endif %} style="width: 13px; height: 13px; accent-color: var(--acc); cursor: pointer;">
                 <span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">Avviamento</span>
             </label>
             <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;">
-                <input type="checkbox" name="a_cedimento" {% if set.a_cedimento %}checked{% endif %} style="width: 13px; height: 13px; accent-color: #7c6cf6; cursor: pointer;">
+                <input type="checkbox" name="a_cedimento" {% if set.a_cedimento %}checked{% endif %} style="width: 13px; height: 13px; accent-color: var(--acc); cursor: pointer;">
                 <span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">A cedimento</span>
             </label>
             <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;">
-                <input type="checkbox" name="richiamo" {% if set.richiamo %}checked{% endif %} style="width: 13px; height: 13px; accent-color: #7c6cf6; cursor: pointer;">
+                <input type="checkbox" name="richiamo" {% if set.richiamo %}checked{% endif %} style="width: 13px; height: 13px; accent-color: var(--acc); cursor: pointer;">
                 <span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">Richiamo</span>
             </label>
             <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;" onclick="toggleBarraEdit(event, '{{ set.id }}')">
-                <input type="checkbox" id="barra-check-{{ set.id }}" {% if set.barra_kg %}checked{% endif %} style="width: 13px; height: 13px; accent-color: #7c6cf6; cursor: pointer;">
+                <input type="checkbox" id="barra-check-{{ set.id }}" {% if set.barra_kg %}checked{% endif %} style="width: 13px; height: 13px; accent-color: var(--acc); cursor: pointer;">
                 <span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">+Sbarra</span>
             </label>
             <div id="barra-wrap-{{ set.id }}" data-barra-show="{% if set.barra_kg %}1{% else %}0{% endif %}" style="display:none; align-items: flex-end; gap: 6px;">
@@ -97,7 +97,7 @@ in_circuit: True per le serie dentro un circuito (niente checkbox di selezione,
                 </div>
             </div>
             <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;" onclick="toggleZavorraEdit(event, '{{ set.id }}')">
-                <input type="checkbox" id="zavorra-check-{{ set.id }}" {% if set.zavorra_kg %}checked{% endif %} style="width: 13px; height: 13px; accent-color: #7c6cf6; cursor: pointer;">
+                <input type="checkbox" id="zavorra-check-{{ set.id }}" {% if set.zavorra_kg %}checked{% endif %} style="width: 13px; height: 13px; accent-color: var(--acc); cursor: pointer;">
                 <span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">+Zavorra</span>
             </label>
             <div id="zavorra-wrap-{{ set.id }}" data-zavorra-show="{% if set.zavorra_kg %}1{% else %}0{% endif %}" style="display:none; align-items: flex-end; gap: 6px;">
@@ -107,7 +107,7 @@ in_circuit: True per le serie dentro un circuito (niente checkbox di selezione,
                 </div>
             </div>
             <label style="display: flex; align-items: center; gap: 5px; padding-bottom: 8px; cursor: pointer;" onclick="toggleCarrucoleEdit(event, '{{ set.id }}')">
-                <input type="checkbox" id="carrucole-check-{{ set.id }}" {% if set.carrucole %}checked{% endif %} style="width: 13px; height: 13px; accent-color: #7c6cf6; cursor: pointer;">
+                <input type="checkbox" id="carrucole-check-{{ set.id }}" {% if set.carrucole %}checked{% endif %} style="width: 13px; height: 13px; accent-color: var(--acc); cursor: pointer;">
                 <span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">+Carrucole</span>
             </label>
             <div id="carrucole-wrap-{{ set.id }}" data-carrucole-show="{% if set.carrucole %}1{% else %}0{% endif %}" style="display:none; align-items: flex-end; gap: 6px;">
