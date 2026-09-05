@@ -30,6 +30,19 @@
     }
     .water-quick-btn:hover { background: rgba(var(--acc-rgb),0.22); }
 
+    /* Quando .water-actions non entra su una riga sola i due gruppi vanno a
+       capo, ma restavano larghi quanto il loro contenuto: la riga finiva a
+       meta' e il vuoto a destra faceva sembrare i comandi buttati li'. Con
+       flex-grow ciascun gruppo si prende tutta la riga in cui e' finito.
+       Non serve un breakpoint, perche' la condizione da intercettare non e'
+       la larghezza dello schermo ma il fatto che la riga sia andata a capo.
+       Su schermi larghi non cambia nulla: li' .water-actions e' larga quanto
+       il suo contenuto, quindi non c'e' spazio libero da distribuire. */
+    .water-quick-group,
+    .water-custom-form { flex: 1 1 auto; min-width: 0; }
+    .water-quick-group > form { flex: 1 1 0; min-width: 0; }
+    .water-quick-group .water-quick-btn { width: 100%; }
+
     .water-pill-x {
         position: absolute;
         top: -6px;
