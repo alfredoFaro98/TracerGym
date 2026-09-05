@@ -53,7 +53,10 @@
       background: var(--muscle-hover);
     }
 
-    .header h1 {
+    /* Il titolo ora e' .page-title (style.css), come in ogni altra sezione.
+       Queste misure minute erano dell'h1 quando faceva da etichetta di
+       vista: restano, ma sul sottotitolo che quel ruolo se l'e' preso. */
+    .header-view-label {
       font-size: 12px;
       font-weight: 500;
       letter-spacing: 0.18em;
@@ -566,7 +569,10 @@
 <header class="header" style="padding: 16px 24px; flex-shrink: 0; border-bottom: 1px solid var(--border);">
 <div class="header-title" style="display:flex; align-items:center; gap:10px;">
     <div class="header-dot"></div>
-    <h1 id="viewLabel">Corpo Umano — Vista Anteriore</h1>
+    <div style="display:flex; flex-direction:column; gap:2px;">
+        <h1 class="page-title">🧍 Mappa Muscolare</h1>
+        <span id="viewLabel" class="header-view-label">Vista anteriore</span>
+    </div>
 </div>
 </header>
 
@@ -1083,7 +1089,7 @@
         document.getElementById('frontView').classList.toggle('hidden-view', view === 'back');
         document.getElementById('backView').classList.toggle('hidden-view', view === 'front');
         document.getElementById('viewLabel').textContent =
-          'Corpo Umano \u2014 Vista ' + (view === 'front' ? 'Anteriore' : 'Posteriore');
+          'Vista ' + (view === 'front' ? 'anteriore' : 'posteriore');
       });
     });
 
