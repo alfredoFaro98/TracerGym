@@ -358,6 +358,17 @@ a { text-decoration: none; }
   min-width: 0;
 }
 
+/* La colonna del form e' fissa a 340px, quindi sotto una certa larghezza a
+   quella dei contenuti resta una briciola: a 918px di finestra sono 255px,
+   piu' stretti di un telefono, e a 769px appena 106px. Si passa in colonna
+   singola molto prima dei 768px del resto del layout — la soglia e' il punto
+   sotto il quale la colonna dei contenuti scenderebbe sotto i ~420px. */
+@media (max-width: 1080px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Mobile Media Queries */
 @media (max-width: 768px) {
   .desktop-only {
@@ -420,10 +431,6 @@ a { text-decoration: none; }
 
   .page-container {
     padding: 16px;
-  }
-
-  .main-grid {
-    grid-template-columns: 1fr; /* Colonna singola */
   }
 
   .responsive-card-width {

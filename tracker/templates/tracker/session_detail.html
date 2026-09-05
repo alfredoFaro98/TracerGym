@@ -836,12 +836,20 @@ function toggleAddSet() {
     document.getElementById('add-set-toggle').setAttribute('aria-expanded', open ? 'true' : 'false');
 }
 (function() {
-    // Su mobile il pannello sta sopra la lista: parte chiuso. Se pero' la
-    // sessione e' ancora vuota resta aperto, altrimenti la pagina sembrerebbe
-    // non avere nulla da fare.
+    // Quando la griglia e' impilata il pannello sta sopra la lista: parte
+    // chiuso, se no spinge gli esercizi sotto la piega. Se pero' la sessione
+    // e' ancora vuota resta aperto, altrimenti la pagina sembrerebbe non
+    // avere nulla da fare.
+    //
+    // La condizione era window.innerWidth <= 768, che ripeteva a mano la
+    // soglia del CSS e si scollava appena quella cambiava. Ora la legge dal
+    // layout: una sola traccia nella griglia significa colonna singola,
+    // qualunque sia il breakpoint.
     var card = document.getElementById('add-set-card');
+    var grid = document.querySelector('.main-grid');
+    var impilata = grid && getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length === 1;
     var vuota = {% if exercise_groups or circuit_items %}false{% else %}true{% endif %};
-    if (card && window.innerWidth <= 768 && !vuota) {
+    if (card && impilata && !vuota) {
         card.classList.add('is-collapsed');
         document.getElementById('add-set-toggle').setAttribute('aria-expanded', 'false');
     }
