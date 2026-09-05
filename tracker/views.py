@@ -746,30 +746,84 @@ def duplicate_set(request, set_id):
     return JsonResponse({'ok': True, 'html': _render_set_row(request, new_set)})
 
 
+# Campi che "applica a tutte" puo' propagare. L'esercizio non e' in elenco
+# perche' va trattato a parte: cambiarlo sposta le serie da un gruppo all'altro.
+_CAMPI_PROPAGABILI = (
+    'reps', 'durata', 'weight', 'rest_time', 'per_lato', 'avviamento',
+    'a_cedimento', 'richiamo', 'barra_kg', 'zavorra_kg', 'carrucole',
+)
+
+
 @login_required
 def edit_set(request, set_id):
     workout_set = get_object_or_404(WorkoutSet, id=set_id, session__utente=request.user)
-    if request.method == 'POST':
-        exercise_name = request.POST.get('exercise_name', '').strip()
-        weight = request.POST.get('weight') or None
-        rest_time = request.POST.get('rest_time') or None
-        if exercise_name:
-            exercise = Exercise.objects.filter(nome__iexact=exercise_name).first()
-            if exercise:
-                workout_set.exercise = exercise
-        workout_set.reps = request.POST.get('reps') or None
-        workout_set.durata = request.POST.get('durata') or None
-        workout_set.weight = weight
-        workout_set.rest_time = rest_time
-        workout_set.per_lato = request.POST.get('per_lato') == 'on'
-        workout_set.avviamento = request.POST.get('avviamento') == 'on'
-        workout_set.a_cedimento = request.POST.get('a_cedimento') == 'on'
-        workout_set.richiamo = request.POST.get('richiamo') == 'on'
-        workout_set.barra_kg = request.POST.get('barra_kg') or None
-        workout_set.zavorra_kg = request.POST.get('zavorra_kg') or None
-        workout_set.carrucole = request.POST.get('carrucole') or None
-        workout_set.save()
-    return JsonResponse({'ok': True, 'html': _render_set_row(request, workout_set)})
+    if request.method != 'POST':
+        return JsonResponse({'ok': True, 'html': _render_set_row(request, workout_set)})
+
+    # Fotografia dei valori di partenza: la propagazione tocca solo i campi
+    # davvero cambiati, cosi' correggere il recupero di una serie non
+    # appiattisce reps e peso di tutte le altre.
+    prima = {c: getattr(workout_set, c) for c in _CAMPI_PROPAGABILI}
+    esercizio_prima = workout_set.exercise_id
+
+    exercise_name = request.POST.get('exercise_name', '').strip()
+    weight = request.POST.get('weight') or None
+    rest_time = request.POST.get('rest_time') or None
+    if exercise_name:
+        exercise = Exercise.objects.filter(nome__iexact=exercise_name).first()
+        if exercise:
+            workout_set.exercise = exercise
+    workout_set.reps = request.POST.get('reps') or None
+    workout_set.durata = request.POST.get('durata') or None
+    workout_set.weight = weight
+    workout_set.rest_time = rest_time
+    workout_set.per_lato = request.POST.get('per_lato') == 'on'
+    workout_set.avviamento = request.POST.get('avviamento') == 'on'
+    workout_set.a_cedimento = request.POST.get('a_cedimento') == 'on'
+    workout_set.richiamo = request.POST.get('richiamo') == 'on'
+    workout_set.barra_kg = request.POST.get('barra_kg') or None
+    workout_set.zavorra_kg = request.POST.get('zavorra_kg') or None
+    workout_set.carrucole = request.POST.get('carrucole') or None
+    workout_set.save()
+    # Rilettura dal database: i valori assegnati arrivano dal POST come stringhe,
+    # e confrontare '60' con Decimal('60.00') darebbe per cambiato un campo
+    # rimasto identico, propagandolo senza motivo.
+    workout_set.refresh_from_db()
+
+    risposta = {'ok': True, 'html': _render_set_row(request, workout_set)}
+    if request.POST.get('applica_a_tutte') != 'on':
+        return JsonResponse(risposta)
+
+    cambiati = {c: getattr(workout_set, c) for c in _CAMPI_PROPAGABILI
+                if getattr(workout_set, c) != prima[c]}
+    esercizio_cambiato = workout_set.exercise_id != esercizio_prima
+    if esercizio_cambiato:
+        cambiati['exercise_id'] = workout_set.exercise_id
+
+    # Le sorelle si cercano con l'esercizio DI PRIMA: se e' appena stato
+    # cambiato, con quello nuovo non si troverebbe nessuna delle serie da
+    # aggiornare. Il filtro su circuit tiene separate le serie dentro un
+    # circuito da quelle fuori, che non sono sorelle anche a parita' di esercizio.
+    sorelle = WorkoutSet.objects.filter(
+        session=workout_set.session,
+        exercise_id=esercizio_prima,
+        circuit=workout_set.circuit,
+    ).exclude(id=workout_set.id)
+
+    if cambiati:
+        ids = list(sorelle.values_list('id', flat=True))
+        if ids:
+            sorelle.update(**cambiati)
+            if esercizio_cambiato:
+                # Le righe cambiano gruppo e i conteggi "N serie" di due gruppi:
+                # sostituire le singole righe non basta a rimettere a posto la pagina.
+                risposta['reload'] = True
+            else:
+                risposta['rows'] = {
+                    str(s.id): _render_set_row(request, s)
+                    for s in WorkoutSet.objects.filter(id__in=ids)
+                }
+    return JsonResponse(risposta)
 
 @login_required
 def duplicate_session(request, session_id):

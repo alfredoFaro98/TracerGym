@@ -117,6 +117,15 @@ in_circuit: True per le serie dentro un circuito (niente checkbox di selezione,
                 </div>
             </div>
             <div class="quick-spacer"></div>
+            {% comment %}
+            Propaga alle altre serie dello stesso esercizio, ma solo i campi
+            che sono stati davvero toccati: se cambi il recupero viaggia solo
+            il recupero, reps e peso delle altre serie non vengono sfiorati.
+            {% endcomment %}
+            <label style="display: flex; align-items: center; gap: 6px; padding-bottom: 8px; cursor: pointer;" title="I campi che modifichi qui vengono applicati anche alle altre serie di questo esercizio">
+                <input type="checkbox" name="applica_a_tutte" style="width: 13px; height: 13px; accent-color: var(--acc); cursor: pointer;">
+                <span style="font-size: 12px; color: #c7cbd6; white-space: nowrap;">Applica a tutte</span>
+            </label>
             <div class="quick-actions">
                 <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
                 <button type="button" onclick="toggleEditRow('{{ set.id }}')" class="btn-cancel" style="padding: 8px 16px; font-size: 12.5px;">Annulla</button>

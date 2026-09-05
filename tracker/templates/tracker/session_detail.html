@@ -1607,6 +1607,12 @@ function toggleCarrucoleEdit(e, id) {
                     return;
                 }
 
+                // "Applica a tutte" ha spostato le serie da un gruppo all'altro:
+                // cambiano intestazioni e conteggi, quindi non basta riscrivere
+                // le righe. Lo stato dei gruppi aperti sta in localStorage, per
+                // cui il ricaricamento non fa perdere la posizione.
+                if (data.reload) { window.location.reload(); return; }
+
                 var newWrap = htmlToElement(data.html);
                 if (kind === 'duplicate') {
                     wrapEl.insertAdjacentElement('afterend', newWrap);
@@ -1615,6 +1621,17 @@ function toggleCarrucoleEdit(e, id) {
                     wrapEl.replaceWith(newWrap);
                 }
                 initRow(newWrap);
+
+                // Le altre serie raggiunte dalla propagazione.
+                if (data.rows) {
+                    Object.keys(data.rows).forEach(function(id) {
+                        var altro = document.querySelector('.set-row-wrap[data-set-id="' + id + '"]');
+                        if (!altro) return;
+                        var sostituto = htmlToElement(data.rows[id]);
+                        altro.replaceWith(sostituto);
+                        initRow(sostituto);
+                    });
+                }
             })
             .catch(function() {
                 alert('Si è verificato un errore, riprova.');
