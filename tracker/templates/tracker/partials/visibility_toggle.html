@@ -1,0 +1,29 @@
+{% comment %}
+Interruttore visibilita' profilo. Prima era un solo bottone che diceva
+insieme lo stato e l'azione ("Profilo Pubblico — Rendi Privato"): non si
+capiva se l'etichetta descrivesse com'e' il profilo adesso o come sarebbe
+diventato premendo. Ora lo stato lo mostra l'interruttore e il testo dice
+solo cosa comporta, che e' la cosa che serve davvero sapere.
+
+Parametri: next_url (opzionale) — dove tornare dopo il salvataggio; senza,
+la view rimanda alla pagina del profilo.
+{% endcomment %}
+<form action="{% url 'toggle_profile_visibility' %}" method="post" data-visibility-form>
+    {% csrf_token %}
+    {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+    <label class="switch-row">
+        <input type="checkbox" {% if profile.is_public %}checked{% endif %}
+               role="switch" aria-label="Profilo pubblico">
+        <span class="switch-track"><span class="switch-thumb"></span></span>
+        <span class="switch-text">
+            <span class="switch-state">{% if profile.is_public %}Profilo pubblico{% else %}Profilo privato{% endif %}</span>
+            <span class="switch-hint">{% if profile.is_public %}Gli altri atleti ti trovano in "Atleti" e vedono le tue statistiche.{% else %}Solo tu vedi le tue statistiche e il tuo storico.{% endif %}</span>
+        </span>
+    </label>
+    {% comment %}
+    Senza JS l'interruttore da solo non invierebbe nulla: il bottone resta
+    la via di scampo, e viene nascosto solo dopo aver agganciato l'invio
+    automatico, cosi' non sparisce mai lasciando il comando inerte.
+    {% endcomment %}
+    <button type="submit" class="switch-fallback-btn">Salva</button>
+</form>

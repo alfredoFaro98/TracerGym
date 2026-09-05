@@ -211,6 +211,21 @@
         // pagehide invece di beforeunload: su iOS quest'ultimo spesso non parte.
         window.addEventListener('pagehide', salva);
     })();
+
+    // --- Interruttori che si salvano da soli ---
+    // Il bottone "Salva" e' nel markup per chi non ha JS. Lo togliamo solo
+    // qui, dopo aver agganciato l'invio al cambio: se questo script non
+    // gira il bottone resta al suo posto e il comando funziona lo stesso.
+    (function() {
+        var forms = document.querySelectorAll('[data-visibility-form]');
+        Array.prototype.forEach.call(forms, function(form) {
+            var cb = form.querySelector('input[type="checkbox"]');
+            var btn = form.querySelector('.switch-fallback-btn');
+            if (!cb) return;
+            cb.addEventListener('change', function() { form.submit(); });
+            if (btn) btn.remove();
+        });
+    })();
     </script>
 </body>
 </html>

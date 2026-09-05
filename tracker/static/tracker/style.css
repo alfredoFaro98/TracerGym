@@ -573,3 +573,87 @@ a { text-decoration: none; }
     display: none;
   }
 }
+
+/* ==========================================================================
+   Interruttore (switch). Nato per la visibilita' del profilo, dove prima
+   c'era un bottone che diceva stato e azione insieme. Lo stato lo porta
+   l'interruttore, quindi l'etichetta resta libera di spiegare le
+   conseguenze invece di descrivere il comando. Acceso = accento, cosi'
+   segue il colore scelto come ogni altro stato attivo.
+   ========================================================================== */
+.switch-row {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+/* Fuori dallo schermo e non display:none: la casella deve restare
+   raggiungibile da tastiera e dai lettori di schermo. */
+.switch-row > input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.switch-track {
+  position: relative;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 40px;
+  height: 22px;
+  margin-top: 1px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  transition: background .15s, border-color .15s;
+}
+.switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #9ba0b3;
+  transition: transform .15s, background .15s;
+}
+.switch-row > input:checked + .switch-track {
+  background: rgba(var(--acc-rgb), .35);
+  border-color: rgba(var(--acc-rgb), .55);
+}
+.switch-row > input:checked + .switch-track .switch-thumb {
+  transform: translateX(18px);
+  background: var(--acc-4);
+}
+.switch-row > input:focus-visible + .switch-track {
+  outline: 2px solid rgba(var(--acc-rgb), .6);
+  outline-offset: 2px;
+}
+.switch-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.switch-state {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #f0f0f3;
+}
+.switch-hint {
+  font-size: 11.5px;
+  color: #7d8296;
+  line-height: 1.4;
+}
+/* Visibile finche' il JS non aggancia l'invio automatico (vedi base.html). */
+.switch-fallback-btn {
+  margin-top: 12px;
+  padding: 7px 14px;
+  background: rgba(var(--acc-rgb), .12);
+  border: 1px solid rgba(var(--acc-rgb), .3);
+  border-radius: 8px;
+  color: var(--acc-soft);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}

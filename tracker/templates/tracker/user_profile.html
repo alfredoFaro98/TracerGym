@@ -62,18 +62,7 @@
         </div>
 
         {% if is_own %}
-        <form action="{% url 'toggle_profile_visibility' %}" method="post">
-            {% csrf_token %}
-            {% if profile.is_public %}
-            <button type="submit" style="padding: 7px 14px; background: rgba(96,160,96,.07); border: 1px solid rgba(96,160,96,.25); border-radius: 8px; color: #60a060; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .12s;" onmouseover="this.style.background='rgba(96,160,96,.14)'" onmouseout="this.style.background='rgba(96,160,96,.07)'">
-                Profilo Pubblico — Rendi Privato
-            </button>
-            {% else %}
-            <button type="submit" style="padding: 7px 14px; background: rgba(96,96,200,.07); border: 1px solid rgba(96,96,200,.25); border-radius: 8px; color: #7878c0; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .12s;" onmouseover="this.style.background='rgba(96,96,200,.14)'" onmouseout="this.style.background='rgba(96,96,200,.07)'">
-                Profilo Privato — Rendi Pubblico
-            </button>
-            {% endif %}
-        </form>
+        {% include "tracker/partials/visibility_toggle.html" %}
         {% endif %}
     </div>
 
