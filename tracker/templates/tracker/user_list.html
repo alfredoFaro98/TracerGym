@@ -14,7 +14,7 @@
 {% block content %}
 <div class="page-container">
     <div style="margin-bottom: 24px;">
-        <h1 style="font-size: 17px; font-weight: 700; color: #f0f0f3; margin: 0 0 4px;">Atleti</h1>
+        <h1 class="page-title" style="margin: 0 0 4px;">👥 Atleti</h1>
         <div style="font-size: 12px; color: #f0f0f3;">
             {% if user.is_superuser %}
                 {{ users_data|length }} utent{% if users_data|length == 1 %}e{% else %}i{% endif %} registrat{% if users_data|length == 1 %}o{% else %}i{% endif %}

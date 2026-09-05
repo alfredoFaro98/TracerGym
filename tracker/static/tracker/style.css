@@ -657,3 +657,32 @@ a { text-decoration: none; }
   font-weight: 600;
   cursor: pointer;
 }
+
+/* ==========================================================================
+   Titolo di pagina. Lo stesso stile era ricopiato inline in ogni template:
+   sei pagine allineate e le altre a misure sparse (17, 20, 21, 30px). Una
+   classe sola le tiene coerenti e da' un punto unico dove cambiarle.
+   L'emoji apre il titolo e fa da segno di riconoscimento della sezione, lo
+   stesso ruolo che ha l'icona nella barra laterale.
+
+   Vale per i titoli di sezione, cioe' quelli che nominano una voce di menu.
+   Non per i titoli che riportano un dato — il saluto della dashboard, la
+   data di una sessione, il nome di un atleta: quelli descrivono il
+   contenuto della pagina e cambiano di volta in volta, quindi un'emoji
+   fissa direbbe la cosa sbagliata.
+   ========================================================================== */
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.page-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #f0f0f3;
+  margin: 0;
+}
