@@ -118,7 +118,7 @@
         </div>
         <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;">
             {% for cell in month_cells %}
-            <div title="{{ cell.title }}" style="position: relative; aspect-ratio: 1.6; border-radius: 6px; {% if not cell.in_month %}background: transparent;{% elif cell.quality_pct == None %}background: rgba(255,255,255,0.04);{% elif cell.quality_pct >= 90 %}background: var(--acc);{% elif cell.quality_pct >= 65 %}background: #5e50d9;{% elif cell.quality_pct >= 40 %}background: #3a3670;{% else %}background: rgba(248,113,113,0.35);{% endif %} display: flex; align-items: center; justify-content: center; font-size: 10px; color: rgba(255,255,255,0.4);">
+            <div title="{{ cell.title }}" style="position: relative; aspect-ratio: 1.6; border-radius: 6px; {% if not cell.in_month %}background: transparent;{% elif cell.quality_pct == None %}background: rgba(255,255,255,0.04);{% elif cell.quality_pct >= 90 %}background: var(--acc);{% elif cell.quality_pct >= 65 %}background: rgba(var(--acc-rgb),0.58);{% elif cell.quality_pct >= 40 %}background: rgba(var(--acc-rgb),0.28);{% else %}background: rgba(248,113,113,0.35);{% endif %} display: flex; align-items: center; justify-content: center; font-size: 10px; color: rgba(255,255,255,0.4);">
                 {% if cell.in_month %}{{ cell.day }}{% endif %}
             </div>
             {% endfor %}
@@ -152,9 +152,17 @@
                      badge partiva sotto la freccia invece che sotto la data. -->
                 <div style="display: flex; align-items: center; gap: 8px; padding-left: 24px;">
                     <span style="flex-shrink: 0; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; white-space: nowrap;
-                        {% if e.qualita == 'ottima' %}color: var(--acc-4); background: rgba(var(--acc-rgb),0.16);
-                        {% elif e.qualita == 'buona' %}color: #ffd580; background: rgba(255,213,128,0.14);
-                        {% elif e.qualita == 'media' %}color: #f0a875; background: rgba(240,168,117,0.14);
+                        {% comment %}
+                        Scala della qualita': due gradini di accento, poi neutro,
+                        poi rosso. 'ottima' seguiva gia' l'accento mentre 'buona'
+                        e 'media' erano giallo e arancione fissi — con l'accento
+                        caldo 'ottima' e 'media' finivano quasi dello stesso
+                        colore. Il rosso resta perche' segnala un problema e non
+                        e' fra gli accenti scegliibili, quindi non puo' collidere.
+                        {% endcomment %}
+                        {% if e.qualita == 'ottima' %}color: var(--acc-4); background: rgba(var(--acc-rgb),0.20);
+                        {% elif e.qualita == 'buona' %}color: var(--acc-soft); background: rgba(var(--acc-rgb),0.11);
+                        {% elif e.qualita == 'media' %}color: #9ba0b3; background: rgba(255,255,255,0.06);
                         {% else %}color: #ff8a8a; background: rgba(255,138,138,0.14);{% endif %}">{{ e.get_qualita_display }}</span>
                     <div style="flex: 1; min-width: 0;"></div>
                     <span onclick="toggleSleepEdit('{{ e.id }}')" style="flex-shrink: 0; font-size: 12px; font-weight: 600; color: var(--acc-4); padding: 6px 12px; border-radius: 7px; background: rgba(var(--acc-rgb),0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.12)'">Modifica</span>
