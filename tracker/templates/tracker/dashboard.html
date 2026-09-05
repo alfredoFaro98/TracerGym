@@ -30,14 +30,15 @@
     }
     .water-quick-btn:hover { background: rgba(var(--acc-rgb),0.22); }
 
-    /* Quando .water-actions non entra su una riga sola i due gruppi vanno a
-       capo, ma restavano larghi quanto il loro contenuto: la riga finiva a
-       meta' e il vuoto a destra faceva sembrare i comandi buttati li'. Con
-       flex-grow ciascun gruppo si prende tutta la riga in cui e' finito.
-       Non serve un breakpoint, perche' la condizione da intercettare non e'
-       la larghezza dello schermo ma il fatto che la riga sia andata a capo.
-       Su schermi larghi non cambia nulla: li' .water-actions e' larga quanto
-       il suo contenuto, quindi non c'e' spazio libero da distribuire. */
+    /* I due gruppi crescono per riempire lo spazio che hanno. Serve in due
+       situazioni diverse, ed e' lo stesso flex-grow a coprirle entrambe:
+       quando ci stanno su una riga sola se la dividono, e quando la riga va
+       a capo ciascuno si prende per intero quella in cui e' finito. Prima
+       restavano larghi quanto il loro contenuto, quindi in mezzo alle due
+       situazioni le righe finivano a meta' con un vuoto a destra.
+       Non serve un breakpoint: la condizione da intercettare non e' la
+       larghezza dello schermo ma quanto spazio e' rimasto libero, e a quello
+       flex-grow risponde da solo. */
     .water-quick-group,
     .water-custom-form { flex: 1 1 auto; min-width: 0; }
     .water-quick-group > form { flex: 1 1 0; min-width: 0; }
@@ -86,14 +87,15 @@
        pixel anche quando le voci ci starebbero tutte. */
     #water-pills .water-pill:last-child { margin-right: 6px; }
 
-    /* Da tablet in su i pulsanti acqua stanno su una riga tutta loro (il
-       blocco titolo occupa il 100% e li manda a capo): margin-left:auto li
-       spinge contro il bordo destro della card, allineati alla fine della
-       barra di progresso. Scoped sopra i 480px per non toccare il layout
-       mobile, dove .water-actions e' gia' flex:1 1 100%. */
-    @media (min-width: 481px) {
-        .water-actions { margin-left: auto; }
-    }
+    /* I comandi acqua stanno su una riga tutta loro, perche' il blocco
+       titolo occupa il 100% e li manda a capo. Prima margin-left:auto li
+       spingeva contro il bordo destro: erano allineati alla fine della
+       barra di progresso ma lasciavano un vuoto a sinistra, e la riga
+       sembrava sbilanciata. Ora la riga la prendono tutta e i due gruppi se
+       la dividono, cosi' i comandi partono e finiscono dove parte e finisce
+       la barra di progresso. Vale a ogni larghezza: sotto i 480px era gia'
+       cosi', quindi non serve piu' distinguere i due casi. */
+    .water-actions { flex: 1 1 100%; min-width: 0; }
 
     /* Su mobile la riga dei pulsanti rapidi acqua e quella di inserimento
        manuale vanno impilate a piena larghezza ciascuna, invece di lasciare
