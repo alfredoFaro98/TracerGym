@@ -1224,9 +1224,26 @@
     });
 
     /* --- chart --- */
-    // Palette categoriale (ordine fisso, tarato per superficie scura) usata quando
-    // ci sono piu' palestre da distinguere; con una sola linea si usa il viola del brand.
-    var SERIES_COLORS = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#9085e9', '#e66767'];
+    // Le linee sono cinque gradini della stessa tinta dell'accento (--chart-1..5
+    // in style.css), dal piu' chiaro al piu' scuro, cosi' il grafico segue il
+    // colore scelto invece di restare su una palette sua.
+    //
+    // Distinguere piu' serie con una tinta sola pero' e' piu' fragile che con
+    // colori diversi: restano solo i salti di luminosita'. Per questo ogni serie
+    // porta anche una forma di punto propria, che compare pure in legenda —
+    // l'identita' non si regge sul solo colore. Colore e forma avanzano a ritmi
+    // diversi, quindi le coppie non si ripetono prima di venticinque serie.
+    var CHART_STEPS = 5;
+    var POINT_STYLES = ['circle', 'triangle', 'rect', 'rectRot', 'star'];
+
+    function seriesColor(i) {
+        var v = getComputedStyle(document.documentElement)
+                    .getPropertyValue('--chart-' + (i % CHART_STEPS + 1)).trim();
+        return v || '#8b7bf7';
+    }
+    function seriesPointStyle(i) {
+        return POINT_STYLES[Math.floor(i / CHART_STEPS) % POINT_STYLES.length];
+    }
 
     function loadChart(name) {
         fetch(HISTORY_URL + '?exercise=' + encodeURIComponent(name))
@@ -1259,7 +1276,7 @@
             s.points.forEach(function(p) { byDate[p.date] = p.weight; });
             var data = labels.map(function(d) { return Object.prototype.hasOwnProperty.call(byDate, d) ? byDate[d] : null; });
 
-            var color = multi ? SERIES_COLORS[i % SERIES_COLORS.length] : (getComputedStyle(document.documentElement).getPropertyValue('--acc-2').trim() || '#8b7bf7');
+            var color = multi ? seriesColor(i) : (getComputedStyle(document.documentElement).getPropertyValue('--acc-2').trim() || '#8b7bf7');
             var ctx = canvas.getContext('2d');
             var fade = ctx.createLinearGradient(0, 0, 0, 210);
             fade.addColorStop(0, color + '59');
@@ -1273,8 +1290,9 @@
                 pointBackgroundColor: color,
                 pointBorderColor: '#1b2d34',
                 pointBorderWidth: 2,
-                pointRadius: multi ? 3 : 4,
+                pointRadius: multi ? 3.5 : 4,
                 pointHoverRadius: 6,
+                pointStyle: multi ? seriesPointStyle(i) : 'circle',
                 borderWidth: 2.5,
                 fill: !multi,
                 tension: 0.35,
@@ -1294,7 +1312,7 @@
                         display: multi,
                         position: 'top',
                         align: 'end',
-                        labels: { color: '#c7cbd6', boxWidth: 10, boxHeight: 10, font: { size: 11.5 }, usePointStyle: true, pointStyle: 'circle' }
+                        labels: { color: '#c7cbd6', boxWidth: 10, boxHeight: 10, font: { size: 11.5 }, usePointStyle: true }
                     },
                     tooltip: {
                         backgroundColor: '#1b2d34',

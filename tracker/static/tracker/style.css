@@ -9,6 +9,11 @@
    --acc-5 riservato agli hover di testo; --acc-soft e' la versione chiara e
    desaturata, per il testo che sta sopra uno sfondo gia' tinto di accento
    (badge, pill, bottoni water) dove il tono pieno sarebbe troppo carico.
+   --chart-1..5 sono la scala del grafico a linee: stessa tinta
+   dell'accento, cinque gradini di luminosita' dal piu' chiaro al piu'
+   scuro. Servono a distinguere piu' serie sullo stesso grafico, quindi
+   i gradini sono distanziati abbastanza da restare separabili e il piu'
+   scuro stacca ancora dal fondo della card.
    --acc-rgb permette rgba(var(--acc-rgb), X) per le versioni trasparenti.
    Il default (nessun attributo) riproduce il viola di sempre.
    ========================================================================== */
@@ -19,6 +24,11 @@
   --acc-4: #a996ff;
   --acc-5: #c2b6ff;
   --acc-soft: #b7bdf0;
+  --chart-1: #c5c0ff;
+  --chart-2: #aa9fff;
+  --chart-3: #917dff;
+  --chart-4: #7960ff;
+  --chart-5: #6247dd;
   --acc-rgb: 124, 108, 246;
 }
 [data-accent="corallo"] {
@@ -28,6 +38,11 @@
   --acc-4: #ffae6b;
   --acc-5: #ffc48f;
   --acc-soft: #f0c4a0;
+  --chart-1: #ffb978;
+  --chart-2: #ff9845;
+  --chart-3: #ec7600;
+  --chart-4: #cf5b00;
+  --chart-5: #af4300;
   --acc-rgb: 251, 146, 60;
 }
 [data-accent="lime"] {
@@ -37,6 +52,11 @@
   --acc-4: #baf658;
   --acc-5: #cef983;
   --acc-soft: #d0eda8;
+  --chart-1: #aee662;
+  --chart-2: #8dcd04;
+  --chart-3: #6cb400;
+  --chart-4: #529800;
+  --chart-5: #3d7d00;
   --acc-rgb: 163, 230, 53;
 }
 [data-accent="teal"] {
@@ -46,6 +66,11 @@
   --acc-4: #4ce8d5;
   --acc-5: #7ff0e3;
   --acc-soft: #a0e4dc;
+  --chart-1: #74e9d6;
+  --chart-2: #2dd1bc;
+  --chart-3: #00b8a2;
+  --chart-4: #009d88;
+  --chart-5: #00826f;
   --acc-rgb: 45, 212, 191;
 }
 [data-accent="verde"] {
@@ -55,6 +80,11 @@
   --acc-4: #4ee674;
   --acc-5: #82ee9d;
   --acc-soft: #a8e6b8;
+  --chart-1: #7bef8b;
+  --chart-2: #3ed760;
+  --chart-3: #00bf2b;
+  --chart-4: #00a300;
+  --chart-5: #008700;
   --acc-rgb: 48, 209, 88;
 }
 
