@@ -1,4 +1,5 @@
 {% extends 'tracker/base.html' %}
+{% load tracker_extras %}
 
 {% block title %}Allenamento - Workout Tracker{% endblock %}
 
@@ -540,13 +541,13 @@
                         <span class="drag-handle" title="Trascina per ordinare" style="cursor: grab; color: #565b6e; font-size: 15px; line-height: 1; flex-shrink: 0; padding: 0 2px; user-select: none;">⠿</span>
                         <input type="checkbox" class="group-select-cb" data-group-n="{{ group.exercise.id }}" onclick="event.stopPropagation()" onchange="toggleGroupSelect(this)" title="Seleziona tutte le serie di questo esercizio" style="width: 16px; height: 16px; accent-color: #f87171; cursor: pointer; flex-shrink: 0;">
                         <div class="ex-row-main" style="flex: 1; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; min-width: 0;">
-                            <span class="ex-row-name" style="font-size: 15.5px; font-weight: 700; color: #ffffff; overflow-wrap: anywhere;">{{ group.exercise.nome }}</span>
+                            <span class="ex-row-name" style="font-size: 15.5px; font-weight: 700; color: #ffffff; overflow-wrap: anywhere;">{{ group.exercise|nome_lingua:lingua_esercizi }}</span>
                             {% for tag in group.exercise.tags.all %}
                                 <span class="badge-tag badge-tag-default">{{ tag.nome }}</span>
                             {% endfor %}
                         </div>
                         <span data-set-count-badge class="ex-row-badge" style="background: rgba(var(--acc-rgb),0.14); color: var(--acc-soft); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 7px; white-space: nowrap;">{{ group.count }} serie</span>
-                        <form class="ex-row-del" action="{% url 'delete_exercise_sets' session.id group.exercise.id %}" method="post" onclick="event.stopPropagation()" onsubmit="return confirm('Eliminare tutte le serie di {{ group.exercise.nome }}?');" style="margin-right: 10px;">
+                        <form class="ex-row-del" action="{% url 'delete_exercise_sets' session.id group.exercise.id %}" method="post" onclick="event.stopPropagation()" onsubmit="return confirm('Eliminare tutte le serie di {{ group.exercise|nome_lingua:lingua_esercizi }}?');" style="margin-right: 10px;">
                             {% csrf_token %}
                             <button type="submit" style="width: 30px; height: 30px; background: rgba(248,113,113,0.12); border: none; border-radius: 8px; color: #f87171; font-size: 12px; cursor: pointer; flex-shrink: 0; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.22)'" onmouseout="this.style.background='rgba(248,113,113,0.12)'">🗑</button>
                         </form>
@@ -615,7 +616,7 @@
                         <div class="circuit-ex-group" data-exercise-id="{{ group.exercise.id }}" data-circuit-id="{{ item.circuit.id }}" data-set-reorder-url="{% url 'reorder_circuit_exercise_sets' item.circuit.id group.exercise.id %}" style="display: flex; flex-direction: column; gap: 6px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.06);">
                             <div style="display: flex; align-items: baseline; gap: 8px;">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="#565b6e" style="flex-shrink: 0;"><circle cx="8" cy="6" r="1.6"></circle><circle cx="16" cy="6" r="1.6"></circle><circle cx="8" cy="12" r="1.6"></circle><circle cx="16" cy="12" r="1.6"></circle><circle cx="8" cy="18" r="1.6"></circle><circle cx="16" cy="18" r="1.6"></circle></svg>
-                                <span style="font-size: 14px; font-weight: 700; color: #ffffff;">{{ group.exercise.nome }}</span>
+                                <span style="font-size: 14px; font-weight: 700; color: #ffffff;">{{ group.exercise|nome_lingua:lingua_esercizi }}</span>
                                 <span data-set-count-badge style="font-size: 12px; color: #7d8296;">{{ group.sets|length }} serie</span>
                             </div>
                             {% for set in group.sets %}
@@ -773,7 +774,7 @@
     {% for group in exercise_groups %}
     <div style="margin-bottom: 18px;">
         <div style="font-size: 14px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 10px;">
-            {{ group.exercise.nome }}
+            {{ group.exercise|nome_lingua:lingua_esercizi }}
             <span style="font-size: 11px; font-weight: 600; color: #888; border: 1px solid #ccc; border-radius: 4px; padding: 1px 7px;">{{ group.count }} serie</span>
         </div>
         <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
@@ -807,7 +808,7 @@
         </div>
         {% for group in item.exercise_groups %}
         <div style="padding: 8px 12px;{% if not forloop.last %} border-bottom: 1px solid #eee;{% endif %}">
-            <div style="font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #444;">{{ group.exercise.nome }}</div>
+            <div style="font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #444;">{{ group.exercise|nome_lingua:lingua_esercizi }}</div>
             <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
                 <thead><tr style="background: #f8f8f8;"><th style="padding: 4px 8px; text-align: left; border: 1px solid #ddd;">#</th><th style="padding: 4px 8px; text-align: left; border: 1px solid #ddd;">Reps / Durata</th><th style="padding: 4px 8px; text-align: left; border: 1px solid #ddd;">Peso (kg)</th><th style="padding: 4px 8px; text-align: left; border: 1px solid #ddd;">Recupero (s)</th></tr></thead>
                 <tbody>

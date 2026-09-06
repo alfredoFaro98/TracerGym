@@ -1,0 +1,11 @@
+{% comment %}
+Interruttore IT/EN per i nomi degli esercizi. Incluso sia in Impostazioni che
+nella pagina Esercizi: si passa `next_url` per tornare dove si era.
+`lingua_esercizi` arriva dal context processor `appearance`.
+{% endcomment %}
+<form action="{% url 'set_lingua_esercizi' %}" method="post" class="lang-toggle" style="margin: 0;">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next_url }}">
+    <button type="submit" name="lingua_esercizi" value="it" class="lang-toggle-opt{% if lingua_esercizi == 'it' %} is-active{% endif %}">IT</button>
+    <button type="submit" name="lingua_esercizi" value="en" class="lang-toggle-opt{% if lingua_esercizi == 'en' %} is-active{% endif %}">EN</button>
+</form>

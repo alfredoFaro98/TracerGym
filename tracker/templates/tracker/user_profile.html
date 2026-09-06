@@ -1,5 +1,6 @@
 {% extends 'tracker/base.html' %}
 {% load static %}
+{% load tracker_extras %}
 
 {% block title %}{{ target_user.username }} - Workout Tracker{% endblock %}
 
@@ -115,7 +116,7 @@
         </div>
         {% for ex in top_exercises %}
         <div style="padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
-            <div style="font-size: 12.5px; color: #c0c0d8;">{{ ex.nome }}</div>
+            <div style="font-size: 12.5px; color: #c0c0d8;">{{ ex|nome_lingua:lingua_esercizi }}</div>
             <span style="font-size: 11px; font-weight: 700; color: var(--acc-3); font-family: 'JetBrains Mono', monospace;">{{ ex.count }} serie</span>
         </div>
         {% endfor %}
@@ -169,7 +170,7 @@
             <div style="display: flex; flex-wrap: wrap; gap: 5px;">
                 {% for s in session.sets.all %}
                 {% if forloop.counter <= 4 %}
-                <span style="padding: 2px 8px; border-radius: 20px; font-size: 10.5px; background: var(--panel); border: 1px solid var(--border); color: #6060a0;">{{ s.exercise.nome }}</span>
+                <span style="padding: 2px 8px; border-radius: 20px; font-size: 10.5px; background: var(--panel); border: 1px solid var(--border); color: #6060a0;">{{ s.exercise|nome_lingua:lingua_esercizi }}</span>
                 {% endif %}
                 {% endfor %}
                 {% if session.sets.count > 4 %}

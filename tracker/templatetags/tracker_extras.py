@@ -13,6 +13,20 @@ def in_list(value, arg):
     return value in arg.split(',')
 
 
+@register.filter(name='nome_lingua')
+def nome_lingua(exercise, lingua):
+    """Nome dell'esercizio nella lingua scelta dall'utente.
+
+    Uso: {{ group.exercise|nome_lingua:lingua_esercizi }} — `lingua_esercizi`
+    arriva dal context processor `appearance`, quindi e' gia' in ogni template.
+    Su un esercizio assente (serie orfana) torna stringa vuota invece di
+    esplodere, come farebbe `{{ ... .nome }}`.
+    """
+    if exercise is None:
+        return ''
+    return exercise.nome_in(lingua)
+
+
 def _profile_username(context):
     request = context.get('request')
     match = getattr(request, 'resolver_match', None)

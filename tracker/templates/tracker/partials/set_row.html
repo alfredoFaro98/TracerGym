@@ -1,3 +1,4 @@
+{% load tracker_extras %}
 {% comment %}
 Riga di una singola serie (vista + form di modifica inline). Condivisa tra lista
 esercizi normale e circuiti, e riusata dalle view edit_set/duplicate_set per
@@ -50,7 +51,7 @@ in_circuit: True per le serie dentro un circuito (niente checkbox di selezione,
             <div class="quick-form">
             <div class="quick-field">
                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">ESERCIZIO</span>
-                <input type="text" name="exercise_name" value="{{ set.exercise.nome }}" data-valid="true" class="tracer-input" style="width: 150px; border-color: var(--acc);" autocomplete="off">
+                <input type="text" name="exercise_name" value="{{ set.exercise|nome_lingua:lingua_esercizi }}" data-valid="true" class="tracer-input" style="width: 150px; border-color: var(--acc);" autocomplete="off">
             </div>
             <div class="quick-field">
                 <span style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">REPS</span>

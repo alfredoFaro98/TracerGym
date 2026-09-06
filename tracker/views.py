@@ -35,6 +35,31 @@ ACCENT_HEX = {
 }
 
 
+def _lingua_esercizi(request):
+    """Lingua scelta dall'utente per i nomi degli esercizi ('it' o 'en')."""
+    if not getattr(request.user, 'is_authenticated', False):
+        return 'it'
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    return profile.lingua_esercizi
+
+
+def _esercizio_per_nome(nome):
+    """Trova un esercizio dal nome digitato, in italiano o in inglese.
+
+    I form mandano il nome cosi' come appare a schermo: con la lingua italiana
+    attiva arriva il `nome_it`, che cercando solo su `nome` non troverebbe
+    niente (e a seconda del punto significava serie rifiutate o esercizi
+    duplicati). Cerchiamo quindi su entrambi i campi, dando la precedenza al
+    nome originale perche' e' quello unico per definizione.
+    """
+    if not nome:
+        return None
+    return (
+        Exercise.objects.filter(nome__iexact=nome).first()
+        or Exercise.objects.filter(nome_it__iexact=nome).first()
+    )
+
+
 def _record_site_visit():
     """Incrementa il contatore di visite (dashboard/login) del giorno corrente."""
     today = timezone.now().date()
@@ -178,13 +203,16 @@ def dashboard(request):
     now = timezone.now()
     this_month_sessions = all_sessions.filter(data__year=now.year, data__month=now.month).count()
 
-    exercises_qs = Exercise.objects.prefetch_related('tags', 'images').order_by('nome')
+    lingua = _lingua_esercizi(request)
+    exercises_qs = Exercise.con_nome_visuale(
+        Exercise.objects.prefetch_related('tags', 'images'), lingua
+    ).order_by('nome_visuale')
     exercises_data = []
     for ex in exercises_qs:
         images = list(ex.images.all())
         exercises_data.append({
             'id': ex.id,
-            'nome': ex.nome,
+            'nome': ex.nome_in(lingua),
             'tipologia': ex.tipologia or '',
             'tags': [t.nome.lower() for t in ex.tags.all()],
             'image_url': images[0].immagine.url if images else None,
@@ -443,7 +471,7 @@ def session_detail(request, session_id):
         circuit_id = request.POST.get('circuit_id') or None
         add_default_warmup = request.POST.get('aggiungi_avviamento_default') == 'on'
 
-        exercise = Exercise.objects.filter(nome__iexact=exercise_name).first()
+        exercise = _esercizio_per_nome(exercise_name)
         if not exercise:
             return render(request, 'tracker/session_detail.html', {
                 **_build_session_context(session),
@@ -770,7 +798,7 @@ def edit_set(request, set_id):
     weight = request.POST.get('weight') or None
     rest_time = request.POST.get('rest_time') or None
     if exercise_name:
-        exercise = Exercise.objects.filter(nome__iexact=exercise_name).first()
+        exercise = _esercizio_per_nome(exercise_name)
         if exercise:
             workout_set.exercise = exercise
     workout_set.reps = request.POST.get('reps') or None
@@ -1094,7 +1122,7 @@ def _import_set_kwargs(s):
 
 
 def _get_or_create_exercise(name):
-    exercise = Exercise.objects.filter(nome__iexact=name).first()
+    exercise = _esercizio_per_nome(name)
     if not exercise:
         exercise = Exercise.objects.create(nome=name)
     return exercise
@@ -1201,7 +1229,11 @@ def exercises_list(request):
     selected_tag = request.GET.get('tag', '')
     error = request.GET.get('error', '')
     total_count = Exercise.objects.count()
-    exercises = Exercise.objects.prefetch_related('tags', 'images').order_by('nome')
+    # Ordiniamo sul nome mostrato, non su `nome`: con l'italiano attivo un
+    # ordinamento sull'originale inglese sembrerebbe casuale.
+    exercises = Exercise.con_nome_visuale(
+        Exercise.objects.prefetch_related('tags', 'images'), _lingua_esercizi(request)
+    ).order_by('nome_visuale')
 
     total_media_bytes = _total_exercise_media_bytes() if request.user.is_superuser else None
 
@@ -1228,7 +1260,7 @@ def add_exercise(request):
         if nome:
             from urllib.parse import urlencode
             separator = '&' if '?' in next_url else '?'
-            if Exercise.objects.filter(nome__iexact=nome).exists():
+            if _esercizio_per_nome(nome):
                 error_msg = f'Esiste già un esercizio chiamato "{nome}".'
                 return redirect(f'{next_url}{separator}{urlencode({"error": error_msg})}')
             image_file = request.FILES.get('immagine')
@@ -1258,7 +1290,7 @@ def add_exercise_ajax(request):
 
     if not nome:
         return JsonResponse({'error': 'Il nome è obbligatorio.'}, status=400)
-    if Exercise.objects.filter(nome__iexact=nome).exists():
+    if _esercizio_per_nome(nome):
         return JsonResponse({'error': f'Esiste già un esercizio chiamato "{nome}".'}, status=409)
     image_file = request.FILES.get('immagine')
     size_error = _validate_exercise_image(image_file)
@@ -1352,6 +1384,7 @@ def export_exercises_json(request):
     data = [
         {
             'nome': ex.nome,
+            'nome_it': ex.nome_it,
             'tipologia': ex.tipologia or '',
             'tags': [t.nome for t in ex.tags.all()],
         }
@@ -1367,7 +1400,7 @@ def exercise_weight_history(request):
     exercise_name = request.GET.get('exercise', '').strip()
     if not exercise_name:
         return JsonResponse({'series': []})
-    exercise = Exercise.objects.filter(nome__iexact=exercise_name).first()
+    exercise = _esercizio_per_nome(exercise_name)
     if not exercise:
         return JsonResponse({'series': []})
 
@@ -1415,24 +1448,27 @@ def exercise_weight_history(request):
 def exercise_suggestions(request):
     from django.db.models import Case, When, IntegerField
     q = request.GET.get('q', '').strip()
+    lingua = _lingua_esercizi(request)
     user_ids = set(Exercise.objects.filter(
         workoutset__session__utente=request.user
     ).values_list('id', flat=True))
 
     qs = Exercise.objects.all()
     if q:
-        qs = qs.filter(nome__icontains=q)
-    qs = qs.annotate(
+        # Si cerca in entrambe le lingue a prescindere da quella scelta: chi ha
+        # il catalogo in italiano puo' comunque avere in testa il nome inglese.
+        qs = qs.filter(models.Q(nome__icontains=q) | models.Q(nome_it__icontains=q))
+    qs = Exercise.con_nome_visuale(qs, lingua).annotate(
         priority=Case(
             When(id__in=user_ids, then=0),
             default=1,
             output_field=IntegerField(),
         )
-    ).order_by('priority', 'nome')[:20].prefetch_related('images')
+    ).order_by('priority', 'nome_visuale')[:20].prefetch_related('images')
     results = []
     for ex in qs:
         images = list(ex.images.all())
-        results.append({'nome': ex.nome, 'image_url': images[0].immagine.url if images else None})
+        results.append({'nome': ex.nome_in(lingua), 'image_url': images[0].immagine.url if images else None})
     return JsonResponse({'results': results})
 
 
@@ -1672,6 +1708,24 @@ def set_accent(request):
 
 
 @login_required
+def set_lingua_esercizi(request):
+    if request.method == 'POST':
+        lingua = request.POST.get('lingua_esercizi')
+        if lingua in dict(UserProfile.LINGUA_ESERCIZI_CHOICES):
+            profile, _ = UserProfile.objects.get_or_create(user=request.user)
+            profile.lingua_esercizi = lingua
+            profile.save()
+    # Si torna dove si era: l'interruttore vive sia in Impostazioni che nella
+    # pagina Esercizi, e da li' e' l'effetto immediato sulla lista il punto.
+    next_url = request.POST.get('next') or reverse('impostazioni')
+    if url_has_allowed_host_and_scheme(
+        next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        return redirect(next_url)
+    return redirect('impostazioni')
+
+
+@login_required
 def impostazioni(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
     return render(request, 'tracker/impostazioni.html', {
@@ -1679,6 +1733,7 @@ def impostazioni(request):
         'accent_choices': [
             (value, label, ACCENT_HEX[value]) for value, label in UserProfile.ACCENT_CHOICES
         ],
+        'lingua_choices': UserProfile.LINGUA_ESERCIZI_CHOICES,
     })
 
 
@@ -2046,11 +2101,20 @@ def edit_integratore_entry(request, entry_id):
 
 @login_required
 def body_map(request):
-    exercises_qs = Exercise.objects.prefetch_related('tags').order_by('nome')
+    lingua = _lingua_esercizi(request)
+    exercises_qs = Exercise.con_nome_visuale(
+        Exercise.objects.prefetch_related('tags'), lingua
+    ).order_by('nome_visuale')
     exercises_data = [
         {
             'id': ex.id,
-            'nome': ex.nome,
+            'nome': ex.nome_in(lingua),
+            # Le parole chiave dei filtri qui sotto sono un misto di italiano e
+            # inglese, scritte quando il catalogo aveva un nome solo: filtrarle
+            # sul nome mostrato ne spegnerebbe meta' a ogni cambio lingua.
+            # Il match va quindi su entrambi i nomi, la lingua decide solo cosa
+            # si legge a schermo.
+            'ricerca': f'{ex.nome} {ex.nome_it}'.lower(),
             'tipologia': ex.tipologia or '',
             'tags': [t.nome.lower() for t in ex.tags.all()],
         }

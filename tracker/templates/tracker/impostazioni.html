@@ -24,6 +24,13 @@
         </form>
     </div>
 
+    <!-- Lingua dei nomi degli esercizi -->
+    <div class="tracer-card" style="padding: 20px 22px; margin-bottom: 20px;">
+        <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 4px;">Nomi degli esercizi</div>
+        <div style="font-size: 11.5px; color: #7d8296; margin-bottom: 16px;">Gli esercizi del catalogo openGym hanno anche il nome originale in inglese. La ricerca funziona in entrambe le lingue comunque.</div>
+        {% include "tracker/partials/lingua_esercizi_toggle.html" with next_url=request.path %}
+    </div>
+
     <!-- Visibilita' profilo -->
     <div class="tracer-card" style="padding: 20px 22px;">
         <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 4px;">Visibilità profilo</div>

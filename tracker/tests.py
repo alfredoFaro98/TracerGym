@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Exercise, WorkoutSession, WorkoutSet
+from .models import Exercise, UserProfile, WorkoutSession, WorkoutSet
 
 
 class ApplicaATutteTest(TestCase):
@@ -120,3 +120,106 @@ class ApplicaATutteTest(TestCase):
         estranea.refresh_from_db()
 
         self.assertEqual(estranea.rest_time, 30)
+
+
+class LinguaEserciziTest(TestCase):
+    """Scelta della lingua con cui mostrare i nomi degli esercizi.
+
+    Il punto delicato non e' quale nome compare a schermo, ma che i form
+    continuino a trovare l'esercizio giusto: le serie si salvano cercando
+    l'esercizio per nome, quindi con l'italiano attivo arriva il `nome_it` e
+    una ricerca sul solo `nome` inglese creerebbe un doppione del catalogo.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='tester', password='x')
+        # Esercizio openGym: nome inglese piu' traduzione.
+        self.tradotto = Exercise.objects.create(
+            nome='Assisted pull-up', nome_it='Trazioni assistite',
+            origine='opengym', external_id='0017',
+        )
+        # Esercizio personale: un nome solo, gia' italiano.
+        self.personale = Exercise.objects.create(nome='Panca Piana')
+        self.sessione = WorkoutSession.objects.create(utente=self.user)
+        self.client.force_login(self.user)
+
+    def _imposta_lingua(self, lingua):
+        return self.client.post(reverse('set_lingua_esercizi'), {'lingua_esercizi': lingua})
+
+    def test_default_italiano(self):
+        profile, _ = UserProfile.objects.get_or_create(user=self.user)
+        self.assertEqual(profile.lingua_esercizi, 'it')
+
+    def test_il_catalogo_segue_la_lingua_scelta(self):
+        self._imposta_lingua('it')
+        risposta = self.client.get(reverse('exercises_list'))
+        self.assertContains(risposta, 'Trazioni assistite')
+
+        self._imposta_lingua('en')
+        risposta = self.client.get(reverse('exercises_list'))
+        self.assertContains(risposta, 'Assisted pull-up')
+
+    def test_lingua_non_valida_non_cambia_nulla(self):
+        self._imposta_lingua('de')
+        # La view non salva (e non crea nemmeno il profilo): resta il default.
+        profile, _ = UserProfile.objects.get_or_create(user=self.user)
+        self.assertEqual(profile.lingua_esercizi, 'it')
+
+    def test_l_esercizio_personale_resta_uguale_nelle_due_lingue(self):
+        # Senza `nome_it` si ricade sull'originale: non deve sparire in inglese.
+        for lingua in ('it', 'en'):
+            self._imposta_lingua(lingua)
+            risposta = self.client.get(reverse('exercises_list'))
+            self.assertContains(risposta, 'Panca Piana')
+
+    def test_aggiungere_una_serie_col_nome_italiano_non_duplica_l_esercizio(self):
+        self._imposta_lingua('it')
+        prima = Exercise.objects.count()
+
+        self.client.post(reverse('session_detail', args=[self.sessione.id]), {
+            'exercise_name': 'Trazioni assistite',
+            'reps': '8', 'weight': '', 'rest_time': '', 'durata': '',
+            'barra_kg': '', 'zavorra_kg': '', 'carrucole': '', 'num_sets': '1',
+        })
+
+        self.assertEqual(Exercise.objects.count(), prima)
+        serie = WorkoutSet.objects.get(session=self.sessione)
+        self.assertEqual(serie.exercise, self.tradotto)
+
+    def test_il_nome_inglese_funziona_anche_con_l_italiano_attivo(self):
+        self._imposta_lingua('it')
+        self.client.post(reverse('session_detail', args=[self.sessione.id]), {
+            'exercise_name': 'Assisted pull-up',
+            'reps': '8', 'weight': '', 'rest_time': '', 'durata': '',
+            'barra_kg': '', 'zavorra_kg': '', 'carrucole': '', 'num_sets': '1',
+        })
+
+        serie = WorkoutSet.objects.get(session=self.sessione)
+        self.assertEqual(serie.exercise, self.tradotto)
+
+    def test_i_suggerimenti_cercano_in_entrambe_le_lingue(self):
+        self._imposta_lingua('it')
+        url = reverse('exercise_suggestions')
+
+        # Digitando l'inglese si trova comunque, ma la risposta mostra l'italiano.
+        risposta = self.client.get(url, {'q': 'pull-up'})
+        nomi = [r['nome'] for r in risposta.json()['results']]
+        self.assertIn('Trazioni assistite', nomi)
+
+        risposta = self.client.get(url, {'q': 'trazioni'})
+        nomi = [r['nome'] for r in risposta.json()['results']]
+        self.assertIn('Trazioni assistite', nomi)
+
+    def test_il_catalogo_e_ordinato_sul_nome_mostrato(self):
+        # In italiano "Trazioni assistite" viene dopo "Panca Piana"; in inglese
+        # "Assisted pull-up" viene prima. Se l'ordinamento restasse su `nome`
+        # la lista italiana sembrerebbe in ordine casuale.
+        self._imposta_lingua('it')
+        risposta = self.client.get(reverse('exercises_list'))
+        nomi = [e.nome_visuale for e in risposta.context['exercises']]
+        self.assertEqual(nomi, ['Panca Piana', 'Trazioni assistite'])
+
+        self._imposta_lingua('en')
+        risposta = self.client.get(reverse('exercises_list'))
+        nomi = [e.nome_visuale for e in risposta.context['exercises']]
+        self.assertEqual(nomi, ['Assisted pull-up', 'Panca Piana'])

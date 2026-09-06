@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.db import models
+from django.db.models.functions import Coalesce, NullIf
 from django.contrib.auth.models import User
 from django.utils import timezone
 
@@ -51,6 +52,22 @@ class Exercise(models.Model):
             return self.nome_it
         return self.nome
 
+    @staticmethod
+    def con_nome_visuale(queryset, lingua):
+        """Annota la queryset con `nome_visuale`, il nome nella lingua scelta.
+
+        Serve per ordinare e cercare sul nome che l'utente vede davvero: con i
+        nomi italiani a schermo, un `order_by('nome')` sull'originale inglese
+        darebbe una lista in ordine apparentemente casuale.
+        """
+        if lingua != 'it':
+            return queryset.annotate(nome_visuale=models.F('nome'))
+        # NULLIF trasforma il `nome_it` vuoto (= non tradotto) in NULL, cosi'
+        # COALESCE ricade sull'originale.
+        return queryset.annotate(
+            nome_visuale=Coalesce(NullIf('nome_it', models.Value('')), 'nome')
+        )
+
     def __str__(self):
         return self.nome
 
@@ -91,6 +108,11 @@ class UserProfile(models.Model):
         ('verde', 'Verde'),
     ]
 
+    LINGUA_ESERCIZI_CHOICES = [
+        ('it', 'Italiano'),
+        ('en', 'English'),
+    ]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     is_public = models.BooleanField(default=False)
     obiettivo_acqua_ml = models.PositiveIntegerField(default=2000)
@@ -100,6 +122,10 @@ class UserProfile(models.Model):
     obiettivo_grassi_g = models.PositiveIntegerField(default=70)
     obiettivo_fibre_g = models.PositiveIntegerField(default=30)
     accent = models.CharField(max_length=20, choices=ACCENT_CHOICES, default='viola')
+    # Lingua con cui mostrare i nomi degli esercizi. Riguarda solo la
+    # visualizzazione: il catalogo resta uno solo, cambia il campo che si legge
+    # (`nome_it` invece di `nome`). Default italiano perche' l'app e' in italiano.
+    lingua_esercizi = models.CharField(max_length=2, choices=LINGUA_ESERCIZI_CHOICES, default='it')
 
     def __str__(self):
         return f"Profilo di {self.user.username}"

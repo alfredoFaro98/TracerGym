@@ -689,6 +689,41 @@ a { text-decoration: none; }
 }
 
 /* ==========================================================================
+   Selettore a due voci (IT/EN per i nomi degli esercizi). Due bottoni dentro
+   una capsula sola invece di un interruttore: qui le opzioni hanno un nome
+   proprio, e leggerlo scritto e' piu' chiaro di dover ricordare da che parte
+   sta l'italiano.
+   ========================================================================== */
+.lang-toggle {
+  display: inline-flex;
+  padding: 3px;
+  gap: 3px;
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 999px;
+}
+.lang-toggle-opt {
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #9aa0b0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: background .12s, color .12s;
+}
+.lang-toggle-opt:hover {
+  color: #f0f0f3;
+}
+.lang-toggle-opt.is-active {
+  background: rgba(var(--acc-rgb), .22);
+  color: #ffffff;
+  box-shadow: inset 0 0 0 1px var(--acc);
+}
+
+/* ==========================================================================
    Titolo di pagina. Lo stesso stile era ricopiato inline in ogni template:
    sei pagine allineate e le altre a misure sparse (17, 20, 21, 30px). Una
    classe sola le tiene coerenti e da' un punto unico dove cambiarle.

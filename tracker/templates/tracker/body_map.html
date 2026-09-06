@@ -900,11 +900,14 @@
         return allExercises.filter(ex => {
             if (!ex.tags.includes(macroTag.toLowerCase())) return false;
             let match = true;
+            // `ricerca` contiene sia il nome italiano che quello inglese: le
+            // parole chiave qui sotto sono miste, e devono continuare a
+            // funzionare qualunque lingua sia attiva.
             if (keywords.length > 0) {
-                match = keywords.some(k => ex.nome.toLowerCase().includes(k.toLowerCase()));
+                match = keywords.some(k => ex.ricerca.includes(k.toLowerCase()));
             }
             if (match && excludeKeywords.length > 0) {
-                match = !excludeKeywords.some(k => ex.nome.toLowerCase().includes(k.toLowerCase()));
+                match = !excludeKeywords.some(k => ex.ricerca.includes(k.toLowerCase()));
             }
             return match;
         }).map(ex => ex.nome);

@@ -1,4 +1,5 @@
 {% extends 'tracker/base.html' %}
+{% load tracker_extras %}
 
 {% block title %}Esercizi - Tracer{% endblock %}
 
@@ -270,10 +271,14 @@
         </div>
     </div>
 
-    <!-- Ricerca -->
-    <div style="position: relative; margin-bottom: 28px;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); pointer-events: none;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        <input id="search-input" type="text" placeholder="Cerca esercizio…" class="tracer-input" style="width: 100%; box-sizing: border-box; padding: 14px 16px 14px 42px; font-size: 14px; border-radius: 12px;" oninput="filterExercises(this.value)">
+    <!-- Ricerca, con accanto la lingua dei nomi: il posto dove l'effetto si
+         vede subito, invece che nascosto in Impostazioni. -->
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 28px;">
+        <div style="position: relative; flex: 1; min-width: 0;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); pointer-events: none;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input id="search-input" type="text" placeholder="Cerca esercizio…" class="tracer-input" style="width: 100%; box-sizing: border-box; padding: 14px 16px 14px 42px; font-size: 14px; border-radius: 12px;" oninput="filterExercises(this.value)">
+        </div>
+        {% include "tracker/partials/lingua_esercizi_toggle.html" with next_url=request.get_full_path %}
     </div>
 
     <!-- Barra filtri compatta: solo su mobile, apre il pannello qui sotto -->
@@ -326,15 +331,17 @@
     <!-- Esercizi -->
     <div id="ex-grid" class="ex-grid" style="margin-top: 4px;">
         {% for exercise in exercises %}
-        {% with img=exercise.images.all|first %}
-        <div class="ex-card{% if not img %} no-media{% endif %}" data-name="{{ exercise.nome|lower }}" data-tags=",{% for t in exercise.tags.all %}{{ t.id }},{% endfor %}" data-tipologia="{{ exercise.tipologia|lower }}">
+        {% with img=exercise.images.all|first nome_mostrato=exercise|nome_lingua:lingua_esercizi %}
+        {# data-name porta entrambi i nomi: la ricerca trova l'esercizio sia
+           digitando "pull-up" che "trazioni", qualunque lingua sia attiva. #}
+        <div class="ex-card{% if not img %} no-media{% endif %}" data-name="{{ exercise.nome|lower }} {{ exercise.nome_it|lower }}" data-tags=",{% for t in exercise.tags.all %}{{ t.id }},{% endfor %}" data-tipologia="{{ exercise.tipologia|lower }}">
             {% if img %}
             <img class="ex-thumb" src="{{ img.immagine.url }}" loading="lazy">
             {% else %}
-            <div class="ex-thumb-fallback">{{ exercise.nome|first|upper }}</div>
+            <div class="ex-thumb-fallback">{{ nome_mostrato|first|upper }}</div>
             {% endif %}
             <div class="ex-name-btn" data-ex-id="{{ exercise.id }}" style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; overflow: hidden;">
-                <span style="font-size: 14.5px; font-weight: 600; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ exercise.nome }}</span>
+                <span style="font-size: 14.5px; font-weight: 600; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ nome_mostrato }}</span>
                 {% if exercise.tipologia %}
                 <span style="font-size: 11px; align-self: flex-start; padding: 1px 7px; border-radius: 4px;" class="{% if 'bilanciere' in exercise.tipologia|lower %}tipo-bilanciere{% elif 'manubrio' in exercise.tipologia|lower %}tipo-manubrio{% elif 'cavi' in exercise.tipologia|lower %}tipo-cavi{% elif 'macchine' in exercise.tipologia|lower %}tipo-macchine{% elif 'corpo' in exercise.tipologia|lower %}tipo-corpo{% else %}tipo-default{% endif %}">{{ exercise.tipologia }}</span>
                 {% endif %}
@@ -344,7 +351,7 @@
                 <button type="button" data-edit-btn data-ex-id="{{ exercise.id }}" data-ex-nome="{{ exercise.nome }}" data-ex-tipologia="{{ exercise.tipologia }}" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(var(--acc-rgb),.12); border: 1px solid rgba(var(--acc-rgb),.28); border-radius: 5px; color: var(--acc-4); cursor: pointer;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </button>
-                <form method="post" action="{% url 'delete_exercise_admin' exercise.id %}" data-confirm-nome="{{ exercise.nome }}" style="margin: 0;">
+                <form method="post" action="{% url 'delete_exercise_admin' exercise.id %}" data-confirm-nome="{{ nome_mostrato }}" style="margin: 0;">
                     {% csrf_token %}
                     <button type="submit" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(248,113,113,.12); border: 1px solid rgba(248,113,113,.22); border-radius: 6px; color: #f87171; transition: all .12s; cursor: pointer;" onmouseover="this.style.background='rgba(248,113,113,.22)'" onmouseout="this.style.background='rgba(248,113,113,.12)'">
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -434,7 +441,7 @@
     };
 
     var exerciseData = {
-        {% for ex in exercises %}"{{ ex.id }}":{"nome":"{{ ex.nome|escapejs }}","tipologia":"{{ ex.tipologia|escapejs }}","images":[{% for img in ex.images.all %}{"id":{{ img.id }},"url":"{{ img.immagine.url }}"},{% endfor %}]},{% endfor %}
+        {% for ex in exercises %}"{{ ex.id }}":{"nome":"{{ ex|nome_lingua:lingua_esercizi|escapejs }}","tipologia":"{{ ex.tipologia|escapejs }}","images":[{% for img in ex.images.all %}{"id":{{ img.id }},"url":"{{ img.immagine.url }}"},{% endfor %}]},{% endfor %}
     };
 
     var addImgUrlTpl = '{% url "add_exercise_image" 0 %}'.replace('/0/', '/__ID__/');

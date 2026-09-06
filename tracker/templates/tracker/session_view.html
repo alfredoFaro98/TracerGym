@@ -1,4 +1,5 @@
 {% extends 'tracker/base.html' %}
+{% load tracker_extras %}
 
 {% block title %}Sessione di {{ target_user.username }} - Workout Tracker{% endblock %}
 
@@ -82,7 +83,7 @@
             <!-- Riga esercizio -->
             <div onclick="toggleGroup({{ forloop.counter }})" style="padding: 13px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
                 <div style="flex: 1;">
-                    <div style="font-size: 13px; font-weight: 600; color: #e8e8f8;">{{ group.exercise.nome }}</div>
+                    <div style="font-size: 13px; font-weight: 600; color: #e8e8f8;">{{ group.exercise|nome_lingua:lingua_esercizi }}</div>
                     {% if group.exercise.tags.all %}
                     <div style="display: flex; gap: 4px; margin-top: 3px; flex-wrap: wrap;">
                         {% for tag in group.exercise.tags.all %}

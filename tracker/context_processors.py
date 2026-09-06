@@ -19,5 +19,7 @@ def appearance(request):
     if getattr(getattr(request, 'user', None), 'is_authenticated', False):
         from .models import UserProfile
         profile, _ = UserProfile.objects.get_or_create(user=request.user)
-        return {'accent': profile.accent}
-    return {'accent': 'viola'}
+        return {'accent': profile.accent, 'lingua_esercizi': profile.lingua_esercizi}
+    # Chi non ha fatto login (login, registrazione, profili pubblici) vede i
+    # default: non c'e' un profilo da cui leggere la preferenza.
+    return {'accent': 'viola', 'lingua_esercizi': 'it'}
