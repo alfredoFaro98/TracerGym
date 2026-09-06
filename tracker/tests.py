@@ -1,7 +1,14 @@
+import shutil
+import tempfile
 from decimal import Decimal
+from io import BytesIO
 
+from PIL import Image
+
+from django.conf import settings
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -444,3 +451,117 @@ class AccentPersonalizzatoTest(TestCase):
         self.assertEqual(profile.accent_hex, '#876a50')
         # E la pagina torna a usare la scala del preset, non quella derivata.
         self.assertNotIn('--acc: #876a50;', self.client.get(reverse('impostazioni')).content.decode())
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp(prefix='tracer-test-media-'))
+class CatalogoImmaginiAjaxTest(TestCase):
+    """Caricamento ed eliminazione immagine dal modale del catalogo.
+
+    Il payload conta quanto la scrittura su disco: da `images` il JS ridisegna
+    la galleria e la miniatura, e da li' decide anche la classe `no-media`, che
+    e' quella su cui gira il filtro "senza immagine". Se la lista tornasse
+    sbagliata, l'esercizio appena sistemato resterebbe fra quelli da sistemare.
+    """
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
+        super().tearDownClass()
+
+    def setUp(self):
+        self.admin = User.objects.create_superuser(username='capo2', password='x')
+        self.esercizio = Exercise.objects.create(nome='Panca Piana')
+        self.client.force_login(self.admin)
+
+    def _png(self, nome='prova.png'):
+        buf = BytesIO()
+        Image.new('RGB', (10, 10), '#123456').save(buf, 'PNG')
+        return SimpleUploadedFile(nome, buf.getvalue(), content_type='image/png')
+
+    def _carica(self, **extra):
+        return self.client.post(
+            reverse('add_exercise_image_ajax', args=[self.esercizio.id]),
+            {'immagine': self._png(), **extra},
+        )
+
+    def test_caricamento_torna_la_lista_aggiornata(self):
+        r = self._carica()
+
+        self.assertEqual(r.status_code, 200)
+        dati = r.json()
+        self.assertTrue(dati['ok'])
+        self.assertEqual(dati['exercise_id'], self.esercizio.id)
+        self.assertEqual(len(dati['images']), 1)
+        self.assertEqual(dati['images'][0]['id'], self.esercizio.images.get().id)
+        self.assertTrue(dati['images'][0]['url'])
+        self.assertTrue(dati['total_media'])
+
+    def test_la_seconda_immagine_e_rifiutata(self):
+        self._carica()
+
+        r = self._carica()
+
+        self.assertEqual(r.status_code, 400)
+        self.assertIn('una sola immagine', r.json()['error'])
+        self.assertEqual(self.esercizio.images.count(), 1)
+
+    def test_senza_file_non_crea_niente(self):
+        r = self.client.post(reverse('add_exercise_image_ajax', args=[self.esercizio.id]))
+
+        self.assertEqual(r.status_code, 400)
+        self.assertEqual(self.esercizio.images.count(), 0)
+
+    def test_eliminazione_svuota_la_lista(self):
+        self._carica()
+        img = self.esercizio.images.get()
+
+        r = self.client.post(reverse('delete_exercise_image_ajax', args=[img.id]))
+
+        self.assertEqual(r.status_code, 200)
+        dati = r.json()
+        self.assertTrue(dati['ok'])
+        # exercise_id serve al JS per ritrovare la card da aggiornare: senza,
+        # dopo un'eliminazione la miniatura resterebbe quella vecchia.
+        self.assertEqual(dati['exercise_id'], self.esercizio.id)
+        self.assertEqual(dati['images'], [])
+        self.assertEqual(self.esercizio.images.count(), 0)
+
+    def test_di_piu_immagini_ne_toglie_solo_una(self):
+        # Oggi il limite e' un'immagine per esercizio, ma i dati vecchi ne
+        # hanno anche due: eliminarne una non deve azzerare la galleria.
+        prima = ExerciseImage.objects.create(exercise=self.esercizio, immagine=self._png('a.png'), ordine=0)
+        ExerciseImage.objects.create(exercise=self.esercizio, immagine=self._png('b.png'), ordine=1)
+
+        dati = self.client.post(reverse('delete_exercise_image_ajax', args=[prima.id])).json()
+
+        self.assertEqual(len(dati['images']), 1)
+
+    def test_un_utente_normale_non_tocca_le_immagini(self):
+        img = ExerciseImage.objects.create(exercise=self.esercizio, immagine=self._png(), ordine=0)
+        self.client.force_login(User.objects.create_user(username='atleta2', password='x'))
+
+        self.assertEqual(self._carica().status_code, 403)
+        self.assertEqual(
+            self.client.post(reverse('delete_exercise_image_ajax', args=[img.id])).status_code, 403)
+        self.assertEqual(self.esercizio.images.count(), 1)
+
+    def test_get_non_modifica_niente(self):
+        img = ExerciseImage.objects.create(exercise=self.esercizio, immagine=self._png(), ordine=0)
+
+        self.assertEqual(
+            self.client.get(reverse('add_exercise_image_ajax', args=[self.esercizio.id])).status_code, 405)
+        self.assertEqual(
+            self.client.get(reverse('delete_exercise_image_ajax', args=[img.id])).status_code, 405)
+        self.assertEqual(self.esercizio.images.count(), 1)
+
+    def test_la_card_porta_le_immagini_e_gli_endpoint_ajax(self):
+        # data-images sulla card e' la fonte di verita' del JS, e gli endpoint
+        # devono essere quelli che rispondono JSON: se tornassero i vecchi, il
+        # modale riceverebbe HTML e la pagina si ricaricherebbe di nuovo.
+        ExerciseImage.objects.create(exercise=self.esercizio, immagine=self._png(), ordine=0)
+        corpo = self.client.get(reverse('exercises_list')).content.decode()
+
+        self.assertIn('data-images=', corpo)
+        # gli URL nel JS sono template con lo 0 al posto dell'id
+        self.assertIn(reverse('add_exercise_image_ajax', args=[0]), corpo)
+        self.assertIn(reverse('delete_exercise_image_ajax', args=[0]), corpo)
+

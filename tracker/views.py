@@ -15,6 +15,7 @@ import time
 import calendar
 from decimal import Decimal, InvalidOperation
 from datetime import datetime, date, timedelta, time as dt_time
+from django.template.defaultfilters import filesizeformat
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib.auth.models import User
@@ -1359,6 +1360,56 @@ def delete_exercise_image(request, image_id):
         img.immagine.delete(save=False)
         img.delete()
     return redirect(next_url)
+
+
+def _exercise_images_payload(exercise):
+    """Immagini di un esercizio piu' il peso totale del media aggiornato: e'
+    tutto quello che serve al catalogo per ridisegnare la galleria del modale,
+    la miniatura della card e il contatore in testata dopo un caricamento o
+    un'eliminazione, senza ricaricare la pagina."""
+    return {
+        'ok': True,
+        'exercise_id': exercise.id,
+        'images': [{'id': img.id, 'url': img.immagine.url} for img in exercise.images.all()],
+        'total_media': filesizeformat(_total_exercise_media_bytes()),
+    }
+
+
+@login_required
+def add_exercise_image_ajax(request, exercise_id):
+    """Caricamento immagine dal modale del catalogo. Prima il POST rimandava
+    alla pagina intera: il modale su cui stavi lavorando si chiudeva e i
+    filtri (che vivono solo in memoria) sparivano, quindi per ogni immagine
+    toccava rifiltrare e ritrovare il punto."""
+    if not request.user.is_superuser:
+        return JsonResponse({'error': 'Non autorizzato.'}, status=403)
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Metodo non valido.'}, status=405)
+
+    exercise = get_object_or_404(Exercise, id=exercise_id)
+    img = request.FILES.get('immagine')
+    if not img:
+        return JsonResponse({'error': 'Nessun file selezionato.'}, status=400)
+    size_error = _validate_exercise_image(img, exercise=exercise)
+    if size_error:
+        return JsonResponse({'error': size_error}, status=400)
+
+    ExerciseImage.objects.create(exercise=exercise, immagine=img, ordine=exercise.images.count())
+    return JsonResponse(_exercise_images_payload(exercise))
+
+
+@login_required
+def delete_exercise_image_ajax(request, image_id):
+    if not request.user.is_superuser:
+        return JsonResponse({'error': 'Non autorizzato.'}, status=403)
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Metodo non valido.'}, status=405)
+
+    img = get_object_or_404(ExerciseImage, id=image_id)
+    exercise = img.exercise
+    img.immagine.delete(save=False)
+    img.delete()
+    return JsonResponse(_exercise_images_payload(exercise))
 
 
 @login_required

@@ -236,7 +236,7 @@
     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
         <div>
             <h1 class="page-title" style="margin-bottom: 4px;">🏋️ Esercizi</h1>
-            <p style="font-size: 14px; color: #7d8296;">{{ total_count }} esercizi con animazioni{% if total_media_bytes is not None %} &middot; {{ total_media_bytes|filesizeformat }} di immagini caricate{% endif %}</p>
+            <p style="font-size: 14px; color: #7d8296;">{{ total_count }} esercizi con animazioni{% if total_media_bytes is not None %} &middot; <span id="media-total-label">{{ total_media_bytes|filesizeformat }}</span> di immagini caricate{% endif %}</p>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
             <a href="{% url 'export_exercises_json' %}" style="height: 34px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: #787890; font-size: 12px; font-weight: 600; text-decoration: none; transition: all .12s;" onmouseover="this.style.borderColor='#3a3a5a';this.style.color='#f0f0f3'" onmouseout="this.style.borderColor='rgba(255,255,255,0.10)';this.style.color='#787890'">
@@ -374,7 +374,7 @@
     <div id="ex-grid" class="ex-grid" style="margin-top: 4px;">
         {% for exercise in exercises %}
         {% with img=exercise.images.all|first nome_mostrato=exercise|nome_lingua:lingua_esercizi %}
-        <div class="ex-card{% if not img %} no-media{% endif %}" data-name="{{ exercise.nome|lower }} {{ exercise.nome_it|lower }}" data-tags=",{% for t in exercise.tags.all %}{{ t.id }},{% endfor %}" data-tipologia="{{ exercise.tipologia|lower }}">
+        <div class="ex-card{% if not img %} no-media{% endif %}" data-ex-id="{{ exercise.id }}" data-name="{{ exercise.nome|lower }} {{ exercise.nome_it|lower }}" data-tags=",{% for t in exercise.tags.all %}{{ t.id }},{% endfor %}" data-tipologia="{{ exercise.tipologia|lower }}" data-images='[{% for im in exercise.images.all %}{"id":{{ im.id }},"url":"{{ im.immagine.url }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'>
             {% if img %}
             <img class="ex-thumb" src="{{ img.immagine.url }}" loading="lazy">
             {% else %}
@@ -420,10 +420,12 @@
             <button type="button" onclick="closeExModal()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; width: 28px; height: 28px; color: #c7cbd6; cursor: pointer; font-size: 16px; line-height: 1; flex-shrink: 0; margin-left: 12px; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">&times;</button>
         </div>
         <div id="ex-modal-gallery" style="display: flex; flex-wrap: wrap; gap: 10px; min-height: 80px; margin-bottom: 4px;"></div>
+        <!-- Gli errori di caricamento restano qui dentro: prima tornavano
+             come ?error= nell'URL, cioe' a pagina ricaricata e modale chiuso. -->
+        <div id="ex-modal-error" style="display: none; margin-top: 12px; background: rgba(248,81,73,.08); border: 1px solid rgba(248,81,73,.2); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #f85149;"></div>
         {% if user.is_superuser %}
         <form id="ex-upload-form" method="post" enctype="multipart/form-data" style="display: flex; gap: 8px; align-items: center; border-top: 1px solid rgba(255,255,255,0.07); padding-top: 16px; margin-top: 16px;">
             {% csrf_token %}
-            <input type="hidden" name="next" value="{{ request.get_full_path }}">
             <input type="file" name="immagine" accept="image/*" required style="flex: 1; font-size: 12px; color: #a0a0c0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; padding: 6px 10px; cursor: pointer;">
             <button type="submit" class="btn-primary-gradient" style="height: 34px; padding: 0 16px; font-size: 12px; white-space: nowrap;">Aggiungi</button>
         </form>
@@ -480,12 +482,17 @@
         {% for ex in exercises %}{{ ex.id }}:[{% for t in ex.tags.all %}{{ t.id }},{% endfor %}],{% endfor %}
     };
 
+    // Nome e tipologia, che al modale servono per l'intestazione. Le immagini
+    // NON stanno qui: vivono sulla card in data-images, insieme alla miniatura
+    // e alla classe no-media che sono la stessa informazione vista da fuori.
+    // Tenerle anche qui voleva dire aggiornare due posti ad ogni caricamento,
+    // e prima o poi scordarsene uno.
     var exerciseData = {
-        {% for ex in exercises %}"{{ ex.id }}":{"nome":"{{ ex|nome_lingua:lingua_esercizi|escapejs }}","tipologia":"{{ ex.tipologia|escapejs }}","images":[{% for img in ex.images.all %}{"id":{{ img.id }},"url":"{{ img.immagine.url }}"},{% endfor %}]},{% endfor %}
+        {% for ex in exercises %}"{{ ex.id }}":{"nome":"{{ ex|nome_lingua:lingua_esercizi|escapejs }}","tipologia":"{{ ex.tipologia|escapejs }}"},{% endfor %}
     };
 
-    var addImgUrlTpl = '{% url "add_exercise_image" 0 %}'.replace('/0/', '/__ID__/');
-    var delImgUrlTpl = '{% url "delete_exercise_image" 0 %}'.replace('/0/', '/__ID__/');
+    var addImgUrlTpl = '{% url "add_exercise_image_ajax" 0 %}'.replace('/0/', '/__ID__/');
+    var delImgUrlTpl = '{% url "delete_exercise_image_ajax" 0 %}'.replace('/0/', '/__ID__/');
     var editUrlTpl   = '{% url "edit_exercise_admin" 0 %}'.replace('/0/', '/__ID__/');
     var csrfToken    = '{{ csrf_token }}';
     var MAX_IMAGE_BYTES = {{ max_image_mb }} * 1024 * 1024;
@@ -514,7 +521,116 @@
     wireImagePreview('add-immagine', 'add-immagine-preview', 'add-immagine-error');
     wireImagePreview('edit-immagine', 'edit-immagine-preview', 'edit-immagine-error');
 
+    /* ---- Stato immagini: la card e' l'unica fonte di verita' ---- */
+    function cardFor(id) {
+        return document.querySelector('.ex-card[data-ex-id="' + id + '"]');
+    }
+
+    function cardImages(id) {
+        var card = cardFor(id);
+        if (!card) return [];
+        try { return JSON.parse(card.dataset.images || '[]'); } catch (e) { return []; }
+    }
+
+    // Riscrive card e miniatura dopo un caricamento o un'eliminazione. La
+    // classe no-media non e' decorativa: e' quella su cui gira il filtro
+    // "senza immagine", quindi va tenuta allineata, altrimenti l'esercizio
+    // appena sistemato resta nell'elenco di quelli da sistemare.
+    function setCardImages(id, images) {
+        var card = cardFor(id);
+        if (!card) return;
+        card.dataset.images = JSON.stringify(images);
+        card.classList.toggle('no-media', images.length === 0);
+
+        var vecchia = card.querySelector('.ex-thumb, .ex-thumb-fallback');
+        var nuova;
+        if (images.length) {
+            nuova = document.createElement('img');
+            nuova.className = 'ex-thumb';
+            nuova.loading = 'lazy';
+            nuova.src = images[0].url;
+        } else {
+            nuova = document.createElement('div');
+            nuova.className = 'ex-thumb-fallback';
+            nuova.textContent = ((exerciseData[String(id)] || {}).nome || '').charAt(0).toUpperCase();
+        }
+        if (vecchia) card.replaceChild(nuova, vecchia);
+        else card.insertBefore(nuova, card.firstChild);
+    }
+
     /* ---- Exercise detail modal ---- */
+    function exModalError(msg) {
+        var box = document.getElementById('ex-modal-error');
+        if (!box) return;
+        box.textContent = msg || '';
+        box.style.display = msg ? 'block' : 'none';
+    }
+
+    function renderExGallery(id) {
+        var images = cardImages(id);
+        var gallery = document.getElementById('ex-modal-gallery');
+        gallery.innerHTML = '';
+        if (images.length === 0) {
+            gallery.innerHTML = '<span style="font-size:12px;color:#7d8296;padding:20px 0;">Nessuna immagine ancora.</span>';
+        } else {
+            images.forEach(function(img) {
+                var wrap = document.createElement('div');
+                wrap.style.cssText = 'position:relative;display:inline-block;';
+                var imgEl = document.createElement('img');
+                imgEl.src = img.url;
+                imgEl.style.cssText = 'width:260px;height:260px;object-fit:contain;background:var(--sunken);border-radius:10px;border:1px solid var(--border);display:block;';
+                wrap.appendChild(imgEl);
+                if (IS_ADMIN) {
+                    var del = document.createElement('button');
+                    del.type = 'button';
+                    del.dataset.delImg = img.id;
+                    del.innerHTML = '&times;';
+                    del.style.cssText = 'position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:4px;background:rgba(0,0,0,.7);border:none;color:#f87171;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;';
+                    wrap.appendChild(del);
+                }
+                gallery.appendChild(wrap);
+            });
+        }
+
+        if (IS_ADMIN) {
+            var uploadForm = document.getElementById('ex-upload-form');
+            var limitMsg = document.getElementById('ex-upload-limit-msg');
+            if (uploadForm) {
+                var hasImage = images.length > 0;
+                uploadForm.style.display = hasImage ? 'none' : 'flex';
+                if (limitMsg) limitMsg.style.display = hasImage ? 'block' : 'none';
+                uploadForm.action = addImgUrlTpl.replace('__ID__', id);
+                uploadForm.querySelector('input[type=file]').value = '';
+            }
+        }
+    }
+
+    // Caricamento ed eliminazione immagine: la pagina resta dov'e' e il modale
+    // aperto. Il server rimanda la lista immagini aggiornata, che finisce
+    // sulla card e da li' torna nella galleria.
+    function postImmagine(url, body, bottone) {
+        if (bottone) bottone.disabled = true;
+        fetch(url, { method: 'POST', body: body })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (bottone) bottone.disabled = false;
+                if (!data.ok) { exModalError(data.error || 'Errore, riprova.'); return; }
+                exModalError('');
+                setCardImages(data.exercise_id, data.images);
+                var totale = document.getElementById('media-total-label');
+                if (totale && data.total_media) totale.textContent = data.total_media;
+                renderExGallery(data.exercise_id);
+                // Con il filtro "senza immagine" attivo la card sparisce dalla
+                // griglia appena le dai un'immagine: e' voluto, la lista di
+                // quelli da sistemare si accorcia mentre lavori.
+                applyFilters();
+            })
+            .catch(function() {
+                if (bottone) bottone.disabled = false;
+                exModalError('Errore di rete, riprova.');
+            });
+    }
+
     function openExModal(id) {
         var d = exerciseData[String(id)];
         if (!d) return;
@@ -530,47 +646,31 @@
             meta.appendChild(badge);
         }
 
-        var gallery = document.getElementById('ex-modal-gallery');
-        gallery.innerHTML = '';
-        if (d.images.length === 0) {
-            gallery.innerHTML = '<span style="font-size:12px;color:#7d8296;padding:20px 0;">Nessuna immagine ancora.</span>';
-        } else {
-            d.images.forEach(function(img) {
-                var wrap = document.createElement('div');
-                wrap.style.cssText = 'position:relative;display:inline-block;';
-                var imgEl = document.createElement('img');
-                imgEl.src = img.url;
-                imgEl.style.cssText = 'width:260px;height:260px;object-fit:contain;background:var(--sunken);border-radius:10px;border:1px solid var(--border);display:block;';
-                wrap.appendChild(imgEl);
-                if (IS_ADMIN) {
-                    var form = document.createElement('form');
-                    form.method = 'post';
-                    form.action = delImgUrlTpl.replace('__ID__', img.id);
-                    form.style.cssText = 'position:absolute;top:4px;right:4px;';
-                    form.innerHTML = '<input type="hidden" name="csrfmiddlewaretoken" value="' + csrfToken + '"><input type="hidden" name="next" value="' + window.location.pathname + window.location.search + '"><button type="submit" style="width:20px;height:20px;border-radius:4px;background:rgba(0,0,0,.7);border:none;color:#f87171;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;" onclick="return confirm(\'Elimina immagine?\');">&times;</button>';
-                    wrap.appendChild(form);
-                }
-                gallery.appendChild(wrap);
-            });
-        }
-
-        if (IS_ADMIN) {
-            var uploadForm = document.getElementById('ex-upload-form');
-            var limitMsg = document.getElementById('ex-upload-limit-msg');
-            if (uploadForm) {
-                var hasImage = d.images.length > 0;
-                uploadForm.style.display = hasImage ? 'none' : 'flex';
-                if (limitMsg) limitMsg.style.display = hasImage ? 'block' : 'none';
-                uploadForm.action = addImgUrlTpl.replace('__ID__', id);
-                uploadForm.querySelector('input[type=file]').value = '';
-            }
-        }
-
+        exModalError('');
+        renderExGallery(id);
+        document.getElementById('ex-modal').dataset.exId = id;
         document.getElementById('ex-modal').classList.add('open');
     }
 
     function closeExModal() {
         document.getElementById('ex-modal').classList.remove('open');
+    }
+
+    if (IS_ADMIN) {
+        document.getElementById('ex-modal-gallery').addEventListener('click', function(e) {
+            var btn = e.target.closest('[data-del-img]');
+            if (!btn) return;
+            if (!confirm('Elimina immagine?')) return;
+            var body = new FormData();
+            body.append('csrfmiddlewaretoken', csrfToken);
+            postImmagine(delImgUrlTpl.replace('__ID__', btn.dataset.delImg), body, btn);
+        });
+
+        document.getElementById('ex-upload-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var form = e.target;
+            postImmagine(form.action, new FormData(form), form.querySelector('button[type=submit]'));
+        });
     }
 
     document.addEventListener('click', function(e) {
@@ -591,7 +691,7 @@
             document.getElementById('edit-immagine').value = '';
             document.getElementById('edit-immagine-preview').style.display = 'none';
             document.getElementById('edit-immagine-error').style.display = 'none';
-            var hasImage = ((exerciseData[id] || {}).images || []).length > 0;
+            var hasImage = cardImages(id).length > 0;
             document.getElementById('edit-immagine-wrap').style.display = hasImage ? 'none' : 'block';
             document.getElementById('edit-immagine-limit-msg').style.display = hasImage ? 'block' : 'none';
             document.getElementById('edit-modal').classList.add('open');
