@@ -615,8 +615,12 @@
 
             <!-- Riga 2, sempre visibile anche a giorno chiuso: kcal a sinistra,
                  riepilogo macro al centro (si accorcia lui se manca spazio),
-                 icone azione a destra. -->
-            <div class="day-row-totali" style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+                 icone azione a destra.
+                 Rientro di 22px = larghezza del chevron (14) piu' il gap (8):
+                 cosi' parte sotto la casella di selezione e non sotto il
+                 chevron, allineandosi al blocco data invece che alla freccia
+                 che apre il giorno. -->
+            <div class="day-row-totali" style="display: flex; align-items: center; gap: 8px; margin-top: 8px; margin-left: 22px;">
                 <span style="flex-shrink: 0; background: rgba(var(--acc-rgb),0.14); color: var(--acc-soft); font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;"><span id="day-kcal-{{ day_key }}">{{ day.totals.kcal }}</span> <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goals.kcal }} kcal</span></span>
                 <span id="day-macros-{{ day_key }}" class="day-macros" style="flex: 1; min-width: 0; font-size: 11px; color: #9ba0b3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">P {{ day.totals.proteine_g|floatformat:"-1" }}g &middot; C {{ day.totals.carboidrati_g|floatformat:"-1" }}g &middot; G {{ day.totals.grassi_g|floatformat:"-1" }}g &middot; F {{ day.totals.fibre_g|floatformat:"-1" }}g</span>
                 <div class="day-actions">
