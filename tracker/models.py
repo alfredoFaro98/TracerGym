@@ -25,6 +25,10 @@ class Exercise(models.Model):
 
     # Catalogo degli esercizi
     nome = models.CharField(max_length=100)
+    # Nome in italiano: gli esercizi importati da openGym hanno `nome` in inglese,
+    # quindi la traduzione va in un campo a parte invece di sovrascrivere
+    # l'originale. Vuoto = non tradotto, si ricade su `nome`.
+    nome_it = models.CharField(max_length=120, blank=True, default='')
     tipologia = models.CharField(max_length=120, blank=True, default='')
     tags = models.ManyToManyField(Tag, related_name='exercises')
 
@@ -39,6 +43,13 @@ class Exercise(models.Model):
     # essere ri-eseguibile senza duplicare le righe).
     origine = models.CharField(max_length=20, choices=ORIGINE_CHOICES, default='personale')
     external_id = models.CharField(max_length=30, blank=True, null=True, unique=True)
+
+    def nome_in(self, lingua):
+        # `nome_it` esiste solo per gli esercizi openGym tradotti: per tutti gli
+        # altri (e per l'inglese) il nome giusto resta quello originale.
+        if lingua == 'it' and self.nome_it:
+            return self.nome_it
+        return self.nome
 
     def __str__(self):
         return self.nome
