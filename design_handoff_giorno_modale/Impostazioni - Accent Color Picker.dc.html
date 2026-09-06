@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>body { margin: 0; background: #0c1218; }</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif; padding: 40px; box-sizing: border-box;">
+  <div style="width: 460px; background: #141c24; border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 24px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 30px 80px rgba(0,0,0,0.5);">
+
+    <div>
+      <div style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: #fff;">Aspetto</div>
+      <div style="font-size: 13px; color: #8b93a3; margin-top: 3px;">Scegli qualsiasi colore d'accento.</div>
+    </div>
+
+    <div
+      ref="{{ squareRef }}"
+      onMouseDown="{{ onSquareDown }}"
+      style="{{ squareStyle }}">
+      <div style="{{ squareCursorStyle }}"></div>
+    </div>
+
+    <div ref="{{ hueRef }}" onMouseDown="{{ onHueDown }}" style="{{ hueTrackStyle }}">
+      <div style="{{ hueCursorStyle }}"></div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="width: 36px; height: 36px; border-radius: 10px; background: {{ accent }}; border: 1px solid rgba(255,255,255,0.15); flex-shrink: 0;"></div>
+      <div style="flex: 1; display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 9px; padding: 0 10px; height: 38px; box-sizing: border-box;">
+        <span style="color: #7d8296; font-size: 13px; font-weight: 700;">#</span>
+        <input value="{{ hexInput }}" onChange="{{ onHexChange }}" style="background: transparent; border: none; outline: none; color: #fff; font-size: 13px; font-family: monospace; letter-spacing: 0.03em; width: 100%;" />
+      </div>
+    </div>
+
+    <div style="height: 1px; background: rgba(255,255,255,0.08);"></div>
+
+    <div>
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #7d8296;">ANTEPRIMA</span>
+      <div style="display: flex; align-items: center; gap: 12px; margin-top: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 12px;">
+        <div style="width: 36px; height: 36px; border-radius: 10px; background: {{ accentSoft }}; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;">🏋️</div>
+        <div style="flex: 1; min-width: 0;">
+          <div style="color: #fff; font-size: 14px; font-weight: 700;">Petto &amp; Tricipiti</div>
+          <div style="color: {{ accent }}; font-size: 12px; margin-top: 1px; font-weight: 700;">18:05 · 26 serie · 54m</div>
+        </div>
+      </div>
+      <div style="margin-top: 10px; background: {{ accent }}; color: #fff; font-size: 13px; font-weight: 700; text-align: center; padding: 11px; border-radius: 10px;">Aggiungi sessione</div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { h: 28, s: 0.88, v: 0.96, hexInput: 'F4903A', draggingSquare: false, draggingHue: false };
+  squareRef = React.createRef();
+  hueRef = React.createRef();
+
+  hsvToHex(h, s, v) {
+    const c = v * s, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = v - c;
+    let r, g, b;
+    if (h < 60) [r, g, b] = [c, x, 0];
+    else if (h < 120) [r, g, b] = [x, c, 0];
+    else if (h < 180) [r, g, b] = [0, c, x];
+    else if (h < 240) [r, g, b] = [0, x, c];
+    else if (h < 300) [r, g, b] = [x, 0, c];
+    else [r, g, b] = [c, 0, x];
+    const to255 = (n) => Math.round((n + m) * 255);
+    return '#' + [to255(r), to255(g), to255(b)].map(n => n.toString(16).padStart(2, '0')).join('').toUpperCase();
+  }
+
+  hexToHsv(hex) {
+    hex = hex.replace('#', '');
+    if (hex.length !== 6) return null;
+    const n = parseInt(hex, 16);
+    const r = ((n >> 16) & 255) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+    let h = 0;
+    if (d !== 0) {
+      if (max === r) h = 60 * (((g - b) / d) % 6);
+      else if (max === g) h = 60 * ((b - r) / d + 2);
+      else h = 60 * ((r - g) / d + 4);
+    }
+    if (h < 0) h += 360;
+    const s = max === 0 ? 0 : d / max, v = max;
+    return { h, s, v };
+  }
+
+  updateFromSquare = (clientX, clientY) => {
+    const el = this.squareRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const s = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    const v = Math.min(1, Math.max(0, 1 - (clientY - rect.top) / rect.height));
+    this.setState({ s, v, hexInput: this.hsvToHex(this.state.h, s, v).slice(1) });
+  };
+
+  updateFromHue = (clientX) => {
+    const el = this.hueRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const h = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width)) * 360;
+    this.setState({ h, hexInput: this.hsvToHex(h, this.state.s, this.state.v).slice(1) });
+  };
+
+  onSquareDown = (e) => {
+    this.updateFromSquare(e.clientX, e.clientY);
+    const move = (ev) => this.updateFromSquare(ev.clientX, ev.clientY);
+    const up = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  onHueDown = (e) => {
+    this.updateFromHue(e.clientX);
+    const move = (ev) => this.updateFromHue(ev.clientX);
+    const up = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  onHexChange = (e) => {
+    const val = e.target.value.replace(/[^0-9a-fA-F]/g, '').slice(0, 6);
+    this.setState({ hexInput: val });
+    if (val.length === 6) {
+      const hsv = this.hexToHsv(val);
+      if (hsv) this.setState({ h: hsv.h, s: hsv.s, v: hsv.v });
+    }
+  };
+
+  hexToRgba(hex, a) {
+    const n = parseInt(hex.slice(1), 16);
+    return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
+  }
+
+  renderVals() {
+    const { h, s, v, hexInput } = this.state;
+    const accent = '#' + (hexInput.length === 6 ? hexInput : this.hsvToHex(h, s, v).slice(1));
+    const hueColor = this.hsvToHex(h, 1, 1);
+    return {
+      squareRef: this.squareRef, hueRef: this.hueRef,
+      onSquareDown: this.onSquareDown, onHueDown: this.onHueDown,
+      accent, accentSoft: this.hexToRgba(accent, 0.18),
+      hexInput, onHexChange: this.onHexChange,
+      squareStyle: {
+        position: 'relative', width: '100%', height: 200, borderRadius: 12, cursor: 'crosshair',
+        background: `linear-gradient(to top, #000, rgba(0,0,0,0)), linear-gradient(to right, #fff, ${hueColor})`,
+        border: '1px solid rgba(255,255,255,0.1)'
+      },
+      squareCursorStyle: {
+        position: 'absolute', left: (s * 100) + '%', top: ((1 - v) * 100) + '%',
+        width: 16, height: 16, borderRadius: '50%', border: '2px solid #fff',
+        boxShadow: '0 0 0 1px rgba(0,0,0,0.4)', transform: 'translate(-8px,-8px)', background: accent, pointerEvents: 'none'
+      },
+      hueTrackStyle: {
+        position: 'relative', width: '100%', height: 16, borderRadius: 8, cursor: 'pointer',
+        background: 'linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)'
+      },
+      hueCursorStyle: {
+        position: 'absolute', left: (h / 360 * 100) + '%', top: '50%',
+        width: 18, height: 18, borderRadius: '50%', border: '3px solid #fff',
+        boxShadow: '0 0 0 1px rgba(0,0,0,0.4)', transform: 'translate(-9px,-50%)', background: hueColor, pointerEvents: 'none'
+      }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

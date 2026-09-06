@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>body { margin: 0; background: #0e1116; } ::placeholder { color: #6d7285; }</style>
+</helmet>
+<div style="width: 360px; background: #14161c; border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 16px; font-family: 'Plus Jakarta Sans', sans-serif; box-sizing: border-box;">
+
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <span style="font-size: 20px; flex-shrink: 0;">💧</span>
+    <div style="display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0;">
+      <span style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; color: #7d8296;">ACQUA DI OGGI</span>
+      <span style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; color: #ffffff; white-space: nowrap;">{{ current }} L <span style="font-size: 13px; font-weight: 500; color: #7d8296;">/ {{ goal }} L</span></span>
+    </div>
+    <div style="width: 30px; height: 30px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer;" style-hover="background: rgba(255,255,255,0.09);" title="Obiettivo giornaliero">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9297a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 8px;">
+    <sc-for list="{{ quickAdds }}" as="q" hint-placeholder-count="3">
+      <div onClick="{{ q.onClick }}" style="flex: 1; min-width: 0; background: rgba(124,108,246,0.14); border: 1px solid rgba(124,108,246,0.3); color: #a996ff; font-size: 13px; font-weight: 700; text-align: center; padding: 9px 4px; border-radius: 9px; cursor: pointer; white-space: nowrap;" style-hover="background: rgba(124,108,246,0.24);">{{ q.label }}</div>
+    </sc-for>
+  </div>
+
+  <div style="display: flex; gap: 8px; align-items: center;">
+    <div style="width: 118px; flex-shrink: 0; display: flex; align-items: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 9px; padding: 0 8px; height: 34px; box-sizing: border-box;">
+      <input type="time" value="{{ time }}" onChange="{{ setTime }}" style="background: transparent; border: none; outline: none; color: #fff; font-size: 12.5px; font-family: inherit; width: 100%; min-width: 0; padding: 0;" />
+    </div>
+    <input placeholder="ml" value="{{ mlInput }}" onChange="{{ setMl }}" style="width: 56px; flex-shrink: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 9px; color: #fff; font-size: 13px; text-align: center; padding: 9px 4px; font-family: inherit; box-sizing: border-box;" />
+    <div onClick="{{ addCustom }}" style="background: #7c6cf6; color: #fff; font-size: 13px; font-weight: 700; padding: 9px 4px; border-radius: 9px; flex: 1; min-width: 0; text-align: center; cursor: pointer; white-space: nowrap;" style-hover="background: #8b7bf7;">Aggiungi</div>
+  </div>
+
+  <div style="height: 8px; border-radius: 4px; background: rgba(255,255,255,0.06); overflow: hidden;">
+    <div style="{{ barStyle }}"></div>
+  </div>
+
+  <div style="display: flex; justify-content: flex-end;">
+    <a href="#" style="font-size: 12.5px; font-weight: 700; color: #a996ff; text-decoration: none; display: flex; align-items: center; gap: 4px;" style-hover="color: #c3b6ff;">Vedi storico <span>→</span></a>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { current: 0, goal: 3, time: '15:25', mlInput: '' };
+
+  add = (ml) => this.setState(s => ({ current: Math.round((s.current + ml / 1000) * 100) / 100 }));
+  setTime = (e) => this.setState({ time: e.target.value });
+  setMl = (e) => this.setState({ mlInput: e.target.value.replace(/[^0-9]/g, '') });
+  addCustom = () => {
+    const ml = parseInt(this.state.mlInput, 10);
+    if (ml > 0) { this.add(ml); this.setState({ mlInput: '' }); }
+  };
+
+  renderVals() {
+    const pct = Math.min(100, Math.round((this.state.current / this.state.goal) * 100));
+    return {
+      current: this.state.current.toLocaleString('it-IT'), goal: this.state.goal,
+      time: this.state.time, setTime: this.setTime,
+      mlInput: this.state.mlInput, setMl: this.setMl, addCustom: this.addCustom,
+      quickAdds: [
+        { label: '+250ml', onClick: () => this.add(250) },
+        { label: '+500ml', onClick: () => this.add(500) },
+        { label: '+1L', onClick: () => this.add(1000) }
+      ],
+      barStyle: { width: pct + '%', height: '100%', background: '#6cb4ff', borderRadius: '4px', transition: 'width 0.2s' }
+    };
+  }
+}
+
+</script>
+</body>
+</html>
