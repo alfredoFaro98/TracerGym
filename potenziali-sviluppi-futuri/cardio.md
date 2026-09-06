@@ -14,6 +14,12 @@ TracerGym registra oggi solo lavoro coi carichi: `WorkoutSession` contiene `Work
 
 Su questi 14 ci sono **zero serie registrate**. Non perché non vengano usati, ma perché non esiste un posto dove mettere durata, distanza e pendenza. **Manca la registrazione, non il catalogo.**
 
+> **Attenzione al confine con [camminata.md](camminata.md).** Questo documento riguarda il cardio **dentro una seduta**: il tapis prima delle panche, la cyclette a fine allenamento. Camminate e corse **all'aperto** sono uscite a sé stanti e vivono in un modello loro, perché per registrarle qui bisognerebbe creare una `WorkoutSession` vuota apposta.
+>
+> Gli esercizi "Corsa" e "Camminata veloce" restano quindi in questo elenco, ma vanno intesi come corsa e camminata **sul tapis, in palestra**. La stessa attività fatta fuori si registra nell'altra pagina.
+
+
+
 Nota utile: `WorkoutSet.durata` (secondi) **esiste già ed è collegata ovunque**. Un esercizio a tempo (plank) funziona già oggi da capo a fondo. È metà della registrazione a tempo, già fatta.
 
 ## La decisione di fondo, e perché
