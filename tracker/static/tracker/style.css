@@ -716,3 +716,48 @@ a { text-decoration: none; }
   color: #f0f0f3;
   margin: 0;
 }
+
+/* ==========================================================================
+   Campi data e orario su telefono. Sono controlli nativi: il browser li
+   disegna con regole sue, e tre di quelle regole rompono la scheda.
+
+   1. Hanno una larghezza minima propria. Su iOS un campo data non scende
+      sotto lo spazio che gli serve per scrivere il valore, e width:100% non
+      basta a convincerlo. Dentro le griglie a due colonne (Sonno,
+      Misurazioni, Alimentazione, Acqua, Integratori) su un telefono da
+      360px la colonna e' circa 156px, e il campo sbordava dalla card
+      trascinandosi dietro il resto della riga. min-width:0 gli toglie quel
+      pavimento e lo lascia restringere come un campo di testo.
+
+   2. Il valore non sta nel campo ma in un box suo
+      (::-webkit-date-and-time-value), che dentro l'altezza fissa di 40px
+      finiva allineato male e a volte tagliato sotto.
+
+   3. Sotto i 16px iOS ingrandisce la pagina appena si tocca il campo, e
+      tornando indietro non sempre rimette a posto lo zoom: e' quello che fa
+      sembrare storta tutta la scheda dopo aver toccato la data. 16px e' la
+      soglia esatta sotto la quale scatta, non un valore scelto a occhio.
+      !important perche' due campi (l'orario dell'acqua in dashboard e la
+      data di importazione in session_view) hanno il font-size nello stile
+      inline, che altrimenti vincerebbe.
+
+   Tutto entro i 768px: su desktop questi controlli si comportano gia' bene
+   e l'aspetto nativo, icona del calendario compresa, va lasciato com'e'.
+   ========================================================================== */
+@media (max-width: 768px) {
+  input[type="date"],
+  input[type="time"] {
+    min-width: 0;
+    font-family: inherit;
+    font-size: 16px !important;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  input[type="date"]::-webkit-date-and-time-value,
+  input[type="time"]::-webkit-date-and-time-value {
+    text-align: left;
+    margin: 0;
+    line-height: normal;
+  }
+}
