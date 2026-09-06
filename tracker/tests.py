@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Exercise, UserProfile, WorkoutSession, WorkoutSet
+from .models import Exercise, ExerciseImage, UserProfile, WorkoutSession, WorkoutSet
 
 
 class ApplicaATutteTest(TestCase):
@@ -213,10 +213,14 @@ class LinguaEserciziTest(TestCase):
     def test_il_catalogo_non_stampa_tag_di_template(self):
         # Un commento {# #} su piu' righe Django non lo riconosce e lo manda a
         # schermo tal quale, una volta per esercizio: era gia' successo.
-        risposta = self.client.get(reverse('exercises_list'))
-        corpo = risposta.content.decode()
-        for residuo in ('{#', '#}', '{%'):
-            self.assertNotIn(residuo, corpo)
+        # Si controlla anche da superuser perche' pezzi di pagina esistono solo
+        # per lui: da utente normale non verrebbero nemmeno renderizzati.
+        admin = User.objects.create_superuser(username='admin', password='x')
+        for utente in (self.user, admin):
+            self.client.force_login(utente)
+            corpo = self.client.get(reverse('exercises_list')).content.decode()
+            for residuo in ('{#', '#}', '{%'):
+                self.assertNotIn(residuo, corpo, f'residuo {residuo} da {utente.username}')
 
     def test_il_catalogo_e_ordinato_sul_nome_mostrato(self):
         # In italiano "Trazioni assistite" viene dopo "Panca Piana"; in inglese
@@ -231,3 +235,40 @@ class LinguaEserciziTest(TestCase):
         risposta = self.client.get(reverse('exercises_list'))
         nomi = [e.nome_visuale for e in risposta.context['exercises']]
         self.assertEqual(nomi, ['Assisted pull-up', 'Panca Piana'])
+
+
+class FiltroSenzaImmagineTest(TestCase):
+    """Filtro del catalogo per le schede a cui manca ancora la gif.
+
+    E' uno strumento di manutenzione del catalogo, quindi deve comparire solo
+    a chi il catalogo lo cura: a un utente normale non serve e non deve
+    nemmeno arrivare nella pagina.
+    """
+
+    def setUp(self):
+        self.admin = User.objects.create_superuser(username='capo', password='x')
+        self.utente = User.objects.create_user(username='atleta', password='x')
+        self.senza = Exercise.objects.create(nome='Senza Gif')
+        self.con = Exercise.objects.create(nome='Con Gif')
+        # Si assegna il percorso invece di caricare un file: al template serve
+        # solo `.url`, e un upload vero lascerebbe file veri in media/ ad ogni
+        # giro di test.
+        ExerciseImage.objects.create(exercise=self.con, immagine='exercises/finta.gif')
+
+    def test_il_filtro_c_e_solo_per_il_superuser(self):
+        self.client.force_login(self.admin)
+        self.assertContains(self.client.get(reverse('exercises_list')), 'Senza immagine')
+
+        self.client.force_login(self.utente)
+        self.assertNotContains(self.client.get(reverse('exercises_list')), 'Senza immagine')
+
+    def test_solo_le_schede_senza_immagine_sono_marcate(self):
+        # Il filtro lato client lavora sulla classe no-media: se il template
+        # smettesse di metterla, il filtro non troverebbe piu' niente.
+        self.client.force_login(self.admin)
+        corpo = self.client.get(reverse('exercises_list')).content.decode()
+
+        senza_card = corpo.split('Senza Gif')[0].rsplit('<div class="ex-card', 1)[-1]
+        con_card = corpo.split('Con Gif')[0].rsplit('<div class="ex-card', 1)[-1]
+        self.assertIn('no-media', senza_card)
+        self.assertNotIn('no-media', con_card)
