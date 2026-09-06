@@ -1,0 +1,313 @@
+{% extends 'tracker/base.html' %}
+{% load static %}
+
+{% block title %}Attività - Workout Tracker{% endblock %}
+
+{% block extra_head %}
+<script src="{% static 'tracker/year-heatmap.js' %}?v={{ app_version }}"></script>
+<style>
+    .page-container .btn-primary-gradient { background: var(--acc); }
+    .page-container .btn-primary-gradient:hover { background: var(--acc-2); opacity: 1; }
+
+    /* Griglia della settimana: sette colonne su schermo largo, tre su mobile.
+       Non si stringe oltre, altrimenti le caselle diventano troppo strette per
+       digitarci dentro un numero a cinque cifre. */
+    .settimana-griglia {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px;
+    }
+    @media (max-width: 768px) {
+        .settimana-griglia { grid-template-columns: repeat(3, 1fr); }
+    }
+    .giorno-cella {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        padding: 10px 8px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 10px;
+    }
+    .giorno-cella.e-oggi { border-color: var(--acc); }
+    .giorno-cella.e-futuro { opacity: .45; }
+    .giorno-nome {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: #7d8296;
+        text-align: center;
+    }
+    .giorno-data { font-size: 10.5px; color: #565b6e; text-align: center; }
+    .giorno-cella input {
+        width: 100%;
+        padding: 7px 6px;
+        background: var(--sunken);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        color: #f0f0f3;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12.5px;
+        text-align: center;
+    }
+    .giorno-cella input:focus { border-color: var(--acc); }
+
+    .barra-obiettivo {
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.06);
+        overflow: hidden;
+    }
+    .barra-obiettivo > span {
+        display: block;
+        height: 100%;
+        border-radius: 999px;
+        background: var(--acc);
+        transition: width .3s;
+    }
+
+    .riquadro-dato {
+        flex: 1;
+        min-width: 120px;
+        padding: 14px 16px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 10px;
+    }
+    .riquadro-etichetta {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: #7d8296;
+        margin-bottom: 4px;
+    }
+    .riquadro-valore {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 19px;
+        font-weight: 600;
+        color: #f0f0f3;
+    }
+
+    .heatmap-scroll-wrap { overflow-x: auto; display: flex; justify-content: center; }
+    @media (max-width: 900px) { .heatmap-scroll-wrap { justify-content: flex-start; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div style="margin-bottom: 20px;">
+        <h1 class="page-title">🏃 Attività</h1>
+    </div>
+
+    <!-- Oggi e riepilogo -->
+    <div class="tracer-card" style="padding: 22px 24px; margin-bottom: 24px;">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px;">
+            <div>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 30px; font-weight: 700; color: var(--acc-soft);">{{ passi_oggi }}</span>
+                <span style="font-size: 13px; color: #7d8296;"> / {{ obiettivo_passi }} passi oggi</span>
+            </div>
+            <span style="font-size: 12px; color: #7d8296;">{{ percentuale_oggi }}%</span>
+        </div>
+        <div class="barra-obiettivo"><span style="width: {{ percentuale_oggi }}%;"></span></div>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px;">
+            <div class="riquadro-dato">
+                <div class="riquadro-etichetta">Media 30 giorni</div>
+                <div class="riquadro-valore">{{ media_30 }}</div>
+            </div>
+            <div class="riquadro-dato">
+                <div class="riquadro-etichetta">Sopra obiettivo</div>
+                <div class="riquadro-valore">{{ giorni_sopra_obiettivo }}<span style="font-size: 12px; color: #7d8296;"> / 30</span></div>
+            </div>
+            <form action="{% url 'set_obiettivo_passi' %}" method="post" class="riquadro-dato" style="display: flex; flex-direction: column; gap: 6px;">
+                {% csrf_token %}
+                <div class="riquadro-etichetta">Obiettivo giornaliero</div>
+                <div style="display: flex; gap: 6px;">
+                    <input type="number" name="obiettivo_passi" value="{{ obiettivo_passi }}" min="1" class="tracer-input" style="width: 100%; padding: 4px 8px; font-family: 'JetBrains Mono', monospace; font-size: 14px;">
+                    <button type="submit" class="btn-primary-gradient" style="padding: 4px 12px; font-size: 12px;">OK</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% comment %}
+    La griglia della settimana e' la funzione che decide se questa pagina viene
+    usata: i passi si copiano a mano dal telefono, nessuno lo fa ogni sera, e
+    senza un modo di recuperare tre giorni insieme la pagina si abbandona.
+    Svuotare una casella cancella il valore di quel giorno.
+    {% endcomment %}
+    <div class="tracer-card" style="padding: 22px 24px; margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+            <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase;">Settimana del {{ lunedi|date:"d/m/Y" }}</div>
+            <div style="display: flex; gap: 8px;">
+                <a href="?settimana={{ settimana_prec|date:'Y-m-d' }}" style="padding: 5px 12px; border-radius: 7px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 12px; text-decoration: none;">← Precedente</a>
+                {% if ce_una_settimana_dopo %}
+                <a href="?settimana={{ settimana_succ|date:'Y-m-d' }}" style="padding: 5px 12px; border-radius: 7px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #c7cbd6; font-size: 12px; text-decoration: none;">Successiva →</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <form action="{% url 'salva_passi_settimana' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <div class="settimana-griglia">
+                {% for g in settimana %}
+                <div class="giorno-cella{% if g.oggi %} e-oggi{% endif %}{% if g.futuro %} e-futuro{% endif %}">
+                    <span class="giorno-nome">{{ g.data|date:"D" }}</span>
+                    <span class="giorno-data">{{ g.data|date:"d/m" }}</span>
+                    <input type="hidden" name="data_{{ forloop.counter0 }}" value="{{ g.data|date:'Y-m-d' }}">
+                    <input type="number" name="passi_{{ forloop.counter0 }}" value="{{ g.passi|default_if_none:'' }}" min="0" placeholder="—" {% if g.futuro %}disabled{% endif %}>
+                </div>
+                {% endfor %}
+            </div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 14px;">
+                <button type="submit" class="btn-primary-gradient" style="padding: 9px 18px; font-size: 13px;">Salva settimana</button>
+            </div>
+        </form>
+        <div style="font-size: 10.5px; color: #565b6e; margin-top: 10px;">Svuota una casella per cancellare i passi di quel giorno. I giorni futuri non si compilano.</div>
+    </div>
+
+    <!-- Heatmap annuale -->
+    <div class="tracer-card" style="padding: 24px 26px 6px; margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; padding-bottom: 18px;">
+            <button type="button" onclick="changeYear(-1)" style="background:none;border:none;color:#9ba0b3;cursor:pointer;padding:4px;display:flex;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <span style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: #f0f0f3;">{{ selected_year }}</span>
+            <button type="button" onclick="changeYear(1)" style="background:none;border:none;color:#9ba0b3;cursor:pointer;padding:4px;display:flex;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+        </div>
+        <div class="desktop-only heatmap-scroll-wrap">
+            <div id="year-heatmap" style="display: flex; flex-direction: column; gap: 6px; width: 100%; min-width: 920px;"></div>
+        </div>
+        <div class="mobile-only">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 10px;">
+                <button type="button" onclick="mobileCalPrev()" style="background:none;border:none;color:#f0f0f3;font-size:16px;cursor:pointer;padding:4px 10px;">&#8592;</button>
+                <span id="mobile-month-label" style="font-size: 11px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px; min-width: 80px; text-align: center;"></span>
+                <button type="button" onclick="mobileCalNext()" style="background:none;border:none;color:#f0f0f3;font-size:16px;cursor:pointer;padding:4px 10px;">&#8594;</button>
+            </div>
+            <div style="display: flex; justify-content: center; width: 100%;">
+                <div id="mobile-cal-heatmap" style="overflow: visible; position: relative;"></div>
+            </div>
+        </div>
+        <div style="font-size: 10.5px; color: #565b6e; text-align: center; padding: 10px 0 4px;">Colore in base alla % dell'obiettivo ({{ obiettivo_passi }} passi)</div>
+    </div>
+
+    <!-- Storico -->
+    <div class="tracer-card" style="overflow: hidden;">
+        <div style="padding: 18px 22px; border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase;">Storico</div>
+        {% for v in voci %}
+        <div style="padding: 12px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px;">
+            <span style="flex: 1; min-width: 0; font-size: 13px; color: #f0f0f3;">{{ v.data|date:"l d F Y"|capfirst }}</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: {% if v.passi >= obiettivo_passi %}var(--acc-soft){% else %}#9ba0b3{% endif %};">{{ v.passi }}</span>
+            <form action="{% url 'elimina_passi' v.id %}" method="post" style="margin: 0;" onsubmit="return confirm('Cancellare i passi del {{ v.data|date:"d/m/Y" }}?');">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button type="submit" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(248,113,113,.12); border: 1px solid rgba(248,113,113,.22); border-radius: 6px; color: #f87171; cursor: pointer;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+            </form>
+        </div>
+        {% empty %}
+        <div style="padding: 30px; text-align: center; color: #7d8296; font-size: 13px;">Nessun giorno registrato. Comincia dalla griglia qui sopra.</div>
+        {% endfor %}
+
+        {% if voci.has_other_pages %}
+        <div style="padding: 14px 22px; display: flex; align-items: center; justify-content: center; gap: 14px;">
+            {% if voci.has_previous %}<a href="?page={{ voci.previous_page_number }}" style="color: var(--acc-4); font-size: 12.5px; text-decoration: none;">← Precedenti</a>{% endif %}
+            <span style="font-size: 12px; color: #7d8296;">{{ voci.number }} / {{ voci.paginator.num_pages }}</span>
+            {% if voci.has_next %}<a href="?page={{ voci.next_page_number }}" style="color: var(--acc-4); font-size: 12.5px; text-decoration: none;">Successivi →</a>{% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function changeYear(delta) {
+    var url = new URL(window.location);
+    url.searchParams.set('year', {{ selected_year }} + delta);
+    url.searchParams.delete('page');
+    window.location = url;
+}
+
+var OBIETTIVO = {{ obiettivo_passi }};
+var rawData = {{ heatmap_data_json|safe }};
+var passiPerData = {};
+var obiettivoPerData = {};
+rawData.forEach(function(item) {
+    var d = new Date(item.date * 1000);
+    var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    passiPerData[key] = item.value;
+    obiettivoPerData[key] = item.goal || OBIETTIVO;
+});
+
+var YEAR = {{ selected_year }};
+
+// Stessi gradini della pagina Acqua: il colore dice quanto ci si e'
+// avvicinati all'obiettivo, non il valore assoluto. Cosi' chi cammina 6.000
+// passi con obiettivo 6.000 vede un giorno pieno come chi ne fa 15.000.
+function coloreLivello(passi, obiettivo) {
+    var accRgb = (getComputedStyle(document.documentElement).getPropertyValue('--acc-rgb').trim() || '124, 108, 246');
+    if (!passi) return 'rgba(255,255,255,0.05)';
+    var ratio = obiettivo > 0 ? passi / obiettivo : 0;
+    if (ratio >= 1) return 'rgba(' + accRgb + ',1)';
+    if (ratio >= 0.75) return 'rgba(' + accRgb + ',0.78)';
+    if (ratio >= 0.5) return 'rgba(' + accRgb + ',0.55)';
+    if (ratio >= 0.25) return 'rgba(' + accRgb + ',0.35)';
+    return 'rgba(' + accRgb + ',0.18)';
+}
+
+function etichetta(dateStr, giorno, mese, anno) {
+    var passi = passiPerData[dateStr] || 0;
+    var obiettivo = obiettivoPerData[dateStr] || OBIETTIVO;
+    var pct = obiettivo > 0 ? Math.round((passi / obiettivo) * 100) : 0;
+    return giorno + ' ' + mese + ' ' + anno + ' — ' +
+        (passi === 0 ? 'nessun passo registrato' : passi + ' passi (' + pct + '% obiettivo)');
+}
+
+var LEGENDA = [0, 0.25, 0.5, 0.75, 1].map(function(r) { return coloreLivello(r * 1000, 1000); });
+
+TracerHeatmap.build({
+    container: 'year-heatmap',
+    year: YEAR,
+    colorFor: function(dateStr) {
+        return coloreLivello(passiPerData[dateStr] || 0, obiettivoPerData[dateStr] || OBIETTIVO);
+    },
+    labelFor: function(dateStr, giorno, mese) { return etichetta(dateStr, giorno, mese, YEAR); },
+    legend: LEGENDA
+});
+
+var mesiBrevi = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+var meseMobile = new Date();
+meseMobile.setDate(1);
+
+function renderMobileCal() {
+    var el = document.getElementById('mobile-month-label');
+    if (el) el.textContent = mesiBrevi[meseMobile.getMonth()] + ' ' + meseMobile.getFullYear();
+    var anno = meseMobile.getFullYear();
+    TracerHeatmap.buildMonth({
+        container: 'mobile-cal-heatmap',
+        year: anno,
+        month: meseMobile.getMonth(),
+        colorFor: function(dateStr) {
+            return coloreLivello(passiPerData[dateStr] || 0, obiettivoPerData[dateStr] || OBIETTIVO);
+        },
+        labelFor: function(dateStr, giorno, mese) { return etichetta(dateStr, giorno, mese, anno); },
+        legend: LEGENDA
+    });
+}
+
+function mobileCalPrev() {
+    meseMobile = new Date(meseMobile.getFullYear(), meseMobile.getMonth() - 1, 1);
+    renderMobileCal();
+}
+function mobileCalNext() {
+    meseMobile = new Date(meseMobile.getFullYear(), meseMobile.getMonth() + 1, 1);
+    renderMobileCal();
+}
+renderMobileCal();
+</script>
+{% endblock %}

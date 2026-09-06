@@ -20,7 +20,7 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib.auth.models import User
 from .accent import normalizza_hex, scala_accent
-from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal, IntegratoreEntry, SiteVisit, MacroEntry, MacroGoal, MacroDayStatus, SleepEntry
+from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal, IntegratoreEntry, SiteVisit, MacroEntry, MacroGoal, MacroDayStatus, SleepEntry, PassiGiorno
 
 
 REMEMBER_ME_SECONDS = 60 * 60 * 24 * 30  # 30 giorni
@@ -2847,3 +2847,157 @@ def delete_sleep_entry(request, entry_id):
     if request.method == 'POST':
         entry.delete()
     return redirect(request.POST.get('next') or 'sonno')
+
+
+# ---------------------------------------------------------------------------
+# Attivita': passi giornalieri. Le uscite (camminata/corsa/corsa pesata)
+# arriveranno qui accanto, vedi potenziali-sviluppi-futuri/camminata.md.
+# ---------------------------------------------------------------------------
+
+def _passi_settimana(user, lunedi):
+    """I sette giorni della settimana che inizia il lunedi' dato, con i passi
+    gia' registrati dove ci sono. Serve alla griglia di inserimento multiplo."""
+    esistenti = {
+        p.data: p.passi
+        for p in PassiGiorno.objects.filter(
+            utente=user, data__gte=lunedi, data__lte=lunedi + timedelta(days=6)
+        )
+    }
+    oggi = timezone.localdate()
+    giorni = []
+    for i in range(7):
+        giorno = lunedi + timedelta(days=i)
+        giorni.append({
+            'data': giorno,
+            'passi': esistenti.get(giorno),
+            # I giorni futuri restano visibili ma non compilabili: una griglia
+            # a sette caselle senza questo inviterebbe a inventarsi i passi di
+            # dopodomani.
+            'futuro': giorno > oggi,
+            'oggi': giorno == oggi,
+        })
+    return giorni
+
+
+@login_required
+def attivita(request):
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    obiettivo = profile.obiettivo_passi
+    oggi = timezone.localdate()
+
+    voci = PassiGiorno.objects.filter(utente=request.user)
+    passi_oggi = next((v.passi for v in voci if v.data == oggi), 0)
+
+    # Settimana mostrata nella griglia: quella corrente, o quella chiesta.
+    lunedi = oggi - timedelta(days=oggi.weekday())
+    settimana_str = request.GET.get('settimana')
+    if settimana_str:
+        try:
+            scelto = date.fromisoformat(settimana_str)
+            lunedi = scelto - timedelta(days=scelto.weekday())
+        except ValueError:
+            pass
+
+    anno_str = request.GET.get('year')
+    anno = int(anno_str) if anno_str and anno_str.isdigit() else oggi.year
+
+    heatmap_data = []
+    for v in voci:
+        if v.data.year != anno:
+            continue
+        timestamp = int(time.mktime(datetime(v.data.year, v.data.month, v.data.day).timetuple()))
+        # Come fa la pagina Acqua: passando anche l'obiettivo, la casella si
+        # colora su quanto ci si e' avvicinati invece che sul valore assoluto.
+        heatmap_data.append({'date': timestamp, 'value': v.passi, 'goal': obiettivo})
+
+    ultimi_30 = [v for v in voci if (oggi - v.data).days < 30]
+    media_30 = round(sum(v.passi for v in ultimi_30) / len(ultimi_30)) if ultimi_30 else 0
+
+    paginator = Paginator(list(voci), 14)
+    pagina = paginator.get_page(request.GET.get('page'))
+
+    return render(request, 'tracker/attivita.html', {
+        'passi_oggi': passi_oggi,
+        'obiettivo_passi': obiettivo,
+        'percentuale_oggi': min(100, round(passi_oggi / obiettivo * 100)) if obiettivo else 0,
+        'media_30': media_30,
+        'giorni_sopra_obiettivo': sum(1 for v in ultimi_30 if v.passi >= obiettivo),
+        'settimana': _passi_settimana(request.user, lunedi),
+        'lunedi': lunedi,
+        'settimana_prec': lunedi - timedelta(days=7),
+        'settimana_succ': lunedi + timedelta(days=7),
+        'ce_una_settimana_dopo': lunedi + timedelta(days=7) <= oggi,
+        'voci': pagina,
+        'heatmap_data_json': json.dumps(heatmap_data),
+        'selected_year': anno,
+        'oggi': oggi,
+    })
+
+
+def _salva_passi(user, giorno, grezzo):
+    """Scrive i passi di un giorno. Stringa vuota = la voce va tolta.
+
+    Si usa update_or_create perche' (utente, data) e' unico: reinserire un
+    giorno gia' compilato deve correggerlo, non far fallire il salvataggio.
+    """
+    valore = (grezzo or '').strip()
+    if not valore:
+        PassiGiorno.objects.filter(utente=user, data=giorno).delete()
+        return
+    if not valore.isdigit():
+        return
+    PassiGiorno.objects.update_or_create(
+        utente=user, data=giorno, defaults={'passi': int(valore)},
+    )
+
+
+@login_required
+def salva_passi(request):
+    if request.method == 'POST':
+        giorno = timezone.localdate()
+        data_str = request.POST.get('data')
+        if data_str:
+            try:
+                giorno = date.fromisoformat(data_str)
+            except ValueError:
+                pass
+        _salva_passi(request.user, giorno, request.POST.get('passi'))
+    return redirect(request.POST.get('next') or 'attivita')
+
+
+@login_required
+def salva_passi_settimana(request):
+    """Griglia a sette caselle. E' la funzione che decide se la pagina viene
+    usata: i passi si copiano a mano dal telefono, e nessuno lo fa ogni sera."""
+    if request.method == 'POST':
+        oggi = timezone.localdate()
+        for i in range(7):
+            giorno_str = request.POST.get(f'data_{i}')
+            if not giorno_str:
+                continue
+            try:
+                giorno = date.fromisoformat(giorno_str)
+            except ValueError:
+                continue
+            if giorno > oggi:
+                continue
+            _salva_passi(request.user, giorno, request.POST.get(f'passi_{i}'))
+    return redirect(request.POST.get('next') or 'attivita')
+
+
+@login_required
+def elimina_passi(request, entry_id):
+    if request.method == 'POST':
+        PassiGiorno.objects.filter(id=entry_id, utente=request.user).delete()
+    return redirect(request.POST.get('next') or 'attivita')
+
+
+@login_required
+def set_obiettivo_passi(request):
+    if request.method == 'POST':
+        valore = (request.POST.get('obiettivo_passi') or '').strip()
+        if valore.isdigit() and int(valore) > 0:
+            profile, _ = UserProfile.objects.get_or_create(user=request.user)
+            profile.obiettivo_passi = int(valore)
+            profile.save()
+    return redirect(request.POST.get('next') or 'attivita')

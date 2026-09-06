@@ -129,6 +129,7 @@ class UserProfile(models.Model):
     # un preset, cosi' chi ci ripensa ritrova il colore che si era scelto
     # invece di doverlo ripescare a occhio.
     accent_hex = models.CharField(max_length=7, blank=True, default='')
+    obiettivo_passi = models.PositiveIntegerField(default=10000)
     # Lingua con cui mostrare i nomi degli esercizi. Riguarda solo la
     # visualizzazione: il catalogo resta uno solo, cambia il campo che si legge
     # (`nome_it` invece di `nome`). Default italiano perche' l'app e' in italiano.
@@ -413,3 +414,29 @@ class SleepEntry(models.Model):
 
     def __str__(self):
         return f"{self.utente.username} - {self.data} ({self.qualita})"
+
+
+class PassiGiorno(models.Model):
+    """Passi camminati in una giornata.
+
+    Un valore per data, non voci che si sommano come l'acqua: il numero si
+    legge sul telefono a fine giornata ed e' gia' un totale. Da qui
+    l'unicita' su (utente, data), che rende il reinserimento una correzione
+    invece che un doppione.
+
+    Si sovrappone di proposito alle uscite registrate: una camminata di
+    mezz'ora e' gia' dentro i passi di quel giorno. Sono due misure diverse
+    -- quanto ti sei mosso in tutto, e cosa hai fatto apposta.
+    """
+    utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='passi_giorno')
+    data = models.DateField(default=timezone.now)
+    passi = models.PositiveIntegerField()
+    nota = models.CharField(max_length=200, blank=True, default='')
+    creato_il = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['-data']
+        unique_together = ('utente', 'data')
+
+    def __str__(self):
+        return f"{self.utente.username} - {self.passi} passi ({self.data})"

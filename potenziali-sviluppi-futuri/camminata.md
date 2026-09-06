@@ -171,10 +171,15 @@ Questa decisione è anche ciò che rende la pagina completamente autonoma: **zer
 
 Le tre fasi sono indipendenti fra loro e si possono fermare a qualsiasi punto.
 
-## Domande ancora aperte
+## La voce nel menu
 
-- **Come si chiama la voce nel menu.** "Camminata" non copre le corse; "Camminata e corsa" è lungo per una barra laterale. Va scelto prima di scrivere il template.
-- **Se un domani le uscite debbano contare nella heatmap.** Deciso di no per ora, ed è reversibile senza costi.
+**🏃 Attività**, decisa con l'utente. Scartate "Camminata" (non copre le corse), "Camminata e corsa" (lascia fuori i passi, ed è lunga per la barra) e soprattutto **"Cardio"**, che nel piano [cardio.md](cardio.md) indica il tapis *dentro* la seduta: due voci che sembrano la stessa cosa sarebbero state una trappola.
+
+Posizione: nel gruppo del monitoraggio quotidiano, fra **Misurazioni, Integratori, Alimentazione e Sonno** — non fra gli allenamenti, coerentemente col fatto che un'uscita non conta come seduta.
+
+## Domanda ancora aperta
+
+- **Se un domani le uscite debbano contare nella heatmap della home.** Deciso di no per ora, ed è reversibile senza costi né migrazioni.
 
 ## Avvertenze
 

@@ -1,5 +1,6 @@
 import shutil
 import tempfile
+from datetime import timedelta
 from decimal import Decimal
 from io import BytesIO
 
@@ -14,8 +15,8 @@ from django.utils import timezone
 
 from .accent import normalizza_hex, scala_accent
 from .models import (
-    BodyMetric, Exercise, ExerciseImage, UserProfile, WaterEntry, WaterGoal,
-    WorkoutSession, WorkoutSet,
+    BodyMetric, Exercise, ExerciseImage, PassiGiorno, UserProfile, WaterEntry,
+    WaterGoal, WorkoutSession, WorkoutSet,
 )
 
 
@@ -654,3 +655,95 @@ class MisurazioniAjaxTest(TestCase):
         self.assertIn(reverse('save_misurazione_ajax'), corpo)
         self.assertIn(reverse('delete_misurazione_ajax', args=[entry.id]), corpo)
 
+
+
+class PassiGiornoTest(TestCase):
+    """Passi giornalieri nella pagina Attivita'.
+
+    Il punto delicato e' l'inserimento settimanale: (utente, data) e' unico,
+    quindi ricompilare una settimana gia' inserita deve correggere i valori
+    invece di far fallire il salvataggio.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='tester', password='x')
+        self.client.force_login(self.user)
+        self.oggi = timezone.localdate()
+        self.lunedi = self.oggi - timedelta(days=self.oggi.weekday())
+
+    def _post_settimana(self, valori):
+        """valori: dizionario indice-giorno (0=lunedi) -> stringa passi."""
+        campi = {}
+        for i in range(7):
+            campi[f'data_{i}'] = (self.lunedi + timedelta(days=i)).isoformat()
+            campi[f'passi_{i}'] = valori.get(i, '')
+        return self.client.post(reverse('salva_passi_settimana'), campi)
+
+    def test_la_pagina_si_apre(self):
+        self.assertEqual(self.client.get(reverse('attivita')).status_code, 200)
+
+    def test_salva_un_giorno_solo(self):
+        self.client.post(reverse('salva_passi'), {
+            'data': self.oggi.isoformat(), 'passi': '8500',
+        })
+        self.assertEqual(PassiGiorno.objects.get(utente=self.user, data=self.oggi).passi, 8500)
+
+    def test_reinserire_lo_stesso_giorno_corregge_invece_di_duplicare(self):
+        for valore in ('8500', '9200'):
+            self.client.post(reverse('salva_passi'), {'data': self.oggi.isoformat(), 'passi': valore})
+
+        voci = PassiGiorno.objects.filter(utente=self.user, data=self.oggi)
+        self.assertEqual(voci.count(), 1)
+        self.assertEqual(voci.first().passi, 9200)
+
+    def test_svuotare_il_campo_cancella_il_giorno(self):
+        self.client.post(reverse('salva_passi'), {'data': self.oggi.isoformat(), 'passi': '8500'})
+        self.client.post(reverse('salva_passi'), {'data': self.oggi.isoformat(), 'passi': ''})
+
+        self.assertFalse(PassiGiorno.objects.filter(utente=self.user, data=self.oggi).exists())
+
+    def test_la_griglia_settimanale_salva_piu_giorni_insieme(self):
+        self._post_settimana({0: '7000', 1: '9000', 2: '11000'})
+
+        passi = {p.data: p.passi for p in PassiGiorno.objects.filter(utente=self.user)}
+        self.assertEqual(passi.get(self.lunedi), 7000)
+        self.assertEqual(passi.get(self.lunedi + timedelta(days=1)), 9000)
+        self.assertEqual(passi.get(self.lunedi + timedelta(days=2)), 11000)
+        # Le caselle lasciate vuote non creano voci a zero.
+        self.assertEqual(len(passi), 3)
+
+    def test_ricompilare_la_settimana_non_esplode_e_corregge(self):
+        self._post_settimana({0: '7000'})
+        self._post_settimana({0: '7500', 1: '8000'})
+
+        passi = {p.data: p.passi for p in PassiGiorno.objects.filter(utente=self.user)}
+        self.assertEqual(passi.get(self.lunedi), 7500)
+        self.assertEqual(passi.get(self.lunedi + timedelta(days=1)), 8000)
+
+    def test_i_giorni_futuri_vengono_ignorati(self):
+        domani = self.oggi + timedelta(days=1)
+        self.client.post(reverse('salva_passi_settimana'), {
+            'data_0': domani.isoformat(), 'passi_0': '99999',
+        })
+        self.assertFalse(PassiGiorno.objects.filter(utente=self.user, data=domani).exists())
+
+    def test_un_valore_non_numerico_non_scrive_niente(self):
+        self.client.post(reverse('salva_passi'), {'data': self.oggi.isoformat(), 'passi': 'tanti'})
+        self.assertFalse(PassiGiorno.objects.filter(utente=self.user).exists())
+
+    def test_obiettivo_modificabile(self):
+        self.client.post(reverse('set_obiettivo_passi'), {'obiettivo_passi': '12000'})
+        self.assertEqual(UserProfile.objects.get(user=self.user).obiettivo_passi, 12000)
+
+    def test_obiettivo_non_valido_lascia_il_precedente(self):
+        self.client.post(reverse('set_obiettivo_passi'), {'obiettivo_passi': '0'})
+        profile, _ = UserProfile.objects.get_or_create(user=self.user)
+        self.assertEqual(profile.obiettivo_passi, 10000)
+
+    def test_non_si_toccano_i_passi_di_un_altro(self):
+        altro = User.objects.create_user(username='altro', password='x')
+        voce = PassiGiorno.objects.create(utente=altro, data=self.oggi, passi=5000)
+
+        self.client.post(reverse('elimina_passi', args=[voce.id]))
+
+        self.assertTrue(PassiGiorno.objects.filter(id=voce.id).exists())
