@@ -360,6 +360,27 @@ a { text-decoration: none; }
   padding: 24px 16px;
 }
 
+/* Le voci del menu sono cresciute e su schermi bassi non ci stavano piu': la
+   sidebar e' alta quanto la finestra e il di piu' veniva tagliato via, senza
+   alcun modo di raggiungerlo. Ora scorre il solo elenco, mentre logo e area
+   utente restano al loro posto.
+
+   `min-height: 0` non e' decorativo: un figlio flex non si stringe sotto la
+   propria altezza naturale, quindi senza questo il contenitore crescerebbe
+   oltre la sidebar e la barra non comparirebbe mai.
+
+   Barra nascosta ma scorrimento attivo (rotella, touch, tastiera): la sidebar
+   e' larga 240px e una barra visibile si mangerebbe spazio proprio dove serve
+   ai nomi delle voci. E' la stessa scelta gia' fatta per la barra orizzontale
+   su mobile, qui sotto. */
+.menu-container {
+  overflow-y: auto;
+  min-height: 0;
+  scrollbar-width: none;      /* Firefox */
+  -ms-overflow-style: none;   /* Edge legacy */
+}
+.menu-container::-webkit-scrollbar { display: none; }
+
 .main-content {
   flex: 1;
   overflow-y: auto;
@@ -445,6 +466,9 @@ a { text-decoration: none; }
     justify-content: flex-start;
     width: max-content;
     gap: 8px;
+    /* Qui scorre la sidebar in orizzontale: se il menu restasse un
+       contenitore scorrevole per conto suo si contenderebbero il gesto. */
+    overflow: visible;
   }
 
   .sidebar .menu-container a, .sidebar .menu-container button {
