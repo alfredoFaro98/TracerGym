@@ -1,0 +1,31 @@
+# File caricati dagli utenti (immagini e gif degli esercizi). Vivono sul
+# server, non nel repo: qui finirebbero solo quelli caricati in locale, piu'
+# quelli che i test si lasciano dietro.
+media/
+
+# Bytecode: si rigenera da solo ad ogni avvio, e cambia versione di Python per
+# versione di Python (cpython-310 in locale, cpython-314 su PythonAnywhere).
+__pycache__/
+*.py[cod]
+
+# Output di collectstatic: e' una copia di tracker/static, si rifa' ad ogni deploy.
+staticfiles/
+
+# Database locale
+db.sqlite3
+db.sqlite3-journal
+
+# Password del database e altre chiavi (core/settings.py le legge da qui)
+.env
+
+# Ambienti virtuali
+venv/
+.venv/
+env/
+
+# Roba dell'editor e del sistema
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
