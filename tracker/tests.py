@@ -210,6 +210,14 @@ class LinguaEserciziTest(TestCase):
         nomi = [r['nome'] for r in risposta.json()['results']]
         self.assertIn('Trazioni assistite', nomi)
 
+    def test_il_catalogo_non_stampa_tag_di_template(self):
+        # Un commento {# #} su piu' righe Django non lo riconosce e lo manda a
+        # schermo tal quale, una volta per esercizio: era gia' successo.
+        risposta = self.client.get(reverse('exercises_list'))
+        corpo = risposta.content.decode()
+        for residuo in ('{#', '#}', '{%'):
+            self.assertNotIn(residuo, corpo)
+
     def test_il_catalogo_e_ordinato_sul_nome_mostrato(self):
         # In italiano "Trazioni assistite" viene dopo "Panca Piana"; in inglese
         # "Assisted pull-up" viene prima. Se l'ordinamento restasse su `nome`

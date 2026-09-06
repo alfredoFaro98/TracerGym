@@ -328,12 +328,12 @@
         <button type="button" id="filters-apply" class="filters-apply">Mostra risultati</button>
     </div>
 
-    <!-- Esercizi -->
+    <!-- Esercizi. data-name porta entrambi i nomi: la ricerca trova
+         l'esercizio sia digitando "pull-up" che "trazioni", qualunque lingua
+         sia attiva. -->
     <div id="ex-grid" class="ex-grid" style="margin-top: 4px;">
         {% for exercise in exercises %}
         {% with img=exercise.images.all|first nome_mostrato=exercise|nome_lingua:lingua_esercizi %}
-        {# data-name porta entrambi i nomi: la ricerca trova l'esercizio sia
-           digitando "pull-up" che "trazioni", qualunque lingua sia attiva. #}
         <div class="ex-card{% if not img %} no-media{% endif %}" data-name="{{ exercise.nome|lower }} {{ exercise.nome_it|lower }}" data-tags=",{% for t in exercise.tags.all %}{{ t.id }},{% endfor %}" data-tipologia="{{ exercise.tipologia|lower }}">
             {% if img %}
             <img class="ex-thumb" src="{{ img.immagine.url }}" loading="lazy">
