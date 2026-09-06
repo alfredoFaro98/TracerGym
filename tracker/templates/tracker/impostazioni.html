@@ -21,6 +21,31 @@
                 <span style="font-size: 11.5px; font-weight: 600; color: {% if value == profile.accent %}#f0f0f3{% else %}#7d8296{% endif %};">{{ label }}</span>
             </label>
             {% endfor %}
+            <label style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                <button type="button" id="picker-apri" title="Personalizzato" style="width: 40px; height: 40px; border-radius: 50%; cursor: pointer; background: conic-gradient(#f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); border: 2px solid {% if profile.accent == 'custom' %}#f0f0f3{% else %}transparent{% endif %}; box-shadow: 0 0 0 2px {% if profile.accent == 'custom' %}{{ profile.accent_hex }}{% else %}transparent{% endif %}; transition: transform .12s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'"></button>
+                <span style="font-size: 11.5px; font-weight: 600; color: {% if profile.accent == 'custom' %}#f0f0f3{% else %}#7d8296{% endif %};">Altro</span>
+            </label>
+        </form>
+
+        {% comment %}
+        Il selettore sta nella stessa card dei preset ma in un form suo: i
+        preset si applicano al primo colpo, qui invece si sceglie e poi si
+        conferma, altrimenti ogni pixel trascinato sarebbe un salvataggio.
+        {% endcomment %}
+        <form action="{% url 'set_accent' %}" method="post" id="picker" class="picker" style="margin-top: 22px; {% if profile.accent != 'custom' %}display: none;{% endif %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{% url 'impostazioni' %}">
+            <input type="hidden" name="accent" value="custom">
+            <input type="hidden" name="accent_hex" id="picker-valore" value="{{ accent_custom_iniziale }}">
+
+            <div class="picker-sv" id="picker-sv"><span class="picker-knob" id="picker-knob-sv"></span></div>
+            <div class="picker-hue" id="picker-hue"><span class="picker-knob" id="picker-knob-hue" style="top: 7px;"></span></div>
+
+            <div class="picker-row">
+                <span class="picker-preview" id="picker-preview"></span>
+                <input type="text" class="picker-hex" id="picker-hex" value="{{ accent_custom_iniziale }}" spellcheck="false" aria-label="Codice colore esadecimale">
+                <button type="submit" class="btn-primary-gradient" style="padding: 11px 18px; font-size: 13px;">Applica</button>
+            </div>
         </form>
     </div>
 
@@ -38,4 +63,104 @@
         {% include "tracker/partials/visibility_toggle.html" with next_url=request.path %}
     </div>
 </div>
+
+<script>
+(function() {
+    var form = document.getElementById('picker');
+    if (!form) return;
+
+    var sv = document.getElementById('picker-sv');
+    var hue = document.getElementById('picker-hue');
+    var knobSv = document.getElementById('picker-knob-sv');
+    var knobHue = document.getElementById('picker-knob-hue');
+    var preview = document.getElementById('picker-preview');
+    var campo = document.getElementById('picker-hex');
+    var valore = document.getElementById('picker-valore');
+
+    // Lo stato vive in HSV, non in esadecimale: e' quello che le due aree
+    // rappresentano, e passare ogni volta per l'hex perderebbe la tinta
+    // quando si scende a nero (dove infiniti colori danno lo stesso #000000).
+    var H = 0, S = 1, V = 1;
+
+    function hsvToHex(h, s, v) {
+        var c = v * s, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = v - c;
+        var t = h < 60 ? [c,x,0] : h < 120 ? [x,c,0] : h < 180 ? [0,c,x]
+              : h < 240 ? [0,x,c] : h < 300 ? [x,0,c] : [c,0,x];
+        return '#' + t.map(function(n) {
+            return Math.round((n + m) * 255).toString(16).padStart(2, '0');
+        }).join('');
+    }
+
+    function hexToHsv(hex) {
+        var c = hex.replace('#', '');
+        if (c.length === 3) c = c.split('').map(function(ch) { return ch + ch; }).join('');
+        if (!/^[0-9a-fA-F]{6}$/.test(c)) return null;
+        var r = parseInt(c.slice(0,2),16)/255, g = parseInt(c.slice(2,4),16)/255, b = parseInt(c.slice(4,6),16)/255;
+        var max = Math.max(r,g,b), min = Math.min(r,g,b), d = max - min;
+        var h = 0;
+        if (d) {
+            if (max === r) h = ((g - b) / d) % 6;
+            else if (max === g) h = (b - r) / d + 2;
+            else h = (r - g) / d + 4;
+            h *= 60;
+            if (h < 0) h += 360;
+        }
+        return { h: h, s: max ? d / max : 0, v: max };
+    }
+
+    // scriviCampo=false mentre si digita: riscrivere l'input sotto le dita
+    // sposterebbe il cursore ad ogni carattere.
+    function aggiorna(scriviCampo) {
+        var hex = hsvToHex(H, S, V);
+        sv.style.setProperty('--picker-hue', 'hsl(' + H + ', 100%, 50%)');
+        knobSv.style.left = (S * 100) + '%';
+        knobSv.style.top = ((1 - V) * 100) + '%';
+        knobHue.style.left = (H / 360 * 100) + '%';
+        preview.style.background = hex;
+        valore.value = hex;
+        if (scriviCampo !== false) campo.value = hex.toUpperCase();
+    }
+
+    function trascina(elemento, aggiornaDa) {
+        function muovi(e) {
+            var r = elemento.getBoundingClientRect();
+            aggiornaDa(
+                Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)),
+                Math.min(1, Math.max(0, (e.clientY - r.top) / r.height))
+            );
+            aggiorna();
+        }
+        elemento.addEventListener('pointerdown', function(e) {
+            // Il puntatore viene catturato dall'area: cosi' il trascinamento
+            // continua anche uscendo dal riquadro, invece di piantarsi sul bordo.
+            elemento.setPointerCapture(e.pointerId);
+            muovi(e);
+        });
+        elemento.addEventListener('pointermove', function(e) {
+            if (elemento.hasPointerCapture(e.pointerId)) muovi(e);
+        });
+    }
+
+    trascina(sv, function(x, y) { S = x; V = 1 - y; });
+    trascina(hue, function(x) { H = x * 360; });
+
+    campo.addEventListener('input', function() {
+        var hsv = hexToHsv(campo.value.trim());
+        if (!hsv) return;              // a meta' digitazione non e' ancora valido
+        H = hsv.h; S = hsv.s; V = hsv.v;
+        aggiorna(false);
+    });
+    // Uscendo dal campo si rimette in ordine quello che c'e' scritto: se il
+    // testo era incompleto torna il colore vero, non resta un mezzo codice.
+    campo.addEventListener('blur', function() { aggiorna(); });
+
+    document.getElementById('picker-apri').addEventListener('click', function() {
+        form.style.display = form.style.display === 'none' ? '' : 'none';
+    });
+
+    var iniziale = hexToHsv(campo.value.trim()) || { h: 0, s: 1, v: 1 };
+    H = iniziale.h; S = iniziale.s; V = iniziale.v;
+    aggiorna();
+})();
+</script>
 {% endblock %}

@@ -18,6 +18,7 @@ from datetime import datetime, date, timedelta, time as dt_time
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib.auth.models import User
+from .accent import normalizza_hex, scala_accent
 from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal, IntegratoreEntry, SiteVisit, MacroEntry, MacroGoal, MacroDayStatus, SleepEntry
 
 
@@ -1701,6 +1702,14 @@ def set_accent(request):
         accent = request.POST.get('accent')
         if accent in dict(UserProfile.ACCENT_CHOICES):
             profile, _ = UserProfile.objects.get_or_create(user=request.user)
+            if accent == 'custom':
+                # Un colore non valido non deve spegnere l'accent di chi lo
+                # aveva gia': si lascia tutto com'era invece di salvare 'custom'
+                # con un hex vuoto, che darebbe una pagina senza colore.
+                colore = normalizza_hex(request.POST.get('accent_hex'))
+                if not colore:
+                    return redirect(request.POST.get('next') or reverse('impostazioni'))
+                profile.accent_hex = colore
             profile.accent = accent
             profile.save()
     next_url = request.POST.get('next') or reverse('impostazioni')
@@ -1731,8 +1740,13 @@ def impostazioni(request):
     return render(request, 'tracker/impostazioni.html', {
         'profile': profile,
         'accent_choices': [
-            (value, label, ACCENT_HEX[value]) for value, label in UserProfile.ACCENT_CHOICES
+            (value, label, ACCENT_HEX[value])
+            for value, label in UserProfile.ACCENT_CHOICES if value in ACCENT_HEX
         ],
+        # Il selettore parte dal colore personalizzato se c'e' gia', altrimenti
+        # dal preset attivo: cosi' si comincia da dove si e' adesso invece che
+        # da un colore a caso.
+        'accent_custom_iniziale': profile.accent_hex or ACCENT_HEX.get(profile.accent, '#7c6cf6'),
         'lingua_choices': UserProfile.LINGUA_ESERCIZI_CHOICES,
     })
 

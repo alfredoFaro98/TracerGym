@@ -724,6 +724,77 @@ a { text-decoration: none; }
 }
 
 /* ==========================================================================
+   Selettore di colore per l'accent personalizzato: area saturazione/
+   luminosita', cursore della tinta, anteprima e campo esadecimale.
+   Le due aree colorate sono gradienti CSS sovrapposti, non immagini: cosi'
+   seguono la tinta scelta senza dover ridisegnare niente.
+   ========================================================================== */
+.picker {
+  max-width: 420px;
+}
+.picker-sv {
+  position: relative;
+  height: 150px;
+  border-radius: 10px;
+  cursor: crosshair;
+  /* Il nero sopra il bianco sopra la tinta piena da' il classico quadrato
+     saturazione/luminosita'. --picker-hue lo aggiorna il JS. */
+  background:
+    linear-gradient(to top, #000, rgba(0, 0, 0, 0)),
+    linear-gradient(to right, #fff, rgba(255, 255, 255, 0)),
+    var(--picker-hue, #f00);
+  touch-action: none;
+}
+.picker-hue {
+  position: relative;
+  height: 14px;
+  margin-top: 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  background: linear-gradient(to right,
+    #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%);
+  touch-action: none;
+}
+/* Un cursore solo per tutti e due: cambia solo dove lo mette il JS. */
+.picker-knob {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .45);
+  pointer-events: none;
+}
+.picker-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+.picker-preview {
+  width: 42px;
+  height: 42px;
+  border-radius: 9px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+.picker-hex {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 14px;
+  background: var(--sunken);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: #f0f0f3;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.picker-hex:focus { border-color: var(--acc); }
+
+/* ==========================================================================
    Titolo di pagina. Lo stesso stile era ricopiato inline in ogni template:
    sei pagine allineate e le altre a misure sparse (17, 20, 21, 30px). Una
    classe sola le tiene coerenti e da' un punto unico dove cambiarle.

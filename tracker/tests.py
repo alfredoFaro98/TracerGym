@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
+from .accent import normalizza_hex, scala_accent
 from .models import (
     Exercise, ExerciseImage, UserProfile, WaterEntry, WaterGoal,
     WorkoutSession, WorkoutSet,
@@ -374,3 +375,72 @@ class AcquaAjaxTest(TestCase):
         self.assertIn('data-ajax-water-goal', corpo)
         self.assertIn(reverse('set_water_goal_ajax'), corpo)
         self.assertNotIn(reverse('set_water_goal') + '"', corpo)
+
+
+class AccentPersonalizzatoTest(TestCase):
+    """Accent scelto a mano: derivazione della scala e salvataggio.
+
+    Il punto delicato e' che da un colore solo devono uscire dodici variabili
+    usabili: se i toni del testo seguissero alla lettera un colore scuro,
+    diventerebbero illeggibili sul fondo scuro dell'app.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='tester', password='x')
+        self.client.force_login(self.user)
+
+    def test_la_scala_riproduce_i_preset_tarati_a_mano(self):
+        # Se la formula si allontana da questi, i colori personalizzati
+        # smettono di somigliare al resto dell'app.
+        scala = scala_accent('#2dd4bf')  # teal
+        self.assertEqual(scala['acc'], '#2dd4bf')
+        self.assertEqual(scala['acc-2'], '#3ad7c3')
+        self.assertEqual(scala['acc-3'], '#4ae0cd')
+        self.assertEqual(scala['acc-4'], '#4ce8d5')
+
+    def test_un_colore_scuro_non_produce_testo_illeggibile(self):
+        # --acc-soft e --acc-4 finiscono su testo e icone: partendo da un
+        # colore quasi nero devono comunque restare chiari.
+        scala = scala_accent('#1a1005')
+        for variabile in ('acc-4', 'acc-5', 'acc-soft'):
+            valore = scala[variabile]
+            luminosita = max(int(valore[i:i + 2], 16) for i in (1, 3, 5))
+            self.assertGreater(luminosita, 120, f'{variabile}={valore} troppo scuro')
+
+    def test_il_colore_scelto_resta_intatto(self):
+        # I riempimenti seguono la scelta: --acc non va "corretto".
+        self.assertEqual(scala_accent('#876a50')['acc'], '#876a50')
+
+    def test_formati_accettati(self):
+        self.assertEqual(normalizza_hex('#ABC'), '#aabbcc')
+        self.assertEqual(normalizza_hex('876A50'), '#876a50')
+        self.assertEqual(normalizza_hex('  #876a50  '), '#876a50')
+        for storto in ('', None, 'rosso', '#12345', 'zzzzzz', '#876a50; evil'):
+            self.assertIsNone(normalizza_hex(storto), storto)
+
+    def test_salvataggio_e_uso_in_pagina(self):
+        self.client.post(reverse('set_accent'), {'accent': 'custom', 'accent_hex': '#876A50'})
+        profile = UserProfile.objects.get(user=self.user)
+        self.assertEqual(profile.accent, 'custom')
+        self.assertEqual(profile.accent_hex, '#876a50')
+
+        corpo = self.client.get(reverse('impostazioni')).content.decode()
+        self.assertIn('data-accent="custom"', corpo)
+        self.assertIn('--acc: #876a50;', corpo)
+
+    def test_un_colore_storto_non_spegne_l_accent_di_prima(self):
+        self.client.post(reverse('set_accent'), {'accent': 'custom', 'accent_hex': '#876A50'})
+        self.client.post(reverse('set_accent'), {'accent': 'custom', 'accent_hex': 'non-un-colore'})
+
+        profile = UserProfile.objects.get(user=self.user)
+        self.assertEqual(profile.accent_hex, '#876a50')
+
+    def test_tornare_a_un_preset_conserva_il_colore_scelto(self):
+        self.client.post(reverse('set_accent'), {'accent': 'custom', 'accent_hex': '#876A50'})
+        self.client.post(reverse('set_accent'), {'accent': 'teal'})
+
+        profile = UserProfile.objects.get(user=self.user)
+        self.assertEqual(profile.accent, 'teal')
+        self.assertEqual(profile.accent_hex, '#876a50')
+        # E la pagina torna a usare la scala del preset, non quella derivata.
+        self.assertNotIn('--acc: #876a50;', self.client.get(reverse('impostazioni')).content.decode())

@@ -17,6 +17,16 @@
          fai login o logout in un'altra scheda, le schede gia' aperte hanno in
          pagina un token ormai vecchio e il primo salvataggio risponde 403. -->
     <script src="{% static 'tracker/csrf.js' %}?v={{ app_version }}"></script>
+    {% if accent_css %}
+    {% comment %}
+    Accent personalizzato: la scala non sta in style.css (che e' uguale per
+    tutti ed e' in cache) ma viene derivata dal colore scelto e stampata qui.
+    Il selettore [data-accent="custom"] vince sui default di :root per
+    specificita'. E' |safe perche' tracker.accent lo compone da capo
+    partendo da un colore rinormalizzato: dentro non ci puo' finire altro.
+    {% endcomment %}
+    <style>{{ accent_css|safe }}</style>
+    {% endif %}
 
     {% block extra_head %}{% endblock %}
 </head>

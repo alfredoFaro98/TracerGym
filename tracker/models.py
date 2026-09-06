@@ -106,6 +106,9 @@ class UserProfile(models.Model):
         ('lime', 'Lime'),
         ('teal', 'Teal'),
         ('verde', 'Verde'),
+        # I cinque preset hanno la loro scala tarata a mano in style.css.
+        # 'custom' invece la fa derivare da `accent_hex` (vedi tracker/accent.py).
+        ('custom', 'Personalizzato'),
     ]
 
     LINGUA_ESERCIZI_CHOICES = [
@@ -122,6 +125,10 @@ class UserProfile(models.Model):
     obiettivo_grassi_g = models.PositiveIntegerField(default=70)
     obiettivo_fibre_g = models.PositiveIntegerField(default=30)
     accent = models.CharField(max_length=20, choices=ACCENT_CHOICES, default='viola')
+    # Vale solo quando accent == 'custom'. Si tiene anche dopo essere tornati a
+    # un preset, cosi' chi ci ripensa ritrova il colore che si era scelto
+    # invece di doverlo ripescare a occhio.
+    accent_hex = models.CharField(max_length=7, blank=True, default='')
     # Lingua con cui mostrare i nomi degli esercizi. Riguarda solo la
     # visualizzazione: il catalogo resta uno solo, cambia il campo che si legge
     # (`nome_it` invece di `nome`). Default italiano perche' l'app e' in italiano.
