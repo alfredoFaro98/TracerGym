@@ -2245,6 +2245,76 @@ def body_map(request):
     })
 
 
+MISURAZIONI_CAMPI = ('peso_kg', 'altezza_cm', 'body_fat_pct', 'vita_cm', 'torace_cm', 'braccia_cm', 'cosce_cm')
+
+
+def _misurazioni_chart_data(user):
+    """Le serie del grafico "Andamento", una per metrica.
+
+    Le calcolano sia la pagina che il salvataggio via AJAX: il grafico guarda
+    TUTTE le misurazioni, non solo la pagina visibile, quindi ogni salvataggio
+    o eliminazione lo cambia e va rimandato indietro per intero."""
+    entries = BodyMetric.objects.filter(utente=user).order_by('data')
+    campi = {
+        'peso': 'peso_kg', 'altezza': 'altezza_cm', 'body_fat': 'body_fat_pct',
+        'vita': 'vita_cm', 'torace': 'torace_cm', 'braccia': 'braccia_cm', 'cosce': 'cosce_cm',
+    }
+    return {
+        serie: [
+            {'date': e.data.strftime('%d/%m/%Y'), 'value': float(getattr(e, campo))}
+            for e in entries if getattr(e, campo) is not None
+        ]
+        for serie, campo in campi.items()
+    }
+
+
+def _salva_misurazione(user, post):
+    """Scrive la misurazione del giorno e dice se la riga e' nata adesso.
+
+    E' un get_or_create sulla data: aggiunta e modifica sono la stessa cosa,
+    e salvare per un giorno che esiste gia' aggiorna quella riga invece di
+    crearne una seconda. Per questo `created` va restituito -- e' l'unico modo
+    che ha il JS di sapere se deve inserire una riga o sostituirne una."""
+    data_str = post.get('data')
+    try:
+        entry_data = date.fromisoformat(data_str) if data_str else timezone.now().date()
+    except ValueError:
+        entry_data = timezone.now().date()
+
+    entry, created = BodyMetric.objects.get_or_create(utente=user, data=entry_data)
+
+    # Un campo lasciato vuoto non tocca il valore gia' salvato per quel giorno
+    # (evita che il form rapido "+", sempre vuoto, azzeri dati inseriti in precedenza).
+    for field in MISURAZIONI_CAMPI:
+        val = post.get(field)
+        if val:
+            try:
+                setattr(entry, field, float(val))
+            except ValueError:
+                pass
+
+    note_val = post.get('note')
+    if note_val:
+        entry.note = note_val.strip()[:100]
+
+    if post.get('clear_ora') == '1':
+        entry.orario = None
+    else:
+        ora_str = post.get('ora')
+        if ora_str:
+            try:
+                entry.orario = dt_time.fromisoformat(ora_str)
+            except ValueError:
+                pass
+
+    entry.save()
+    return entry, created
+
+
+def _render_misurazione_row(request, entry):
+    return render_to_string('tracker/partials/misurazione_row.html', {'e': entry}, request=request)
+
+
 @login_required
 def misurazioni(request):
     entries_qs = BodyMetric.objects.filter(utente=request.user).order_by('-data')
@@ -2252,60 +2322,36 @@ def misurazioni(request):
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
 
-    chart_entries = BodyMetric.objects.filter(utente=request.user).order_by('data')
-    chart_data = {
-        'peso': [{'date': e.data.strftime('%d/%m/%Y'), 'value': float(e.peso_kg)} for e in chart_entries if e.peso_kg is not None],
-        'altezza': [{'date': e.data.strftime('%d/%m/%Y'), 'value': float(e.altezza_cm)} for e in chart_entries if e.altezza_cm is not None],
-        'body_fat': [{'date': e.data.strftime('%d/%m/%Y'), 'value': float(e.body_fat_pct)} for e in chart_entries if e.body_fat_pct is not None],
-        'vita': [{'date': e.data.strftime('%d/%m/%Y'), 'value': float(e.vita_cm)} for e in chart_entries if e.vita_cm is not None],
-        'torace': [{'date': e.data.strftime('%d/%m/%Y'), 'value': float(e.torace_cm)} for e in chart_entries if e.torace_cm is not None],
-        'braccia': [{'date': e.data.strftime('%d/%m/%Y'), 'value': float(e.braccia_cm)} for e in chart_entries if e.braccia_cm is not None],
-        'cosce': [{'date': e.data.strftime('%d/%m/%Y'), 'value': float(e.cosce_cm)} for e in chart_entries if e.cosce_cm is not None],
-    }
-
     return render(request, 'tracker/misurazioni.html', {
         'entries': page,
-        'chart_data_json': json.dumps(chart_data),
+        'chart_data_json': json.dumps(_misurazioni_chart_data(request.user)),
     })
 
 
 @login_required
 def save_misurazione(request):
     if request.method == 'POST':
-        data_str = request.POST.get('data')
-        try:
-            entry_data = date.fromisoformat(data_str) if data_str else timezone.now().date()
-        except ValueError:
-            entry_data = timezone.now().date()
-
-        entry, _ = BodyMetric.objects.get_or_create(utente=request.user, data=entry_data)
-
-        # Un campo lasciato vuoto non tocca il valore gia' salvato per quel giorno
-        # (evita che il form rapido "+", sempre vuoto, azzeri dati inseriti in precedenza).
-        for field in ('peso_kg', 'altezza_cm', 'body_fat_pct', 'vita_cm', 'torace_cm', 'braccia_cm', 'cosce_cm'):
-            val = request.POST.get(field)
-            if val:
-                try:
-                    setattr(entry, field, float(val))
-                except ValueError:
-                    pass
-
-        note_val = request.POST.get('note')
-        if note_val:
-            entry.note = note_val.strip()[:100]
-
-        if request.POST.get('clear_ora') == '1':
-            entry.orario = None
-        else:
-            ora_str = request.POST.get('ora')
-            if ora_str:
-                try:
-                    entry.orario = dt_time.fromisoformat(ora_str)
-                except ValueError:
-                    pass
-
-        entry.save()
+        _salva_misurazione(request.user, request.POST)
     return redirect(request.POST.get('next') or 'misurazioni')
+
+
+@login_required
+def save_misurazione_ajax(request):
+    """Salvataggio dalla pagina Misurazioni senza reload: torna la riga gia'
+    renderizzata (la card ha sette chip condizionali, in JS sarebbe la stessa
+    logica scritta due volte) e le serie aggiornate del grafico."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Metodo non valido.'}, status=405)
+
+    entry, created = _salva_misurazione(request.user, request.POST)
+    return JsonResponse({
+        'ok': True,
+        'created': created,
+        'entry_id': entry.id,
+        'data': entry.data.isoformat(),
+        'html': _render_misurazione_row(request, entry),
+        'chart': _misurazioni_chart_data(request.user),
+    })
 
 
 @login_required
@@ -2314,6 +2360,16 @@ def delete_misurazione(request, entry_id):
     if request.method == 'POST':
         entry.delete()
     return redirect(request.POST.get('next') or 'misurazioni')
+
+
+@login_required
+def delete_misurazione_ajax(request, entry_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Metodo non valido.'}, status=405)
+
+    entry = get_object_or_404(BodyMetric, id=entry_id, utente=request.user)
+    entry.delete()
+    return JsonResponse({'ok': True, 'chart': _misurazioni_chart_data(request.user)})
 
 
 def _macro_decimal(post, name):

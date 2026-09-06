@@ -1,0 +1,106 @@
+{% comment %}
+Riga di una misurazione (vista + pannello di modifica inline). Estratta dalla
+pagina perche' la usano anche save_misurazione_ajax e delete_misurazione_ajax
+per rigenerare la riga da sostituire senza ricaricare la pagina: la card ha
+sette chip condizionali e il pannello otto campi, e riscriverli in JavaScript
+avrebbe voluto dire tenere la stessa logica in due posti.
+
+data-data serve al JS per infilare una riga nuova al posto giusto: l'elenco e'
+ordinato per data decrescente.
+{% endcomment %}
+<div id="metric-row-{{ e.id }}" data-data="{{ e.data|date:'Y-m-d' }}">
+    <div id="metric-view-{{ e.id }}" style="display: flex; flex-direction: column; gap: 10px; padding: 13px 16px; border-bottom: 1px solid var(--border);">
+        <!-- Riga 1: data a sinistra, orario a destra -->
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+            <span style="font-size: 13px; font-weight: 700; color: #f0f0f3;">{{ e.data|date:"d M Y" }}</span>
+            {% if e.orario %}<span style="font-size: 12.5px; color: #7d8296;">&#128336; {{ e.orario|time:"H:i" }}</span>{% endif %}
+        </div>
+
+        <!-- Dati: griglia fissa a 3 colonne, sempre nello stesso ordine a
+             prescindere da quali valori ci sono, cosi' le card restano
+             leggibili una sotto l'altra. Con tutte e 7 le metriche le
+             righe vengono 3-3-1 da sole. Nel chip mettiamo solo icona e
+             valore: il nome per esteso sta nel title, che si vede al
+             passaggio del cursore o tenendo premuto su mobile. -->
+        {% if e.peso_kg or e.altezza_cm or e.body_fat_pct or e.vita_cm or e.torace_cm or e.braccia_cm or e.cosce_cm %}
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+            {% if e.peso_kg %}<span title="Peso" style="background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; font-size: 12.5px; color: #c7cbd6; min-width: 0;">&#9878;&#65039; <b>{{ e.peso_kg }}</b> kg</span>{% endif %}
+            {% if e.altezza_cm %}<span title="Altezza" style="background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; font-size: 12.5px; color: #c7cbd6; min-width: 0;">&#128207; <b>{{ e.altezza_cm }}</b> cm</span>{% endif %}
+            {% if e.body_fat_pct %}<span title="Body Fat" style="background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; font-size: 12.5px; color: #c7cbd6; min-width: 0;">&#128202; <b>{{ e.body_fat_pct }}</b> %</span>{% endif %}
+            {% if e.vita_cm %}<span title="Vita" style="background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; font-size: 12.5px; color: #c7cbd6; min-width: 0;">&#12336;&#65039; <b>{{ e.vita_cm }}</b> cm</span>{% endif %}
+            {% if e.torace_cm %}<span title="Torace" style="background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; font-size: 12.5px; color: #c7cbd6; min-width: 0;">&#129728; <b>{{ e.torace_cm }}</b> cm</span>{% endif %}
+            {% if e.braccia_cm %}<span title="Braccia" style="background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; font-size: 12.5px; color: #c7cbd6; min-width: 0;">&#128170; <b>{{ e.braccia_cm }}</b> cm</span>{% endif %}
+            {% if e.cosce_cm %}<span title="Cosce" style="background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; font-size: 12.5px; color: #c7cbd6; min-width: 0;">&#129462; <b>{{ e.cosce_cm }}</b> cm</span>{% endif %}
+        </div>
+        {% endif %}
+
+        <!-- La nota sta su una riga sua a piena larghezza: in griglia con
+             i dati verrebbe schiacciata in una colonna da un terzo. -->
+        {% if e.note %}
+        <div title="Nota" style="background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; font-size: 12.5px; color: #9ba0b3; font-style: italic;">&#128221; {{ e.note }}</div>
+        {% endif %}
+
+        <!-- Griglia e non flex:1: con box-sizing border-box il flex-basis
+             comprende il padding, quindi i 24px del pulsante Modifica si
+             sommavano alla sua quota e le due meta' venivano 170/146.
+             Le colonne 1fr sono invece identiche per costruzione. -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <span onclick="toggleMetricEdit('{{ e.id }}')" style="text-align: center; font-size: 12px; font-weight: 600; color: var(--acc-4); padding: 8px 12px; border-radius: 7px; background: rgba(var(--acc-rgb),0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.12)'">Modifica</span>
+            <form data-ajax-misurazione-del="{{ e.id }}" action="{% url 'delete_misurazione_ajax' e.id %}" method="post" style="display: flex;">
+                {% csrf_token %}
+                <button type="submit" style="width: 100%; font-size: 12px; font-weight: 600; color: #f87171; padding: 8px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; font-family: inherit; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
+            </form>
+        </div>
+    </div>
+    <div id="metric-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 12px 14px; margin: 4px 16px;">
+        <form data-ajax-misurazione class="quick-form" action="{% url 'save_misurazione_ajax' %}" method="post" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
+            {% csrf_token %}
+            <input type="hidden" name="data" value="{{ e.data|date:'Y-m-d' }}">
+            <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ORARIO</span>
+                <div style="display: flex; gap: 5px;">
+                    <input type="time" name="ora" value="{{ e.orario|time:'H:i' }}" class="tracer-input" style="width: 100px;">
+                    {% if e.orario %}
+                    <button type="submit" name="clear_ora" value="1" title="Rimuovi orario" style="width: 34px; height: 34px; flex-shrink: 0; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.2); border-radius: 8px; color: #f87171; font-size: 13px; cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">✕</button>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">PESO (KG)</span>
+                <input type="number" step="0.1" name="peso_kg" value="{{ e.peso_kg|default_if_none:''|stringformat:'s' }}" min="0" class="tracer-input" style="width: 90px;">
+            </div>
+            <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">ALTEZZA (CM)</span>
+                <input type="number" step="0.1" name="altezza_cm" value="{{ e.altezza_cm|default_if_none:''|stringformat:'s' }}" min="0" class="tracer-input" style="width: 90px;">
+            </div>
+            <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">BODY FAT (%)</span>
+                <input type="number" step="0.1" name="body_fat_pct" value="{{ e.body_fat_pct|default_if_none:''|stringformat:'s' }}" min="0" max="100" class="tracer-input" style="width: 90px;">
+            </div>
+            <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">VITA (CM)</span>
+                <input type="number" step="0.1" name="vita_cm" value="{{ e.vita_cm|default_if_none:''|stringformat:'s' }}" min="0" class="tracer-input" style="width: 90px;">
+            </div>
+            <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">TORACE (CM)</span>
+                <input type="number" step="0.1" name="torace_cm" value="{{ e.torace_cm|default_if_none:''|stringformat:'s' }}" min="0" class="tracer-input" style="width: 90px;">
+            </div>
+            <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">BRACCIA (CM)</span>
+                <input type="number" step="0.1" name="braccia_cm" value="{{ e.braccia_cm|default_if_none:''|stringformat:'s' }}" min="0" class="tracer-input" style="width: 90px;">
+            </div>
+            <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">COSCE (CM)</span>
+                <input type="number" step="0.1" name="cosce_cm" value="{{ e.cosce_cm|default_if_none:''|stringformat:'s' }}" min="0" class="tracer-input" style="width: 90px;">
+            </div>
+            <div class="quick-field quick-span-2" style="display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 180px;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296;">NOTE</span>
+                <input type="text" name="note" value="{{ e.note }}" placeholder="Opzionale, max 100 caratteri" maxlength="100" class="tracer-input" style="width: 100%;">
+            </div>
+            <div class="quick-actions">
+                <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12.5px;">Salva</button>
+                <button type="button" onclick="toggleMetricEdit('{{ e.id }}')" class="btn-cancel" style="padding: 8px 16px; font-size: 12.5px;">Annulla</button>
+            </div>
+        </form>
+    </div>
+</div>

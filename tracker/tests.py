@@ -14,7 +14,7 @@ from django.utils import timezone
 
 from .accent import normalizza_hex, scala_accent
 from .models import (
-    Exercise, ExerciseImage, UserProfile, WaterEntry, WaterGoal,
+    BodyMetric, Exercise, ExerciseImage, UserProfile, WaterEntry, WaterGoal,
     WorkoutSession, WorkoutSet,
 )
 
@@ -564,4 +564,93 @@ class CatalogoImmaginiAjaxTest(TestCase):
         # gli URL nel JS sono template con lo 0 al posto dell'id
         self.assertIn(reverse('add_exercise_image_ajax', args=[0]), corpo)
         self.assertIn(reverse('delete_exercise_image_ajax', args=[0]), corpo)
+
+class MisurazioniAjaxTest(TestCase):
+    """Salvataggio ed eliminazione dalla pagina Misurazioni senza reload.
+
+    Due cose vanno tenute d'occhio piu' delle altre: `created`, perche' il
+    salvataggio e' un get_or_create sulla data e il JS ci decide se inserire
+    una riga o sostituirne una; e le serie del grafico, che guardano tutte le
+    misurazioni e non solo la pagina visibile.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='misurato', password='x')
+        self.client.force_login(self.user)
+        self.oggi = timezone.localdate()
+
+    def _salva(self, **campi):
+        return self.client.post(reverse('save_misurazione_ajax'), campi)
+
+    def test_salvataggio_nuovo_giorno(self):
+        r = self._salva(data=self.oggi.isoformat(), peso_kg='78.5', ora='07:30')
+
+        self.assertEqual(r.status_code, 200)
+        dati = r.json()
+        self.assertTrue(dati['ok'])
+        self.assertTrue(dati['created'])
+        self.assertEqual(dati['data'], self.oggi.isoformat())
+        self.assertIn('metric-row-%d' % dati['entry_id'], dati['html'])
+        self.assertEqual(dati['chart']['peso'], [{'date': self.oggi.strftime('%d/%m/%Y'), 'value': 78.5}])
+
+    def test_stesso_giorno_aggiorna_la_riga_che_c_e_gia(self):
+        primo = self._salva(data=self.oggi.isoformat(), peso_kg='78.5').json()
+
+        secondo = self._salva(data=self.oggi.isoformat(), vita_cm='82').json()
+
+        # created False e stesso id: il JS deve sostituire la riga, non
+        # aggiungerne una seconda per lo stesso giorno.
+        self.assertFalse(secondo['created'])
+        self.assertEqual(secondo['entry_id'], primo['entry_id'])
+        self.assertEqual(BodyMetric.objects.filter(utente=self.user).count(), 1)
+        entry = BodyMetric.objects.get(utente=self.user)
+        # il peso non era nel secondo invio: non deve essere stato azzerato
+        self.assertEqual(float(entry.peso_kg), 78.5)
+        self.assertEqual(float(entry.vita_cm), 82)
+
+    def test_rimuovi_orario(self):
+        self._salva(data=self.oggi.isoformat(), ora='07:30')
+
+        self._salva(data=self.oggi.isoformat(), ora='07:30', clear_ora='1')
+
+        self.assertIsNone(BodyMetric.objects.get(utente=self.user).orario)
+
+    def test_eliminazione_svuota_anche_il_grafico(self):
+        entry_id = self._salva(data=self.oggi.isoformat(), peso_kg='78.5').json()['entry_id']
+
+        r = self.client.post(reverse('delete_misurazione_ajax', args=[entry_id]))
+
+        self.assertEqual(r.status_code, 200)
+        dati = r.json()
+        self.assertTrue(dati['ok'])
+        self.assertEqual(dati['chart']['peso'], [])
+        self.assertFalse(BodyMetric.objects.filter(id=entry_id).exists())
+
+    def test_non_si_elimina_la_misurazione_di_un_altro(self):
+        altro = User.objects.create_user(username='estraneo3', password='x')
+        sua = BodyMetric.objects.create(utente=altro, data=self.oggi, peso_kg=80)
+
+        r = self.client.post(reverse('delete_misurazione_ajax', args=[sua.id]))
+
+        self.assertEqual(r.status_code, 404)
+        self.assertTrue(BodyMetric.objects.filter(id=sua.id).exists())
+
+    def test_get_non_modifica_niente(self):
+        entry = BodyMetric.objects.create(utente=self.user, data=self.oggi, peso_kg=80)
+
+        self.assertEqual(self.client.get(reverse('save_misurazione_ajax')).status_code, 405)
+        self.assertEqual(
+            self.client.get(reverse('delete_misurazione_ajax', args=[entry.id])).status_code, 405)
+        self.assertTrue(BodyMetric.objects.filter(id=entry.id).exists())
+
+    def test_la_pagina_usa_il_partial_e_gli_endpoint_ajax(self):
+        entry = BodyMetric.objects.create(utente=self.user, data=self.oggi, peso_kg=80)
+        corpo = self.client.get(reverse('misurazioni')).content.decode()
+
+        # data-data e' quello che il JS legge per infilare una riga nuova al
+        # posto giusto nell'elenco ordinato per data.
+        self.assertIn('data-data="%s"' % self.oggi.isoformat(), corpo)
+        self.assertIn('id="metric-row-%d"' % entry.id, corpo)
+        self.assertIn(reverse('save_misurazione_ajax'), corpo)
+        self.assertIn(reverse('delete_misurazione_ajax', args=[entry.id]), corpo)
 
