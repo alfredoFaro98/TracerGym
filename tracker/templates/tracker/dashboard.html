@@ -44,6 +44,22 @@
     .water-quick-group > form { flex: 1 1 0; min-width: 0; }
     .water-quick-group .water-quick-btn { width: 100%; }
 
+    /* Obiettivo giornaliero: la riga non deve fermarsi a meta'. Il campo e la
+       coppia Salva/Annulla crescono insieme fino a riempirla, e quando lo
+       spazio finisce vanno a capo prendendosi una riga intera a testa (i due
+       flex-basis sommati non ci stanno piu' e il wrap scatta da solo).
+       Come per i bottoni qui sopra non serve un breakpoint: quello che conta
+       non e' la larghezza dello schermo ma quella della card, che cambia anche
+       a finestra ferma perche' divide la riga con Alimentazione e Settimana.
+       Sotto i 768px le regole di .quick-form in style.css portano comunque
+       entrambi al 100%, quindi il risultato e' lo stesso a ogni misura. */
+    /* 170px non e' la larghezza del campo ma quella dell'etichetta sopra:
+       sotto, "Obiettivo giornaliero (ml)" va a capo e la riga cresce di
+       un rigo. Da li' in su il flex-grow fa il resto. */
+    #water-goal-form .quick-span-2 { flex: 1 1 170px; min-width: 0; }
+    #water-goal-form .quick-span-2 .tracer-input { width: 100%; box-sizing: border-box; }
+    #water-goal-form .quick-actions { flex: 2 1 180px; min-width: 0; }
+
     .water-pill-x {
         position: absolute;
         top: -6px;
@@ -463,12 +479,11 @@
 
         <!-- Form obiettivo (nascosto) -->
         <div id="water-goal-form" style="display:none; margin-top: 16px;">
-            <form class="quick-form" action="{% url 'set_water_goal' %}" method="post" style="display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap;">
+            <form data-ajax-water-goal class="quick-form" action="{% url 'set_water_goal_ajax' %}" method="post" style="display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap;">
                 {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.get_full_path }}">
                 <div class="quick-span-2">
                     <label style="display: block; font-size: 9.5px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 5px;">Obiettivo giornaliero (ml)</label>
-                    <input type="number" name="obiettivo_ml" value="{{ water_goal_ml }}" class="tracer-input" style="width: 110px;" min="100" step="50">
+                    <input type="number" name="obiettivo_ml" value="{{ water_goal_ml }}" class="tracer-input" min="100" step="50">
                 </div>
                 <div class="quick-actions">
                     <button type="submit" class="btn-primary-gradient" style="padding: 8px 16px; font-size: 12px;">Salva</button>
@@ -480,9 +495,8 @@
         <!-- Aggiunte di oggi -->
         <div id="water-pills" style="display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 10px; margin-top: 6px; padding-top: 8px; padding-bottom: 6px;">
             {% for e in water_entries_today %}
-            <form action="{% url 'delete_water_entry' e.id %}" method="post" class="water-pill" style="position: relative; display: inline-flex; flex: 1 1 auto; min-width: max-content; white-space: nowrap;" onsubmit="return confirm('Eliminare questa aggiunta?');">
+            <form data-ajax-water-del action="{% url 'delete_water_entry_ajax' e.id %}" method="post" class="water-pill" style="position: relative; display: inline-flex; flex: 1 1 auto; min-width: max-content; white-space: nowrap;">
                 {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.get_full_path }}">
                 <span style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; box-sizing: border-box; padding: 5px 10px; background: rgba(var(--acc-rgb),0.12); border: 1px solid rgba(var(--acc-rgb),0.2); border-radius: 20px; color: var(--acc-soft); font-size: 11.5px; font-weight: 600;">
                     {{ e.quantita_ml }}ml <span style="color: #7d8296; font-weight: 500;">· {{ e.creato_il|date:"H:i" }}</span>
                 </span>
@@ -764,15 +778,54 @@
             form.style.display = form.style.display === 'none' ? 'block' : 'none';
         }
 
-        // --- Aggiunta acqua via AJAX (niente reload della dashboard) ---
+        // --- Widget acqua via AJAX (niente reload della dashboard) ---
+        // Aggiunta, eliminazione e cambio obiettivo passano tutti di qui:
+        // toccano le stesse tre etichette (totale, obiettivo, barra) e il
+        // server le ricalcola sempre lui, quindi il JS non fa aritmetica --
+        // si limita a riscrivere quello che gli torna indietro.
         (function() {
-            var DELETE_URL_TPL = '{% url "delete_water_entry" 0 %}'.replace('/0/', '/__ID__/');
+            var DELETE_URL_TPL = '{% url "delete_water_entry_ajax" 0 %}'.replace('/0/', '/__ID__/');
             var pillsContainer = document.getElementById('water-pills');
 
+            // Virgola, non punto: il template stampa "1,75" (floatformat in
+            // italiano) e il JS riscrive la stessa etichetta. Senza la
+            // sostituzione il numero cambiava punteggiatura appena lo toccavi
+            // e tornava a posto solo al primo refresh.
             function formatLiters(ml) {
                 var l = Math.round(ml) / 1000;
                 var s = l.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
-                return s === '' ? '0' : s;
+                return s === '' ? '0' : s.replace('.', ',');
+            }
+
+            function applyTotals(data) {
+                var total = document.getElementById('water-total-label');
+                if (total) total.textContent = formatLiters(data.total_ml);
+                // L'obiettivo del giorno (se impostato dallo storico) batte
+                // quello di profilo: il server manda quello davvero in vigore,
+                // che puo' non essere il numero appena digitato.
+                var goal = document.getElementById('water-goal-label');
+                if (goal && data.goal_ml != null) goal.textContent = formatLiters(data.goal_ml);
+                var bar = document.getElementById('water-progress-bar');
+                if (bar) bar.style.width = data.progress_pct + '%';
+            }
+
+            // Il bottone resta bloccato finche' la risposta non arriva: senza,
+            // due click veloci su +500ml facevano due bevute.
+            function submitAjax(form, onOk) {
+                var btn = form.querySelector('button[type="submit"]');
+                if (btn) btn.disabled = true;
+                fetch(form.action, { method: 'POST', body: new FormData(form) })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (btn) btn.disabled = false;
+                        if (!data.ok) { alert(data.error || 'Errore, riprova.'); return; }
+                        applyTotals(data);
+                        if (onOk) onOk(data);
+                    })
+                    .catch(function() {
+                        if (btn) btn.disabled = false;
+                        alert('Errore di rete, riprova.');
+                    });
             }
 
             function buildPill(entry) {
@@ -780,14 +833,11 @@
                 form.action = DELETE_URL_TPL.replace('__ID__', entry.id);
                 form.method = 'post';
                 form.className = 'water-pill';
+                form.setAttribute('data-ajax-water-del', '');
                 form.style.cssText = 'position: relative; display: inline-flex; flex: 1 1 auto; min-width: max-content; white-space: nowrap;';
-                form.addEventListener('submit', function(e) {
-                    if (!confirm('Eliminare questa aggiunta?')) e.preventDefault();
-                });
                 var csrf = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
                 form.innerHTML =
                     '<input type="hidden" name="csrfmiddlewaretoken" value="' + csrf + '">' +
-                    '<input type="hidden" name="next" value="{{ request.get_full_path|escapejs }}">' +
                     '<span style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; box-sizing: border-box; padding: 5px 10px; background: rgba(var(--acc-rgb),0.12); border: 1px solid rgba(var(--acc-rgb),0.2); border-radius: 20px; color: var(--acc-soft); font-size: 11.5px; font-weight: 600;">' +
                         entry.quantita_ml + 'ml <span style="color: #7d8296; font-weight: 500;">· ' + entry.ora + '</span>' +
                     '</span>' +
@@ -795,28 +845,40 @@
                 return form;
             }
 
+            // Aggiunta (+250 / +500 / +1L / quantita' libera)
             document.querySelectorAll('form[data-ajax-water]').forEach(function(form) {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    var btn = form.querySelector('button[type="submit"]');
-                    if (btn) btn.disabled = true;
-                    fetch(form.action, { method: 'POST', body: new FormData(form) })
-                        .then(function(r) { return r.json(); })
-                        .then(function(data) {
-                            if (btn) btn.disabled = false;
-                            if (!data.ok) { alert(data.error || 'Errore, riprova.'); return; }
-                            document.getElementById('water-total-label').textContent = formatLiters(data.total_ml);
-                            var bar = document.getElementById('water-progress-bar');
-                            if (bar) bar.style.width = data.progress_pct + '%';
-                            if (pillsContainer) pillsContainer.insertBefore(buildPill(data.entry), pillsContainer.firstChild);
-                            if (form.querySelector('input[name="quantita_ml"]:not([type="hidden"])')) form.reset();
-                        })
-                        .catch(function() {
-                            if (btn) btn.disabled = false;
-                            alert('Errore di rete, riprova.');
-                        });
+                    submitAjax(form, function(data) {
+                        if (pillsContainer) pillsContainer.insertBefore(buildPill(data.entry), pillsContainer.firstChild);
+                        if (form.querySelector('input[name="quantita_ml"]:not([type="hidden"])')) form.reset();
+                    });
                 });
             });
+
+            // Eliminazione. Il listener sta sul contenitore e non sulle singole
+            // pillole: cosi' vale anche per quelle appena aggiunte dal JS, che
+            // quando la pagina si e' caricata non esistevano.
+            if (pillsContainer) {
+                pillsContainer.addEventListener('submit', function(e) {
+                    var form = e.target.closest('form[data-ajax-water-del]');
+                    if (!form) return;
+                    e.preventDefault();
+                    if (!confirm('Eliminare questa aggiunta?')) return;
+                    submitAjax(form, function() { form.remove(); });
+                });
+            }
+
+            // Obiettivo giornaliero
+            var goalForm = document.querySelector('form[data-ajax-water-goal]');
+            if (goalForm) {
+                goalForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    submitAjax(goalForm, function() {
+                        document.getElementById('water-goal-form').style.display = 'none';
+                    });
+                });
+            }
         })();
 
         // --- Filtro mese: segna il campo come vuoto cosi' il CSS puo'

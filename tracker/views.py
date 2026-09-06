@@ -1766,6 +1766,28 @@ def add_water_entry(request):
     return redirect(request.POST.get('next') or 'dashboard')
 
 
+def _water_today_payload(user):
+    """Totale bevuto oggi, obiettivo in vigore e percentuale: e' quello che il
+    widget acqua in dashboard deve riscrivere dopo ogni modifica. Sta qui una
+    volta sola perche' aggiunta, eliminazione e cambio obiettivo aggiornano
+    esattamente le stesse tre etichette.
+
+    L'obiettivo del giorno, se c'e', batte quello di profilo: e' la stessa
+    precedenza della dashboard, cosi' l'AJAX non mostra numeri diversi da
+    quelli che si vedrebbero ricaricando."""
+    today = timezone.localdate()
+    profile, _ = UserProfile.objects.get_or_create(user=user)
+    today_goal_override = WaterGoal.objects.filter(utente=user, data=today).first()
+    goal_ml = today_goal_override.obiettivo_ml if today_goal_override else profile.obiettivo_acqua_ml
+    total_ml = WaterEntry.objects.filter(utente=user, data=today).aggregate(total=models.Sum('quantita_ml'))['total'] or 0
+    return {
+        'total_ml': total_ml,
+        'total_l': round(total_ml / 1000, 2),
+        'goal_ml': goal_ml,
+        'progress_pct': min(100, round(total_ml / goal_ml * 100)) if goal_ml else 0,
+    }
+
+
 @login_required
 def add_water_entry_ajax(request):
     """Usata dal widget acqua in Dashboard: aggiunge una bevuta di oggi senza
@@ -1781,20 +1803,14 @@ def add_water_entry_ajax(request):
     creato_il = _combine_water_datetime(today, request.POST.get('ora'))
     entry = WaterEntry.objects.create(utente=request.user, quantita_ml=int(quantita_ml), data=today, creato_il=creato_il)
 
-    profile, _ = UserProfile.objects.get_or_create(user=request.user)
-    today_goal_override = WaterGoal.objects.filter(utente=request.user, data=today).first()
-    goal_ml = today_goal_override.obiettivo_ml if today_goal_override else profile.obiettivo_acqua_ml
-
-    total_ml = WaterEntry.objects.filter(utente=request.user, data=today).aggregate(total=models.Sum('quantita_ml'))['total'] or 0
-
-    return JsonResponse({
-        'ok': True,
-        'entry': {'id': entry.id, 'quantita_ml': entry.quantita_ml, 'ora': timezone.localtime(entry.creato_il).strftime('%H:%M')},
-        'total_ml': total_ml,
-        'total_l': round(total_ml / 1000, 2),
-        'goal_ml': goal_ml,
-        'progress_pct': min(100, round(total_ml / goal_ml * 100)) if goal_ml else 0,
-    })
+    payload = _water_today_payload(request.user)
+    payload['ok'] = True
+    payload['entry'] = {
+        'id': entry.id,
+        'quantita_ml': entry.quantita_ml,
+        'ora': timezone.localtime(entry.creato_il).strftime('%H:%M'),
+    }
+    return JsonResponse(payload)
 
 
 @login_required
@@ -1803,6 +1819,21 @@ def delete_water_entry(request, entry_id):
     if request.method == 'POST':
         entry.delete()
     return redirect(request.POST.get('next') or 'dashboard')
+
+
+@login_required
+def delete_water_entry_ajax(request, entry_id):
+    """Gemella di add_water_entry_ajax per le pillole del widget acqua: prima
+    eliminare una bevuta ricaricava tutta la dashboard, mentre aggiungerla no."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Metodo non valido.'}, status=405)
+
+    entry = get_object_or_404(WaterEntry, id=entry_id, utente=request.user)
+    entry.delete()
+
+    payload = _water_today_payload(request.user)
+    payload['ok'] = True
+    return JsonResponse(payload)
 
 
 @login_required
@@ -1895,6 +1926,30 @@ def set_water_goal(request):
             profile.obiettivo_acqua_ml = int(obiettivo_ml)
             profile.save()
     return redirect(request.POST.get('next') or 'dashboard')
+
+
+@login_required
+def set_water_goal_ajax(request):
+    """Obiettivo acqua salvato dal widget in dashboard senza reload.
+
+    Cambia l'obiettivo di profilo, quindi se oggi ha gia' un obiettivo suo
+    (impostato dallo storico) il numero mostrato non si muove: e' la stessa
+    precedenza di prima, e infatti il payload torna l'obiettivo in vigore
+    davvero, non quello appena scritto."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Metodo non valido.'}, status=405)
+
+    obiettivo_ml = request.POST.get('obiettivo_ml')
+    if not (obiettivo_ml and obiettivo_ml.isdigit() and int(obiettivo_ml) > 0):
+        return JsonResponse({'error': 'Obiettivo non valido.'}, status=400)
+
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    profile.obiettivo_acqua_ml = int(obiettivo_ml)
+    profile.save()
+
+    payload = _water_today_payload(request.user)
+    payload['ok'] = True
+    return JsonResponse(payload)
 
 
 @login_required

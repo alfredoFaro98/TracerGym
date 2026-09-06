@@ -3,8 +3,12 @@ from decimal import Decimal
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
-from .models import Exercise, ExerciseImage, UserProfile, WorkoutSession, WorkoutSet
+from .models import (
+    Exercise, ExerciseImage, UserProfile, WaterEntry, WaterGoal,
+    WorkoutSession, WorkoutSet,
+)
 
 
 class ApplicaATutteTest(TestCase):
@@ -272,3 +276,101 @@ class FiltroSenzaImmagineTest(TestCase):
         con_card = corpo.split('Con Gif')[0].rsplit('<div class="ex-card', 1)[-1]
         self.assertIn('no-media', senza_card)
         self.assertNotIn('no-media', con_card)
+
+
+class AcquaAjaxTest(TestCase):
+    """Eliminazione bevuta e obiettivo acqua dal widget in dashboard.
+
+    Sono i due endpoint che prima ricaricavano tutta la pagina: quello che va
+    verificato non e' solo che scrivano sul database, ma che rimandino
+    indietro i totali giusti -- il JS non ricalcola niente, riscrive le
+    etichette con quello che riceve, quindi un payload sbagliato si vede
+    subito a schermo.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='bevitore', password='x')
+        self.profile, _ = UserProfile.objects.get_or_create(user=self.user)
+        self.profile.obiettivo_acqua_ml = 2000
+        self.profile.save()
+        self.oggi = timezone.localdate()
+        self.client.force_login(self.user)
+
+    def _bevuta(self, ml):
+        return WaterEntry.objects.create(utente=self.user, quantita_ml=ml, data=self.oggi)
+
+    def test_elimina_bevuta_torna_i_totali_aggiornati(self):
+        rimane = self._bevuta(500)
+        va_via = self._bevuta(300)
+
+        r = self.client.post(reverse('delete_water_entry_ajax', args=[va_via.id]))
+
+        self.assertEqual(r.status_code, 200)
+        dati = r.json()
+        self.assertTrue(dati['ok'])
+        self.assertEqual(dati['total_ml'], 500)
+        self.assertEqual(dati['progress_pct'], 25)
+        self.assertEqual(list(WaterEntry.objects.filter(utente=self.user)), [rimane])
+
+    def test_non_si_elimina_la_bevuta_di_un_altro(self):
+        altro = User.objects.create_user(username='estraneo', password='x')
+        sua = WaterEntry.objects.create(utente=altro, quantita_ml=500, data=self.oggi)
+
+        r = self.client.post(reverse('delete_water_entry_ajax', args=[sua.id]))
+
+        self.assertEqual(r.status_code, 404)
+        self.assertTrue(WaterEntry.objects.filter(id=sua.id).exists())
+
+    def test_obiettivo_salvato_e_percentuale_ricalcolata(self):
+        self._bevuta(1000)
+
+        r = self.client.post(reverse('set_water_goal_ajax'), {'obiettivo_ml': '4000'})
+
+        dati = r.json()
+        self.assertTrue(dati['ok'])
+        self.assertEqual(dati['goal_ml'], 4000)
+        self.assertEqual(dati['progress_pct'], 25)
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.obiettivo_acqua_ml, 4000)
+
+    def test_obiettivo_del_giorno_batte_quello_di_profilo(self):
+        # Se oggi ha gia' un obiettivo suo (impostato dallo storico), cambiare
+        # quello di profilo non deve far cambiare il numero mostrato: il
+        # payload deve tornare l'obiettivo davvero in vigore, non l'ultimo
+        # digitato, altrimenti il widget mostrerebbe un valore che sparisce al
+        # primo refresh.
+        WaterGoal.objects.create(utente=self.user, data=self.oggi, obiettivo_ml=1500)
+        self._bevuta(750)
+
+        dati = self.client.post(reverse('set_water_goal_ajax'), {'obiettivo_ml': '4000'}).json()
+
+        self.assertEqual(dati['goal_ml'], 1500)
+        self.assertEqual(dati['progress_pct'], 50)
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.obiettivo_acqua_ml, 4000)
+
+    def test_obiettivo_non_valido_rifiutato(self):
+        r = self.client.post(reverse('set_water_goal_ajax'), {'obiettivo_ml': '0'})
+
+        self.assertEqual(r.status_code, 400)
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.obiettivo_acqua_ml, 2000)
+
+    def test_get_non_modifica_niente(self):
+        entry = self._bevuta(500)
+
+        self.assertEqual(self.client.get(reverse('delete_water_entry_ajax', args=[entry.id])).status_code, 405)
+        self.assertEqual(self.client.get(reverse('set_water_goal_ajax')).status_code, 405)
+        self.assertTrue(WaterEntry.objects.filter(id=entry.id).exists())
+
+    def test_la_dashboard_punta_agli_endpoint_ajax(self):
+        # Se un {% url %} del widget tornasse alle vecchie viste che
+        # rispondono con un redirect, il JS riceverebbe HTML al posto del JSON
+        # e la pagina si ricaricherebbe di nuovo: qui si accorge subito.
+        self._bevuta(250)
+        corpo = self.client.get(reverse('dashboard')).content.decode()
+
+        self.assertIn('data-ajax-water-del', corpo)
+        self.assertIn('data-ajax-water-goal', corpo)
+        self.assertIn(reverse('set_water_goal_ajax'), corpo)
+        self.assertNotIn(reverse('set_water_goal') + '"', corpo)
