@@ -98,8 +98,8 @@
         </div>
         <div style="padding: 16px 20px; display: flex; align-items: center; justify-content: center; min-height: 80px;">
             <span id="sleep-placeholder" style="font-size: 12px; color: #7d8296;">Nessuna notte registrata negli ultimi 14 giorni</span>
-            <div style="width:100%; display:none;" id="sleep-chart-wrap">
-                <canvas id="sleep-canvas" style="max-height: 220px;"></canvas>
+            <div style="position: relative; width: 100%; height: 220px; display: none;" id="sleep-chart-wrap">
+                <canvas id="sleep-canvas"></canvas>
             </div>
         </div>
     </div>
@@ -235,6 +235,7 @@ var setSleepChart;
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: { display: false },
                     tooltip: {

@@ -1210,3 +1210,75 @@ class AlimentazioneAjaxTest(TestCase):
 
         self.assertEqual(r.status_code, 404)
         self.assertTrue(MacroEntry.objects.filter(id=sua.id).exists())
+
+
+class GraficiResponsiveTest(TestCase):
+    """I grafici devono tornare grandi quando la finestra torna grande.
+
+    Chart.js prende le misure dal contenitore del canvas. Se il canvas porta
+    un max-height e il contenitore non ha un'altezza sua, l'altezza del
+    contenitore finisce per dipendere dal canvas: da quel momento il grafico
+    si rimpicciolisce e non torna piu' su. Lo si vede uscendo dalla modalita'
+    telefono di F12, dove resta un francobollo in un riquadro largo.
+
+    Sono controlli sul sorgente dei template e non sulla pagina resa: quello
+    che conta e' la forma del markup, e cosi' valgono anche per i grafici che
+    verranno aggiunti dopo, senza doverli elencare qui.
+    """
+
+    CARTELLA = os.path.join(os.path.dirname(__file__), 'templates')
+
+    def _grafici(self):
+        """(percorso, testo) di ogni template che disegna un grafico."""
+        trovati = []
+        for radice, _, files in os.walk(self.CARTELLA):
+            for nome in sorted(files):
+                if not nome.endswith('.html'):
+                    continue
+                percorso = os.path.join(radice, nome)
+                with open(percorso, encoding='utf-8') as f:
+                    testo = f.read()
+                if 'new Chart(' in testo:
+                    trovati.append((percorso, testo))
+        return trovati
+
+    def _contenitore_del_canvas(self, testo, inizio):
+        """Il <div> che avvolge il canvas che comincia a quell'indice."""
+        prima = testo[:inizio]
+        apertura = prima.rfind('<div')
+        if apertura == -1:
+            return ''
+        return testo[apertura:testo.find('>', apertura) + 1]
+
+    def test_i_template_con_grafici_si_trovano(self):
+        """Se la ricerca non trova niente i controlli qui sotto passano a vuoto."""
+        self.assertTrue(self._grafici(), 'nessun template con grafici: ricerca da rivedere')
+
+    def test_nessun_canvas_con_max_height(self):
+        for percorso, testo in self._grafici():
+            for tag in re.findall(r'<canvas[^>]*>', testo):
+                self.assertNotIn(
+                    'max-height', tag,
+                    'max-height sul canvas in %s: taglia l altezza che Chart.js '
+                    'ha calcolato, e il grafico non torna piu grande' % percorso)
+
+    def test_ogni_grafico_rinuncia_alle_proporzioni_fisse(self):
+        for percorso, testo in self._grafici():
+            self.assertIn(
+                'maintainAspectRatio: false', testo,
+                'in %s manca maintainAspectRatio: false, quindi Chart.js '
+                'calcola l altezza dalla larghezza invece di riempire il '
+                'contenitore' % percorso)
+
+    def test_ogni_canvas_sta_in_un_contenitore_con_altezza_propria(self):
+        for percorso, testo in self._grafici():
+            for m in re.finditer(r'<canvas[^>]*>', testo):
+                tag = self._contenitore_del_canvas(testo, m.start())
+                self.assertIn(
+                    'position: relative', tag,
+                    'il contenitore del canvas in %s non e position: relative '
+                    '(%s)' % (percorso, tag[:120]))
+                self.assertRegex(
+                    tag, r'height:\s*\d',
+                    'il contenitore del canvas in %s non ha un altezza propria '
+                    '(%s)' % (percorso, tag[:120]))
