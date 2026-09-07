@@ -3061,6 +3061,8 @@ def _passi_settimana(user, lunedi):
 
 @login_required
 def attivita(request):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
     obiettivo = profile.obiettivo_passi
     oggi = timezone.localdate()
@@ -3133,6 +3135,8 @@ def _salva_passi(user, giorno, grezzo):
 
 @login_required
 def salva_passi(request):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
     if request.method == 'POST':
         giorno = timezone.localdate()
         data_str = request.POST.get('data')
@@ -3149,6 +3153,8 @@ def salva_passi(request):
 def salva_passi_settimana(request):
     """Griglia a sette caselle. E' la funzione che decide se la pagina viene
     usata: i passi si copiano a mano dal telefono, e nessuno lo fa ogni sera."""
+    if not request.user.is_superuser:
+        return redirect('dashboard')
     if request.method == 'POST':
         oggi = timezone.localdate()
         for i in range(7):
@@ -3167,6 +3173,8 @@ def salva_passi_settimana(request):
 
 @login_required
 def elimina_passi(request, entry_id):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
     if request.method == 'POST':
         PassiGiorno.objects.filter(id=entry_id, utente=request.user).delete()
     return redirect(request.POST.get('next') or 'attivita')
@@ -3174,6 +3182,8 @@ def elimina_passi(request, entry_id):
 
 @login_required
 def set_obiettivo_passi(request):
+    if not request.user.is_superuser:
+        return redirect('dashboard')
     if request.method == 'POST':
         valore = (request.POST.get('obiettivo_passi') or '').strip()
         if valore.isdigit() and int(valore) > 0:

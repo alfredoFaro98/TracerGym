@@ -663,13 +663,19 @@ class PassiGiornoTest(TestCase):
     Il punto delicato e' l'inserimento settimanale: (utente, data) e' unico,
     quindi ricompilare una settimana gia' inserita deve correggere i valori
     invece di far fallire il salvataggio.
+
+    La pagina e' riservata agli admin, quindi l'utente di prova e' un
+    superuser: con un utente normale ogni rotta risponde con un redirect.
     """
 
     def setUp(self):
-        self.user = User.objects.create_user(username='tester', password='x')
+        self.user = User.objects.create_superuser(username='tester', password='x')
         self.client.force_login(self.user)
         self.oggi = timezone.localdate()
-        self.lunedi = self.oggi - timedelta(days=self.oggi.weekday())
+        # La griglia si compila sulla settimana scorsa, non su quella in corso:
+        # i giorni futuri vengono scartati di proposito, quindi di lunedi' la
+        # settimana corrente avrebbe avuto sei caselle su sette non salvabili.
+        self.lunedi = self.oggi - timedelta(days=self.oggi.weekday() + 7)
 
     def _post_settimana(self, valori):
         """valori: dizionario indice-giorno (0=lunedi) -> stringa passi."""
@@ -747,3 +753,19 @@ class PassiGiornoTest(TestCase):
         self.client.post(reverse('elimina_passi', args=[voce.id]))
 
         self.assertTrue(PassiGiorno.objects.filter(id=voce.id).exists())
+
+    def test_un_utente_normale_non_entra_nella_pagina(self):
+        self.client.force_login(User.objects.create_user(username='atleta', password='x'))
+        self.assertRedirects(self.client.get(reverse('attivita')), reverse('dashboard'))
+
+    def test_un_utente_normale_non_salva_i_passi(self):
+        self.client.force_login(User.objects.create_user(username='atleta', password='x'))
+
+        self.client.post(reverse('salva_passi'), {'data': self.oggi.isoformat(), 'passi': '8500'})
+        self.client.post(reverse('salva_passi_settimana'), {
+            'data_0': self.oggi.isoformat(), 'passi_0': '8500',
+        })
+        self.client.post(reverse('set_obiettivo_passi'), {'obiettivo_passi': '12000'})
+
+        self.assertFalse(PassiGiorno.objects.exists())
+        self.assertFalse(UserProfile.objects.filter(obiettivo_passi=12000).exists())

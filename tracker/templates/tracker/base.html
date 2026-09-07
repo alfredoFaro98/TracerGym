@@ -97,12 +97,19 @@
                 </a>
                 {% endwith %}
 
+                {% comment %}
+                Attivita': visibile solo agli admin finche' i passi si copiano
+                a mano dal telefono. Per aprirla a tutti basta togliere l'if
+                qui sotto e le guardie sulle view in views.py.
+                {% endcomment %}
+                {% if user.is_superuser %}
                 {% with is_active=current_url|in_list:"attivita" %}
                 <a href="{% url 'attivita' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if is_active %} data-menu-active="1"{% endif %}{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c7cbd6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M13 4a1 1 0 1 0 0-.01"></path><path d="M7 21l2.5-5 3-2.5"></path><path d="M9.5 8.5L13 7l3 2.5 3 1"></path><path d="M12.5 13.5L16 16l1 5"></path><path d="M9.5 8.5L6 10l-1 3"></path></svg>
                     <span class="menu-text">Attività</span>
                 </a>
                 {% endwith %}
+                {% endif %}
 
                 {% with is_active=current_url|in_list:"sonno" %}
                 <a href="{% url 'sonno' %}" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; color: #f0f0f3; font-size: 13px; font-weight: 500; transition: all .15s;{% if is_active %} background: rgba(var(--acc-rgb),0.16); border: 1px solid rgba(var(--acc-rgb),0.35);{% else %} border: 1px solid transparent;{% endif %}"{% if is_active %} data-menu-active="1"{% endif %}{% if not is_active %} onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#f0f0f3'" onmouseout="this.style.background='transparent';this.style.color='#f0f0f3'"{% endif %}>
