@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.http import JsonResponse
 from django.db import models, transaction
 import json
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
@@ -1747,20 +1747,111 @@ def session_view(request, username, session_id):
     })
 
 
+def _atleti_visibili(request):
+    """Gli atleti da cui si puo' importare: pubblici per tutti, tutti per il
+    superuser, mai se stessi. Stesse regole di `user_list`, che resta la
+    pagina "sfoglia gli altri": qui servono solo per la ricerca del modale."""
+    qs = User.objects.exclude(id=request.user.id)
+    if not request.user.is_superuser:
+        qs = qs.filter(profile__is_public=True)
+    return qs
+
+
+@login_required
+def atleti_cerca(request):
+    """Ricerca atleti per il pannello import del modale del giorno."""
+    q = request.GET.get('q', '').strip()
+    atleti = _atleti_visibili(request)
+    if q:
+        atleti = atleti.filter(username__icontains=q)
+
+    # Il conteggio sessioni sta accanto al nome nella lista: annotato, se no
+    # sarebbe una query per riga.
+    atleti = atleti.annotate(n_sessioni=models.Count('workout_sessions')).order_by('username')[:20]
+
+    return JsonResponse({'atleti': [
+        {'username': a.username, 'n_sessioni': a.n_sessioni} for a in atleti
+    ]})
+
+
+@login_required
+def atleta_sessioni(request, username):
+    """Sessioni di un atleta, per sceglierne una da importare.
+
+    Pagina invece di restituire tutto: chi si allena da anni ne ha centinaia,
+    e nel modale ci sta una lista corta. Il filtro `q` cerca sul nome della
+    sessione e sugli esercizi che contiene, cosi' "panca" trova la giornata
+    giusta senza scorrere a mano."""
+    target = get_object_or_404(_atleti_visibili(request), username=username)
+
+    sessioni = (
+        WorkoutSession.objects.filter(utente=target)
+        .prefetch_related('sets__exercise', 'circuits__sets')
+        .order_by('-data', '-id')
+    )
+    q = request.GET.get('q', '').strip()
+    if q:
+        sessioni = sessioni.filter(
+            models.Q(nome__icontains=q) | models.Q(sets__exercise__nome__icontains=q)
+            | models.Q(sets__exercise__nome_it__icontains=q)
+        ).distinct()
+
+    paginator = Paginator(sessioni, 12)
+    try:
+        pagina = paginator.page(request.GET.get('page') or 1)
+    except EmptyPage:
+        pagina = paginator.page(paginator.num_pages)
+
+    lingua = _lingua_esercizi(request)
+    dati = []
+    for sess in pagina.object_list:
+        serie = sess.real_sets_count()
+        meta = [f'{serie} serie' if serie != 1 else '1 serie']
+        durata = _durata_leggibile(sess.durata_minuti)
+        if durata:
+            meta.append(durata)
+        meta.append(date_format(sess.data, 'd M Y'))
+        dati.append({
+            'id': sess.id,
+            'titolo': _titolo_sessione(sess, lingua),
+            'meta': ' · '.join(meta),
+        })
+
+    return JsonResponse({
+        'username': target.username,
+        'sessioni': dati,
+        'pagina': pagina.number,
+        'pagine': paginator.num_pages,
+        'totale': paginator.count,
+    })
+
+
 @login_required
 def import_session_from_user(request, username, session_id):
+    # Il modale del giorno importa senza cambiare pagina: gli stessi controlli
+    # e la stessa copia, ma la risposta e' JSON invece di un redirect.
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+    def rifiuta(motivo, redirect_to):
+        if is_ajax:
+            return JsonResponse({'errore': motivo}, status=400)
+        return redirect_to
+
     if request.method != 'POST':
-        return redirect('session_view', username=username, session_id=session_id)
+        return rifiuta('Metodo non valido.',
+                       redirect('session_view', username=username, session_id=session_id))
 
     target_user = get_object_or_404(User, username=username)
 
     if request.user == target_user:
-        return redirect('session_view', username=username, session_id=session_id)
+        return rifiuta('Non puoi importare una tua sessione.',
+                       redirect('session_view', username=username, session_id=session_id))
 
     profile, _ = UserProfile.objects.get_or_create(user=target_user)
     can_view = request.user.is_superuser or profile.is_public
     if not can_view:
-        return redirect('user_profile', username=username)
+        return rifiuta("Questo profilo non e' pubblico.",
+                       redirect('user_profile', username=username))
 
     original = get_object_or_404(WorkoutSession, id=session_id, utente=target_user)
 
@@ -1812,6 +1903,9 @@ def import_session_from_user(request, username, session_id):
                 carrucole=s.carrucole, order=s.order, circuit=new_circuit,
             )
 
+    if is_ajax:
+        return JsonResponse({'ok': True, 'session_id': new_session.id,
+                             'url': reverse('session_detail', args=[new_session.id])})
     return redirect('session_detail', session_id=new_session.id)
 
 

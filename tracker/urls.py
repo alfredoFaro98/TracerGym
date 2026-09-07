@@ -50,6 +50,10 @@ urlpatterns = [
     path('body-map/', views.body_map, name='body_map'),
     path('sessions/week/', views.weekly_sessions_data, name='weekly_sessions_data'),
     path('giorno/dati/', views.giorno_dati, name='giorno_dati'),
+    # Prefisso 'atleti/' e non 'users/': li' sotto c'e' gia'
+    # <str:username>, che si mangerebbe qualsiasi rotta fissa.
+    path('atleti/cerca/', views.atleti_cerca, name='atleti_cerca'),
+    path('atleti/<str:username>/sessioni/', views.atleta_sessioni, name='atleta_sessioni'),
     path('week-training/data/', views.week_training_data, name='week_training_data'),
     path('session/<int:session_id>/circuit/create/', views.create_circuit, name='create_circuit'),
     path('session/<int:session_id>/circuit/import/', views.import_circuit, name='import_circuit'),

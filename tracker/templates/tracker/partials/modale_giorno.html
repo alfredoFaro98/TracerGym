@@ -68,6 +68,66 @@ Chi lo include deve passare `onDayClick: TracerGiorno.apri` a TracerHeatmap.
     }
     .gm-azione:hover { border-color: rgba(var(--acc-rgb),0.45); color: var(--acc-4); }
 
+    /* Pannello import: ricerca atleta, poi le sue sessioni. */
+    #gm-import {
+        display: none; flex-direction: column; gap: 8px;
+        background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 12px; padding: 12px;
+    }
+    #gm-import.open { display: flex; }
+
+    .gm-cerca {
+        display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 10px;
+        background: var(--sunken); border: 1px solid var(--border); border-radius: 9px;
+    }
+    .gm-cerca input {
+        flex: 1; min-width: 0; background: transparent; border: none; outline: none;
+        color: #f0f0f3; font-size: 13px; font-family: inherit;
+    }
+
+    .gm-lista { display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto; }
+    .gm-voce {
+        display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 9px;
+        border: none; background: transparent; width: 100%; text-align: left;
+        font-family: inherit; cursor: pointer; transition: background .12s;
+    }
+    .gm-voce:hover { background: rgba(var(--acc-rgb),0.10); }
+    .gm-voce-tit { color: #f0f0f3; font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .gm-voce-meta { color: #8b93a3; font-size: 11.5px; }
+    .gm-avatar { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+
+    .gm-importa {
+        font-size: 11.5px; font-weight: 700; color: var(--acc-4); padding: 6px 11px;
+        border-radius: 7px; background: rgba(var(--acc-rgb),0.14); border: none;
+        font-family: inherit; cursor: pointer; flex-shrink: 0; transition: background .12s;
+    }
+    .gm-importa:hover { background: rgba(var(--acc-rgb),0.26); }
+    .gm-importa[disabled] { opacity: .5; cursor: default; }
+
+    /* Percentuale peso: gli stessi chip della pagina sessione, cosi' importare
+       da qui o da li' non e' un'altra funzione. */
+    .gm-pct { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .gm-pct-lab { font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #8b93a3; text-transform: uppercase; }
+    .gm-chip {
+        padding: 4px 9px; border-radius: 6px; font-size: 11.5px; font-weight: 700;
+        background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+        color: #a2a9b8; font-family: inherit; cursor: pointer; transition: all .12s;
+    }
+    .gm-chip:hover { border-color: rgba(var(--acc-rgb),0.4); color: #f0f0f3; }
+    .gm-chip.on { background: rgba(var(--acc-rgb),0.16); border-color: rgba(var(--acc-rgb),0.4); color: var(--acc-4); }
+    .gm-pct input {
+        width: 58px; padding: 4px 6px; background: var(--sunken); border: 1px solid var(--border);
+        border-radius: 6px; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;
+        font-size: 12px; font-weight: 600; text-align: center; outline: none;
+    }
+
+    .gm-paginazione { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 11.5px; color: #8b93a3; }
+    .gm-pag-btn { background: rgba(255,255,255,0.06); border: none; border-radius: 6px; color: #a2a9b8; font-family: inherit; font-size: 12px; padding: 4px 9px; cursor: pointer; }
+    .gm-pag-btn:hover:not([disabled]) { background: rgba(255,255,255,0.12); color: #f0f0f3; }
+    .gm-pag-btn[disabled] { opacity: .35; cursor: default; }
+
+    .gm-errore { font-size: 12px; color: #f85149; background: rgba(248,81,73,.08); border: 1px solid rgba(248,81,73,.2); border-radius: 8px; padding: 8px 10px; }
+
     /* Su telefono diventa un foglio che sale dal basso invece di una card
        centrata: si raggiunge col pollice, e sotto i 400px una card con 16px
        di margine per lato lascerebbe le righe sessione troppo strette. */
@@ -84,6 +144,12 @@ Chi lo include deve passare `onDayClick: TracerGiorno.apri` a TracerHeatmap.
         .gm-icon-btn { width: 36px; height: 36px; }
         .gm-row { padding: 13px 12px; }
         .gm-azione { padding: 13px; }
+        /* Con la tastiera aperta resta poco schermo: la lista si accorcia
+           invece di spingere i controlli fuori dal foglio. */
+        .gm-lista { max-height: 168px; }
+        .gm-voce { padding: 10px 8px; }
+        .gm-importa { padding: 8px 12px; }
+        .gm-cerca { height: 42px; }
     }
 
     /* Il foglio entra scorrendo, la card centrata no: su telefono il
@@ -129,6 +195,17 @@ Chi lo include deve passare `onDayClick: TracerGiorno.apri` a TracerHeatmap.
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 Nuova sessione
             </a>
+            <button type="button" class="gm-azione" style="border-style: solid;" onclick="TracerGiorno.toggleImport()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 11-3-6.7"></path><polyline points="21 3 21 9 15 9"></polyline></svg>
+                Importa sessione
+            </button>
+        </div>
+
+        <div id="gm-import">
+            <div id="gm-import-testa"></div>
+            <div id="gm-import-lista" class="gm-lista"></div>
+            <div id="gm-import-pag"></div>
+            <div id="gm-import-errore" class="gm-errore" style="display: none;"></div>
         </div>
     </div>
 </div>
@@ -139,6 +216,12 @@ window.TracerGiorno = (function () {
     var dataCorrente = null;
     var prevData = null;
     var nextData = null;
+
+    // Le rotte con parametri si fanno generare da Django su un segnaposto,
+    // invece di incollare a mano '/users/' + nome nel JS: se un giorno la
+    // rotta cambia, cambia in un posto solo.
+    var URL_SESSIONI = '{% url "atleta_sessioni" username="__u__" %}';
+    var URL_IMPORT = '{% url "import_session_from_user" username="__u__" session_id=0 %}'.replace('/0/', '/__s__/');
 
     var CHEVRON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5a6272" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"></polyline></svg>';
 
@@ -175,10 +258,230 @@ window.TracerGiorno = (function () {
     }
 
     function carica(dateStr) {
+        // Cambiando giorno l'import si richiude: la sessione scelta andrebbe
+        // importata su una data che non e' piu' quella a schermo.
+        chiudiImport();
         return fetch('{% url "giorno_dati" %}?data=' + encodeURIComponent(dateStr), {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         }).then(function (r) { return r.json(); }).then(disegna);
     }
+
+    /* ---------------- Pannello import ---------------- */
+
+    var pannello = document.getElementById('gm-import');
+    var testa = document.getElementById('gm-import-testa');
+    var listaImport = document.getElementById('gm-import-lista');
+    var paginazione = document.getElementById('gm-import-pag');
+    var boxErrore = document.getElementById('gm-import-errore');
+
+    var atletaScelto = null;
+    var pesoPct = 100;
+    var PCT = [100, 125, 150, 200];
+    // Un contatore invece di AbortController: basta ignorare la risposta di una
+    // ricerca vecchia che arriva dopo una piu' recente.
+    var richiesta = 0;
+
+    var LENTE = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>';
+
+    function errore(msg) {
+        boxErrore.textContent = msg;
+        boxErrore.style.display = msg ? 'block' : 'none';
+    }
+
+    function chiudiImport() {
+        pannello.classList.remove('open');
+        atletaScelto = null;
+        errore('');
+    }
+
+    function toggleImport() {
+        if (pannello.classList.contains('open')) { chiudiImport(); return; }
+        pannello.classList.add('open');
+        atletaScelto = null;
+        mostraRicerca();
+    }
+
+    // --- stato 1: cerca l'atleta
+    function mostraRicerca() {
+        testa.innerHTML = '<div class="gm-cerca">' + LENTE +
+            '<input id="gm-q-atleta" type="search" placeholder="Cerca atleta..." autocomplete="off">' +
+        '</div>';
+        paginazione.innerHTML = '';
+        atletaScelto = null;
+        var input = document.getElementById('gm-q-atleta');
+        input.addEventListener('input', function () { cercaAtleti(input.value); });
+        cercaAtleti('');
+    }
+
+    function cercaAtleti(q) {
+        var mio = ++richiesta;
+        listaImport.innerHTML = '<div class="gm-vuoto">Cerco...</div>';
+        fetch('{% url "atleti_cerca" %}?q=' + encodeURIComponent(q || ''), {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        }).then(function (r) { return r.json(); }).then(function (d) {
+            if (mio !== richiesta) return;
+            if (!d.atleti.length) {
+                listaImport.innerHTML = '<div class="gm-vuoto">Nessun atleta trovato.</div>';
+                return;
+            }
+            listaImport.innerHTML = d.atleti.map(function (a) {
+                return '<button type="button" class="gm-voce" data-atleta="' + esc(a.username) + '">' +
+                    '<span class="gm-avatar">&#129485;</span>' +
+                    '<span style="flex: 1; min-width: 0;">' +
+                        '<span class="gm-voce-tit" style="display: block;">' + esc(a.username) + '</span>' +
+                        '<span class="gm-voce-meta">' + a.n_sessioni + (a.n_sessioni === 1 ? ' sessione' : ' sessioni') + '</span>' +
+                    '</span>' + CHEVRON +
+                '</button>';
+            }).join('');
+        }).catch(function () {
+            if (mio === richiesta) listaImport.innerHTML = '<div class="gm-vuoto">Ricerca non riuscita.</div>';
+        });
+    }
+
+    // --- stato 2: scegli la sessione da importare
+    function apriAtleta(username, pagina, q) {
+        atletaScelto = username;
+        var mio = ++richiesta;
+        listaImport.innerHTML = '<div class="gm-vuoto">Carico...</div>';
+
+        var url = URL_SESSIONI.replace('__u__', encodeURIComponent(username)) +
+                  '?page=' + (pagina || 1) + '&q=' + encodeURIComponent(q || '');
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                if (mio !== richiesta) return;
+                // La testa si ridisegna solo entrando sull'atleta: se no ogni
+                // lettera digitata nel filtro rifarebbe il campo e il fuoco
+                // salterebbe via.
+                if (!document.getElementById('gm-q-sess')) disegnaTestaAtleta(username);
+                disegnaSessioniAtleta(d);
+                disegnaPaginazione(d, q);
+            }).catch(function () {
+                if (mio === richiesta) listaImport.innerHTML = '<div class="gm-vuoto">Caricamento non riuscito.</div>';
+            });
+    }
+
+    function disegnaTestaAtleta(username) {
+        testa.innerHTML =
+            '<div style="display: flex; align-items: center; gap: 8px;">' +
+                '<button type="button" class="gm-icon-btn" id="gm-indietro" title="Torna alla ricerca" aria-label="Torna alla ricerca">' +
+                    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"></polyline></svg>' +
+                '</button>' +
+                '<span class="gm-avatar" style="width: 26px; height: 26px; font-size: 13px;">&#129485;</span>' +
+                '<span class="gm-voce-tit" style="flex: 1;">' + esc(username) + '</span>' +
+            '</div>' +
+            '<div class="gm-cerca" style="margin-top: 8px;">' + LENTE +
+                '<input id="gm-q-sess" type="search" placeholder="Filtra le sue sessioni..." autocomplete="off">' +
+            '</div>' +
+            '<div class="gm-pct" style="margin-top: 8px;">' +
+                '<span class="gm-pct-lab">Peso</span>' +
+                PCT.map(function (p) {
+                    return '<button type="button" class="gm-chip" data-pct="' + p + '">' + p + '%</button>';
+                }).join('') +
+                '<input id="gm-pct-input" type="number" min="20" max="200" step="5" value="' + pesoPct + '">' +
+                '<span class="gm-pct-lab">%</span>' +
+            '</div>';
+
+        document.getElementById('gm-indietro').addEventListener('click', mostraRicerca);
+
+        var filtro = document.getElementById('gm-q-sess');
+        filtro.addEventListener('input', function () { apriAtleta(username, 1, filtro.value); });
+
+        var campoPct = document.getElementById('gm-pct-input');
+        campoPct.addEventListener('input', function () { impostaPct(campoPct.value, false); });
+        aggiornaChip();
+    }
+
+    function impostaPct(valore, scriviCampo) {
+        var n = parseFloat(valore);
+        pesoPct = isNaN(n) ? 100 : Math.max(20, Math.min(200, n));
+        if (scriviCampo) {
+            var campo = document.getElementById('gm-pct-input');
+            if (campo) campo.value = pesoPct;
+        }
+        aggiornaChip();
+    }
+
+    function aggiornaChip() {
+        testa.querySelectorAll('.gm-chip').forEach(function (c) {
+            c.classList.toggle('on', parseFloat(c.dataset.pct) === pesoPct);
+        });
+    }
+
+    function disegnaSessioniAtleta(d) {
+        if (!d.sessioni.length) {
+            listaImport.innerHTML = '<div class="gm-vuoto">Nessuna sessione trovata.</div>';
+            return;
+        }
+        listaImport.innerHTML = d.sessioni.map(function (sess) {
+            return '<div class="gm-voce" style="cursor: default;">' +
+                '<span style="flex: 1; min-width: 0;">' +
+                    '<span class="gm-voce-tit" style="display: block;">' + esc(sess.titolo) + '</span>' +
+                    '<span class="gm-voce-meta">' + esc(sess.meta) + '</span>' +
+                '</span>' +
+                '<button type="button" class="gm-importa" data-importa="' + sess.id + '">Importa</button>' +
+            '</div>';
+        }).join('');
+    }
+
+    function disegnaPaginazione(d, q) {
+        if (d.pagine <= 1) { paginazione.innerHTML = ''; return; }
+        paginazione.innerHTML = '<div class="gm-paginazione">' +
+            '<button type="button" class="gm-pag-btn" data-pagina="' + (d.pagina - 1) + '"' + (d.pagina <= 1 ? ' disabled' : '') + '>Prec</button>' +
+            '<span>' + d.pagina + ' / ' + d.pagine + ' &middot; ' + d.totale + ' sessioni</span>' +
+            '<button type="button" class="gm-pag-btn" data-pagina="' + (d.pagina + 1) + '"' + (d.pagina >= d.pagine ? ' disabled' : '') + '>Succ</button>' +
+        '</div>';
+        paginazione.querySelectorAll('[data-pagina]').forEach(function (b) {
+            b.addEventListener('click', function () {
+                apriAtleta(atletaScelto, parseInt(b.dataset.pagina, 10), q);
+            });
+        });
+    }
+
+    // --- l'import vero
+    function importa(sessionId, bottone) {
+        errore('');
+        bottone.disabled = true;
+        bottone.textContent = 'Importo...';
+
+        var corpo = new FormData();
+        corpo.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        corpo.append('weight_pct', pesoPct);
+        // La data del modale: e' il motivo per cui importare da qui non e' come
+        // importare dalla pagina della sessione, che la lascia dov'era.
+        corpo.append('data', dataCorrente);
+
+        fetch(URL_IMPORT.replace('__u__', encodeURIComponent(atletaScelto)).replace('__s__', sessionId), {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: corpo
+        }).then(function (r) { return r.json(); }).then(function (d) {
+            if (d && d.ok) {
+                window.location.href = d.url;
+                return;
+            }
+            errore((d && d.errore) || 'Import non riuscito.');
+            bottone.disabled = false;
+            bottone.textContent = 'Importa';
+        }).catch(function () {
+            errore('Import non riuscito.');
+            bottone.disabled = false;
+            bottone.textContent = 'Importa';
+        });
+    }
+
+    // Un solo gestore per tutto il pannello: le liste si ridisegnano di
+    // continuo, riagganciare i listener riga per riga sarebbe fragile.
+    pannello.addEventListener('click', function (e) {
+        var voce = e.target.closest('[data-atleta]');
+        if (voce) { apriAtleta(voce.dataset.atleta, 1, ''); return; }
+
+        var chip = e.target.closest('.gm-chip');
+        if (chip) { impostaPct(chip.dataset.pct, true); return; }
+
+        var btn = e.target.closest('[data-importa]');
+        if (btn) importa(btn.dataset.importa, btn);
+    });
 
     function scroller() { return document.querySelector('.main-content'); }
 
@@ -194,6 +497,7 @@ window.TracerGiorno = (function () {
 
     function chiudi() {
         overlay.classList.remove('open');
+        chiudiImport();
         var sc = scroller();
         if (sc) sc.classList.remove('gm-lock');
     }
@@ -212,6 +516,6 @@ window.TracerGiorno = (function () {
         if (e.key === 'ArrowRight') vaiNext();
     });
 
-    return { apri: apri, chiudi: chiudi, vaiPrev: vaiPrev, vaiNext: vaiNext };
+    return { apri: apri, chiudi: chiudi, vaiPrev: vaiPrev, vaiNext: vaiNext, toggleImport: toggleImport };
 })();
 </script>
