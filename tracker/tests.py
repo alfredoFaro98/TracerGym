@@ -1,6 +1,9 @@
+import os
+import re
 import shutil
+import subprocess
 import tempfile
-from datetime import timedelta
+from datetime import time as dt_time, timedelta
 from decimal import Decimal
 from io import BytesIO
 
@@ -15,8 +18,9 @@ from django.utils import timezone
 
 from .accent import normalizza_hex, scala_accent
 from .models import (
-    BodyMetric, Exercise, ExerciseImage, PassiGiorno, UserProfile, WaterEntry,
-    WaterGoal, WorkoutSession, WorkoutSet,
+    BodyMetric, Exercise, ExerciseImage, MacroDayStatus, MacroEntry, MacroGoal,
+    PassiGiorno, SleepEntry, UserProfile, WaterEntry, WaterGoal, WorkoutSession,
+    WorkoutSet,
 )
 
 
@@ -806,3 +810,403 @@ class GiornoDatiTest(TestCase):
         WorkoutSession.objects.create(utente=altro, data=self.oggi)
 
         self.assertEqual(self._dati()['sessioni'], [])
+
+
+class SonnoAjaxTest(TestCase):
+    """Azioni della pagina Sonno senza reload.
+
+    Qui il server non rimanda indietro la sola riga toccata ma tutto quello
+    che quella riga cambia -- elenco, calendario, stats e grafico -- perche'
+    modificare una notte puo' spostarla di posto, di pagina e di mese. I test
+    guardano proprio quello: che la risposta descriva la pagina come sara',
+    non solo il record salvato.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='dormiente', password='x')
+        self.client.force_login(self.user)
+        self.oggi = timezone.localdate()
+
+    def _notte(self, giorno=None, **campi):
+        campi.setdefault('ora_letto', dt_time(23, 0))
+        campi.setdefault('ora_sveglia', dt_time(7, 0))
+        return SleepEntry.objects.create(utente=self.user, data=giorno or self.oggi, **campi)
+
+    def _salva(self, entry_id=None, **campi):
+        url = reverse('edit_sleep_entry_ajax', args=[entry_id]) if entry_id else reverse('save_sleep_entry_ajax')
+        return self.client.post(url, campi)
+
+    def test_una_notte_nuova_torna_dentro_elenco_stats_e_grafico(self):
+        r = self._salva(data=self.oggi.isoformat(), ora_letto='22:30', ora_sveglia='06:30', qualita='ottima')
+
+        self.assertEqual(r.status_code, 200)
+        dati = r.json()
+        self.assertTrue(dati['ok'])
+        self.assertEqual(SleepEntry.objects.get(id=dati['entry_id']).qualita, 'ottima')
+        self.assertIn('Ottima', dati['lista'])
+        self.assertEqual(dati['stats']['avg_hours'], '8h 00m')
+        self.assertEqual(dati['chart'], [{'date': self.oggi.strftime('%d/%m'), 'value': 8.0}])
+
+    def test_senza_orari_non_nasce_nessuna_notte(self):
+        r = self._salva(data=self.oggi.isoformat(), ora_letto='', ora_sveglia='')
+
+        dati = r.json()
+        self.assertFalse(dati['ok'])
+        self.assertTrue(dati['error'])
+        self.assertFalse(SleepEntry.objects.exists())
+
+    def test_la_modifica_puo_spostare_la_notte_di_giorno(self):
+        notte = self._notte(qualita='buona')
+        ieri = self.oggi - timedelta(days=1)
+
+        r = self._salva(notte.id, data=ieri.isoformat(), ora_letto='00:30', ora_sveglia='08:00', qualita='scarsa')
+
+        notte.refresh_from_db()
+        self.assertEqual(notte.data, ieri)
+        self.assertEqual(notte.qualita, 'scarsa')
+        self.assertIn('Scarsa', r.json()['lista'])
+
+    def test_su_una_notte_gia_salvata_un_campo_vuoto_non_azzera_l_orario(self):
+        notte = self._notte()
+
+        self._salva(notte.id, data=self.oggi.isoformat(), ora_letto='', ora_sveglia='', qualita='media')
+
+        notte.refresh_from_db()
+        self.assertEqual(notte.ora_letto, dt_time(23, 0))
+        self.assertEqual(notte.qualita, 'media')
+
+    def test_eliminazione_svuota_anche_stats_e_grafico(self):
+        notte = self._notte()
+
+        r = self.client.post(reverse('delete_sleep_entry_ajax', args=[notte.id]))
+
+        self.assertEqual(r.status_code, 200)
+        dati = r.json()
+        self.assertEqual(dati['chart'], [])
+        self.assertIsNone(dati['stats']['avg_hours'])
+        self.assertIn('Ancora nessuna notte registrata', dati['lista'])
+        self.assertFalse(SleepEntry.objects.filter(id=notte.id).exists())
+
+    def test_non_si_tocca_la_notte_di_un_altro(self):
+        altro = User.objects.create_user(username='estraneo_sonno', password='x')
+        sua = SleepEntry.objects.create(utente=altro, data=self.oggi, ora_letto=dt_time(23, 0), ora_sveglia=dt_time(7, 0))
+
+        self.assertEqual(self._salva(sua.id, qualita='scarsa').status_code, 404)
+        self.assertEqual(self.client.post(reverse('delete_sleep_entry_ajax', args=[sua.id])).status_code, 404)
+        sua.refresh_from_db()
+        self.assertEqual(sua.qualita, 'buona')
+
+    def test_get_non_modifica_niente(self):
+        notte = self._notte()
+
+        self.assertEqual(self.client.get(reverse('save_sleep_entry_ajax')).status_code, 405)
+        self.assertEqual(self.client.get(reverse('delete_sleep_entry_ajax', args=[notte.id])).status_code, 405)
+        self.assertTrue(SleepEntry.objects.filter(id=notte.id).exists())
+
+    def test_cambio_mese_del_calendario(self):
+        mese_scorso = (self.oggi.replace(day=1) - timedelta(days=1)).strftime('%Y-%m')
+
+        dati = self.client.get(reverse('sonno_vista_ajax'), {'month': mese_scorso}).json()
+
+        self.assertEqual(dati['month'], mese_scorso)
+        self.assertIn('Qualità del sonno', dati['calendario'])
+
+    def test_cambio_pagina_dello_storico(self):
+        for i in range(21):
+            self._notte(self.oggi - timedelta(days=i))
+
+        dati = self.client.get(reverse('sonno_vista_ajax'), {'page': '2'}).json()
+
+        self.assertEqual(dati['page'], '2')
+        # La 21esima notte e' la piu' vecchia: l'elenco e' per data decrescente.
+        self.assertIn((self.oggi - timedelta(days=20)).strftime('%d'), dati['lista'])
+
+    def test_una_pagina_che_non_esiste_piu_ricade_sull_ultima(self):
+        self._notte()
+
+        dati = self.client.get(reverse('sonno_vista_ajax'), {'page': '7'}).json()
+
+        # Il JS si riallinea su quello che il server ha davvero servito.
+        self.assertEqual(dati['page'], '1')
+
+    def test_la_pagina_usa_i_partial_e_gli_endpoint_ajax(self):
+        notte = self._notte()
+        corpo = self.client.get(reverse('sonno')).content.decode()
+
+        self.assertIn('id="sleep-storico"', corpo)
+        self.assertIn('id="sleep-calendario"', corpo)
+        self.assertIn(reverse('save_sleep_entry_ajax'), corpo)
+        self.assertIn(reverse('edit_sleep_entry_ajax', args=[notte.id]), corpo)
+        self.assertIn(reverse('delete_sleep_entry_ajax', args=[notte.id]), corpo)
+
+
+class AlimentazioneAjaxTest(TestCase):
+    """La pagina alimentazione non si ricarica piu' a ogni modifica.
+
+    Ogni operazione risponde con i due blocchi che cambiano gia' resi in HTML
+    (riepilogo di oggi e storico) piu' i dati del grafico: il JS li incolla e
+    basta, non ricalcola niente. Quindi quello da verificare non e' solo che
+    il database venga scritto, ma che il payload sia completo e che la pagina
+    servita corrisponda a quella che l'utente stava guardando.
+    """
+
+    AJAX = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='mangiatore', password='x')
+        self.oggi = timezone.localdate()
+        self.client.force_login(self.user)
+
+    def _voce(self, **kw):
+        kw.setdefault('kcal', 500)
+        kw.setdefault('data', self.oggi)
+        return MacroEntry.objects.create(utente=self.user, **kw)
+
+    def _tag_form(self, corpo, action):
+        """Il tag <form> di quell'action, per guardarne gli attributi."""
+        m = re.search(r'<form[^>]*action="%s"[^>]*>' % re.escape(action), corpo)
+        self.assertIsNotNone(m, 'nessun form verso %s' % action)
+        return m.group(0)
+
+    def _stato(self, r):
+        """Controlla che la risposta sia uno stato completo e lo restituisce."""
+        self.assertEqual(r.status_code, 200, r.content[:400])
+        dati = r.json()
+        self.assertTrue(dati['ok'], dati)
+        for chiave in ('today_html', 'days_html', 'chart_data', 'default_goals', 'page'):
+            self.assertIn(chiave, dati)
+        return dati
+
+    def test_la_pagina_usa_i_partial_e_i_form_ajax(self):
+        """I due blocchi sostituibili ci sono e ogni form e' marcato.
+
+        Basta un data-macro-ajax dimenticato perche' quel form torni a
+        ricaricare la pagina: da fuori sembra tutto a posto, quindi la
+        marcatura la controlliamo qui una per una.
+        """
+        for i in range(20):
+            self._voce(data=self.oggi - timedelta(days=i), nota='Pranzo')
+
+        corpo = self.client.get(reverse('macro')).content.decode()
+
+        self.assertIn('id="macro-today-slot"', corpo)
+        self.assertIn('id="macro-days-slot"', corpo)
+        voce = MacroEntry.objects.first()
+        for azione, args in (
+            ('add_macro_entry', []), ('set_macro_goal', []),
+            ('set_macro_day_status', []), ('set_day_macro_goal', []),
+            ('edit_macro_entry', [voce.id]), ('delete_macro_entry', [voce.id]),
+            ('duplicate_macro_entry', [voce.id]),
+        ):
+            self.assertIn('data-macro-ajax', self._tag_form(corpo, reverse(azione, args=args)),
+                          "form %s non marcato per AJAX" % azione)
+        # Anche il cambio pagina dello storico passa dal fetch.
+        self.assertIn('data-macro-page="2"', corpo)
+
+    def test_aggiunta_torna_lo_stato_aggiornato(self):
+        dati = self._stato(self.client.post(reverse('add_macro_entry'), {
+            'kcal': '700', 'proteine_g': '40.5', 'data': self.oggi.isoformat(),
+            'ora': '13:30', 'nota': 'Pranzo', 'spazzatura': 'on',
+        }, **self.AJAX))
+
+        voce = MacroEntry.objects.get()
+        self.assertEqual(voce.kcal, 700)
+        self.assertTrue(voce.e_spazzatura)
+        # Il giorno toccato serve al JS per aprirlo dopo l'aggiornamento.
+        self.assertEqual(dati['day'], self.oggi.isoformat())
+        self.assertIn('700', dati['today_html'])
+        self.assertIn('Pranzo', dati['days_html'])
+
+    def test_kcal_mancanti_non_scrivono_niente(self):
+        r = self.client.post(reverse('add_macro_entry'), {'kcal': ''}, **self.AJAX)
+
+        self.assertEqual(r.status_code, 400)
+        self.assertFalse(r.json()['ok'])
+        self.assertEqual(MacroEntry.objects.count(), 0)
+
+    def test_senza_javascript_si_torna_al_redirect_di_sempre(self):
+        r = self.client.post(reverse('add_macro_entry'), {'kcal': '300'})
+
+        self.assertRedirects(r, reverse('macro'))
+        self.assertEqual(MacroEntry.objects.count(), 1)
+
+    def test_modifica_puo_spostare_la_voce_di_giorno(self):
+        voce = self._voce()
+        ieri = self.oggi - timedelta(days=1)
+
+        dati = self._stato(self.client.post(reverse('edit_macro_entry', args=[voce.id]), {
+            'kcal': '800', 'data': ieri.isoformat(), 'ora': '09:15', 'nota': 'Colazione',
+        }, **self.AJAX))
+
+        voce.refresh_from_db()
+        self.assertEqual(voce.kcal, 800)
+        self.assertEqual(voce.data, ieri)
+        self.assertEqual(timezone.localtime(voce.creato_il).strftime('%H:%M'), '09:15')
+        # Il giorno da aprire e' quello di arrivo, non quello di partenza.
+        self.assertEqual(dati['day'], ieri.isoformat())
+
+    def test_eliminazione_singola(self):
+        voce = self._voce()
+
+        dati = self._stato(
+            self.client.post(reverse('delete_macro_entry', args=[voce.id]), {}, **self.AJAX))
+
+        self.assertEqual(dati['day'], self.oggi.isoformat())
+        self.assertEqual(MacroEntry.objects.count(), 0)
+
+    def test_eliminazione_in_blocco(self):
+        ids = [self._voce().id for _ in range(3)]
+        rimane = MacroEntry.objects.create(utente=self.user, kcal=200, data=self.oggi)
+
+        self._stato(self.client.post(
+            reverse('bulk_delete_macro_entries'), {'entry_ids': ids}, **self.AJAX))
+
+        self.assertEqual(list(MacroEntry.objects.filter(utente=self.user)), [rimane])
+
+    def test_importazione_su_un_altro_giorno(self):
+        voce = self._voce(nota='Cena', proteine_g=Decimal('20'))
+        domani = self.oggi + timedelta(days=1)
+
+        dati = self._stato(self.client.post(
+            reverse('duplicate_macro_entry', args=[voce.id]),
+            {'data': domani.isoformat()}, **self.AJAX))
+
+        self.assertEqual(dati['day'], domani.isoformat())
+        self.assertEqual(MacroEntry.objects.filter(data=domani, nota='Cena').count(), 1)
+
+    def test_obiettivo_di_default(self):
+        dati = self._stato(self.client.post(reverse('set_macro_goal'), {
+            'obiettivo_kcal': '2500', 'obiettivo_proteine_g': '180',
+        }, **self.AJAX))
+
+        # Torna indietro perche' il JS deve riscrivere i campi del form:
+        # riaprendolo mostrerebbe altrimenti i valori vecchi.
+        self.assertEqual(dati['default_goals']['kcal'], 2500)
+        self.assertEqual(UserProfile.objects.get(user=self.user).obiettivo_kcal, 2500)
+
+    def test_obiettivo_di_un_singolo_giorno(self):
+        dati = self._stato(self.client.post(reverse('set_day_macro_goal'), {
+            'data': self.oggi.isoformat(), 'kcal': '1800', 'proteine_g': '150',
+        }, **self.AJAX))
+
+        self.assertEqual(dati['day'], self.oggi.isoformat())
+        self.assertEqual(MacroGoal.objects.get(data=self.oggi).kcal, 1800)
+
+    def test_obiettivo_del_giorno_senza_kcal_non_passa(self):
+        r = self.client.post(reverse('set_day_macro_goal'),
+                             {'data': self.oggi.isoformat(), 'kcal': '0'}, **self.AJAX)
+
+        self.assertEqual(r.status_code, 400)
+        self.assertEqual(MacroGoal.objects.count(), 0)
+
+    def test_stato_del_giorno_si_imposta_e_si_toglie(self):
+        self._stato(self.client.post(reverse('set_macro_day_status'), {
+            'data': self.oggi.isoformat(), 'stato': 'non_tracciato',
+        }, **self.AJAX))
+        self.assertEqual(MacroDayStatus.objects.get(data=self.oggi).stato, 'non_tracciato')
+
+        self._stato(self.client.post(reverse('set_macro_day_status'), {
+            'data': self.oggi.isoformat(), 'stato': '',
+        }, **self.AJAX))
+        self.assertEqual(MacroDayStatus.objects.count(), 0)
+
+    def test_data_non_valida_non_passa(self):
+        r = self.client.post(reverse('set_macro_day_status'),
+                             {'data': 'non-una-data', 'stato': 'parziale'}, **self.AJAX)
+
+        self.assertEqual(r.status_code, 400)
+
+    def test_i_giorni_non_tracciati_restano_fuori_dall_andamento(self):
+        self._voce(data=self.oggi - timedelta(days=1))
+        self._voce(data=self.oggi)
+        MacroDayStatus.objects.create(utente=self.user, data=self.oggi, stato='non_tracciato')
+
+        dati = self._stato(self.client.get(reverse('macro'), **self.AJAX))
+
+        giorni = [p['date'] for p in dati['chart_data']['kcal']]
+        self.assertNotIn(self.oggi.strftime('%d/%m/%Y'), giorni)
+
+    def test_lo_storico_resta_sulla_pagina_che_si_stava_guardando(self):
+        for i in range(20):
+            self._voce(data=self.oggi - timedelta(days=i))
+        vecchia = MacroEntry.objects.order_by('data').first()
+
+        dati = self._stato(self.client.post(
+            reverse('delete_macro_entry', args=[vecchia.id]), {'page': '2'}, **self.AJAX))
+
+        self.assertEqual(dati['page'], 2)
+
+    def test_un_giorno_svuotato_non_e_su_un_altra_pagina(self):
+        """Sparire perche' non ha piu' voci non e' come essere altrove.
+
+        Il toast dice "giorno su un'altra pagina" solo se quel giorno esiste
+        ancora davvero: su un giorno svuotato sarebbe una bugia, e manderebbe
+        l'utente a cercarlo dove non c'e'.
+        """
+        sola = self._voce()
+
+        dati = self._stato(self.client.post(
+            reverse('delete_macro_entry', args=[sola.id]), {}, **self.AJAX))
+
+        self.assertFalse(dati['day_altrove'])
+
+    def test_un_giorno_fuori_pagina_viene_segnalato(self):
+        for i in range(20):
+            self._voce(data=self.oggi - timedelta(days=i))
+        # La ventesima giornata indietro sta in seconda pagina (14 per pagina),
+        # ma la richiesta arriva dalla prima.
+        lontana = self.oggi - timedelta(days=19)
+
+        dati = self._stato(self.client.post(reverse('set_macro_day_status'), {
+            'data': lontana.isoformat(), 'stato': 'parziale', 'page': '1',
+        }, **self.AJAX))
+
+        self.assertTrue(dati['day_altrove'])
+
+    def test_eliminazione_in_blocco_ignora_gli_id_non_numerici(self):
+        """Un id non numerico farebbe saltare la query con un ValueError."""
+        resta = self._voce()
+
+        self._stato(self.client.post(reverse('bulk_delete_macro_entries'),
+                                     {'entry_ids': ['abc', '']}, **self.AJAX))
+
+        self.assertEqual(list(MacroEntry.objects.filter(utente=self.user)), [resta])
+
+    def test_il_javascript_della_pagina_e_sintatticamente_valido(self):
+        """Un apice fuori posto spegne tutta la pagina, in silenzio.
+
+        Il browser scarta l'intero blocco <script> e da quel momento non
+        funziona piu' niente: ne' i pulsanti, ne' i form, ne' il grafico. Gli
+        altri test qui sopra passerebbero lo stesso, perche' guardano solo le
+        risposte del server -- questo e' l'unico che se ne accorge.
+        """
+        node = shutil.which('node')
+        if not node:
+            self.skipTest('node non disponibile')
+
+        self._voce()
+        corpo = self.client.get(reverse('macro')).content.decode()
+        blocchi = re.findall(r'<script(?![^>]*src=)[^>]*>(.*?)</script>', corpo, re.S)
+        self.assertTrue(blocchi, 'nessuno script in pagina: estrazione da rivedere')
+
+        cartella = tempfile.mkdtemp()
+        try:
+            for i, js in enumerate(blocchi):
+                percorso = os.path.join(cartella, 'blocco%d.js' % i)
+                with open(percorso, 'w', encoding='utf-8') as f:
+                    f.write(js)
+                esito = subprocess.run([node, '--check', percorso],
+                                       capture_output=True, text=True)
+                self.assertEqual(esito.returncode, 0,
+                                 'script non valido:' + chr(10) + esito.stderr)
+        finally:
+            shutil.rmtree(cartella, ignore_errors=True)
+
+    def test_non_si_tocca_la_voce_di_un_altro(self):
+        altro = User.objects.create_user(username='estraneo', password='x')
+        sua = MacroEntry.objects.create(utente=altro, kcal=100, data=self.oggi)
+
+        r = self.client.post(reverse('delete_macro_entry', args=[sua.id]), {}, **self.AJAX)
+
+        self.assertEqual(r.status_code, 404)
+        self.assertTrue(MacroEntry.objects.filter(id=sua.id).exists())

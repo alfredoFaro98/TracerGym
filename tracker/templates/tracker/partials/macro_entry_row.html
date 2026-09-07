@@ -18,8 +18,8 @@ server e la inserisce nel DOM senza ricaricare la pagina.
         {% if e.nota %}<span class="macro-note" style="font-size: 12px; color: #9ba0b3; font-style: italic;">📝 {{ e.nota }}</span>{% endif %}
         <div class="macro-actions">
             <span class="macro-btn macro-btn-edit" onclick="toggleMacroEdit('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: var(--acc-4); padding: 6px 12px; border-radius: 7px; background: rgba(var(--acc-rgb),0.14); border: 1px solid rgba(var(--acc-rgb),0.4); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.24)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.14)'">Modifica</span>
-            <span id="macro-dup-btn-{{ e.id }}" class="macro-btn macro-btn-dup" onclick="toggleMacroDuplicate('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: #c7cbd6; padding: 6px 12px; border-radius: 7px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">Importa</span>
-            <form action="{% url 'delete_macro_entry' e.id %}" method="post" class="macro-btn-del" onsubmit="return confirm('Eliminare questa voce?');">
+            <span class="macro-btn macro-btn-dup" onclick="toggleMacroDuplicate('{{ e.id }}')" style="font-size: 12px; font-weight: 600; color: #c7cbd6; padding: 6px 12px; border-radius: 7px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">Importa</span>
+            <form action="{% url 'delete_macro_entry' e.id %}" method="post" class="macro-btn-del" data-macro-ajax data-confirm="Eliminare questa voce?">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{% url 'macro' %}">
                 <button type="submit" class="macro-btn" style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); cursor: pointer; font-family: inherit; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
@@ -27,7 +27,7 @@ server e la inserisce nel DOM senza ricaricare la pagina.
         </div>
     </div>
     <div id="macro-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 12px 14px; margin-top: 4px;">
-        <form class="quick-form" action="{% url 'edit_macro_entry' e.id %}" method="post" autocomplete="off" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
+        <form class="quick-form" data-macro-ajax action="{% url 'edit_macro_entry' e.id %}" method="post" autocomplete="off" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;">
             {% csrf_token %}
             <input type="hidden" name="next" value="{% url 'macro' %}">
             <div class="quick-field" style="display: flex; flex-direction: column; gap: 5px;">
@@ -72,7 +72,7 @@ server e la inserisce nel DOM senza ricaricare la pagina.
         </form>
     </div>
     <div id="macro-dup-{{ e.id }}" style="display: none; align-items: center; gap: 8px; background: rgba(74,222,128,0.06); border: 1px solid rgba(74,222,128,0.25); border-radius: 9px; padding: 10px 14px; margin-top: 4px; flex-wrap: wrap;">
-        <form data-ajax-macro-dup action="{% url 'duplicate_macro_entry' e.id %}" method="post" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <form data-macro-ajax data-macro-dup="{{ e.id }}" action="{% url 'duplicate_macro_entry' e.id %}" method="post" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
             {% csrf_token %}
             <span style="font-size: 12px; color: #c7cbd6;">Importa questa voce nel giorno:</span>
             <input type="date" name="data" value="{% now 'Y-m-d' %}" class="tracer-input" style="width: 150px;">

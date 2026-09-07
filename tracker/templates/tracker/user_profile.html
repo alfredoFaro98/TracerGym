@@ -76,8 +76,8 @@
 
     {% else %}
 
-    <!-- Stats -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 24px;">
+    <!-- Numeri principali -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: 12px; margin-bottom: 16px;">
         <div class="tracer-card" style="padding: 16px; text-align: center;">
             <div style="font-size: 22px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ total_sessions }}</div>
             <div style="font-size: 10.5px; color: #f0f0f3; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Sessioni</div>
@@ -87,9 +87,181 @@
             <div style="font-size: 10.5px; color: #f0f0f3; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Serie totali</div>
         </div>
         <div class="tracer-card" style="padding: 16px; text-align: center;">
+            <div style="font-size: 22px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ w.esercizi_diversi }}</div>
+            <div style="font-size: 10.5px; color: #f0f0f3; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Esercizi diversi</div>
+        </div>
+        <div class="tracer-card" style="padding: 16px; text-align: center;">
             <div style="font-size: 22px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ week_streak }}</div>
             <div style="font-size: 10.5px; color: #f0f0f3; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Settimane di fila</div>
+            {% if week_streak_record %}
+            <div style="font-size: 10px; color: #9ba0b3; margin-top: 3px;">record {{ week_streak_record }}</div>
+            {% endif %}
         </div>
+    </div>
+
+    {% if w.ha_volume %}
+    <!-- Volume sollevato: il totale "da sempre" che nessun'altra pagina mostra -->
+    <div class="tracer-card" style="padding: 20px 22px; margin-bottom: 16px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap;">
+        <div style="font-size: 34px; font-weight: 700; color: var(--acc-3); font-family: 'JetBrains Mono', monospace; line-height: 1;">{{ w.volume_totale_ton }}</div>
+        <div style="flex: 1; min-width: 190px;">
+            <div style="font-size: 12.5px; font-weight: 600; color: #f0f0f3;">tonnellate sollevate da sempre</div>
+            <div style="font-size: 11.5px; color: #9ba0b3; margin-top: 3px;">{{ w.volume_totale_kg }} kg in totale{% if w.volume_mese_kg %} &middot; {{ w.volume_mese_label }} kg questo mese{% endif %}</div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if is_own and benessere %}
+    <!-- Ultimi 30 giorni fuori dalla palestra (solo tuo, mai visibile agli altri) -->
+    <div class="tracer-card" style="margin-bottom: 16px; overflow: hidden;">
+        <div style="padding: 12px 16px; border-bottom: 1px solid var(--border);">
+            <div style="font-size: 10.5px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Ultimi 30 giorni</div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--border);">
+            {% for t in benessere %}
+            <a href="{{ t.url }}" style="background: var(--card-solid); padding: 14px 16px; text-decoration: none; display: block; transition: background .12s;" onmouseover="this.style.background='var(--panel)'" onmouseout="this.style.background='var(--card-solid)'">
+                <div style="font-size: 10px; color: #9ba0b3; text-transform: uppercase; letter-spacing: .6px;">{{ t.label }}</div>
+                <div style="font-size: 19px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace; margin: 4px 0 3px;">{{ t.valore }}</div>
+                <div style="font-size: 10.5px; color: #9ba0b3;">{{ t.nota }}</div>
+                {% if t.pct %}
+                <div style="height: 4px; border-radius: 2px; background: var(--surface-2); margin-top: 7px; overflow: hidden;">
+                    <div style="height: 100%; border-radius: 2px; background: var(--acc); width: {{ t.pct }}%;"></div>
+                </div>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Widget: ogni scheda compare solo se ha dati, cosi' la griglia non
+    lascia buchi su chi non compila quel campo -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 16px; align-items: start; margin-bottom: 20px;">
+
+        {% if w.record_carichi %}
+        <div class="tracer-card" style="overflow: hidden;">
+            <div style="padding: 12px 16px; border-bottom: 1px solid var(--border);">
+                <div style="font-size: 10.5px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Carichi massimi</div>
+            </div>
+            {% for r in w.record_carichi %}
+            <div style="padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                <div style="min-width: 0;">
+                    <div style="font-size: 12.5px; color: #c0c0d8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ r.nome }}</div>
+                    <div style="font-size: 10.5px; color: #9ba0b3; margin-top: 2px;">{% if r.reps %}{{ r.reps }} rip &middot; {% endif %}{{ r.data|date:"d M Y" }}</div>
+                </div>
+                <span style="font-size: 13px; font-weight: 700; color: var(--acc-3); font-family: 'JetBrains Mono', monospace; white-space: nowrap;">{{ r.carico_label }} kg</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if w.muscoli %}
+        <div class="tracer-card" style="overflow: hidden;">
+            <div style="padding: 12px 16px; border-bottom: 1px solid var(--border);">
+                <div style="font-size: 10.5px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Serie per muscolo</div>
+            </div>
+            <div style="padding: 14px 16px; display: flex; flex-direction: column; gap: 11px;">
+                {% for m in w.muscoli %}
+                <div>
+                    <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 5px;">
+                        <span style="font-size: 12px; color: #c0c0d8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ m.nome }}</span>
+                        <span style="font-size: 11px; font-weight: 700; color: #9ba0b3; font-family: 'JetBrains Mono', monospace;">{{ m.serie }}</span>
+                    </div>
+                    <div style="height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden;">
+                        <div style="height: 100%; border-radius: 3px; background: var(--acc); width: {{ m.pct }}%;"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if w.giorni %}
+        <div class="tracer-card" style="overflow: hidden;">
+            <div style="padding: 12px 16px; border-bottom: 1px solid var(--border);">
+                <div style="font-size: 10.5px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Quando ti alleni</div>
+            </div>
+            <div style="padding: 18px 16px 14px; display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; height: 108px;">
+                {% for g in w.giorni %}
+                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;" title="{{ g.nome }}: {{ g.count }} sessioni">
+                    <span style="font-size: 10px; font-weight: 700; color: #9ba0b3; font-family: 'JetBrains Mono', monospace;">{{ g.count }}</span>
+                    <div style="width: 100%; max-width: 26px; border-radius: 4px 4px 0 0; min-height: 3px; height: {{ g.pct }}%; background: {% if g.top %}var(--acc){% else %}var(--surface-2){% endif %};"></div>
+                    <span style="font-size: 10px; color: #9ba0b3;">{{ g.nome }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% if w.durata_media or w.orario_medio %}
+            <div style="padding: 10px 16px; border-top: 1px solid var(--border); font-size: 11.5px; color: #9ba0b3;">
+                {% if w.durata_media %}Durata media <b style="color: #c0c0d8;">{{ w.durata_media }} min</b>{% endif %}{% if w.durata_media and w.orario_medio %} &middot; {% endif %}{% if w.orario_medio %}di solito verso le <b style="color: #c0c0d8;">{{ w.orario_medio }}</b>{% endif %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if top_exercises %}
+        <div class="tracer-card" style="overflow: hidden;">
+            <div style="padding: 12px 16px; border-bottom: 1px solid var(--border);">
+                <div style="font-size: 10.5px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Esercizi preferiti</div>
+            </div>
+            {% for ex in top_exercises %}
+            <div style="padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                <div style="font-size: 12.5px; color: #c0c0d8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ ex|nome_lingua:lingua_esercizi }}</div>
+                <span style="font-size: 11px; font-weight: 700; color: var(--acc-3); font-family: 'JetBrains Mono', monospace; white-space: nowrap;">{{ ex.count }} serie</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if w.compagni %}
+        <div class="tracer-card" style="overflow: hidden;">
+            <div style="padding: 12px 16px; border-bottom: 1px solid var(--border);">
+                <div style="font-size: 10.5px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Compagni di allenamento</div>
+            </div>
+            {% for c in w.compagni %}
+            <div style="padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                <div style="font-size: 12.5px; color: #c0c0d8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ c.nome }}</div>
+                <span style="font-size: 11px; font-weight: 700; color: #9ba0b3; font-family: 'JetBrains Mono', monospace; white-space: nowrap;">{{ c.sessioni }} volte</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if w.luoghi %}
+        <div class="tracer-card" style="overflow: hidden;">
+            <div style="padding: 12px 16px; border-bottom: 1px solid var(--border);">
+                <div style="font-size: 10.5px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Dove ti alleni</div>
+            </div>
+            {% for l in w.luoghi %}
+            <div style="padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                <div style="font-size: 12.5px; color: #c0c0d8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ l.nome }}</div>
+                <span style="font-size: 11px; font-weight: 700; color: #9ba0b3; font-family: 'JetBrains Mono', monospace; white-space: nowrap;">{{ l.sessioni }} volte</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if is_own and misure %}
+        <div class="tracer-card" style="overflow: hidden;">
+            <div style="padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                <div style="font-size: 10.5px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Misure corporee</div>
+                <a href="{% url 'misurazioni' %}" style="font-size: 11.5px; font-weight: 600; color: var(--acc-3); text-decoration: none;">Storico &rarr;</a>
+            </div>
+            {% for m in misure %}
+            <div style="padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                <div style="min-width: 0;">
+                    <div style="font-size: 12.5px; color: #c0c0d8;">{{ m.etichetta }}</div>
+                    <div style="font-size: 10.5px; color: #9ba0b3; margin-top: 2px;">{{ m.data|date:"d M Y" }}</div>
+                </div>
+                <div style="text-align: right; white-space: nowrap;">
+                    <span style="font-size: 13px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ m.valore }} {{ m.unita }}</span>
+                    {% if m.delta_label %}
+                    <div style="font-size: 10.5px; color: #9ba0b3; margin-top: 2px;">{{ m.delta_label }} {{ m.unita }} dal {{ m.data_riferimento|date:"M Y" }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
     </div>
 
     {% if is_own %}
@@ -97,7 +269,7 @@
     <div class="tracer-card" style="margin-bottom: 20px; overflow: hidden;">
         <div style="padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
             <div style="font-size: 10.5px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Andamento peso corporeo</div>
-            <a href="{% url 'misurazioni' %}" style="font-size: 11.5px; font-weight: 600; color: var(--acc-3); text-decoration: none;">Vedi tutte le misurazioni →</a>
+            <a href="{% url 'misurazioni' %}" style="font-size: 11.5px; font-weight: 600; color: var(--acc-3); text-decoration: none;">Vedi tutte le misurazioni &rarr;</a>
         </div>
         <div style="padding: 16px; min-height: 80px; display: flex; align-items: center; justify-content: center;">
             <span id="bw-placeholder" style="font-size: 12px; color: #f0f0f3;">Nessuna misurazione del peso registrata</span>
@@ -105,21 +277,6 @@
                 <canvas id="bw-canvas" style="max-height: 200px;"></canvas>
             </div>
         </div>
-    </div>
-    {% endif %}
-
-    <!-- Top esercizi -->
-    {% if top_exercises %}
-    <div class="tracer-card" style="margin-bottom: 20px; overflow: hidden;">
-        <div style="padding: 12px 16px; border-bottom: 1px solid var(--border);">
-            <div style="font-size: 10.5px; font-weight: 700; color: #f0f0f3; text-transform: uppercase; letter-spacing: 1px;">Esercizi preferiti</div>
-        </div>
-        {% for ex in top_exercises %}
-        <div style="padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
-            <div style="font-size: 12.5px; color: #c0c0d8;">{{ ex|nome_lingua:lingua_esercizi }}</div>
-            <span style="font-size: 11px; font-weight: 700; color: var(--acc-3); font-family: 'JetBrains Mono', monospace;">{{ ex.count }} serie</span>
-        </div>
-        {% endfor %}
     </div>
     {% endif %}
 

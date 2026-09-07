@@ -1,0 +1,29 @@
+{% comment %}
+Contenuto della card "Storico": stato vuoto, notti della pagina corrente e
+paginazione. Il server lo rigenera intero dopo ogni salvataggio, eliminazione
+o cambio pagina, e il JS lo infila in #sleep-storico -- cosi' ordine,
+conteggio delle pagine e stato vuoto restano decisi in un posto solo.
+
+I link di pagina tengono l'href vero (funzionano anche cliccati col tasto
+centrale o senza JS); data-sonno-page e' quello che il JS intercetta.
+{% endcomment %}
+{% if not entries %}
+<div style="padding: 52px 24px; text-align: center;">
+    <div style="font-size: 26px; margin-bottom: 10px; opacity: .4;">🌙</div>
+    <div style="font-size: 13.5px; color: #7d8296; font-weight: 500;">Ancora nessuna notte registrata</div>
+</div>
+{% else %}
+{% for e in entries %}{% include 'tracker/partials/sonno_riga.html' %}{% endfor %}
+{% endif %}
+
+{% if entries.has_other_pages %}
+<div style="display: flex; justify-content: center; gap: 8px; padding: 16px; border-top: 1px solid var(--border);">
+    {% if entries.has_previous %}
+        <a href="?page={{ entries.previous_page_number }}" data-sonno-page="{{ entries.previous_page_number }}" style="padding: 5px 10px; background: var(--surface-2); color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Precedente</a>
+    {% endif %}
+    <span style="font-size: 12px; color: #7d8296; align-self: center;">Pagina {{ entries.number }} di {{ entries.paginator.num_pages }}</span>
+    {% if entries.has_next %}
+        <a href="?page={{ entries.next_page_number }}" data-sonno-page="{{ entries.next_page_number }}" style="padding: 5px 10px; background: var(--surface-2); color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Successiva</a>
+    {% endif %}
+</div>
+{% endif %}

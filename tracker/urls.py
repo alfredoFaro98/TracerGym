@@ -99,4 +99,8 @@ urlpatterns = [
     path('sonno/add/', views.add_sleep_entry, name='add_sleep_entry'),
     path('sonno/<int:entry_id>/edit/', views.edit_sleep_entry, name='edit_sleep_entry'),
     path('sonno/<int:entry_id>/delete/', views.delete_sleep_entry, name='delete_sleep_entry'),
+    path('sonno/vista-ajax/', views.sonno_vista_ajax, name='sonno_vista_ajax'),
+    path('sonno/salva-ajax/', views.save_sleep_entry_ajax, name='save_sleep_entry_ajax'),
+    path('sonno/<int:entry_id>/salva-ajax/', views.save_sleep_entry_ajax, name='edit_sleep_entry_ajax'),
+    path('sonno/<int:entry_id>/delete-ajax/', views.delete_sleep_entry_ajax, name='delete_sleep_entry_ajax'),
 ]

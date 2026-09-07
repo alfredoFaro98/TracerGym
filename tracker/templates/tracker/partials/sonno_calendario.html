@@ -1,0 +1,25 @@
+{% comment %}
+Contenuto della card "Qualita' del sonno": intestazione col mese, frecce di
+navigazione e griglia delle caselle. Il server lo rigenera a ogni cambio mese
+e dopo ogni azione (una notte salvata o cancellata colora o spegne una casella
+del mese che si sta guardando), il JS lo infila in #sleep-calendario.
+
+Le frecce tengono l'href vero e portano data-sonno-month: il JS intercetta
+quello, senza JS restano link normali.
+{% endcomment %}
+<div style="display: flex; align-items: center; justify-content: center; gap: 18px; margin-bottom: 16px;">
+    <a href="?month={{ prev_month }}" data-sonno-month="{{ prev_month }}" style="display: flex; color: #7d8296; text-decoration: none;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    </a>
+    <span style="font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; color: #f0f0f3;">{{ month_label }} — Qualità del sonno</span>
+    <a href="?month={{ next_month }}" data-sonno-month="{{ next_month }}" style="display: flex; color: #7d8296; text-decoration: none;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+    </a>
+</div>
+<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;">
+    {% for cell in month_cells %}
+    <div title="{{ cell.title }}" style="position: relative; aspect-ratio: 1.6; border-radius: 6px; {% if not cell.in_month %}background: transparent;{% elif cell.quality_pct == None %}background: rgba(255,255,255,0.04);{% elif cell.quality_pct >= 90 %}background: var(--acc);{% elif cell.quality_pct >= 65 %}background: rgba(var(--acc-rgb),0.58);{% elif cell.quality_pct >= 40 %}background: rgba(var(--acc-rgb),0.28);{% else %}background: rgba(248,113,113,0.35);{% endif %} display: flex; align-items: center; justify-content: center; font-size: 10px; color: rgba(255,255,255,0.4);">
+        {% if cell.in_month %}{{ cell.day }}{% endif %}
+    </div>
+    {% endfor %}
+</div>

@@ -33,9 +33,8 @@
     <div id="new-entry-form" style="display: none; margin-bottom: 24px;">
         <div class="tracer-card" style="padding: 18px 20px;">
             <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 12px;">Registra sonno</div>
-            <form action="{% url 'add_sleep_entry' %}" method="post" autocomplete="off" style="display: flex; flex-direction: column; gap: 12px;">
+            <form data-ajax-sonno action="{% url 'save_sleep_entry_ajax' %}" method="post" autocomplete="off" style="display: flex; flex-direction: column; gap: 12px;">
                 {% csrf_token %}
-                <input type="hidden" name="next" value="{% url 'sonno' %}">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                     <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
                         <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">DATA</span>
@@ -72,22 +71,22 @@
         </div>
     </div>
 
-    <!-- Stats -->
+    <!-- Stats: i valori li riscrive il JS dopo ogni azione, da qui gli id. -->
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
         <div class="tracer-card" style="padding: 18px; text-align: center;">
-            <div style="font-size: 22px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ stats.avg_hours|default:"—" }}</div>
+            <div id="sleep-stat-hours" style="font-size: 22px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ stats.avg_hours|default:"—" }}</div>
             <div style="font-size: 10px; color: #7d8296; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Media ore (7gg)</div>
         </div>
         <div class="tracer-card" style="padding: 18px; text-align: center;">
-            <div style="font-size: 22px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{% if stats.quality_pct != None %}{{ stats.quality_pct }}%{% else %}—{% endif %}</div>
+            <div id="sleep-stat-quality" style="font-size: 22px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{% if stats.quality_pct != None %}{{ stats.quality_pct }}%{% else %}—{% endif %}</div>
             <div style="font-size: 10px; color: #7d8296; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Qualità media</div>
         </div>
         <div class="tracer-card" style="padding: 18px; text-align: center;">
-            <div style="font-size: 22px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ stats.streak }}</div>
+            <div id="sleep-stat-streak" style="font-size: 22px; font-weight: 700; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;">{{ stats.streak }}</div>
             <div style="font-size: 10px; color: #7d8296; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Notti di fila registrate</div>
         </div>
         <div class="tracer-card" style="padding: 18px; text-align: center; border-color: rgba(var(--acc-rgb),0.35);">
-            <div style="font-size: 22px; font-weight: 700; color: var(--acc-4); font-family: 'JetBrains Mono', monospace;">{{ stats.bedtime_avg|default:"—" }}</div>
+            <div id="sleep-stat-bedtime" style="font-size: 22px; font-weight: 700; color: var(--acc-4); font-family: 'JetBrains Mono', monospace;">{{ stats.bedtime_avg|default:"—" }}</div>
             <div style="font-size: 10px; color: #7d8296; margin-top: 4px; text-transform: uppercase; letter-spacing: .6px;">Media orario a letto</div>
         </div>
     </div>
@@ -105,137 +104,15 @@
         </div>
     </div>
 
-    <!-- Calendario qualita' -->
-    <div class="tracer-card" style="padding: 22px 24px; margin-bottom: 24px;">
-        <div style="display: flex; align-items: center; justify-content: center; gap: 18px; margin-bottom: 16px;">
-            <a href="?month={{ prev_month }}" style="display: flex; color: #7d8296; text-decoration: none;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-            </a>
-            <span style="font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; color: #f0f0f3;">{{ month_label }} — Qualità del sonno</span>
-            <a href="?month={{ next_month }}" style="display: flex; color: #7d8296; text-decoration: none;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-            </a>
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;">
-            {% for cell in month_cells %}
-            <div title="{{ cell.title }}" style="position: relative; aspect-ratio: 1.6; border-radius: 6px; {% if not cell.in_month %}background: transparent;{% elif cell.quality_pct == None %}background: rgba(255,255,255,0.04);{% elif cell.quality_pct >= 90 %}background: var(--acc);{% elif cell.quality_pct >= 65 %}background: rgba(var(--acc-rgb),0.58);{% elif cell.quality_pct >= 40 %}background: rgba(var(--acc-rgb),0.28);{% else %}background: rgba(248,113,113,0.35);{% endif %} display: flex; align-items: center; justify-content: center; font-size: 10px; color: rgba(255,255,255,0.4);">
-                {% if cell.in_month %}{{ cell.day }}{% endif %}
-            </div>
-            {% endfor %}
-        </div>
+    <!-- Calendario qualita': contenuto in partials/sonno_calendario.html,
+         cosi' il cambio mese puo' rimpiazzarlo senza ricaricare la pagina. -->
+    <div id="sleep-calendario" class="tracer-card" style="padding: 22px 24px; margin-bottom: 24px;">
+        {% include 'tracker/partials/sonno_calendario.html' %}
     </div>
 
-    <!-- Storico -->
-    <div class="tracer-card" style="overflow: hidden;">
-        {% if not entries %}
-        <div style="padding: 52px 24px; text-align: center;">
-            <div style="font-size: 26px; margin-bottom: 10px; opacity: .4;">🌙</div>
-            <div style="font-size: 13.5px; color: #7d8296; font-weight: 500;">Ancora nessuna notte registrata</div>
-        </div>
-        {% else %}
-        {% for e in entries %}
-        <div>
-            <div id="sleep-view-{{ e.id }}" style="display: flex; flex-direction: column; gap: 9px; padding: 13px 16px; border-bottom: 1px solid var(--border);">
-                <!-- Riga fissa: chevron, data, fascia oraria (si accorcia lei se
-                     manca spazio) e durata sempre a filo destro. Prima stava
-                     tutto in un unico flex con wrap, che su schermo stretto
-                     spezzava la riga in punti diversi da card a card. -->
-                <div onclick="toggleSleepEdit('{{ e.id }}')" style="display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none;">
-                    <svg id="sleep-chevron-{{ e.id }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                    <span style="flex-shrink: 0; font-size: 13px; font-weight: 700; color: #f0f0f3;">{{ e.data|date:"d M Y" }}</span>
-                    <span style="flex: 1; min-width: 0; font-size: 12.5px; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ e.ora_letto|time:"H:i" }} &rarr; {{ e.ora_sveglia|time:"H:i" }}{% if e.data_sveglia != e.data %} <span style="color: #565b6e;">({{ e.data_sveglia|date:"d M" }})</span>{% endif %}</span>
-                    <span style="flex-shrink: 0; font-size: 12.5px; font-weight: 700; color: #c7cbd6; white-space: nowrap;">{{ e.durata_label }}</span>
-                </div>
-
-                <!-- Sempre visibile, anche a riga chiusa. Il rientro pareggia
-                     chevron (14px) e gap (10px) della riga sopra: senza, il
-                     badge partiva sotto la freccia invece che sotto la data. -->
-                <div style="display: flex; align-items: center; gap: 8px; padding-left: 24px;">
-                    <span style="flex-shrink: 0; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; white-space: nowrap;
-                        {% comment %}
-                        Scala della qualita': due gradini di accento, poi neutro,
-                        poi rosso. 'ottima' seguiva gia' l'accento mentre 'buona'
-                        e 'media' erano giallo e arancione fissi — con l'accento
-                        caldo 'ottima' e 'media' finivano quasi dello stesso
-                        colore. Il rosso resta perche' segnala un problema e non
-                        e' fra gli accenti scegliibili, quindi non puo' collidere.
-                        {% endcomment %}
-                        {% if e.qualita == 'ottima' %}color: var(--acc-4); background: rgba(var(--acc-rgb),0.20);
-                        {% elif e.qualita == 'buona' %}color: var(--acc-soft); background: rgba(var(--acc-rgb),0.11);
-                        {% elif e.qualita == 'media' %}color: #9ba0b3; background: rgba(255,255,255,0.06);
-                        {% else %}color: #ff8a8a; background: rgba(255,138,138,0.14);{% endif %}">{{ e.get_qualita_display }}</span>
-                    <div style="flex: 1; min-width: 0;"></div>
-                    <span onclick="toggleSleepEdit('{{ e.id }}')" style="flex-shrink: 0; font-size: 12px; font-weight: 600; color: var(--acc-4); padding: 6px 12px; border-radius: 7px; background: rgba(var(--acc-rgb),0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.12)'">Modifica</span>
-                    <form action="{% url 'delete_sleep_entry' e.id %}" method="post" style="flex-shrink: 0;" onsubmit="return confirm('Eliminare questa notte?');">
-                        {% csrf_token %}
-                        <input type="hidden" name="next" value="{% url 'sonno' %}">
-                        <button type="submit" style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; font-family: inherit; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
-                    </form>
-                </div>
-
-                <!-- La nota stava nella riga principale e la sballava; qui ha
-                     una riga sua e compare solo se c'e'. -->
-                {% if e.nota %}
-                <div style="font-size: 12px; color: #9ba0b3; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-left: 24px;">&#128221; {{ e.nota }}</div>
-                {% endif %}
-            </div>
-            <div id="sleep-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 12px 14px; margin: 4px 16px;">
-                <form action="{% url 'edit_sleep_entry' e.id %}" method="post" autocomplete="off" style="display: flex; flex-direction: column; gap: 10px;">
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{% url 'sonno' %}">
-                    <!-- Due colonne per due righe: i quattro campi restano
-                         incolonnati e tutti alla stessa altezza, invece delle
-                         larghezze irregolari che dava il flex-wrap. -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                        <div style="display: flex; flex-direction: column; gap: 5px; min-width: 0;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">DATA</span>
-                            <input type="date" name="data" value="{{ e.data|date:'Y-m-d' }}" class="tracer-input" style="width: 100%; height: 38px; box-sizing: border-box;">
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 5px; min-width: 0;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">A LETTO</span>
-                            <input type="time" name="ora_letto" value="{{ e.ora_letto|time:'H:i' }}" class="tracer-input" style="width: 100%; height: 38px; box-sizing: border-box;">
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 5px; min-width: 0;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">SVEGLIA <span data-wake-day style="color: #565b6e;"></span></span>
-                            <input type="time" name="ora_sveglia" value="{{ e.ora_sveglia|time:'H:i' }}" class="tracer-input" style="width: 100%; height: 38px; box-sizing: border-box;">
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 5px; min-width: 0;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">QUALITÀ</span>
-                            <select name="qualita" class="tracer-input" style="width: 100%; height: 38px; box-sizing: border-box;">
-                                {% for value, label in quality_choices %}
-                                <option value="{{ value }}"{% if value == e.qualita %} selected{% endif %}>{{ label }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 5px;">
-                        <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">NOTA</span>
-                        <input type="text" name="nota" value="{{ e.nota }}" maxlength="200" class="tracer-input" style="width: 100%; height: 38px; box-sizing: border-box;">
-                    </div>
-                    <!-- Griglia e non flex:1: con box-sizing border-box il
-                         flex-basis comprende il padding, quindi le due meta'
-                         non verrebbero uguali. -->
-                    <div class="quick-actions">
-                        <button type="submit" class="btn-primary-gradient" style="height: 38px; box-sizing: border-box; padding: 0 16px; font-size: 12.5px;">Salva</button>
-                        <button type="button" onclick="toggleSleepEdit('{{ e.id }}')" class="btn-cancel" style="height: 38px; box-sizing: border-box; padding: 0 16px; font-size: 12.5px;">Annulla</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        {% endfor %}
-        {% endif %}
-
-        {% if entries.has_other_pages %}
-        <div style="display: flex; justify-content: center; gap: 8px; padding: 16px; border-top: 1px solid var(--border);">
-            {% if entries.has_previous %}
-                <a href="?page={{ entries.previous_page_number }}" style="padding: 5px 10px; background: var(--surface-2); color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Precedente</a>
-            {% endif %}
-            <span style="font-size: 12px; color: #7d8296; align-self: center;">Pagina {{ entries.number }} di {{ entries.paginator.num_pages }}</span>
-            {% if entries.has_next %}
-                <a href="?page={{ entries.next_page_number }}" style="padding: 5px 10px; background: var(--surface-2); color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Successiva</a>
-            {% endif %}
-        </div>
-        {% endif %}
+    <!-- Storico: idem, contenuto in partials/sonno_lista.html. -->
+    <div id="sleep-storico" class="tracer-card" style="overflow: hidden;">
+        {% include 'tracker/partials/sonno_lista.html' %}
     </div>
 </div>
 
@@ -245,11 +122,28 @@ function toggleNewEntryForm() {
     var el = document.getElementById('new-entry-form');
     el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
+
+function toggleSleepEdit(id) {
+    var edit = document.getElementById('sleep-edit-' + id);
+    var chevron = document.getElementById('sleep-chevron-' + id);
+    if (!edit) return;
+    var showEdit = edit.style.display === 'none';
+    edit.style.display = showEdit ? 'flex' : 'none';
+    // La riga non viene piu' sbiadita: ora resta l'intestazione della sezione
+    // aperta, non una cosa che il form sostituisce.
+    if (chevron) chevron.style.transform = showEdit ? 'rotate(90deg)' : 'rotate(0deg)';
+}
+
 /* Nella lista ogni notte porta fra parentesi il giorno in cui ci si e'
    svegliati, quando la sveglia cade oltre la mezzanotte. Nei form quel dato
    si vedeva solo dopo aver salvato: qui viene calcolato mentre si compila,
    con la stessa regola di SleepEntry.data_sveglia (sveglia <= ora di andare
-   a letto => e' il giorno dopo). */
+   a letto => e' il giorno dopo).
+
+   L'ascolto e' delegato al documento e non attaccato ai singoli campi: le
+   righe dello storico vengono rigenerate dal server a ogni azione, e dei
+   listener attaccati una volta sola morirebbero col primo salvataggio. */
+var aggiornaGiorniSveglia;
 (function () {
     var MESI = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu',
                 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
@@ -267,7 +161,10 @@ function toggleNewEntryForm() {
         };
     }
 
-    function aggiorna(out, c) {
+    function aggiorna(out) {
+        var form = out.closest('form');
+        if (!form) return;
+        var c = campi(form);
         out.textContent = '';
         if (!c.data || !c.letto || !c.sveglia || !c.data.value) return;
         var letto = minuti(c.letto.value), sveglia = minuti(c.sveglia.value);
@@ -281,99 +178,215 @@ function toggleNewEntryForm() {
         out.textContent = '(' + ('0' + d.getDate()).slice(-2) + ' ' + MESI[d.getMonth()] + ')';
     }
 
-    document.querySelectorAll('[data-wake-day]').forEach(function (out) {
-        var form = out.closest('form');
+    aggiornaGiorniSveglia = function () {
+        document.querySelectorAll('[data-wake-day]').forEach(aggiorna);
+    };
+
+    document.addEventListener('input', function (e) {
+        var campo = e.target;
+        if (!campo.name || ['data', 'ora_letto', 'ora_sveglia'].indexOf(campo.name) < 0) return;
+        var form = campo.closest('form');
         if (!form) return;
-        var c = campi(form);
-        [c.data, c.letto, c.sveglia].forEach(function (el) {
-            if (el) el.addEventListener('input', function () { aggiorna(out, c); });
-        });
-        aggiorna(out, c);
+        var out = form.querySelector('[data-wake-day]');
+        if (out) aggiorna(out);
     });
+
+    aggiornaGiorniSveglia();
 })();
 
-function toggleSleepEdit(id) {
-    var edit = document.getElementById('sleep-edit-' + id);
-    var chevron = document.getElementById('sleep-chevron-' + id);
-    var showEdit = edit.style.display === 'none';
-    edit.style.display = showEdit ? 'flex' : 'none';
-    // La riga non viene piu' sbiadita: ora resta l'intestazione della sezione
-    // aperta, non una cosa che il form sostituisce.
-    if (chevron) chevron.style.transform = showEdit ? 'rotate(90deg)' : 'rotate(0deg)';
-}
-
+/* ---- Grafico ore di sonno ----
+   Il disegno vive dentro setSleepChart perche' ogni salvataggio o
+   eliminazione cambia le ultime 14 notti: i dati nuovi tornano nella stessa
+   risposta AJAX e il grafico si ridisegna al posto di ricaricare la pagina. */
+var setSleepChart;
 (function() {
-    var CHART_DATA = {{ chart_data_json|safe }};
     var placeholder = document.getElementById('sleep-placeholder');
     var chartWrap = document.getElementById('sleep-chart-wrap');
     var canvas = document.getElementById('sleep-canvas');
+    var chart = null;
 
-    if (!CHART_DATA.length) {
-        placeholder.style.display = 'block';
-        chartWrap.style.display = 'none';
-        return;
-    }
-    placeholder.style.display = 'none';
-    chartWrap.style.display = 'block';
+    function crea(labels, values) {
+        var rootStyle = getComputedStyle(document.documentElement);
+        var accRgb = (rootStyle.getPropertyValue('--acc-rgb').trim() || '124, 108, 246');
+        var acc2 = (rootStyle.getPropertyValue('--acc-2').trim() || '#8b7bf7');
+        var ctx = canvas.getContext('2d');
+        var fade = ctx.createLinearGradient(0, 0, 0, 220);
+        fade.addColorStop(0, 'rgba(' + accRgb + ',.35)');
+        fade.addColorStop(1, 'rgba(' + accRgb + ',0)');
 
-    var labels = CHART_DATA.map(function(p) { return p.date; });
-    var values = CHART_DATA.map(function(p) { return p.value; });
-
-    var rootStyle = getComputedStyle(document.documentElement);
-    var accRgb = (rootStyle.getPropertyValue('--acc-rgb').trim() || '124, 108, 246');
-    var acc2 = (rootStyle.getPropertyValue('--acc-2').trim() || '#8b7bf7');
-    var ctx = canvas.getContext('2d');
-    var fade = ctx.createLinearGradient(0, 0, 0, 220);
-    fade.addColorStop(0, 'rgba(' + accRgb + ',.35)');
-    fade.addColorStop(1, 'rgba(' + accRgb + ',0)');
-
-    new Chart(canvas, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Ore di sonno',
-                data: values,
-                borderColor: acc2,
-                backgroundColor: fade,
-                pointBackgroundColor: acc2,
-                pointBorderColor: '#1b2d34',
-                pointBorderWidth: 2,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                borderWidth: 2.5,
-                fill: true,
-                tension: 0.35,
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: '#1b2d34',
-                    borderColor: 'rgba(255,255,255,.08)',
-                    borderWidth: 1,
-                    padding: 10,
-                    titleFont: { family: "'Space Grotesk', sans-serif" },
-                    callbacks: {
-                        label: function(ctx) { return ctx.parsed.y + ' h'; }
+        chart = new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Ore di sonno',
+                    data: values,
+                    borderColor: acc2,
+                    backgroundColor: fade,
+                    pointBackgroundColor: acc2,
+                    pointBorderColor: '#1b2d34',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.35,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1b2d34',
+                        borderColor: 'rgba(255,255,255,.08)',
+                        borderWidth: 1,
+                        padding: 10,
+                        titleFont: { family: "'Space Grotesk', sans-serif" },
+                        callbacks: {
+                            label: function(ctx) { return ctx.parsed.y + ' h'; }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#e4e4ec', font: { size: 12 }, maxTicksLimit: 8 },
+                        grid: { display: false },
+                        border: { display: false }
+                    },
+                    y: {
+                        ticks: { color: '#e4e4ec', font: { size: 12.5 } },
+                        grid: { color: 'rgba(255,255,255,.06)' },
+                        border: { display: false }
                     }
                 }
-            },
-            scales: {
-                x: {
-                    ticks: { color: '#e4e4ec', font: { size: 12 }, maxTicksLimit: 8 },
-                    grid: { display: false },
-                    border: { display: false }
-                },
-                y: {
-                    ticks: { color: '#e4e4ec', font: { size: 12.5 } },
-                    grid: { color: 'rgba(255,255,255,.06)' },
-                    border: { display: false }
-                }
             }
+        });
+    }
+
+    setSleepChart = function(dati) {
+        dati = dati || [];
+        if (!dati.length) {
+            placeholder.style.display = 'block';
+            chartWrap.style.display = 'none';
+            if (chart) { chart.destroy(); chart = null; }
+            return;
         }
+        placeholder.style.display = 'none';
+        chartWrap.style.display = 'block';
+
+        var labels = dati.map(function(p) { return p.date; });
+        var values = dati.map(function(p) { return p.value; });
+        if (!chart) {
+            // Il canvas nasce nascosto: creare il grafico da nascosto lo
+            // farebbe partire con larghezza zero, per questo si crea solo
+            // dopo aver mostrato il contenitore.
+            crea(labels, values);
+            return;
+        }
+        chart.data.labels = labels;
+        chart.data.datasets[0].data = values;
+        chart.update();
+    };
+
+    setSleepChart({{ chart_data_json|safe }});
+})();
+
+/* ---- Azioni senza reload ----
+   Salvataggio, eliminazione, cambio pagina dello storico e cambio mese del
+   calendario passano tutti di qui. Il server risponde con elenco e calendario
+   gia' renderizzati piu' stats e serie del grafico (views._sonno_payload):
+   qui non si ricostruisce markup a mano, si sostituisce quello che e'
+   cambiato. */
+(function() {
+    var storico = document.getElementById('sleep-storico');
+    var calendario = document.getElementById('sleep-calendario');
+    var nuovo = document.querySelector('#new-entry-form form[data-ajax-sonno]');
+    // Pagina e mese in vista: vanno mandati a ogni azione, altrimenti dopo un
+    // salvataggio il server rispedirebbe la prima pagina e il mese corrente.
+    var pagina = '{{ entries.number }}';
+    var mese = '{{ month }}';
+
+    function applica(dati) {
+        // Pagina e mese arrivano dal server: se la pagina chiesta non esiste
+        // piu' (ultima notte cancellata) quella servita e' un'altra, e lo
+        // stato locale deve seguirla.
+        pagina = dati.page;
+        mese = dati.month;
+        storico.innerHTML = dati.lista;
+        calendario.innerHTML = dati.calendario;
+        document.getElementById('sleep-stat-hours').textContent = dati.stats.avg_hours || '—';
+        document.getElementById('sleep-stat-quality').textContent =
+            dati.stats.quality_pct === null ? '—' : dati.stats.quality_pct + '%';
+        document.getElementById('sleep-stat-streak').textContent = dati.stats.streak;
+        document.getElementById('sleep-stat-bedtime').textContent = dati.stats.bedtime_avg || '—';
+        setSleepChart(dati.chart);
+        aggiornaGiorniSveglia();
+        sincronizzaUrl();
+    }
+
+    function sincronizzaUrl() {
+        var q = '?month=' + encodeURIComponent(mese) + (pagina && pagina !== '1' ? '&page=' + pagina : '');
+        history.replaceState(null, '', location.pathname + q);
+    }
+
+    function invia(form, btn, dopo) {
+        if (btn) btn.disabled = true;
+        var fd = new FormData(form);
+        fd.append('page', pagina);
+        fd.append('month', mese);
+        fetch(form.action, { method: 'POST', body: fd })
+            .then(function(r) { return r.json(); })
+            .then(function(dati) {
+                if (btn) btn.disabled = false;
+                if (!dati.ok) { alert(dati.error || 'Errore, riprova.'); return; }
+                applica(dati);
+                if (dopo) dopo();
+            })
+            .catch(function() {
+                if (btn) btn.disabled = false;
+                alert('Errore di rete, riprova.');
+            });
+    }
+
+    // Cambio pagina e cambio mese: stessa vista lato server, cambia solo cosa
+    // si aggiorna dello stato locale prima di chiederla.
+    function carica() {
+        fetch('{% url "sonno_vista_ajax" %}?page=' + encodeURIComponent(pagina) + '&month=' + encodeURIComponent(mese))
+            .then(function(r) { return r.json(); })
+            .then(applica)
+            .catch(function() { alert('Errore di rete, riprova.'); });
+    }
+
+    document.addEventListener('submit', function(e) {
+        var form = e.target.closest('form[data-ajax-sonno], form[data-ajax-sonno-del]');
+        if (!form) return;
+        e.preventDefault();
+        var btn = form.querySelector('button[type=submit]');
+        if (form.hasAttribute('data-ajax-sonno-del') && !confirm('Eliminare questa notte?')) return;
+        // Il form della nuova notte si svuota e si richiude solo se il
+        // salvataggio e' andato: se il server dice di no, quello che si e'
+        // scritto deve restare li' da correggere.
+        invia(form, btn, form === nuovo ? function() {
+            form.reset();
+            aggiornaGiorniSveglia();
+            toggleNewEntryForm();
+        } : null);
+    });
+
+    document.addEventListener('click', function(e) {
+        var link = e.target.closest('a[data-sonno-page], a[data-sonno-month]');
+        if (!link) return;
+        // Ctrl/cmd-click e tasto centrale restano navigazioni vere: il link ha
+        // ancora il suo href e apre la pagina in una scheda nuova.
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        if (link.dataset.sonnoPage) {
+            pagina = link.dataset.sonnoPage;
+        } else {
+            mese = link.dataset.sonnoMonth;
+        }
+        carica();
     });
 })();
 </script>

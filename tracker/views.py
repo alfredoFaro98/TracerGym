@@ -10,7 +10,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
 from itertools import groupby
-from collections import defaultdict
+from collections import defaultdict, Counter
 import time
 import calendar
 from decimal import Decimal, InvalidOperation
@@ -1654,6 +1654,330 @@ def _week_streak(user):
     return streak
 
 
+GIORNI_SETTIMANA = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom']
+
+
+def _migliaia(n):
+    """12345 -> '12.345', col separatore delle migliaia all'italiana."""
+    return '{:,}'.format(int(n)).replace(',', '.')
+
+
+def _numero(valore):
+    """Decimal -> stringa breve all'italiana: 87.50 diventa '87,5', 90.00 '90'."""
+    return ('%.1f' % float(valore)).rstrip('0').rstrip('.').replace('.', ',')
+
+
+def _week_streak_record(user):
+    """Il piu' lungo filotto di settimane consecutive con almeno una sessione,
+    non solo quello in corso: e' il numero da battere."""
+    session_dates = WorkoutSession.objects.filter(utente=user).values_list('data', flat=True)
+    weeks = sorted(set(d - timedelta(days=d.weekday()) for d in session_dates))
+    if not weeks:
+        return 0
+    record = corrente = 1
+    for precedente, settimana in zip(weeks, weeks[1:]):
+        corrente = corrente + 1 if settimana - precedente == timedelta(days=7) else 1
+        record = max(record, corrente)
+    return record
+
+
+def _carico_serie(row):
+    """Carico totale di una serie. Sbarra e zavorra si sommano a `weight`
+    invece di sostituirlo (vedi il commento su WorkoutSet.zavorra_kg), quindi
+    il carico e' la somma dei tre campi valorizzati."""
+    totale = Decimal('0')
+    for campo in ('weight', 'barra_kg', 'zavorra_kg'):
+        valore = row.get(campo)
+        if valore is not None:
+            totale += valore
+    return totale
+
+
+def _profilo_allenamento(user, lingua):
+    """Statistiche "da sempre" per i widget del profilo.
+
+    Tutto viene da due query piatte (serie e sessioni) aggregate in Python:
+    servono incroci diversi sugli stessi campi (volume, record, muscoli,
+    abitudini) e farli con annotate separate vorrebbe dire rileggere la stessa
+    tabella cinque volte."""
+    oggi = timezone.localdate()
+    inizio_mese = oggi.replace(day=1)
+
+    set_rows = list(
+        WorkoutSet.objects.filter(session__utente=user).values(
+            'id', 'exercise_id', 'exercise__nome', 'exercise__nome_it',
+            'exercise__target_muscle', 'reps', 'weight', 'barra_kg',
+            'zavorra_kg', 'per_lato', 'session__data',
+        )
+    )
+
+    # I muscoli compilati a mano sulla serie vincono sul resto, come gia' fa
+    # il riepilogo della settimana in dashboard.
+    muscoli_per_set = defaultdict(list)
+    for set_id, nome in WorkoutSet.muscles.through.objects.filter(
+        workoutset__session__utente=user
+    ).values_list('workoutset_id', 'musclegroup__nome'):
+        muscoli_per_set[set_id].append(nome)
+
+    # Secondo ripiego: i tag dell'esercizio, che nel catalogo personale sono
+    # proprio i gruppi muscolari ("Gran Dorsale", "Tricipiti"...) e sono
+    # compilati molto piu' spesso del target_muscle, che ce l'hanno solo gli
+    # esercizi importati da openGym.
+    esercizi_usati = set(r['exercise_id'] for r in set_rows)
+    tag_per_esercizio = defaultdict(list)
+    for exercise_id, nome in Exercise.tags.through.objects.filter(
+        exercise_id__in=esercizi_usati
+    ).values_list('exercise_id', 'tag__nome'):
+        if (nome or '').strip().lower() != 'altro':
+            tag_per_esercizio[exercise_id].append(nome)
+
+    volume_totale = Decimal('0')
+    volume_mese = Decimal('0')
+    record_per_esercizio = {}
+    serie_per_muscolo = Counter()
+    etichetta_muscolo = {}
+
+    for row in set_rows:
+        carico = _carico_serie(row)
+        reps = row['reps'] or 0
+        if carico > 0 and reps:
+            # "per lato" vuol dire quelle ripetizioni per ogni lato: il lavoro
+            # svolto nella serie e' il doppio di quello scritto.
+            volume = carico * reps * (2 if row['per_lato'] else 1)
+            volume_totale += volume
+            if row['session__data'] >= inizio_mese:
+                volume_mese += volume
+
+        if carico > 0:
+            precedente = record_per_esercizio.get(row['exercise_id'])
+            if precedente is None or carico > precedente['carico']:
+                nome_it = row['exercise__nome_it']
+                record_per_esercizio[row['exercise_id']] = {
+                    'nome': nome_it if lingua == 'it' and nome_it else row['exercise__nome'],
+                    'carico': carico,
+                    'reps': row['reps'],
+                    'data': row['session__data'],
+                }
+
+        nomi = muscoli_per_set.get(row['id']) or tag_per_esercizio.get(row['exercise_id'])
+        if not nomi and row['exercise__target_muscle']:
+            nomi = [row['exercise__target_muscle']]
+        for nome in (nomi or []):
+            pulito = (nome or '').strip()
+            chiave = pulito.lower()
+            if chiave:
+                serie_per_muscolo[chiave] += 1
+                # I tag sono gia' scritti bene ("Gran Dorsale"): si tiene la
+                # loro forma. Solo i target_muscle, tutti minuscoli, passano
+                # per _muscle_label.
+                etichetta_muscolo.setdefault(
+                    chiave, pulito if pulito != chiave else _muscle_label(pulito)
+                )
+
+    record_carichi = sorted(
+        record_per_esercizio.values(), key=lambda r: r['carico'], reverse=True
+    )[:5]
+    for record in record_carichi:
+        record['carico_label'] = _numero(record['carico'])
+
+    muscoli = []
+    if serie_per_muscolo:
+        massimo = max(serie_per_muscolo.values())
+        muscoli = [
+            {'nome': etichetta_muscolo[nome], 'serie': serie, 'pct': round(serie * 100 / massimo)}
+            for nome, serie in serie_per_muscolo.most_common(8)
+        ]
+
+    session_rows = list(
+        WorkoutSession.objects.filter(utente=user).values(
+            'data', 'orario', 'durata_minuti', 'compagni_allenamento', 'luogo',
+        )
+    )
+
+    per_giorno = Counter()
+    durate = []
+    minuti_orari = []
+    compagni = Counter()
+    nome_compagno = {}
+    luoghi = Counter()
+    for sessione in session_rows:
+        per_giorno[sessione['data'].weekday()] += 1
+        if sessione['durata_minuti']:
+            durate.append(sessione['durata_minuti'])
+        if sessione['orario']:
+            minuti_orari.append(sessione['orario'].hour * 60 + sessione['orario'].minute)
+        # Campo libero scritto a mano ("Mario, Luca"): si accetta come
+        # separatore sia la virgola sia il punto e virgola, e si conta senza
+        # distinguere le maiuscole perche' lo stesso nome viene riscritto a
+        # mano ogni volta.
+        for grezzo in (sessione['compagni_allenamento'] or '').replace(';', ',').split(','):
+            nome = grezzo.strip()
+            if nome:
+                chiave = nome.lower()
+                compagni[chiave] += 1
+                nome_compagno.setdefault(chiave, nome)
+        luogo = (sessione['luogo'] or '').strip()
+        if luogo:
+            luoghi[luogo] += 1
+
+    giorni = []
+    if per_giorno:
+        massimo_giorno = max(per_giorno.values())
+        # Il giorno preferito si colora solo se e' uno solo: con piu' giorni a
+        # pari merito colorarli tutti non direbbe niente.
+        in_testa = sum(1 for i in range(7) if per_giorno.get(i, 0) == massimo_giorno)
+        giorni = [
+            {
+                'nome': GIORNI_SETTIMANA[i],
+                'count': per_giorno.get(i, 0),
+                'pct': round(per_giorno.get(i, 0) * 100 / massimo_giorno),
+                'top': in_testa == 1 and per_giorno.get(i, 0) == massimo_giorno,
+            }
+            for i in range(7)
+        ]
+
+    orario_medio = None
+    if minuti_orari:
+        media = round(sum(minuti_orari) / len(minuti_orari))
+        orario_medio = '%02d:%02d' % (media // 60, media % 60)
+
+    return {
+        'volume_totale_kg': _migliaia(volume_totale),
+        'volume_mese_label': _migliaia(volume_mese),
+        'volume_totale_ton': ('%.1f' % (volume_totale / 1000)).replace('.', ',') if volume_totale else None,
+        'volume_mese_kg': int(volume_mese),
+        'ha_volume': volume_totale > 0,
+        'esercizi_diversi': len(esercizi_usati),
+        'record_carichi': record_carichi,
+        'muscoli': muscoli,
+        'giorni': giorni,
+        'durata_media': round(sum(durate) / len(durate)) if durate else None,
+        'orario_medio': orario_medio,
+        'compagni': [
+            {'nome': nome_compagno[chiave], 'sessioni': quante}
+            for chiave, quante in compagni.most_common(5)
+        ],
+        'luoghi': [
+            {'nome': nome, 'sessioni': quante} for nome, quante in luoghi.most_common(3)
+        ],
+    }
+
+
+def _profilo_benessere(user, profile):
+    """Medie degli ultimi 30 giorni su sonno, passi, alimentazione e acqua.
+
+    Sono dati personali: chi guarda il profilo di un altro atleta non li vede
+    mai, nemmeno quando il profilo e' pubblico. Ogni tessera compare solo se
+    ci sono dati, cosi' chi non usa una sezione non si ritrova caselle vuote."""
+    oggi = timezone.localdate()
+    da = oggi - timedelta(days=29)
+    tessere = []
+
+    notti = list(SleepEntry.objects.filter(utente=user, data__gte=da))
+    if notti:
+        media = sum(n._durata_minuti() for n in notti) / len(notti)
+        tessere.append({
+            'label': 'Sonno a notte',
+            'valore': '%dh %02dm' % (int(media // 60), int(media % 60)),
+            'nota': '%d notti registrate' % len(notti),
+            'url': reverse('sonno'),
+        })
+
+    passi = list(PassiGiorno.objects.filter(utente=user, data__gte=da).values_list('passi', flat=True))
+    if passi:
+        media = round(sum(passi) / len(passi))
+        obiettivo = profile.obiettivo_passi or 0
+        tessere.append({
+            'label': 'Passi al giorno',
+            'valore': _migliaia(media),
+            'nota': ('obiettivo %s' % _migliaia(obiettivo)) if obiettivo else ('%d giorni' % len(passi)),
+            'pct': min(100, round(media * 100 / obiettivo)) if obiettivo else None,
+            'url': reverse('attivita'),
+        })
+
+    kcal_per_giorno = defaultdict(int)
+    proteine_per_giorno = defaultdict(Decimal)
+    for data, kcal, proteine in MacroEntry.objects.filter(
+        utente=user, data__gte=da
+    ).values_list('data', 'kcal', 'proteine_g'):
+        kcal_per_giorno[data] += kcal
+        proteine_per_giorno[data] += proteine
+    if kcal_per_giorno:
+        media_kcal = round(sum(kcal_per_giorno.values()) / len(kcal_per_giorno))
+        media_proteine = round(sum(proteine_per_giorno.values()) / len(proteine_per_giorno))
+        tessere.append({
+            'label': 'Kcal al giorno',
+            'valore': _migliaia(media_kcal),
+            'nota': '%d g di proteine in media' % media_proteine,
+            'url': reverse('macro'),
+        })
+
+    acqua_per_giorno = defaultdict(int)
+    for data, ml in WaterEntry.objects.filter(utente=user, data__gte=da).values_list('data', 'quantita_ml'):
+        acqua_per_giorno[data] += ml
+    if acqua_per_giorno:
+        media_ml = round(sum(acqua_per_giorno.values()) / len(acqua_per_giorno))
+        obiettivo = profile.obiettivo_acqua_ml or 0
+        tessere.append({
+            'label': 'Acqua al giorno',
+            'valore': ('%.1f L' % (media_ml / 1000)).replace('.', ','),
+            'nota': (('obiettivo %.1f L' % (obiettivo / 1000)).replace('.', ',')) if obiettivo else ('%d giorni' % len(acqua_per_giorno)),
+            'pct': min(100, round(media_ml * 100 / obiettivo)) if obiettivo else None,
+            'url': reverse('water_history'),
+        })
+
+    return tessere
+
+
+MISURE_PROFILO = [
+    ('peso_kg', 'Peso', 'kg'),
+    ('body_fat_pct', 'Massa grassa', '%'),
+    ('vita_cm', 'Vita', 'cm'),
+    ('torace_cm', 'Torace', 'cm'),
+    ('braccia_cm', 'Braccia', 'cm'),
+    ('cosce_cm', 'Cosce', 'cm'),
+]
+
+
+def _profilo_misure(user):
+    """Ultimo valore di ogni misura e differenza rispetto a ~3 mesi fa.
+
+    I campi si compilano a spizzichi (una volta il peso, un'altra la vita),
+    quindi il confronto va fatto misura per misura sull'ultima rilevazione che
+    ha quel campo, non fra due righe intere."""
+    oggi = timezone.localdate()
+    soglia = oggi - timedelta(days=90)
+    righe = list(
+        BodyMetric.objects.filter(utente=user).order_by('data', 'id').values(
+            'data', *[campo for campo, _, _ in MISURE_PROFILO]
+        )
+    )
+    if not righe:
+        return []
+
+    misure = []
+    for campo, etichetta, unita in MISURE_PROFILO:
+        valorizzate = [r for r in righe if r[campo] is not None]
+        if not valorizzate:
+            continue
+        ultima = valorizzate[-1]
+        # Riferimento: l'ultima misura precedente alla soglia dei 3 mesi; se
+        # non c'e' storico cosi' lungo si ripiega sulla piu' vecchia che c'e'.
+        precedenti = [r for r in valorizzate[:-1] if r['data'] <= soglia] or valorizzate[:-1]
+        riferimento = precedenti[-1] if precedenti else None
+        delta = float(ultima[campo] - riferimento[campo]) if riferimento else None
+        misure.append({
+            'etichetta': etichetta,
+            'unita': unita,
+            'valore': _numero(ultima[campo]),
+            'data': ultima['data'],
+            'delta': delta,
+            'delta_label': ('%+.1f' % delta).replace('.', ',') if delta else None,
+            'data_riferimento': riferimento['data'] if riferimento else None,
+        })
+    return misure
+
+
 @login_required
 def user_profile(request, username):
     target_user = get_object_or_404(User, username=username)
@@ -1699,6 +2023,9 @@ def user_profile(request, username):
             {'date': e.data.strftime('%d/%m/%Y'), 'value': float(e.peso_kg)} for e in weight_entries
         ])
 
+    lingua = _lingua_esercizi(request)
+    allenamento = _profilo_allenamento(target_user, lingua)
+
     return render(request, 'tracker/user_profile.html', {
         'target_user': target_user,
         'profile': profile,
@@ -1708,10 +2035,14 @@ def user_profile(request, username):
         'total_sessions': sessions.count(),
         'total_sets': total_sets,
         'week_streak': _week_streak(target_user),
+        'week_streak_record': _week_streak_record(target_user),
         'top_exercises': top_exercises,
         'heatmap_data_json': json.dumps(heatmap_data),
         'selected_year': year_int,
         'body_weight_json': body_weight_json,
+        'w': allenamento,
+        'benessere': _profilo_benessere(target_user, profile) if is_own else [],
+        'misure': _profilo_misure(target_user) if is_own else [],
     })
 
 
@@ -2604,15 +2935,19 @@ def _macro_day_statuses_map(utente):
     return dict(MacroDayStatus.objects.filter(utente=utente).values_list('data', 'stato'))
 
 
-@login_required
-def macro(request):
-    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+def _macro_page_context(user, page_number=None):
+    """Tutti i numeri che la pagina alimentazione mostra.
+
+    Lo usano sia il render iniziale sia le risposte AJAX: cosi' la pagina
+    aggiornata via fetch e' identica a quella che si otterrebbe ricaricandola,
+    senza due strade che calcolano le stesse cose in modi diversi."""
+    profile, _ = UserProfile.objects.get_or_create(user=user)
     default_goals = _macro_default_goals(profile)
-    goals_by_date = _macro_goals_map(request.user)
+    goals_by_date = _macro_goals_map(user)
 
     today = timezone.localdate()
     goals = goals_by_date.get(today, default_goals)
-    today_totals = _macro_day_totals(MacroEntry.objects.filter(utente=request.user, data=today))
+    today_totals = _macro_day_totals(MacroEntry.objects.filter(utente=user, data=today))
     today_progress = {
         k: min(100, round(today_totals[k] / goals[k] * 100)) if goals[k] else 0
         for k in goals
@@ -2623,18 +2958,18 @@ def macro(request):
     }
 
     ultimo_peso = (
-        BodyMetric.objects.filter(utente=request.user, peso_kg__isnull=False)
+        BodyMetric.objects.filter(utente=user, peso_kg__isnull=False)
         .order_by('-data').values_list('peso_kg', flat=True).first()
     )
 
     week_monday = today - timedelta(days=today.weekday())
     junk_week_count = MacroEntry.objects.filter(
-        utente=request.user, e_spazzatura=True, data__gte=week_monday, data__lte=today,
+        utente=user, e_spazzatura=True, data__gte=week_monday, data__lte=today,
     ).count()
 
-    entries = MacroEntry.objects.filter(utente=request.user).order_by('-data', 'creato_il')
+    entries = MacroEntry.objects.filter(utente=user).order_by('-data', 'creato_il')
     entries_by_day = {day: list(grp) for day, grp in groupby(entries, key=lambda e: e.data)}
-    statuses_by_day = _macro_day_statuses_map(request.user)
+    statuses_by_day = _macro_day_statuses_map(user)
 
     # Un giorno compare nello storico se ha voci registrate OPPURE se e'
     # stato marcato esplicitamente come non tracciato/parziale (cosi' si
@@ -2666,10 +3001,9 @@ def macro(request):
                 chart_data[metric].append({'date': date_str, 'value': d['totals'][metric]})
 
     paginator = Paginator(days, 14)
-    page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
 
-    return render(request, 'tracker/macro.html', {
+    return {
         'days': page,
         'default_goals': default_goals,
         'goals': goals,
@@ -2677,92 +3011,156 @@ def macro(request):
         'today_progress': today_progress,
         'today_reached': today_reached,
         'ultimo_peso': ultimo_peso,
-        'chart_data_json': json.dumps(chart_data),
+        'chart_data': chart_data,
         'junk_week_count': junk_week_count,
-    })
+    }
+
+
+def _macro_is_ajax(request):
+    return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+
+def _macro_state_response(request, ctx=None, **extra):
+    """Risposta alle chiamate AJAX della pagina alimentazione: i due blocchi
+    che cambiano (riepilogo di oggi e storico) gia' resi in HTML, piu' i dati
+    del grafico. Il client sostituisce quei due pezzi e non ricarica nulla."""
+    if ctx is None:
+        page_number = request.POST.get('page') or request.GET.get('page')
+        ctx = _macro_page_context(request.user, page_number)
+    payload = {
+        'ok': True,
+        'today_html': render_to_string(
+            'tracker/partials/macro_today_card.html', ctx, request=request),
+        'days_html': render_to_string(
+            'tracker/partials/macro_days_list.html', ctx, request=request),
+        'chart_data': ctx['chart_data'],
+        'default_goals': ctx['default_goals'],
+        'page': ctx['days'].number,
+    }
+    payload.update(extra)
+
+    # Il giorno toccato puo' non essere a video per due motivi diversi, e al
+    # client servono distinti: o e' finito su un'altra pagina dello storico
+    # (glielo diciamo, altrimenti sembra che l'operazione non abbia fatto
+    # niente), oppure e' rimasto senza voci ed e' sparito del tutto -- e li'
+    # dire "e' su un'altra pagina" sarebbe una bugia.
+    giorno = payload.get('day')
+    if giorno:
+        in_pagina = any(d['data'].isoformat() == giorno for d in ctx['days'])
+        esiste = any(d['data'].isoformat() == giorno
+                     for d in ctx['days'].paginator.object_list)
+        payload['day_altrove'] = esiste and not in_pagina
+
+    return JsonResponse(payload)
+
+
+def _macro_done(request, **extra):
+    """Fine di un'operazione: JSON per il client AJAX, redirect per chi
+    naviga senza JavaScript (i form restano quelli di sempre)."""
+    if _macro_is_ajax(request):
+        return _macro_state_response(request, **extra)
+    return redirect(request.POST.get('next') or 'macro')
+
+
+def _macro_failed(request, message, status=400):
+    if _macro_is_ajax(request):
+        return JsonResponse({'ok': False, 'error': message}, status=status)
+    return redirect(request.POST.get('next') or 'macro')
+
+
+@login_required
+def macro(request):
+    ctx = _macro_page_context(request.user, request.GET.get('page'))
+    # Anche il cambio pagina dello storico passa di qui, via fetch.
+    if _macro_is_ajax(request):
+        return _macro_state_response(request, ctx)
+    return render(request, 'tracker/macro.html', dict(
+        ctx, chart_data_json=json.dumps(ctx['chart_data']),
+    ))
+
+
+def _macro_entry_date(post, fallback=None):
+    data_str = post.get('data')
+    if data_str:
+        try:
+            return date.fromisoformat(data_str)
+        except ValueError:
+            pass
+    return fallback if fallback is not None else timezone.localdate()
 
 
 @login_required
 def add_macro_entry(request):
-    if request.method == 'POST':
-        kcal = request.POST.get('kcal')
-        if kcal and kcal.isdigit() and int(kcal) > 0:
-            entry_data = timezone.localdate()
-            data_str = request.POST.get('data')
-            if data_str:
-                try:
-                    entry_data = date.fromisoformat(data_str)
-                except ValueError:
-                    pass
-            creato_il = _combine_water_datetime(entry_data, request.POST.get('ora'))
-            MacroEntry.objects.create(
-                utente=request.user,
-                kcal=int(kcal),
-                proteine_g=_macro_decimal(request.POST, 'proteine_g'),
-                carboidrati_g=_macro_decimal(request.POST, 'carboidrati_g'),
-                grassi_g=_macro_decimal(request.POST, 'grassi_g'),
-                fibre_g=_macro_decimal(request.POST, 'fibre_g'),
-                nota=(request.POST.get('nota') or '').strip()[:100],
-                e_spazzatura=bool(request.POST.get('spazzatura')),
-                data=entry_data,
-                creato_il=creato_il,
-            )
-    return redirect(request.POST.get('next') or 'macro')
+    if request.method != 'POST':
+        return redirect('macro')
+
+    kcal = request.POST.get('kcal')
+    if not (kcal and kcal.isdigit() and int(kcal) > 0):
+        return _macro_failed(request, 'Inserisci le kcal: un numero maggiore di zero.')
+
+    entry_data = _macro_entry_date(request.POST)
+    MacroEntry.objects.create(
+        utente=request.user,
+        kcal=int(kcal),
+        proteine_g=_macro_decimal(request.POST, 'proteine_g'),
+        carboidrati_g=_macro_decimal(request.POST, 'carboidrati_g'),
+        grassi_g=_macro_decimal(request.POST, 'grassi_g'),
+        fibre_g=_macro_decimal(request.POST, 'fibre_g'),
+        nota=(request.POST.get('nota') or '').strip()[:100],
+        e_spazzatura=bool(request.POST.get('spazzatura')),
+        data=entry_data,
+        creato_il=_combine_water_datetime(entry_data, request.POST.get('ora')),
+    )
+    return _macro_done(request, day=entry_data.isoformat(), messaggio='Voce aggiunta')
 
 
 @login_required
 def delete_macro_entry(request, entry_id):
     entry = get_object_or_404(MacroEntry, id=entry_id, utente=request.user)
-    if request.method == 'POST':
-        entry.delete()
-    return redirect(request.POST.get('next') or 'macro')
+    if request.method != 'POST':
+        return redirect('macro')
+    giorno = entry.data
+    entry.delete()
+    return _macro_done(request, day=giorno.isoformat(), messaggio='Voce eliminata')
 
 
 @login_required
 def edit_macro_entry(request, entry_id):
     entry = get_object_or_404(MacroEntry, id=entry_id, utente=request.user)
-    if request.method == 'POST':
-        kcal = request.POST.get('kcal')
-        data_str = request.POST.get('data')
-        ora_str = request.POST.get('ora')
-        if kcal and kcal.isdigit() and int(kcal) > 0:
-            entry.kcal = int(kcal)
-        entry.proteine_g = _macro_decimal(request.POST, 'proteine_g')
-        entry.carboidrati_g = _macro_decimal(request.POST, 'carboidrati_g')
-        entry.grassi_g = _macro_decimal(request.POST, 'grassi_g')
-        entry.fibre_g = _macro_decimal(request.POST, 'fibre_g')
-        entry.nota = (request.POST.get('nota') or '').strip()[:100]
-        entry.e_spazzatura = bool(request.POST.get('spazzatura'))
-        if data_str:
-            try:
-                entry.data = date.fromisoformat(data_str)
-            except ValueError:
-                pass
-        if ora_str:
-            entry.creato_il = _combine_water_datetime(entry.data, ora_str)
-        elif data_str:
-            entry.creato_il = _combine_water_datetime(entry.data, entry.creato_il.strftime('%H:%M'))
-        entry.save()
-    return redirect(request.POST.get('next') or 'macro')
+    if request.method != 'POST':
+        return redirect('macro')
+
+    kcal = request.POST.get('kcal')
+    if kcal and kcal.isdigit() and int(kcal) > 0:
+        entry.kcal = int(kcal)
+    entry.proteine_g = _macro_decimal(request.POST, 'proteine_g')
+    entry.carboidrati_g = _macro_decimal(request.POST, 'carboidrati_g')
+    entry.grassi_g = _macro_decimal(request.POST, 'grassi_g')
+    entry.fibre_g = _macro_decimal(request.POST, 'fibre_g')
+    entry.nota = (request.POST.get('nota') or '').strip()[:100]
+    entry.e_spazzatura = bool(request.POST.get('spazzatura'))
+
+    data_str = request.POST.get('data')
+    ora_str = request.POST.get('ora')
+    entry.data = _macro_entry_date(request.POST, entry.data)
+    if ora_str:
+        entry.creato_il = _combine_water_datetime(entry.data, ora_str)
+    elif data_str:
+        entry.creato_il = _combine_water_datetime(
+            entry.data, timezone.localtime(entry.creato_il).strftime('%H:%M'))
+    entry.save()
+    return _macro_done(request, day=entry.data.isoformat(), messaggio='Voce aggiornata')
 
 
 @login_required
 def duplicate_macro_entry(request, entry_id):
-    """Copia una voce di alimentazione su un'altra data, via AJAX (nessun
-    ricaricamento della pagina): il form nella UI intercetta il submit."""
+    """Copia una voce di alimentazione su un'altra data."""
     entry = get_object_or_404(MacroEntry, id=entry_id, utente=request.user)
     if request.method != 'POST':
-        return JsonResponse({'error': 'Metodo non valido.'}, status=405)
+        return redirect('macro')
 
-    target_data = timezone.localdate()
-    data_str = request.POST.get('data')
-    if data_str:
-        try:
-            target_data = date.fromisoformat(data_str)
-        except ValueError:
-            return JsonResponse({'error': 'Data non valida.'}, status=400)
-
-    new_entry = MacroEntry.objects.create(
+    target_data = _macro_entry_date(request.POST)
+    MacroEntry.objects.create(
         utente=request.user,
         kcal=entry.kcal,
         proteine_g=entry.proteine_g,
@@ -2774,49 +3172,32 @@ def duplicate_macro_entry(request, entry_id):
         data=target_data,
         creato_il=_combine_water_datetime(target_data, None),
     )
-
-    day_key = target_data.isoformat()
-    day_entries = MacroEntry.objects.filter(utente=request.user, data=target_data)
-    totals = _macro_day_totals(day_entries)
-    return JsonResponse({
-        'ok': True,
-        'data': day_key,
-        'html': render_to_string(
-            'tracker/partials/macro_entry_row.html',
-            {'e': new_entry, 'day_key': day_key},
-            request=request,
-        ),
-        'ora': timezone.localtime(new_entry.creato_il).strftime('%H:%M'),
-        'count': len(day_entries),
-        'totals': {
-            'kcal': totals['kcal'],
-            'proteine_g': float(totals['proteine_g']),
-            'carboidrati_g': float(totals['carboidrati_g']),
-            'grassi_g': float(totals['grassi_g']),
-            'fibre_g': float(totals['fibre_g']),
-        },
-    })
+    return _macro_done(request, day=target_data.isoformat(), messaggio='Voce importata')
 
 
 @login_required
 def bulk_delete_macro_entries(request):
-    if request.method == 'POST':
-        entry_ids = request.POST.getlist('entry_ids')
-        MacroEntry.objects.filter(utente=request.user, id__in=entry_ids).delete()
-    return redirect(request.POST.get('next') or 'macro')
+    if request.method != 'POST':
+        return redirect('macro')
+    # Solo cifre: un id non numerico farebbe saltare la query con un
+    # ValueError invece di non trovare semplicemente niente.
+    entry_ids = [i for i in request.POST.getlist('entry_ids') if i.isdigit()]
+    MacroEntry.objects.filter(utente=request.user, id__in=entry_ids).delete()
+    return _macro_done(request, messaggio='Voci eliminate')
 
 
 @login_required
 def set_macro_goal(request):
-    if request.method == 'POST':
-        profile, _ = UserProfile.objects.get_or_create(user=request.user)
-        for field in ('obiettivo_kcal', 'obiettivo_proteine_g', 'obiettivo_carboidrati_g',
-                      'obiettivo_grassi_g', 'obiettivo_fibre_g'):
-            val = request.POST.get(field)
-            if val and val.isdigit() and int(val) > 0:
-                setattr(profile, field, int(val))
-        profile.save()
-    return redirect(request.POST.get('next') or 'macro')
+    if request.method != 'POST':
+        return redirect('macro')
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    for field in ('obiettivo_kcal', 'obiettivo_proteine_g', 'obiettivo_carboidrati_g',
+                  'obiettivo_grassi_g', 'obiettivo_fibre_g'):
+        val = request.POST.get(field)
+        if val and val.isdigit() and int(val) > 0:
+            setattr(profile, field, int(val))
+    profile.save()
+    return _macro_done(request, messaggio='Obiettivo di default salvato')
 
 
 def _macro_goal_int(post, name):
@@ -2828,48 +3209,56 @@ def _macro_goal_int(post, name):
 def set_day_macro_goal(request):
     """Obiettivo macro per una singola giornata (override rispetto al
     default), stesso meccanismo di set_day_water_goal per l'acqua."""
-    if request.method == 'POST':
-        kcal = request.POST.get('kcal')
-        data_str = request.POST.get('data')
-        if kcal and kcal.isdigit() and int(kcal) > 0 and data_str:
-            try:
-                data = date.fromisoformat(data_str)
-            except ValueError:
-                data = None
-            if data:
-                MacroGoal.objects.update_or_create(
-                    utente=request.user, data=data,
-                    defaults={
-                        'kcal': int(kcal),
-                        'proteine_g': _macro_goal_int(request.POST, 'proteine_g'),
-                        'carboidrati_g': _macro_goal_int(request.POST, 'carboidrati_g'),
-                        'grassi_g': _macro_goal_int(request.POST, 'grassi_g'),
-                        'fibre_g': _macro_goal_int(request.POST, 'fibre_g'),
-                    },
-                )
-    return redirect(request.POST.get('next') or 'macro')
+    if request.method != 'POST':
+        return redirect('macro')
+
+    kcal = request.POST.get('kcal')
+    if not (kcal and kcal.isdigit() and int(kcal) > 0):
+        return _macro_failed(request, 'Inserisci le kcal obiettivo: un numero maggiore di zero.')
+    data_str = request.POST.get('data')
+    try:
+        data = date.fromisoformat(data_str) if data_str else None
+    except ValueError:
+        data = None
+    if not data:
+        return _macro_failed(request, 'Data non valida.')
+
+    MacroGoal.objects.update_or_create(
+        utente=request.user, data=data,
+        defaults={
+            'kcal': int(kcal),
+            'proteine_g': _macro_goal_int(request.POST, 'proteine_g'),
+            'carboidrati_g': _macro_goal_int(request.POST, 'carboidrati_g'),
+            'grassi_g': _macro_goal_int(request.POST, 'grassi_g'),
+            'fibre_g': _macro_goal_int(request.POST, 'fibre_g'),
+        },
+    )
+    return _macro_done(request, day=data.isoformat(), messaggio='Obiettivo del giorno salvato')
 
 
 @login_required
 def set_macro_day_status(request):
     """Marca una giornata come non tracciata/parziale, o rimuove il flag
     (stato vuoto = giornata tracciata normalmente)."""
-    if request.method == 'POST':
-        data_str = request.POST.get('data')
-        stato = request.POST.get('stato') or ''
-        if data_str:
-            try:
-                data = date.fromisoformat(data_str)
-            except ValueError:
-                data = None
-            if data:
-                if stato in dict(MacroDayStatus.STATO_CHOICES):
-                    MacroDayStatus.objects.update_or_create(
-                        utente=request.user, data=data, defaults={'stato': stato},
-                    )
-                else:
-                    MacroDayStatus.objects.filter(utente=request.user, data=data).delete()
-    return redirect(request.POST.get('next') or 'macro')
+    if request.method != 'POST':
+        return redirect('macro')
+
+    data_str = request.POST.get('data')
+    try:
+        data = date.fromisoformat(data_str) if data_str else None
+    except ValueError:
+        data = None
+    if not data:
+        return _macro_failed(request, 'Data non valida.')
+
+    stato = request.POST.get('stato') or ''
+    if stato in dict(MacroDayStatus.STATO_CHOICES):
+        MacroDayStatus.objects.update_or_create(
+            utente=request.user, data=data, defaults={'stato': stato},
+        )
+    else:
+        MacroDayStatus.objects.filter(utente=request.user, data=data).delete()
+    return _macro_done(request, day=data.isoformat(), messaggio='Stato del giorno aggiornato')
 
 
 SLEEP_QUALITY_PCT = {'scarsa': 25, 'media': 50, 'buona': 75, 'ottima': 100}
@@ -2902,15 +3291,14 @@ def _sleep_time_input(post, name):
         return None
 
 
-@login_required
-def sonno(request):
-    entries_qs = SleepEntry.objects.filter(utente=request.user).order_by('-data', '-creato_il')
-    paginator = Paginator(entries_qs, 20)
-    page_number = request.GET.get('page')
-    page = paginator.get_page(page_number)
+def _sleep_stats(user):
+    """I quattro numeri in cima alla pagina Sonno.
 
+    Li calcolano sia la pagina che le risposte AJAX: guardano le ultime sette
+    notti e tutto lo storico (la streak), quindi ogni salvataggio o
+    eliminazione li cambia e vanno rimandati indietro."""
     today = timezone.localdate()
-    last7 = list(SleepEntry.objects.filter(utente=request.user, data__gt=today - timedelta(days=7), data__lte=today))
+    last7 = list(SleepEntry.objects.filter(utente=user, data__gt=today - timedelta(days=7), data__lte=today))
     if last7:
         avg_minutes = sum(e._durata_minuti() for e in last7) / len(last7)
         avg_hours_label = f"{int(avg_minutes // 60)}h {round(avg_minutes % 60):02d}m"
@@ -2920,20 +3308,25 @@ def sonno(request):
     else:
         avg_hours_label = avg_quality_pct = avg_bedtime_label = None
 
-    stats = {
+    return {
         'avg_hours': avg_hours_label,
         'quality_pct': avg_quality_pct,
-        'streak': _sleep_streak(request.user),
+        'streak': _sleep_streak(user),
         'bedtime_avg': avg_bedtime_label,
     }
 
-    chart_entries = SleepEntry.objects.filter(
-        utente=request.user, data__gt=today - timedelta(days=14), data__lte=today,
-    ).order_by('data')
-    chart_data = [{'date': e.data.strftime('%d/%m'), 'value': e.durata_ore()} for e in chart_entries]
 
-    # Calendario mensile qualita' del sonno, navigabile con ?month=YYYY-MM
-    month_str = request.GET.get('month', '')
+def _sleep_chart_data(user):
+    today = timezone.localdate()
+    chart_entries = SleepEntry.objects.filter(
+        utente=user, data__gt=today - timedelta(days=14), data__lte=today,
+    ).order_by('data')
+    return [{'date': e.data.strftime('%d/%m'), 'value': e.durata_ore()} for e in chart_entries]
+
+
+def _sleep_month(user, month_str):
+    """Calendario mensile della qualita' del sonno, navigabile con ?month=YYYY-MM."""
+    today = timezone.localdate()
     try:
         year_m, month_m = (int(x) for x in month_str.split('-'))
         first_of_month = date(year_m, month_m, 1)
@@ -2944,7 +3337,7 @@ def sonno(request):
 
     month_entries = {
         e.data: e for e in SleepEntry.objects.filter(
-            utente=request.user, data__year=first_of_month.year, data__month=first_of_month.month,
+            utente=user, data__year=first_of_month.year, data__month=first_of_month.month,
         )
     }
     month_cells = []
@@ -2957,40 +3350,109 @@ def sonno(request):
             'title': f"{d.day} {MESI_IT[d.month].lower()} — {entry.durata_label()}, {entry.get_qualita_display().lower()}" if entry else '',
         })
 
-    return render(request, 'tracker/sonno.html', {
-        'entries': page,
-        'stats': stats,
-        'chart_data_json': json.dumps(chart_data),
+    return {
         'month_label': f"{MESI_IT[first_of_month.month]} {first_of_month.year}",
         'month_cells': month_cells,
+        'month': first_of_month.strftime('%Y-%m'),
         'prev_month': prev_month.strftime('%Y-%m'),
         'next_month': next_month.strftime('%Y-%m'),
+    }
+
+
+def _sleep_page(user, page_number):
+    paginator = Paginator(SleepEntry.objects.filter(utente=user).order_by('-data', '-creato_il'), 20)
+    return paginator.get_page(page_number)
+
+
+def _sonno_payload(request, page_number, month_str):
+    """Tutto quello che cambia sulla pagina Sonno dopo un'azione.
+
+    Elenco e calendario tornano gia' renderizzati dal server: sono la stessa
+    logica condizionale dei template (badge della qualita', giorno di sveglia,
+    intensita' delle caselle) e riscriverla in JavaScript avrebbe voluto dire
+    tenerla in due posti. Stats e grafico sono numeri e bastano in JSON.
+
+    L'elenco torna intero e non riga per riga come in Misurazioni: qui una
+    modifica puo' cambiare la data della notte, quindi la sua posizione e
+    perfino la pagina in cui finisce. Ricalcolarlo lato server e' piu' corto
+    che rimettere in ordine le righe a mano."""
+    page = _sleep_page(request.user, page_number)
+    mese = _sleep_month(request.user, month_str)
+    # page e month tornano indietro perche' quello chiesto e quello servito
+    # possono non coincidere: cancellata l'ultima notte di una pagina, quella
+    # pagina non esiste piu' e il Paginator serve l'ultima disponibile.
+    return {
+        'ok': True,
+        'page': str(page.number),
+        'month': mese['month'],
+        'lista': render_to_string('tracker/partials/sonno_lista.html', {
+            'entries': page,
+            'quality_choices': SleepEntry.QUALITA_CHOICES,
+        }, request=request),
+        'calendario': render_to_string('tracker/partials/sonno_calendario.html', mese, request=request),
+        'stats': _sleep_stats(request.user),
+        'chart': _sleep_chart_data(request.user),
+    }
+
+
+def _salva_sleep_entry(user, post, entry=None):
+    """Scrive una notte, nuova o gia' esistente. Torna None se non si puo'.
+
+    Su una voce nuova gli orari servono entrambi (senza, non c'e' nessuna
+    notte da registrare); su una gia' salvata un campo vuoto lascia il valore
+    che c'era, com'era gia' prima dell'AJAX."""
+    ora_letto = _sleep_time_input(post, 'ora_letto')
+    ora_sveglia = _sleep_time_input(post, 'ora_sveglia')
+    if entry is None and not (ora_letto and ora_sveglia):
+        return None
+
+    if entry is None:
+        entry = SleepEntry(utente=user, ora_letto=ora_letto, ora_sveglia=ora_sveglia, data=timezone.localdate())
+    else:
+        if ora_letto:
+            entry.ora_letto = ora_letto
+        if ora_sveglia:
+            entry.ora_sveglia = ora_sveglia
+
+    data_str = post.get('data')
+    if data_str:
+        try:
+            entry.data = date.fromisoformat(data_str)
+        except ValueError:
+            pass
+
+    qualita = post.get('qualita')
+    if qualita in dict(SleepEntry.QUALITA_CHOICES):
+        entry.qualita = qualita
+    entry.nota = (post.get('nota') or '').strip()[:200]
+    entry.save()
+    return entry
+
+
+@login_required
+def sonno(request):
+    context = {
+        'entries': _sleep_page(request.user, request.GET.get('page')),
+        'stats': _sleep_stats(request.user),
+        'chart_data_json': json.dumps(_sleep_chart_data(request.user)),
         'quality_choices': SleepEntry.QUALITA_CHOICES,
-    })
+    }
+    context.update(_sleep_month(request.user, request.GET.get('month', '')))
+    return render(request, 'tracker/sonno.html', context)
+
+
+@login_required
+def sonno_vista_ajax(request):
+    """Cambio pagina dello storico e cambio mese del calendario senza reload.
+    Passano di qui entrambi perche' la risposta e' la stessa: la pagina Sonno
+    per la pagina e il mese chiesti."""
+    return JsonResponse(_sonno_payload(request, request.GET.get('page'), request.GET.get('month', '')))
 
 
 @login_required
 def add_sleep_entry(request):
     if request.method == 'POST':
-        ora_letto = _sleep_time_input(request.POST, 'ora_letto')
-        ora_sveglia = _sleep_time_input(request.POST, 'ora_sveglia')
-        if ora_letto and ora_sveglia:
-            data_str = request.POST.get('data')
-            try:
-                entry_data = date.fromisoformat(data_str) if data_str else timezone.localdate()
-            except ValueError:
-                entry_data = timezone.localdate()
-            qualita = request.POST.get('qualita') or 'buona'
-            if qualita not in dict(SleepEntry.QUALITA_CHOICES):
-                qualita = 'buona'
-            SleepEntry.objects.create(
-                utente=request.user,
-                data=entry_data,
-                ora_letto=ora_letto,
-                ora_sveglia=ora_sveglia,
-                qualita=qualita,
-                nota=(request.POST.get('nota') or '').strip()[:200],
-            )
+        _salva_sleep_entry(request.user, request.POST)
     return redirect(request.POST.get('next') or 'sonno')
 
 
@@ -2998,23 +3460,7 @@ def add_sleep_entry(request):
 def edit_sleep_entry(request, entry_id):
     entry = get_object_or_404(SleepEntry, id=entry_id, utente=request.user)
     if request.method == 'POST':
-        ora_letto = _sleep_time_input(request.POST, 'ora_letto')
-        ora_sveglia = _sleep_time_input(request.POST, 'ora_sveglia')
-        data_str = request.POST.get('data')
-        if data_str:
-            try:
-                entry.data = date.fromisoformat(data_str)
-            except ValueError:
-                pass
-        if ora_letto:
-            entry.ora_letto = ora_letto
-        if ora_sveglia:
-            entry.ora_sveglia = ora_sveglia
-        qualita = request.POST.get('qualita')
-        if qualita in dict(SleepEntry.QUALITA_CHOICES):
-            entry.qualita = qualita
-        entry.nota = (request.POST.get('nota') or '').strip()[:200]
-        entry.save()
+        _salva_sleep_entry(request.user, request.POST, entry)
     return redirect(request.POST.get('next') or 'sonno')
 
 
@@ -3024,6 +3470,32 @@ def delete_sleep_entry(request, entry_id):
     if request.method == 'POST':
         entry.delete()
     return redirect(request.POST.get('next') or 'sonno')
+
+
+@login_required
+def save_sleep_entry_ajax(request, entry_id=None):
+    """Aggiunta e modifica dalla pagina Sonno senza reload. Stessa vista per
+    tutte e due: cambia solo se arriva l'id di una notte gia' salvata."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Metodo non valido.'}, status=405)
+
+    entry = get_object_or_404(SleepEntry, id=entry_id, utente=request.user) if entry_id else None
+    salvata = _salva_sleep_entry(request.user, request.POST, entry)
+    if salvata is None:
+        return JsonResponse({'ok': False, 'error': "Servono sia l'ora in cui sei andato a letto sia quella della sveglia."})
+
+    payload = _sonno_payload(request, request.POST.get('page'), request.POST.get('month', ''))
+    payload['entry_id'] = salvata.id
+    return JsonResponse(payload)
+
+
+@login_required
+def delete_sleep_entry_ajax(request, entry_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Metodo non valido.'}, status=405)
+
+    get_object_or_404(SleepEntry, id=entry_id, utente=request.user).delete()
+    return JsonResponse(_sonno_payload(request, request.POST.get('page'), request.POST.get('month', '')))
 
 
 # ---------------------------------------------------------------------------

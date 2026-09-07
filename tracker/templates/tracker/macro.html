@@ -338,6 +338,30 @@
     white-space: nowrap;
   }
 }
+
+/* Le operazioni non ricaricano piu' la pagina, quindi non c'e' piu' il
+   ricaricamento a dire che sono andate a buon fine: lo dice questo. */
+.macro-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(22px + env(safe-area-inset-bottom));
+  transform: translate(-50%, 14px);
+  z-index: 950;
+  max-width: min(420px, calc(100vw - 32px));
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid rgba(var(--acc-rgb), .35);
+  color: #f0f0f3;
+  font-size: 12.5px;
+  font-weight: 600;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s, transform .18s;
+}
+.macro-toast.visible { opacity: 1; transform: translate(-50%, 0); }
+.macro-toast.is-error { border-color: rgba(248, 113, 113, .45); color: #f87171; }
 </style>
 {% endblock %}
 
@@ -359,75 +383,8 @@
     </div>
 
     <!-- Oggi -->
-    <div class="tracer-card" style="padding: 20px 22px; margin-bottom: 24px;">
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px;">
-            <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase;">Oggi</div>
-            <span title="Voci di cibo spazzatura da lunedì ad oggi" style="font-size: 11.5px; font-weight: 600; color: {% if junk_week_count %}#f0a875{% else %}#565b6e{% endif %}; background: {% if junk_week_count %}rgba(240,168,117,0.12){% else %}rgba(255,255,255,0.04){% endif %}; padding: 4px 10px; border-radius: 20px; white-space: nowrap;">
-                🍔 {{ junk_week_count }} questa settimana
-            </span>
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-            <div>
-                <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px;">
-                    <span style="color: #f0f0f3; font-weight: 600;">Calorie</span>
-                    <span style="white-space: nowrap; flex-shrink: 0; color: #c7cbd6;"><b style="color: #f0f0f3;">{{ today_totals.kcal }}</b> / {{ goals.kcal }} kcal</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span title="{% if today_reached.kcal %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 13px; font-weight: 700; color: {% if today_reached.kcal %}#4ade80{% else %}#f87171{% endif %};">{% if today_reached.kcal %}✓{% else %}✕{% endif %}</span>
-                    <div style="flex: 1; height: 10px; background: rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden;">
-                        <div style="height: 100%; width: {{ today_progress.kcal }}%; background: var(--acc); border-radius: 6px; transition: width .3s;"></div>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
-                    <span style="color: #c7cbd6;">Proteine</span>
-                    <span style="white-space: nowrap; flex-shrink: 0; color: #9ba0b3;">{{ today_totals.proteine_g|floatformat:"-1" }} / {{ goals.proteine_g }} g</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span title="{% if today_reached.proteine_g %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: {% if today_reached.proteine_g %}#4ade80{% else %}#f87171{% endif %};">{% if today_reached.proteine_g %}✓{% else %}✕{% endif %}</span>
-                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
-                        <div style="height: 100%; width: {{ today_progress.proteine_g }}%; background: #6a9fd8; border-radius: 4px; transition: width .3s;"></div>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
-                    <span style="color: #c7cbd6;">Carboidrati</span>
-                    <span style="white-space: nowrap; flex-shrink: 0; color: #9ba0b3;">{{ today_totals.carboidrati_g|floatformat:"-1" }} / {{ goals.carboidrati_g }} g</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span title="{% if today_reached.carboidrati_g %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: {% if today_reached.carboidrati_g %}#4ade80{% else %}#f87171{% endif %};">{% if today_reached.carboidrati_g %}✓{% else %}✕{% endif %}</span>
-                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
-                        <div style="height: 100%; width: {{ today_progress.carboidrati_g }}%; background: #4ade80; border-radius: 4px; transition: width .3s;"></div>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
-                    <span style="color: #c7cbd6;">Grassi</span>
-                    <span style="white-space: nowrap; flex-shrink: 0; color: #9ba0b3;">{{ today_totals.grassi_g|floatformat:"-1" }} / {{ goals.grassi_g }} g</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span title="{% if today_reached.grassi_g %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: {% if today_reached.grassi_g %}#4ade80{% else %}#f87171{% endif %};">{% if today_reached.grassi_g %}✓{% else %}✕{% endif %}</span>
-                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
-                        <div style="height: 100%; width: {{ today_progress.grassi_g }}%; background: #f0a875; border-radius: 4px; transition: width .3s;"></div>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
-                    <span style="color: #c7cbd6;">Fibre</span>
-                    <span style="white-space: nowrap; flex-shrink: 0; color: #9ba0b3;">{{ today_totals.fibre_g|floatformat:"-1" }} / {{ goals.fibre_g }} g</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span title="{% if today_reached.fibre_g %}Obiettivo raggiunto{% else %}Obiettivo non raggiunto{% endif %}" style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: {% if today_reached.fibre_g %}#4ade80{% else %}#f87171{% endif %};">{% if today_reached.fibre_g %}✓{% else %}✕{% endif %}</span>
-                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
-                        <div style="height: 100%; width: {{ today_progress.fibre_g }}%; background: #2dd4bf; border-radius: 4px; transition: width .3s;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div id="macro-today-slot">
+        {% include 'tracker/partials/macro_today_card.html' %}
     </div>
 
     <!-- Obiettivi (nascosto) -->
@@ -435,7 +392,7 @@
         <div class="tracer-card" style="padding: 18px 20px;">
             <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 2px;">Obiettivi di default</div>
             <div style="font-size: 11.5px; color: #7d8296; margin-bottom: 12px;">Valgono per ogni giorno, a meno che tu non imposti un obiettivo diverso per una giornata specifica (🎯 accanto alla data nello storico).</div>
-            <form action="{% url 'set_macro_goal' %}" method="post" style="display: flex; flex-direction: column; gap: 12px;">
+            <form data-macro-ajax data-macro-close="goal-form" action="{% url 'set_macro_goal' %}" method="post" style="display: flex; flex-direction: column; gap: 12px;">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{% url 'macro' %}">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
@@ -445,7 +402,7 @@
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
                         <span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">PROTEINE (G)</span>
-                        <input type="number" name="obiettivo_proteine_g" value="{{ default_goals.proteine_g }}" min="1" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
+                        <input type="number" id="goal-proteine-input" name="obiettivo_proteine_g" value="{{ default_goals.proteine_g }}" min="1" class="tracer-input" style="width: 100%; height: 40px; box-sizing: border-box;">
                     </div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
@@ -478,7 +435,7 @@
         <div class="tracer-card" style="padding: 18px 20px;">
             <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 4px;">Nuova voce</div>
             <div style="font-size: 11.5px; color: #7d8296; margin-bottom: 12px;">Logga un pasto o il totale della giornata. Proteine/carboidrati/grassi/fibre sono facoltativi.</div>
-            <form action="{% url 'add_macro_entry' %}" method="post" autocomplete="off" style="display: flex; flex-direction: column; gap: 12px;">
+            <form data-macro-ajax data-macro-reset action="{% url 'add_macro_entry' %}" method="post" autocomplete="off" style="display: flex; flex-direction: column; gap: 12px;">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{% url 'macro' %}">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
@@ -533,7 +490,7 @@
         <div class="tracer-card" style="padding: 18px 20px;">
             <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase; margin-bottom: 4px;">Segna giorno</div>
             <div style="font-size: 11.5px; color: #7d8296; margin-bottom: 12px;">Usalo per un giorno di cui non hai loggato nulla (o solo in parte), cosi' viene escluso dall'andamento invece di sembrare "zero calorie".</div>
-            <form action="{% url 'set_macro_day_status' %}" method="post" autocomplete="off" style="display: flex; flex-direction: column; gap: 12px;">
+            <form data-macro-ajax data-macro-close="day-status-form" action="{% url 'set_macro_day_status' %}" method="post" autocomplete="off" style="display: flex; flex-direction: column; gap: 12px;">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{% url 'macro' %}">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
@@ -583,160 +540,10 @@
             <button type="button" onclick="submitMacroBulkDelete()" style="padding: 6px 14px; font-size: 12px; font-weight: 600; background: rgba(248,113,113,0.16); border: none; border-radius: 7px; color: #f87171; cursor: pointer;">Elimina selezionate</button>
         </div>
     </div>
-    <form id="macro-bulk-delete-form" action="{% url 'bulk_delete_macro_entries' %}" method="post" style="display:none;">
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{% url 'macro' %}">
-    </form>
 
     <!-- Storico per giorno -->
-    <div class="tracer-card" style="overflow: hidden;">
-        {% if not days %}
-        <div style="padding: 52px 24px; text-align: center;">
-            <div style="font-size: 26px; margin-bottom: 10px; opacity: .4;">🍽️</div>
-            <div style="font-size: 13.5px; color: #7d8296; font-weight: 500;">Ancora nessuna voce registrata</div>
-        </div>
-        {% else %}
-        {% for day in days %}
-        {% with day_key=day.data|date:"Y-m-d" %}
-        <!-- Il click per aprire/chiudere sta qui sulla card intera, non solo
-             sulla riga della data: i comandi veri (spunta, bersaglio, tendina
-             stato, e tutto il contenuto aperto) fermano la propagazione, cosi'
-             restano cliccabili senza richiudere il giorno. -->
-        <div class="day-card" onclick="toggleDay('{{ day_key }}')" style="padding: 16px 20px; border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; {% if day.status %}background: rgba(248,113,113,0.04);{% endif %}">
-            <!-- Riga 1: solo chevron, selezione, data e conteggio. Prima qui
-                 dentro stava anche tutto il blocco totali e su schermo stretto
-                 il flex-wrap lo sparpagliava su due o tre righe diverse. -->
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <svg id="day-chevron-{{ day_key }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                <input type="checkbox" class="macro-day-select-cb" data-day-key="{{ day_key }}" onclick="event.stopPropagation()" onchange="toggleMacroDaySelect(this)" title="Seleziona tutte le voci di questo giorno" style="width: 15px; height: 15px; accent-color: #f87171; cursor: pointer; flex-shrink: 0;">
-                <span style="flex: 1; min-width: 0; font-size: 13.5px; font-weight: 700; color: #f0f0f3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ day.data|date:"l d F Y"|capfirst }}</span>
-                <span id="day-count-{{ day_key }}" style="flex-shrink: 0; font-size: 11.5px; color: #7d8296; white-space: nowrap;">{{ day.entries|length }} voc{{ day.entries|length|pluralize:"e,i" }}</span>
-            </div>
-
-            <!-- Riga 2, sempre visibile anche a giorno chiuso: kcal a sinistra,
-                 riepilogo macro al centro (si accorcia lui se manca spazio),
-                 icone azione a destra.
-                 Rientro di 22px = larghezza del chevron (14) piu' il gap (8):
-                 cosi' parte sotto la casella di selezione e non sotto il
-                 chevron, allineandosi al blocco data invece che alla freccia
-                 che apre il giorno. -->
-            <div class="day-row-totali" style="display: flex; align-items: center; gap: 8px; margin-top: 8px; margin-left: 22px;">
-                <span style="flex-shrink: 0; background: rgba(var(--acc-rgb),0.14); color: var(--acc-soft); font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;"><span id="day-kcal-{{ day_key }}">{{ day.totals.kcal }}</span> <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goals.kcal }} kcal</span></span>
-                <span id="day-macros-{{ day_key }}" class="day-macros" style="flex: 1; min-width: 0; font-size: 11px; color: #9ba0b3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">P {{ day.totals.proteine_g|floatformat:"-1" }}g &middot; C {{ day.totals.carboidrati_g|floatformat:"-1" }}g &middot; G {{ day.totals.grassi_g|floatformat:"-1" }}g &middot; F {{ day.totals.fibre_g|floatformat:"-1" }}g</span>
-                <div class="day-actions">
-                    {% if day.reached %}
-                    <span class="day-chip day-chip-ok" title="Obiettivo raggiunto">&#10003;</span>
-                    {% else %}
-                    <span class="day-chip day-chip-ko" title="Obiettivo non raggiunto">&#10005;</span>
-                    {% endif %}
-                    <span class="day-chip day-chip-goal" onclick="event.stopPropagation(); toggleDayGoalForm('{{ day_key }}')" title="Imposta obiettivo di questo giorno">&#127919;</span>
-                    <div class="day-status" onclick="event.stopPropagation();">
-                        <button type="button" class="day-status-btn {% if day.status == 'parziale' %}is-parziale{% elif day.status == 'non_tracciato' %}is-non-tracciato{% else %}is-tracciato{% endif %}" onclick="toggleDayStatusMenu(this)" aria-haspopup="true" aria-expanded="false" aria-label="Stato: {% if day.status == 'parziale' %}Parziale{% elif day.status == 'non_tracciato' %}Non tracciato{% else %}Tracciato{% endif %}" title="Stato: {% if day.status == 'parziale' %}Parziale{% elif day.status == 'non_tracciato' %}Non tracciato{% else %}Tracciato{% endif %} — tocca per cambiarlo">
-                            {% if day.status == 'parziale' %}
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                            {% elif day.status == 'non_tracciato' %}
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/></svg>
-                            {% else %}
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            {% endif %}
-                            <svg class="day-status-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                        </button>
-                        <div class="day-status-menu" hidden>
-                            <button type="button" class="day-status-opt opt-tracciato{% if not day.status %} is-active{% endif %}" onclick="submitDayStatus('{{ day_key }}', '')">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                                <span>Tracciato</span>
-                            </button>
-                            <button type="button" class="day-status-opt opt-parziale{% if day.status == 'parziale' %} is-active{% endif %}" onclick="submitDayStatus('{{ day_key }}', 'parziale')">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                                <span>Parziale</span>
-                            </button>
-                            <button type="button" class="day-status-opt opt-non-tracciato{% if day.status == 'non_tracciato' %} is-active{% endif %}" onclick="submitDayStatus('{{ day_key }}', 'non_tracciato')">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/></svg>
-                                <span>Non tracciato</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Riga 3: solo i badge. La tendina e' salita sulla riga dei kcal,
-                 quindi questa riga puo' non avere niente da mostrare: senza l'if
-                 resterebbe una fascia vuota alta 8px sotto ogni giornata. -->
-            {% if day.totals.junk_count or day.status %}
-            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
-                {% if day.totals.junk_count %}
-                <span title="Voci di cibo spazzatura" style="font-size: 10.5px; font-weight: 700; color: #f0a875; background: rgba(240,168,117,0.14); padding: 3px 9px; border-radius: 6px; white-space: nowrap;">&#127828; {{ day.totals.junk_count }}</span>
-                {% endif %}
-                {% if day.status == 'non_tracciato' %}
-                <span style="background: rgba(248,113,113,0.14); color: #f87171; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap;">&#128683; NON TRACCIATO</span>
-                {% elif day.status == 'parziale' %}
-                <span style="background: rgba(240,168,117,0.14); color: #f0a875; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap;">&#9888;&#65039; PARZIALE</span>
-                {% endif %}
-            </div>
-            {% endif %}
-
-            <div id="day-goal-form-{{ day_key }}" style="display: none; margin-top: 10px;" onclick="event.stopPropagation();">
-                <form action="{% url 'set_day_macro_goal' %}" method="post" autocomplete="off" style="display: flex; flex-direction: column; gap: 10px;">
-                    {% csrf_token %}
-                    <input type="hidden" name="data" value="{{ day_key }}">
-                    <input type="hidden" name="next" value="{% url 'macro' %}">
-                    <span style="font-size: 11px; color: #7d8296;">Obiettivo di questo giorno:</span>
-                    <!-- Tre colonne fisse: con cinque campi vengono una riga da
-                         tre piu' due, invece delle larghezze irregolari che
-                         dava il flex-wrap. -->
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
-                        <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
-                            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">KCAL</span>
-                            <input type="number" name="kcal" value="{{ day.goals.kcal }}" min="1" class="tracer-input" style="width: 100%; height: 36px; box-sizing: border-box; padding: 7px 9px; font-size: 12px;">
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
-                            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">PROTEINE (G)</span>
-                            <input type="number" name="proteine_g" value="{{ day.goals.proteine_g }}" min="0" class="tracer-input" style="width: 100%; height: 36px; box-sizing: border-box; padding: 7px 9px; font-size: 12px;">
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
-                            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">CARBOIDRATI (G)</span>
-                            <input type="number" name="carboidrati_g" value="{{ day.goals.carboidrati_g }}" min="0" class="tracer-input" style="width: 100%; height: 36px; box-sizing: border-box; padding: 7px 9px; font-size: 12px;">
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
-                            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">GRASSI (G)</span>
-                            <input type="number" name="grassi_g" value="{{ day.goals.grassi_g }}" min="0" class="tracer-input" style="width: 100%; height: 36px; box-sizing: border-box; padding: 7px 9px; font-size: 12px;">
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
-                            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">FIBRE (G)</span>
-                            <input type="number" name="fibre_g" value="{{ day.goals.fibre_g }}" min="0" class="tracer-input" style="width: 100%; height: 36px; box-sizing: border-box; padding: 7px 9px; font-size: 12px;">
-                        </div>
-                    </div>
-                    <!-- Griglia e non flex:1: con box-sizing border-box il
-                         flex-basis comprende il padding, quindi le due meta'
-                         non verrebbero uguali. -->
-                    <div class="quick-actions">
-                        <button type="submit" class="btn-primary-gradient" style="height: 36px; box-sizing: border-box; padding: 0 14px; font-size: 12px;">Salva</button>
-                        <button type="button" onclick="toggleDayGoalForm('{{ day_key }}')" class="btn-cancel" style="height: 36px; box-sizing: border-box; padding: 0 14px; font-size: 12px;">Annulla</button>
-                    </div>
-                </form>
-            </div>
-
-            <div id="day-body-{{ day_key }}" onclick="event.stopPropagation();" style="display: none; flex-direction: column; gap: 6px; margin-top: 12px;">
-                {% for e in day.entries %}
-                {% include 'tracker/partials/macro_entry_row.html' with e=e day_key=day_key %}
-                {% endfor %}
-            </div>
-        </div>
-        {% endwith %}
-        {% endfor %}
-
-        {% if days.has_other_pages %}
-        <div style="display: flex; justify-content: center; gap: 8px; padding: 16px; border-top: 1px solid var(--border);">
-            {% if days.has_previous %}
-                <a href="?page={{ days.previous_page_number }}" style="padding: 5px 10px; background: var(--surface-2); color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Precedente</a>
-            {% endif %}
-            <span style="font-size: 12px; color: #7d8296; align-self: center;">Pagina {{ days.number }} di {{ days.paginator.num_pages }}</span>
-            {% if days.has_next %}
-                <a href="?page={{ days.next_page_number }}" style="padding: 5px 10px; background: var(--surface-2); color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Successiva</a>
-            {% endif %}
-        </div>
-        {% endif %}
-        {% endif %}
+    <div class="tracer-card" id="macro-days-slot" style="overflow: hidden;">
+        {% include 'tracker/partials/macro_days_list.html' %}
     </div>
 </div>
 
@@ -752,20 +559,269 @@
     <button type="button" class="metric-option" data-metric="fibre_g">Fibre</button>
 </div>
 
+<div id="macro-toast" class="macro-toast" role="status" aria-live="polite"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script>
-function toggleNewEntryForm() {
-    var el = document.getElementById('new-entry-form');
-    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+/* ==========================================================================
+   Pagina alimentazione senza ricaricamenti.
+
+   Ogni operazione (aggiunta, modifica, eliminazione singola o in blocco,
+   importazione, obiettivi, stato del giorno, cambio pagina dello storico)
+   parte in fetch. Il server risponde con i due blocchi che cambiano gia'
+   resi in HTML — il riepilogo di oggi e lo storico — piu' i dati del
+   grafico: qui li sostituiamo, rimettiamo a posto quello che l'utente aveva
+   aperto o selezionato, e ridisegniamo il grafico.
+
+   Chi naviga senza JavaScript non perde niente: i form sono rimasti quelli
+   di sempre, con il loro action e il loro campo "next", e il server risponde
+   col solito redirect quando la chiamata non arriva via AJAX.
+   ========================================================================== */
+
+var MACRO_CSRF = '{{ csrf_token }}';
+var MACRO_URL = "{% url 'macro' %}";
+// Pagina dello storico attualmente a video: la mandiamo a ogni richiesta,
+// cosi' la risposta ci ridisegna la stessa pagina e non salta alla prima.
+var macroPage = {{ days.number }};
+
+// --- Pannelli in cima alla pagina ---
+function macroPanel(id, open) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var mostra = open === undefined ? el.style.display === 'none' : open;
+    el.style.display = mostra ? 'block' : 'none';
 }
-function toggleGoalForm() {
-    var el = document.getElementById('goal-form');
-    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+function toggleNewEntryForm() { macroPanel('new-entry-form'); }
+function toggleGoalForm() { macroPanel('goal-form'); }
+function toggleDayStatusForm() { macroPanel('day-status-form'); }
+
+// --- Riscontro a video ---
+var macroToastTimer = null;
+function macroToast(messaggio, errore) {
+    var el = document.getElementById('macro-toast');
+    if (!el) return;
+    el.textContent = messaggio;
+    el.classList.toggle('is-error', !!errore);
+    el.classList.add('visible');
+    clearTimeout(macroToastTimer);
+    macroToastTimer = setTimeout(function() { el.classList.remove('visible'); }, 2600);
 }
-function toggleDayStatusForm() {
-    var el = document.getElementById('day-status-form');
-    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+
+/* --- Stato dell'interfaccia attraverso un aggiornamento ---
+   Lo storico viene rigenerato da capo dal server, quindi tutto cio' che
+   l'utente aveva aperto (giornate, obiettivo del giorno) o selezionato
+   sparirebbe a ogni operazione. Prima di sostituire l'HTML ne prendiamo
+   nota, e dei form di modifica salviamo anche quello che c'era scritto
+   dentro: eliminare una voce non deve cancellare quello che si stava
+   digitando su un'altra. */
+function macroSnapshot() {
+    var open = [], goals = [], selected = [], edits = {};
+    document.querySelectorAll('[id^="day-body-"]').forEach(function(el) {
+        if (el.style.display === 'flex') open.push(el.id.replace('day-body-', ''));
+    });
+    document.querySelectorAll('[id^="day-goal-form-"]').forEach(function(el) {
+        if (el.style.display === 'block') goals.push(el.id.replace('day-goal-form-', ''));
+    });
+    document.querySelectorAll('.macro-select-cb:checked').forEach(function(cb) {
+        selected.push(cb.value);
+    });
+    document.querySelectorAll('[id^="macro-edit-"]').forEach(function(el) {
+        if (el.style.display !== 'flex') return;
+        var valori = {};
+        el.querySelectorAll('input').forEach(function(inp) {
+            if (!inp.name || inp.name === 'csrfmiddlewaretoken') return;
+            valori[inp.name] = inp.type === 'checkbox' ? inp.checked : inp.value;
+        });
+        edits[el.id.replace('macro-edit-', '')] = valori;
+    });
+    return { open: open, goals: goals, selected: selected, edits: edits, scroll: window.scrollY };
 }
+
+function macroRestore(snap, giornoDaAprire) {
+    snap.open.forEach(function(k) { macroSetDayOpen(k, true); });
+    if (giornoDaAprire) macroSetDayOpen(giornoDaAprire, true);
+
+    snap.goals.forEach(function(k) {
+        var el = document.getElementById('day-goal-form-' + k);
+        if (el) el.style.display = 'block';
+    });
+    snap.selected.forEach(function(id) {
+        var cb = document.querySelector('.macro-select-cb[value="' + id + '"]');
+        if (cb) cb.checked = true;
+    });
+    Object.keys(snap.edits).forEach(function(id) {
+        var box = document.getElementById('macro-edit-' + id);
+        if (!box) return;  // la voce non c'e' piu' (eliminata, o spostata di pagina)
+        var valori = snap.edits[id];
+        box.querySelectorAll('input').forEach(function(inp) {
+            if (!(inp.name in valori)) return;
+            if (inp.type === 'checkbox') inp.checked = valori[inp.name];
+            else inp.value = valori[inp.name];
+        });
+        toggleMacroEdit(id);
+    });
+
+    document.querySelectorAll('.macro-day-select-cb').forEach(function(cb) {
+        updateMacroDayCbState(cb.dataset.dayKey);
+    });
+    updateMacroBulkBar();
+}
+
+// Rimette nel form degli obiettivi di default i valori appena salvati, cosi'
+// riaprendolo non mostra piu' quelli vecchi rimasti nell'HTML iniziale.
+function macroFillGoalForm(goals) {
+    var campi = {
+        obiettivo_kcal: goals.kcal,
+        obiettivo_proteine_g: goals.proteine_g,
+        obiettivo_carboidrati_g: goals.carboidrati_g,
+        obiettivo_grassi_g: goals.grassi_g,
+        obiettivo_fibre_g: goals.fibre_g,
+    };
+    var form = document.querySelector('#goal-form form');
+    if (!form) return;
+    Object.keys(campi).forEach(function(nome) {
+        var el = form.querySelector('[name="' + nome + '"]');
+        if (el) el.value = campi[nome];
+    });
+}
+
+function macroApplyState(data, giornoDaAprire) {
+    var snap = macroSnapshot();
+    document.getElementById('macro-today-slot').innerHTML = data.today_html;
+    document.getElementById('macro-days-slot').innerHTML = data.days_html;
+    macroPage = data.page;
+    macroRestore(snap, giornoDaAprire);
+    if (window.macroSetChartData) window.macroSetChartData(data.chart_data);
+    if (data.default_goals) macroFillGoalForm(data.default_goals);
+    // Per ultimo: il grafico puo' cambiare altezza (segnaposto o disegno) e
+    // spostare lo storico, quindi prima lo si lascia assestare.
+    window.scrollTo(0, snap.scroll);
+}
+
+/* Unico punto da cui passano tutte le chiamate: manda la richiesta, applica
+   lo stato che torna indietro e avvisa se qualcosa non va.
+
+   Le risposte sono numerate. Se due operazioni si accavallano (doppio click,
+   o due comandi dati di fretta) puo' tornare per ultima quella partita per
+   prima: applicarla riscriverebbe la pagina con una fotografia gia' vecchia,
+   quindi tutto quello che non e' l'ultima richiesta partita si butta. */
+var macroSeq = 0;
+
+function macroRequest(url, body, opts) {
+    opts = opts || {};
+    var mio = ++macroSeq;
+    return fetch(url, {
+        method: body ? 'POST' : 'GET',
+        body: body || undefined,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'same-origin',
+    }).then(function(r) {
+        // Sessione scaduta: @login_required rimanda al login e fetch ci va
+        // dietro, quindi al posto del JSON torna la pagina di accesso. Senza
+        // accorgersene l'utente resterebbe a ritentare un'operazione che non
+        // andra' a buon fine mai piu'.
+        if (r.redirected && r.url.indexOf('/login') !== -1) {
+            window.location.href = r.url;
+            return null;
+        }
+        return r.json().then(function(data) {
+            if (!data.ok) {
+                macroToast(data.error || 'Operazione non riuscita, riprova.', true);
+                return null;
+            }
+            return data;
+        }, function() {
+            macroToast('Risposta inattesa dal server: prova a ricaricare.', true);
+            return null;
+        });
+    }, function() {
+        macroToast('Errore di rete, riprova.', true);
+        return null;
+    }).then(function(data) {
+        if (!data || mio !== macroSeq) return null;
+        // Da qui in giu' non si intercetta piu' niente: un errore mentre si
+        // applica lo stato e' un bug nostro e deve arrivare in console, non
+        // travestirsi da un problema di rete.
+        if (opts.before) opts.before(data);
+        var giorno = opts.openDay ? data.day : null;
+        macroApplyState(data, giorno);
+        if (data.messaggio) {
+            // Se il giorno toccato e' finito su un'altra pagina dello storico
+            // va detto, altrimenti sembra che non sia successo niente. Lo
+            // decide il server: un giorno rimasto senza voci sparisce e basta,
+            // e li' non c'e' nessun'altra pagina dove andarlo a cercare.
+            macroToast(data.messaggio + (data.day_altrove ? " (giorno su un'altra pagina)" : ''));
+        }
+        return data;
+    });
+}
+
+/* Delega sul document: intercetta anche i form dello storico, che vengono
+   ricreati a ogni aggiornamento e quindi non esistevano al caricamento. */
+document.addEventListener('submit', function(ev) {
+    var form = ev.target.closest('form[data-macro-ajax]');
+    if (!form) return;
+    ev.preventDefault();
+    if (form.dataset.confirm && !confirm(form.dataset.confirm)) return;
+
+    var body = new FormData(form);
+    body.append('page', macroPage);
+    var btn = form.querySelector('button[type="submit"]');
+    if (btn) btn.disabled = true;
+
+    var richiesta = macroRequest(form.action, body, {
+        openDay: true,
+        before: function() {
+            if (form.dataset.macroClose) macroPanel(form.dataset.macroClose, false);
+            if (form.hasAttribute('data-macro-reset')) macroResetNewEntry(form);
+            // I pannelli aperti dentro lo storico li chiudiamo prima dello
+            // scatto: sono l'operazione appena conclusa, non vanno riaperti
+            // sulle righe rigenerate.
+            ['macro-edit-', 'day-goal-form-', 'macro-dup-'].forEach(function(prefisso) {
+                var box = form.closest('[id^="' + prefisso + '"]');
+                if (box) box.style.display = 'none';
+            });
+        },
+    });
+    if (btn) richiesta.finally(function() { btn.disabled = false; });
+});
+
+// Dopo un inserimento il pannello resta aperto (spesso si loggano piu' pasti
+// di fila): svuotiamo i campi e riportiamo l'orario ad adesso, tenendo la
+// data scelta.
+function macroResetNewEntry(form) {
+    ['kcal', 'proteine_g', 'carboidrati_g', 'grassi_g', 'fibre_g', 'nota'].forEach(function(nome) {
+        var el = form.querySelector('[name="' + nome + '"]');
+        if (el) el.value = '';
+    });
+    var junk = form.querySelector('[name="spazzatura"]');
+    if (junk) junk.checked = false;
+    var ora = form.querySelector('[name="ora"]');
+    if (ora) {
+        var adesso = new Date();
+        ora.value = ('0' + adesso.getHours()).slice(-2) + ':' + ('0' + adesso.getMinutes()).slice(-2);
+    }
+    var kcal = form.querySelector('[name="kcal"]');
+    if (kcal) kcal.focus();
+}
+
+// --- Paginazione dello storico ---
+document.addEventListener('click', function(ev) {
+    var link = ev.target.closest('a[data-macro-page]');
+    if (!link) return;
+    ev.preventDefault();
+    macroRequest(MACRO_URL + '?page=' + encodeURIComponent(link.dataset.macroPage), null)
+        .then(function(data) {
+            if (!data) return;
+            history.pushState({ macroPage: data.page }, '', MACRO_URL + '?page=' + data.page);
+            document.getElementById('macro-days-slot').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+});
+window.addEventListener('popstate', function() {
+    var page = new URLSearchParams(location.search).get('page') || '1';
+    macroRequest(MACRO_URL + '?page=' + encodeURIComponent(page), null);
+});
+
 /* Tendina dello stato del giorno. Ne puo' esistere una per ogni giornata in
    elenco, quindi aprirne una chiude tutte le altre, e un solo listener sul
    documento le chiude tutte al click fuori. Il click dentro la tendina non
@@ -795,19 +851,12 @@ document.addEventListener('keydown', function (e) {
 
 function submitDayStatus(dayKey, stato) {
     chiudiTendineStato();
-    var form = document.createElement('form');
-    form.method = 'post';
-    form.action = "{% url 'set_macro_day_status' %}";
-    var fields = { csrfmiddlewaretoken: '{{ csrf_token }}', data: dayKey, stato: stato, next: "{% url 'macro' %}" };
-    for (var name in fields) {
-        var input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = name;
-        input.value = fields[name];
-        form.appendChild(input);
-    }
-    document.body.appendChild(form);
-    form.submit();
+    var body = new FormData();
+    body.append('csrfmiddlewaretoken', MACRO_CSRF);
+    body.append('data', dayKey);
+    body.append('stato', stato);
+    body.append('page', macroPage);
+    macroRequest("{% url 'set_macro_day_status' %}", body, { openDay: true });
 }
 {% if ultimo_peso %}
 function suggestProtein() {
@@ -815,12 +864,17 @@ function suggestProtein() {
 }
 {% endif %}
 
+// --- Apertura/chiusura delle giornate e dei pannelli di riga ---
+function macroSetDayOpen(dayKey, aperto) {
+    var body = document.getElementById('day-body-' + dayKey);
+    if (!body) return;
+    var chevron = document.getElementById('day-chevron-' + dayKey);
+    body.style.display = aperto ? 'flex' : 'none';
+    if (chevron) chevron.style.transform = aperto ? 'rotate(90deg)' : 'rotate(0deg)';
+}
 function toggleDay(dayKey) {
     var body = document.getElementById('day-body-' + dayKey);
-    var chevron = document.getElementById('day-chevron-' + dayKey);
-    var visible = body.style.display === 'flex';
-    body.style.display = visible ? 'none' : 'flex';
-    if (chevron) chevron.style.transform = visible ? 'rotate(0deg)' : 'rotate(90deg)';
+    if (body) macroSetDayOpen(dayKey, body.style.display !== 'flex');
 }
 function toggleDayGoalForm(dayKey) {
     var el = document.getElementById('day-goal-form-' + dayKey);
@@ -833,77 +887,10 @@ function toggleMacroEdit(id) {
     edit.style.display = showEdit ? 'flex' : 'none';
     view.style.opacity = showEdit ? '0.5' : '1';
 }
-
 function toggleMacroDuplicate(id) {
     var dup = document.getElementById('macro-dup-' + id);
     dup.style.display = dup.style.display === 'none' ? 'flex' : 'none';
 }
-
-// Inserisce la riga importata nel giorno di destinazione, se quel giorno e'
-// gia' presente in pagina, rispettando l'ordine per orario crescente.
-function insertMacroRow(dayKey, html, ora) {
-    var body = document.getElementById('day-body-' + dayKey);
-    if (!body) return false;
-    var tmp = document.createElement('div');
-    tmp.innerHTML = html.trim();
-    var row = tmp.firstElementChild;
-    if (!row) return false;
-    var next = null;
-    body.querySelectorAll('[data-macro-entry]').forEach(function(el) {
-        if (!next && (el.dataset.ora || '') > ora) next = el;
-    });
-    body.insertBefore(row, next);
-    // Se il giorno di destinazione era chiuso lo apriamo, altrimenti la voce
-    // appena importata resterebbe invisibile.
-    if (body.style.display !== 'flex') toggleDay(dayKey);
-    row.scrollIntoView({ block: 'nearest' });
-    return true;
-}
-
-function refreshMacroDayHeader(dayKey, count, totals) {
-    var countEl = document.getElementById('day-count-' + dayKey);
-    if (countEl) countEl.textContent = count + ' voc' + (count === 1 ? 'e' : 'i');
-    var kcalEl = document.getElementById('day-kcal-' + dayKey);
-    if (kcalEl) kcalEl.textContent = totals.kcal;
-    var macrosEl = document.getElementById('day-macros-' + dayKey);
-    if (macrosEl) {
-        var fmt = function(v) { return (Math.round(v * 10) / 10).toString().replace('.', ','); };
-        macrosEl.textContent = 'P ' + fmt(totals.proteine_g) + 'g · C ' + fmt(totals.carboidrati_g) + 'g · G ' + fmt(totals.grassi_g) + 'g · F ' + fmt(totals.fibre_g) + 'g';
-    }
-}
-
-// Delega sul document: cosi' funziona anche sulle righe inserite via AJAX,
-// che non esistevano quando la pagina e' stata caricata.
-document.addEventListener('submit', function(ev) {
-    var form = ev.target.closest('form[data-ajax-macro-dup]');
-    if (!form) return;
-    ev.preventDefault();
-    var entryId = form.action.match(/\/macro\/(\d+)\/duplicate\//)[1];
-    var btn = form.querySelector('button[type="submit"]');
-    if (btn) btn.disabled = true;
-    fetch(form.action, { method: 'POST', body: new FormData(form) })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            if (btn) btn.disabled = false;
-            if (!data.ok) { alert(data.error || 'Errore, riprova.'); return; }
-            toggleMacroDuplicate(entryId);
-            var inserted = insertMacroRow(data.data, data.html, data.ora);
-            if (inserted) {
-                refreshMacroDayHeader(data.data, data.count, data.totals);
-                updateMacroDayCbState(data.data);
-            }
-            var label = document.getElementById('macro-dup-btn-' + entryId);
-            if (label) {
-                var original = label.textContent;
-                label.textContent = inserted ? 'Importato ✓' : 'Importato ✓ (altro giorno)';
-                setTimeout(function() { label.textContent = original; }, 1800);
-            }
-        })
-        .catch(function() {
-            if (btn) btn.disabled = false;
-            alert('Errore di rete, riprova.');
-        });
-});
 
 // --- Selezione multipla voci / eliminazione in blocco ---
 function updateMacroBulkBar() {
@@ -946,18 +933,16 @@ function submitMacroBulkDelete() {
     var checked = document.querySelectorAll('.macro-select-cb:checked');
     if (!checked.length) return;
     if (!confirm('Eliminare ' + checked.length + (checked.length === 1 ? ' voce selezionata?' : ' voci selezionate?'))) return;
-    var form = document.getElementById('macro-bulk-delete-form');
-    form.querySelectorAll('input[name="entry_ids"]').forEach(function(el) { el.remove(); });
-    checked.forEach(function(cb) {
-        var input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'entry_ids';
-        input.value = cb.value;
-        form.appendChild(input);
+    var body = new FormData();
+    body.append('csrfmiddlewaretoken', MACRO_CSRF);
+    body.append('page', macroPage);
+    checked.forEach(function(cb) { body.append('entry_ids', cb.value); });
+    macroRequest("{% url 'bulk_delete_macro_entries' %}", body, {
+        // Solo a eliminazione riuscita, e prima dello scatto dello stato: se
+        // la richiesta fallisce la selezione dev'essere ancora li'.
+        before: deselectAllMacro,
     });
-    form.submit();
 }
-
 (function() {
     var CHART_DATA = {{ chart_data_json|safe }};
     var UNITS = { kcal: 'kcal', proteine_g: 'g', carboidrati_g: 'g', grassi_g: 'g', fibre_g: 'g' };
@@ -967,6 +952,7 @@ function submitMacroBulkDelete() {
     var chartWrap = document.getElementById('metric-chart-wrap');
     var canvas = document.getElementById('metric-canvas');
     var chartInst = null;
+    var currentMetric = 'kcal';
 
     var sheet = document.getElementById('metric-sheet');
     var backdrop = document.getElementById('metric-backdrop');
@@ -978,6 +964,7 @@ function submitMacroBulkDelete() {
     }
 
     window.selectMetric = function(metric) {
+        currentMetric = metric;
         currentLabel.textContent = LABELS[metric];
         document.querySelectorAll('.metric-option').forEach(function(btn) {
             btn.classList.toggle('active', btn.dataset.metric === metric);
@@ -1063,6 +1050,13 @@ function submitMacroBulkDelete() {
             }
         });
     }
+
+    // Ogni operazione della pagina cambia l'andamento: qui il grafico
+    // riparte dai dati nuovi restando sulla macro che l'utente stava guardando.
+    window.macroSetChartData = function(data) {
+        CHART_DATA = data;
+        renderChart(currentMetric);
+    };
 
     selectMetric('kcal');
 })();

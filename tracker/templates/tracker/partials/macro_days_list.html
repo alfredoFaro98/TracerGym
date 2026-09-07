@@ -1,0 +1,153 @@
+{% comment %}
+Storico per giorno della pagina alimentazione (contenuto della card, non la
+card stessa). Come il riepilogo di oggi vive in un partial perche' ogni
+operazione lo cambia: le risposte AJAX lo rendono di nuovo e il client ne
+sostituisce l'HTML, senza ricaricare la pagina.
+{% endcomment %}
+        {% if not days %}
+        <div style="padding: 52px 24px; text-align: center;">
+            <div style="font-size: 26px; margin-bottom: 10px; opacity: .4;">🍽️</div>
+            <div style="font-size: 13.5px; color: #7d8296; font-weight: 500;">Ancora nessuna voce registrata</div>
+        </div>
+        {% else %}
+        {% for day in days %}
+        {% with day_key=day.data|date:"Y-m-d" %}
+        <!-- Il click per aprire/chiudere sta qui sulla card intera, non solo
+             sulla riga della data: i comandi veri (spunta, bersaglio, tendina
+             stato, e tutto il contenuto aperto) fermano la propagazione, cosi'
+             restano cliccabili senza richiudere il giorno. -->
+        <div class="day-card" onclick="toggleDay('{{ day_key }}')" style="padding: 16px 20px; border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; {% if day.status %}background: rgba(248,113,113,0.04);{% endif %}">
+            <!-- Riga 1: solo chevron, selezione, data e conteggio. Prima qui
+                 dentro stava anche tutto il blocco totali e su schermo stretto
+                 il flex-wrap lo sparpagliava su due o tre righe diverse. -->
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <svg id="day-chevron-{{ day_key }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                <input type="checkbox" class="macro-day-select-cb" data-day-key="{{ day_key }}" onclick="event.stopPropagation()" onchange="toggleMacroDaySelect(this)" title="Seleziona tutte le voci di questo giorno" style="width: 15px; height: 15px; accent-color: #f87171; cursor: pointer; flex-shrink: 0;">
+                <span style="flex: 1; min-width: 0; font-size: 13.5px; font-weight: 700; color: #f0f0f3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ day.data|date:"l d F Y"|capfirst }}</span>
+                <span id="day-count-{{ day_key }}" style="flex-shrink: 0; font-size: 11.5px; color: #7d8296; white-space: nowrap;">{{ day.entries|length }} voc{{ day.entries|length|pluralize:"e,i" }}</span>
+            </div>
+
+            <!-- Riga 2, sempre visibile anche a giorno chiuso: kcal a sinistra,
+                 riepilogo macro al centro (si accorcia lui se manca spazio),
+                 icone azione a destra.
+                 Rientro di 22px = larghezza del chevron (14) piu' il gap (8):
+                 cosi' parte sotto la casella di selezione e non sotto il
+                 chevron, allineandosi al blocco data invece che alla freccia
+                 che apre il giorno. -->
+            <div class="day-row-totali" style="display: flex; align-items: center; gap: 8px; margin-top: 8px; margin-left: 22px;">
+                <span style="flex-shrink: 0; background: rgba(var(--acc-rgb),0.14); color: var(--acc-soft); font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;"><span id="day-kcal-{{ day_key }}">{{ day.totals.kcal }}</span> <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goals.kcal }} kcal</span></span>
+                <span id="day-macros-{{ day_key }}" class="day-macros" style="flex: 1; min-width: 0; font-size: 11px; color: #9ba0b3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">P {{ day.totals.proteine_g|floatformat:"-1" }}g &middot; C {{ day.totals.carboidrati_g|floatformat:"-1" }}g &middot; G {{ day.totals.grassi_g|floatformat:"-1" }}g &middot; F {{ day.totals.fibre_g|floatformat:"-1" }}g</span>
+                <div class="day-actions">
+                    {% if day.reached %}
+                    <span class="day-chip day-chip-ok" title="Obiettivo raggiunto">&#10003;</span>
+                    {% else %}
+                    <span class="day-chip day-chip-ko" title="Obiettivo non raggiunto">&#10005;</span>
+                    {% endif %}
+                    <span class="day-chip day-chip-goal" onclick="event.stopPropagation(); toggleDayGoalForm('{{ day_key }}')" title="Imposta obiettivo di questo giorno">&#127919;</span>
+                    <div class="day-status" onclick="event.stopPropagation();">
+                        <button type="button" class="day-status-btn {% if day.status == 'parziale' %}is-parziale{% elif day.status == 'non_tracciato' %}is-non-tracciato{% else %}is-tracciato{% endif %}" onclick="toggleDayStatusMenu(this)" aria-haspopup="true" aria-expanded="false" aria-label="Stato: {% if day.status == 'parziale' %}Parziale{% elif day.status == 'non_tracciato' %}Non tracciato{% else %}Tracciato{% endif %}" title="Stato: {% if day.status == 'parziale' %}Parziale{% elif day.status == 'non_tracciato' %}Non tracciato{% else %}Tracciato{% endif %} — tocca per cambiarlo">
+                            {% if day.status == 'parziale' %}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            {% elif day.status == 'non_tracciato' %}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/></svg>
+                            {% else %}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            {% endif %}
+                            <svg class="day-status-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                        <div class="day-status-menu" hidden>
+                            <button type="button" class="day-status-opt opt-tracciato{% if not day.status %} is-active{% endif %}" onclick="submitDayStatus('{{ day_key }}', '')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>Tracciato</span>
+                            </button>
+                            <button type="button" class="day-status-opt opt-parziale{% if day.status == 'parziale' %} is-active{% endif %}" onclick="submitDayStatus('{{ day_key }}', 'parziale')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                <span>Parziale</span>
+                            </button>
+                            <button type="button" class="day-status-opt opt-non-tracciato{% if day.status == 'non_tracciato' %} is-active{% endif %}" onclick="submitDayStatus('{{ day_key }}', 'non_tracciato')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/></svg>
+                                <span>Non tracciato</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Riga 3: solo i badge. La tendina e' salita sulla riga dei kcal,
+                 quindi questa riga puo' non avere niente da mostrare: senza l'if
+                 resterebbe una fascia vuota alta 8px sotto ogni giornata. -->
+            {% if day.totals.junk_count or day.status %}
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
+                {% if day.totals.junk_count %}
+                <span title="Voci di cibo spazzatura" style="font-size: 10.5px; font-weight: 700; color: #f0a875; background: rgba(240,168,117,0.14); padding: 3px 9px; border-radius: 6px; white-space: nowrap;">&#127828; {{ day.totals.junk_count }}</span>
+                {% endif %}
+                {% if day.status == 'non_tracciato' %}
+                <span style="background: rgba(248,113,113,0.14); color: #f87171; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap;">&#128683; NON TRACCIATO</span>
+                {% elif day.status == 'parziale' %}
+                <span style="background: rgba(240,168,117,0.14); color: #f0a875; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap;">&#9888;&#65039; PARZIALE</span>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div id="day-goal-form-{{ day_key }}" style="display: none; margin-top: 10px;" onclick="event.stopPropagation();">
+                <form data-macro-ajax action="{% url 'set_day_macro_goal' %}" method="post" autocomplete="off" style="display: flex; flex-direction: column; gap: 10px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="data" value="{{ day_key }}">
+                    <input type="hidden" name="next" value="{% url 'macro' %}">
+                    <span style="font-size: 11px; color: #7d8296;">Obiettivo di questo giorno:</span>
+                    <!-- Tre colonne fisse: con cinque campi vengono una riga da
+                         tre piu' due, invece delle larghezze irregolari che
+                         dava il flex-wrap. -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                        <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">KCAL</span>
+                            <input type="number" name="kcal" value="{{ day.goals.kcal }}" min="1" class="tracer-input" style="width: 100%; height: 36px; box-sizing: border-box; padding: 7px 9px; font-size: 12px;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">PROTEINE (G)</span>
+                            <input type="number" name="proteine_g" value="{{ day.goals.proteine_g }}" min="0" class="tracer-input" style="width: 100%; height: 36px; box-sizing: border-box; padding: 7px 9px; font-size: 12px;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">CARBOIDRATI (G)</span>
+                            <input type="number" name="carboidrati_g" value="{{ day.goals.carboidrati_g }}" min="0" class="tracer-input" style="width: 100%; height: 36px; box-sizing: border-box; padding: 7px 9px; font-size: 12px;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">GRASSI (G)</span>
+                            <input type="number" name="grassi_g" value="{{ day.goals.grassi_g }}" min="0" class="tracer-input" style="width: 100%; height: 36px; box-sizing: border-box; padding: 7px 9px; font-size: 12px;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                            <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">FIBRE (G)</span>
+                            <input type="number" name="fibre_g" value="{{ day.goals.fibre_g }}" min="0" class="tracer-input" style="width: 100%; height: 36px; box-sizing: border-box; padding: 7px 9px; font-size: 12px;">
+                        </div>
+                    </div>
+                    <!-- Griglia e non flex:1: con box-sizing border-box il
+                         flex-basis comprende il padding, quindi le due meta'
+                         non verrebbero uguali. -->
+                    <div class="quick-actions">
+                        <button type="submit" class="btn-primary-gradient" style="height: 36px; box-sizing: border-box; padding: 0 14px; font-size: 12px;">Salva</button>
+                        <button type="button" onclick="toggleDayGoalForm('{{ day_key }}')" class="btn-cancel" style="height: 36px; box-sizing: border-box; padding: 0 14px; font-size: 12px;">Annulla</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="day-body-{{ day_key }}" onclick="event.stopPropagation();" style="display: none; flex-direction: column; gap: 6px; margin-top: 12px;">
+                {% for e in day.entries %}
+                {% include 'tracker/partials/macro_entry_row.html' with e=e day_key=day_key %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+
+        {% if days.has_other_pages %}
+        <div style="display: flex; justify-content: center; gap: 8px; padding: 16px; border-top: 1px solid var(--border);">
+            {% if days.has_previous %}
+                <a href="?page={{ days.previous_page_number }}" data-macro-page="{{ days.previous_page_number }}" style="padding: 5px 10px; background: var(--surface-2); color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Precedente</a>
+            {% endif %}
+            <span style="font-size: 12px; color: #7d8296; align-self: center;">Pagina {{ days.number }} di {{ days.paginator.num_pages }}</span>
+            {% if days.has_next %}
+                <a href="?page={{ days.next_page_number }}" data-macro-page="{{ days.next_page_number }}" style="padding: 5px 10px; background: var(--surface-2); color: #f0f0f3; border-radius: 5px; font-size: 12px; font-weight: 600; text-decoration: none;">Successiva</a>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% endif %}

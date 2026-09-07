@@ -1,0 +1,93 @@
+{% comment %}
+Una notte dello storico: riga di sintesi + pannello di modifica.
+Estratta dalla pagina perche' la rigenera anche il server dopo ogni azione
+AJAX (vedi _sonno_payload): badge della qualita', giorno di sveglia fra
+parentesi e nota condizionale sono logica di template, riscriverla in
+JavaScript avrebbe voluto dire tenerla in due posti.
+{% endcomment %}
+<div>
+    <div id="sleep-view-{{ e.id }}" style="display: flex; flex-direction: column; gap: 9px; padding: 13px 16px; border-bottom: 1px solid var(--border);">
+        <!-- Riga fissa: chevron, data, fascia oraria (si accorcia lei se
+             manca spazio) e durata sempre a filo destro. Prima stava
+             tutto in un unico flex con wrap, che su schermo stretto
+             spezzava la riga in punti diversi da card a card. -->
+        <div onclick="toggleSleepEdit('{{ e.id }}')" style="display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none;">
+            <svg id="sleep-chevron-{{ e.id }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8296" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; transition: transform .15s;"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            <span style="flex-shrink: 0; font-size: 13px; font-weight: 700; color: #f0f0f3;">{{ e.data|date:"d M Y" }}</span>
+            <span style="flex: 1; min-width: 0; font-size: 12.5px; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ e.ora_letto|time:"H:i" }} &rarr; {{ e.ora_sveglia|time:"H:i" }}{% if e.data_sveglia != e.data %} <span style="color: #565b6e;">({{ e.data_sveglia|date:"d M" }})</span>{% endif %}</span>
+            <span style="flex-shrink: 0; font-size: 12.5px; font-weight: 700; color: #c7cbd6; white-space: nowrap;">{{ e.durata_label }}</span>
+        </div>
+
+        <!-- Sempre visibile, anche a riga chiusa. Il rientro pareggia
+             chevron (14px) e gap (10px) della riga sopra: senza, il
+             badge partiva sotto la freccia invece che sotto la data. -->
+        <div style="display: flex; align-items: center; gap: 8px; padding-left: 24px;">
+            <span style="flex-shrink: 0; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; white-space: nowrap;
+                {% comment %}
+                Scala della qualita': due gradini di accento, poi neutro,
+                poi rosso. 'ottima' seguiva gia' l'accento mentre 'buona'
+                e 'media' erano giallo e arancione fissi — con l'accento
+                caldo 'ottima' e 'media' finivano quasi dello stesso
+                colore. Il rosso resta perche' segnala un problema e non
+                e' fra gli accenti scegliibili, quindi non puo' collidere.
+                {% endcomment %}
+                {% if e.qualita == 'ottima' %}color: var(--acc-4); background: rgba(var(--acc-rgb),0.20);
+                {% elif e.qualita == 'buona' %}color: var(--acc-soft); background: rgba(var(--acc-rgb),0.11);
+                {% elif e.qualita == 'media' %}color: #9ba0b3; background: rgba(255,255,255,0.06);
+                {% else %}color: #ff8a8a; background: rgba(255,138,138,0.14);{% endif %}">{{ e.get_qualita_display }}</span>
+            <div style="flex: 1; min-width: 0;"></div>
+            <span onclick="toggleSleepEdit('{{ e.id }}')" style="flex-shrink: 0; font-size: 12px; font-weight: 600; color: var(--acc-4); padding: 6px 12px; border-radius: 7px; background: rgba(var(--acc-rgb),0.12); cursor: pointer; transition: background .12s;" onmouseover="this.style.background='rgba(var(--acc-rgb),0.22)'" onmouseout="this.style.background='rgba(var(--acc-rgb),0.12)'">Modifica</span>
+            <form data-ajax-sonno-del action="{% url 'delete_sleep_entry_ajax' e.id %}" method="post" style="flex-shrink: 0;">
+                {% csrf_token %}
+                <button type="submit" style="font-size: 12px; font-weight: 600; color: #f87171; padding: 6px 12px; border-radius: 7px; background: rgba(248,113,113,0.1); border: none; cursor: pointer; font-family: inherit; transition: background .12s;" onmouseover="this.style.background='rgba(248,113,113,0.2)'" onmouseout="this.style.background='rgba(248,113,113,0.1)'">Elimina</button>
+            </form>
+        </div>
+
+        <!-- La nota stava nella riga principale e la sballava; qui ha
+             una riga sua e compare solo se c'e'. -->
+        {% if e.nota %}
+        <div style="font-size: 12px; color: #9ba0b3; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-left: 24px;">&#128221; {{ e.nota }}</div>
+        {% endif %}
+    </div>
+    <div id="sleep-edit-{{ e.id }}" style="display: none; flex-direction: column; gap: 8px; background: rgba(var(--acc-rgb),0.06); border: 1px solid rgba(var(--acc-rgb),0.3); border-radius: 9px; padding: 12px 14px; margin: 4px 16px;">
+        <form data-ajax-sonno action="{% url 'edit_sleep_entry_ajax' e.id %}" method="post" autocomplete="off" style="display: flex; flex-direction: column; gap: 10px;">
+            {% csrf_token %}
+            <!-- Due colonne per due righe: i quattro campi restano
+                 incolonnati e tutti alla stessa altezza, invece delle
+                 larghezze irregolari che dava il flex-wrap. -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div style="display: flex; flex-direction: column; gap: 5px; min-width: 0;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">DATA</span>
+                    <input type="date" name="data" value="{{ e.data|date:'Y-m-d' }}" class="tracer-input" style="width: 100%; height: 38px; box-sizing: border-box;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 5px; min-width: 0;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">A LETTO</span>
+                    <input type="time" name="ora_letto" value="{{ e.ora_letto|time:'H:i' }}" class="tracer-input" style="width: 100%; height: 38px; box-sizing: border-box;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 5px; min-width: 0;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">SVEGLIA <span data-wake-day style="color: #565b6e;"></span></span>
+                    <input type="time" name="ora_sveglia" value="{{ e.ora_sveglia|time:'H:i' }}" class="tracer-input" style="width: 100%; height: 38px; box-sizing: border-box;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 5px; min-width: 0;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">QUALITÀ</span>
+                    <select name="qualita" class="tracer-input" style="width: 100%; height: 38px; box-sizing: border-box;">
+                        {% for value, label in quality_choices %}
+                        <option value="{{ value }}"{% if value == e.qualita %} selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <span style="font-size: 9.5px; font-weight: 700; letter-spacing: .06em; color: #7d8296; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">NOTA</span>
+                <input type="text" name="nota" value="{{ e.nota }}" maxlength="200" class="tracer-input" style="width: 100%; height: 38px; box-sizing: border-box;">
+            </div>
+            <!-- Griglia e non flex:1: con box-sizing border-box il
+                 flex-basis comprende il padding, quindi le due meta'
+                 non verrebbero uguali. -->
+            <div class="quick-actions">
+                <button type="submit" class="btn-primary-gradient" style="height: 38px; box-sizing: border-box; padding: 0 16px; font-size: 12.5px;">Salva</button>
+                <button type="button" onclick="toggleSleepEdit('{{ e.id }}')" class="btn-cancel" style="height: 38px; box-sizing: border-box; padding: 0 16px; font-size: 12.5px;">Annulla</button>
+            </div>
+        </form>
+    </div>
+</div>
