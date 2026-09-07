@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import shutil
@@ -19,7 +20,7 @@ from django.utils import timezone
 from .accent import normalizza_hex, scala_accent
 from .models import (
     BodyMetric, Exercise, ExerciseImage, MacroDayStatus, MacroEntry, MacroGoal,
-    PassiGiorno, SleepEntry, UserProfile, WaterEntry, WaterGoal, WorkoutSession,
+    PassiGiorno, PassiGoal, SleepEntry, UserProfile, WaterEntry, WaterGoal, WorkoutSession,
     WorkoutSet,
 )
 
@@ -1428,3 +1429,88 @@ class ImportDaAtletaTest(TestCase):
         self.assertTrue(User._meta.get_field('username').unique)
         with self.assertRaises(Exception):
             User.objects.create_user(username='aaa_io', password='x')
+
+
+class PassiGoalTest(TestCase):
+    """Obiettivo passi di una giornata specifica.
+
+    Senza l'override l'obiettivo era un solo numero globale e retroattivo:
+    alzarlo ricoloriva la heatmap all'indietro, e un giorno chiuso sopra
+    l'asticella di allora diventava "sotto obiettivo" a posteriori.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_superuser(username='tester', password='x')
+        self.client.force_login(self.user)
+        self.oggi = timezone.localdate()
+        self.ieri = self.oggi - timedelta(days=1)
+
+    def _salva(self, giorno, valore):
+        return self.client.post(reverse('set_obiettivo_giorno_passi'), {
+            'data': giorno.isoformat(), 'obiettivo_passi': valore,
+        })
+
+    def _obiettivi_heatmap(self):
+        """Gli obiettivi che la pagina passa alla heatmap, uno per data."""
+        ctx = self.client.get(reverse('attivita')).context
+        return [v['goal'] for v in json.loads(ctx['heatmap_data_json'])]
+
+    def test_senza_override_vale_il_default_del_profilo(self):
+        PassiGiorno.objects.create(utente=self.user, data=self.oggi, passi=9000)
+        self.assertEqual(self._obiettivi_heatmap(), [10000])
+
+    def test_un_giorno_puo_avere_il_suo_obiettivo(self):
+        self._salva(self.oggi, '6000')
+        self.assertEqual(
+            PassiGoal.objects.get(utente=self.user, data=self.oggi).obiettivo_passi, 6000)
+
+    def test_la_heatmap_riceve_un_obiettivo_diverso_per_giorno(self):
+        PassiGiorno.objects.create(utente=self.user, data=self.oggi, passi=9000)
+        PassiGiorno.objects.create(utente=self.user, data=self.ieri, passi=9000)
+        self._salva(self.ieri, '6000')
+
+        self.assertEqual(sorted(self._obiettivi_heatmap()), [6000, 10000])
+
+    def test_alzare_il_default_non_tocca_i_giorni_con_obiettivo_proprio(self):
+        PassiGiorno.objects.create(utente=self.user, data=self.ieri, passi=8500)
+        self._salva(self.ieri, '8000')
+
+        self.client.post(reverse('set_obiettivo_passi'), {'obiettivo_passi': '15000'})
+
+        ctx = self.client.get(reverse('attivita')).context
+        # Ieri resta un giorno centrato: l'asticella di allora era 8.000.
+        self.assertEqual(ctx['giorni_sopra_obiettivo'], 1)
+
+    def test_riscrivere_lo_stesso_giorno_corregge_invece_di_duplicare(self):
+        self._salva(self.oggi, '6000')
+        self._salva(self.oggi, '7000')
+
+        voci = PassiGoal.objects.filter(utente=self.user, data=self.oggi)
+        self.assertEqual(voci.count(), 1)
+        self.assertEqual(voci.first().obiettivo_passi, 7000)
+
+    def test_campo_vuoto_rimuove_override_e_si_torna_al_default(self):
+        self._salva(self.oggi, '6000')
+        self._salva(self.oggi, '')
+
+        self.assertFalse(PassiGoal.objects.filter(utente=self.user).exists())
+
+    def test_percentuale_di_oggi_usa_l_obiettivo_di_oggi(self):
+        PassiGiorno.objects.create(utente=self.user, data=self.oggi, passi=6000)
+        self._salva(self.oggi, '6000')
+
+        self.assertEqual(self.client.get(reverse('attivita')).context['percentuale_oggi'], 100)
+
+    def test_una_data_o_un_valore_non_validi_non_scrivono_niente(self):
+        self.client.post(reverse('set_obiettivo_giorno_passi'),
+                         {'data': 'non-una-data', 'obiettivo_passi': '6000'})
+        self._salva(self.oggi, 'tanti')
+        self._salva(self.oggi, '0')
+
+        self.assertFalse(PassiGoal.objects.exists())
+
+    def test_un_utente_normale_non_imposta_obiettivi(self):
+        self.client.force_login(User.objects.create_user(username='atleta', password='x'))
+        self._salva(self.oggi, '6000')
+
+        self.assertFalse(PassiGoal.objects.exists())

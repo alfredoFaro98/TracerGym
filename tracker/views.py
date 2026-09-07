@@ -21,7 +21,7 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib.auth.models import User
 from .accent import normalizza_hex, scala_accent
-from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal, IntegratoreEntry, SiteVisit, MacroEntry, MacroGoal, MacroDayStatus, SleepEntry, PassiGiorno
+from .models import WorkoutSession, WorkoutSet, Exercise, MuscleGroup, Tag, UserProfile, ExerciseImage, Circuit, WaterEntry, BodyMetric, WaterGoal, IntegratoreEntry, SiteVisit, MacroEntry, MacroGoal, MacroDayStatus, SleepEntry, PassiGiorno, PassiGoal
 
 
 REMEMBER_ME_SECONDS = 60 * 60 * 24 * 30  # 30 giorni
@@ -3520,6 +3520,15 @@ def delete_sleep_entry_ajax(request, entry_id):
 # arriveranno qui accanto, vedi potenziali-sviluppi-futuri/camminata.md.
 # ---------------------------------------------------------------------------
 
+def _passi_goals_map(utente, anno=None):
+    """Gli obiettivi passi per giorno, come `_water_goals_map` per l'acqua.
+    Chi non ha un override per quella data usa il default del profilo."""
+    qs = PassiGoal.objects.filter(utente=utente)
+    if anno:
+        qs = qs.filter(data__year=anno)
+    return {g.data: g.obiettivo_passi for g in qs}
+
+
 def _passi_settimana(user, lunedi):
     """I sette giorni della settimana che inizia il lunedi' dato, con i passi
     gia' registrati dove ci sono. Serve alla griglia di inserimento multiplo."""
@@ -3556,6 +3565,14 @@ def attivita(request):
     voci = PassiGiorno.objects.filter(utente=request.user)
     passi_oggi = next((v.passi for v in voci if v.data == oggi), 0)
 
+    # Ogni giorno si misura sull'obiettivo che aveva quel giorno: il default
+    # del profilo vale solo dove non c'e' un override.
+    obiettivi = _passi_goals_map(request.user)
+    def obiettivo_di(giorno):
+        return obiettivi.get(giorno, obiettivo)
+
+    obiettivo_oggi = obiettivo_di(oggi)
+
     # Settimana mostrata nella griglia: quella corrente, o quella chiesta.
     lunedi = oggi - timedelta(days=oggi.weekday())
     settimana_str = request.GET.get('settimana')
@@ -3576,26 +3593,32 @@ def attivita(request):
         timestamp = int(time.mktime(datetime(v.data.year, v.data.month, v.data.day).timetuple()))
         # Come fa la pagina Acqua: passando anche l'obiettivo, la casella si
         # colora su quanto ci si e' avvicinati invece che sul valore assoluto.
-        heatmap_data.append({'date': timestamp, 'value': v.passi, 'goal': obiettivo})
+        # Il JS legge gia' un obiettivo per data, gli mancava solo di riceverne
+        # uno diverso per giorno invece dello stesso numero ripetuto.
+        heatmap_data.append({'date': timestamp, 'value': v.passi, 'goal': obiettivo_di(v.data)})
 
     ultimi_30 = [v for v in voci if (oggi - v.data).days < 30]
     media_30 = round(sum(v.passi for v in ultimi_30) / len(ultimi_30)) if ultimi_30 else 0
 
     paginator = Paginator(list(voci), 14)
     pagina = paginator.get_page(request.GET.get('page'))
+    righe = [{'voce': v, 'obiettivo': obiettivo_di(v.data),
+              'suo': v.data in obiettivi} for v in pagina]
 
     return render(request, 'tracker/attivita.html', {
         'passi_oggi': passi_oggi,
         'obiettivo_passi': obiettivo,
-        'percentuale_oggi': min(100, round(passi_oggi / obiettivo * 100)) if obiettivo else 0,
+        'obiettivo_oggi': obiettivo_oggi,
+        'percentuale_oggi': min(100, round(passi_oggi / obiettivo_oggi * 100)) if obiettivo_oggi else 0,
         'media_30': media_30,
-        'giorni_sopra_obiettivo': sum(1 for v in ultimi_30 if v.passi >= obiettivo),
+        'giorni_sopra_obiettivo': sum(1 for v in ultimi_30 if v.passi >= obiettivo_di(v.data)),
         'settimana': _passi_settimana(request.user, lunedi),
         'lunedi': lunedi,
         'settimana_prec': lunedi - timedelta(days=7),
         'settimana_succ': lunedi + timedelta(days=7),
         'ce_una_settimana_dopo': lunedi + timedelta(days=7) <= oggi,
         'voci': pagina,
+        'righe': righe,
         'heatmap_data_json': json.dumps(heatmap_data),
         'selected_year': anno,
         'oggi': oggi,
@@ -3663,6 +3686,32 @@ def elimina_passi(request, entry_id):
         return redirect('dashboard')
     if request.method == 'POST':
         PassiGiorno.objects.filter(id=entry_id, utente=request.user).delete()
+    return redirect(request.POST.get('next') or 'attivita')
+
+
+@login_required
+def set_obiettivo_giorno_passi(request):
+    """Obiettivo di una singola giornata, o la sua rimozione.
+
+    Campo vuoto = si torna al default del profilo, come per l'acqua: senza
+    una via d'uscita un override messo per sbaglio resterebbe li' per sempre.
+    """
+    if not request.user.is_superuser:
+        return redirect('dashboard')
+    if request.method == 'POST':
+        try:
+            giorno = date.fromisoformat(request.POST.get('data') or '')
+        except ValueError:
+            giorno = None
+        if giorno:
+            valore = (request.POST.get('obiettivo_passi') or '').strip()
+            if not valore:
+                PassiGoal.objects.filter(utente=request.user, data=giorno).delete()
+            elif valore.isdigit() and int(valore) > 0:
+                PassiGoal.objects.update_or_create(
+                    utente=request.user, data=giorno,
+                    defaults={'obiettivo_passi': int(valore)},
+                )
     return redirect(request.POST.get('next') or 'attivita')
 
 

@@ -95,6 +95,7 @@ urlpatterns = [
     path('attivita/passi/salva-settimana/', views.salva_passi_settimana, name='salva_passi_settimana'),
     path('attivita/passi/<int:entry_id>/delete/', views.elimina_passi, name='elimina_passi'),
     path('attivita/passi/obiettivo/', views.set_obiettivo_passi, name='set_obiettivo_passi'),
+    path('attivita/passi/obiettivo-giorno/', views.set_obiettivo_giorno_passi, name='set_obiettivo_giorno_passi'),
     path('sonno/', views.sonno, name='sonno'),
     path('sonno/add/', views.add_sleep_entry, name='add_sleep_entry'),
     path('sonno/<int:entry_id>/edit/', views.edit_sleep_entry, name='edit_sleep_entry'),

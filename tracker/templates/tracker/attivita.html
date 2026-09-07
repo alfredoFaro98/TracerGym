@@ -106,7 +106,7 @@
         <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px;">
             <div>
                 <span style="font-family: 'JetBrains Mono', monospace; font-size: 30px; font-weight: 700; color: var(--acc-soft);">{{ passi_oggi }}</span>
-                <span style="font-size: 13px; color: #7d8296;"> / {{ obiettivo_passi }} passi oggi</span>
+                <span style="font-size: 13px; color: #7d8296;"> / {{ obiettivo_oggi }} passi oggi</span>
             </div>
             <span style="font-size: 12px; color: #7d8296;">{{ percentuale_oggi }}%</span>
         </div>
@@ -123,7 +123,7 @@
             </div>
             <form action="{% url 'set_obiettivo_passi' %}" method="post" class="riquadro-dato" style="display: flex; flex-direction: column; gap: 6px;">
                 {% csrf_token %}
-                <div class="riquadro-etichetta">Obiettivo giornaliero</div>
+                <div class="riquadro-etichetta" title="Vale per ogni giorno che non ha un obiettivo suo (🎯 nello storico)">Obiettivo di default</div>
                 <div style="display: flex; gap: 6px;">
                     <input type="number" name="obiettivo_passi" value="{{ obiettivo_passi }}" min="1" class="tracer-input" style="width: 100%; padding: 4px 8px; font-family: 'JetBrains Mono', monospace; font-size: 14px;">
                     <button type="submit" class="btn-primary-gradient" style="padding: 4px 12px; font-size: 12px;">OK</button>
@@ -193,24 +193,45 @@
                 <div id="mobile-cal-heatmap" style="overflow: visible; position: relative;"></div>
             </div>
         </div>
-        <div style="font-size: 10.5px; color: #565b6e; text-align: center; padding: 10px 0 4px;">Colore in base alla % dell'obiettivo ({{ obiettivo_passi }} passi)</div>
+        <div style="font-size: 10.5px; color: #565b6e; text-align: center; padding: 10px 0 4px;">Colore in base alla % dell'obiettivo di ogni giorno (default {{ obiettivo_passi }} passi)</div>
     </div>
 
     <!-- Storico -->
     <div class="tracer-card" style="overflow: hidden;">
         <div style="padding: 18px 22px; border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase;">Storico</div>
-        {% for v in voci %}
-        <div style="padding: 12px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px;">
-            <span style="flex: 1; min-width: 0; font-size: 13px; color: #f0f0f3;">{{ v.data|date:"l d F Y"|capfirst }}</span>
-            <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: {% if v.passi >= obiettivo_passi %}var(--acc-soft){% else %}#9ba0b3{% endif %};">{{ v.passi }}</span>
-            <form action="{% url 'elimina_passi' v.id %}" method="post" style="margin: 0;" onsubmit="return confirm('Cancellare i passi del {{ v.data|date:"d/m/Y" }}?');">
-                {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                <button type="submit" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(248,113,113,.12); border: 1px solid rgba(248,113,113,.22); border-radius: 6px; color: #f87171; cursor: pointer;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                </button>
-            </form>
+        {% for r in righe %}
+        {% with v=r.voce chiave=r.voce.data|date:"Y-m-d" %}
+        <div style="padding: 12px 22px; border-bottom: 1px solid var(--border);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="flex: 1; min-width: 0; font-size: 13px; color: #f0f0f3;">{{ v.data|date:"l d F Y"|capfirst }}</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: {% if v.passi >= r.obiettivo %}var(--acc-soft){% else %}#9ba0b3{% endif %};">{{ v.passi }}</span>
+                <span title="Obiettivo di questo giorno" style="font-size: 11px; color: {% if r.suo %}var(--acc-4){% else %}#565b6e{% endif %}; font-family: 'JetBrains Mono', monospace; white-space: nowrap;">/ {{ r.obiettivo }}{% if r.suo %} *{% endif %}</span>
+                <span onclick="toggleObiettivoGiorno('{{ chiave }}')" title="Imposta l'obiettivo di questo giorno" style="cursor: pointer; font-size: 14px; padding: 4px; border-radius: 6px; transition: background .12s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">🎯</span>
+                <form action="{% url 'elimina_passi' v.id %}" method="post" style="margin: 0;" onsubmit="return confirm('Cancellare i passi del {{ v.data|date:"d/m/Y" }}?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: rgba(248,113,113,.12); border: 1px solid rgba(248,113,113,.22); border-radius: 6px; color: #f87171; cursor: pointer;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                </form>
+            </div>
+
+            <div id="obiettivo-giorno-{{ chiave }}" style="display: none; margin-top: 10px;">
+                <form action="{% url 'set_obiettivo_giorno_passi' %}" method="post" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                    {% csrf_token %}
+                    <input type="hidden" name="data" value="{{ chiave }}">
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <span style="font-size: 11px; color: #7d8296;">Obiettivo di questo giorno:</span>
+                    <input type="number" name="obiettivo_passi" value="{% if r.suo %}{{ r.obiettivo }}{% endif %}" min="1" step="500" placeholder="{{ obiettivo_passi }}" class="tracer-input" style="width: 110px; padding: 7px 9px; font-size: 12px;">
+                    <span style="font-size: 11px; color: #7d8296;">passi &mdash; vuoto = torna al default</span>
+                    <div class="quick-actions">
+                        <button type="submit" class="btn-primary-gradient" style="padding: 7px 14px; font-size: 12px;">Salva</button>
+                        <button type="button" onclick="toggleObiettivoGiorno('{{ chiave }}')" class="btn-cancel" style="padding: 7px 14px; font-size: 12px;">Annulla</button>
+                    </div>
+                </form>
+            </div>
         </div>
+        {% endwith %}
         {% empty %}
         <div style="padding: 30px; text-align: center; color: #7d8296; font-size: 13px;">Nessun giorno registrato. Comincia dalla griglia qui sopra.</div>
         {% endfor %}
@@ -226,6 +247,11 @@
 </div>
 
 <script>
+function toggleObiettivoGiorno(chiave) {
+    var el = document.getElementById('obiettivo-giorno-' + chiave);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
 function changeYear(delta) {
     var url = new URL(window.location);
     url.searchParams.set('year', {{ selected_year }} + delta);
