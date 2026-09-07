@@ -16,8 +16,12 @@ Chi lo include deve passare `onDayClick: TracerGiorno.apri` a TracerHeatmap.
        sopra al pannello. */
     #giorno-modal { display: none; position: fixed; inset: 0; z-index: 10001; background: rgba(0,0,0,.6); align-items: center; justify-content: center; padding: 16px; }
     #giorno-modal.open { display: flex; }
+    /* I 420px dello schizzo su un monitor grande erano un francobollo in
+       mezzo allo schermo. Il box cresce con la finestra e si ferma a 720:
+       oltre, le righe diventano nastri di testo con un chilometro di vuoto
+       fra titolo e chevron. */
     #giorno-modal-box {
-        width: 420px; max-width: 100%; max-height: 90vh; overflow-y: auto;
+        width: min(92vw, 720px); max-height: 90vh; overflow-y: auto;
         background: var(--panel); border: 1px solid var(--border); border-radius: 18px;
         padding: 22px; display: flex; flex-direction: column; gap: 16px;
         box-shadow: 0 30px 80px rgba(0,0,0,0.5);
@@ -127,6 +131,28 @@ Chi lo include deve passare `onDayClick: TracerGiorno.apri` a TracerHeatmap.
     .gm-pag-btn[disabled] { opacity: .35; cursor: default; }
 
     .gm-errore { font-size: 12px; color: #f85149; background: rgba(248,81,73,.08); border: 1px solid rgba(248,81,73,.2); border-radius: 8px; padding: 8px 10px; }
+
+    /* Da tablet in su il contenuto cresce con il box: allargarlo e basta
+       avrebbe dato le stesse scritte da 12px perse in mezzo al vuoto. */
+    @media (min-width: 900px) and (min-height: 700px) {
+        #giorno-modal-box { padding: 26px; gap: 18px; }
+        .gm-data { font-size: 19px; }
+        .gm-icon-btn { width: 32px; height: 32px; }
+        .gm-stat { padding: 13px 15px; }
+        .gm-stat-val { font-size: 20px; }
+        .gm-row { padding: 14px; gap: 14px; }
+        .gm-row-icon { width: 40px; height: 40px; font-size: 18px; }
+        .gm-row-tit { font-size: 15px; }
+        .gm-row-meta { font-size: 12.5px; }
+        .gm-azione { padding: 13px; font-size: 13.5px; }
+        /* Le liste respirano: e' lo spazio verticale il motivo per cui la
+           paginazione a 12 stava stretta. */
+        .gm-lista { max-height: 300px; }
+        .gm-voce-tit { font-size: 14px; }
+        .gm-voce-meta { font-size: 12.5px; }
+        .gm-cerca { height: 42px; }
+        .gm-cerca input { font-size: 14px; }
+    }
 
     /* Su telefono diventa un foglio che sale dal basso invece di una card
        centrata: si raggiunge col pollice, e sotto i 400px una card con 16px
