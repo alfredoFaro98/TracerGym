@@ -10,8 +10,12 @@
        year: 2026,
        colorFor: function (dateStr) { ... },   // colore della cella
        labelFor: function (dateStr, giorno, meseBreve) { ... },  // tooltip
-       legend: [c0, c1, c2, c3, c4]   // opzionale, da "Meno" a "Piu'"
+       legend: [c0, c1, c2, c3, c4],  // opzionale, da "Meno" a "Piu'"
+       onDayClick: function (dateStr) { ... }  // opzionale
      });
+
+   `onDayClick` e' opt-in perche' la heatmap la usano cinque pagine: solo la
+   dashboard apre il modale del giorno, le altre restano di sola lettura.
 */
 window.TracerHeatmap = (function () {
     var MONTHS_SHORT = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
@@ -47,6 +51,10 @@ window.TracerHeatmap = (function () {
         container.dataset.hmTipReady = '1';
 
         var tip = document.createElement('div');
+        // La classe serve a chi apre un pannello sopra la heatmap: su telefono
+        // il tap che apre il modale fa scattare anche il mouseover, e senza un
+        // modo per spegnerlo il tooltip resterebbe li' appeso.
+        tip.className = 'hm-tip';
         tip.style.cssText = 'position:fixed;display:none;background:var(--panel,#1b2d34);color:#fff;font-size:11px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:10000;box-shadow:0 6px 16px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);';
         document.body.appendChild(tip);
 
@@ -72,6 +80,18 @@ window.TracerHeatmap = (function () {
         if (scroller) {
             scroller.addEventListener('scroll', function () { tip.style.display = 'none'; });
         }
+    }
+
+    // Come il tooltip: un solo listener sul contenitore invece di uno per
+    // cella (sono 366 sulla vista annuale). La data sta su data-hmdate, cosi'
+    // il gestore non deve ricostruirla dalla posizione nella griglia.
+    function attachClick(container, onDayClick) {
+        if (!onDayClick || container.dataset.hmClickReady) return;
+        container.dataset.hmClickReady = '1';
+        container.addEventListener('click', function (e) {
+            var cell = e.target.closest('[data-hmdate]');
+            if (cell) onDayClick(cell.dataset.hmdate);
+        });
     }
 
     function build(opts) {
@@ -149,6 +169,10 @@ window.TracerHeatmap = (function () {
                 cell.style.background = opts.colorFor(dateStr);
                 cell.setAttribute('data-hmcell', '1');
                 cell.dataset.hmlabel = opts.labelFor(dateStr, day2.getDate(), MONTHS_SHORT[day2.getMonth()]);
+                if (opts.onDayClick) {
+                    cell.dataset.hmdate = dateStr;
+                    cell.style.cursor = 'pointer';
+                }
                 if (dateStr === oggi) cell.style.boxShadow = 'inset 0 0 0 1.5px ' + TODAY_RING;
             } else {
                 cell.style.background = 'transparent';
@@ -164,6 +188,7 @@ window.TracerHeatmap = (function () {
         }
 
         attachTooltip(container);
+        attachClick(container, opts.onDayClick);
     }
 
     function makeLegend(colors, align) {
@@ -228,6 +253,10 @@ window.TracerHeatmap = (function () {
             cell.style.cssText = 'aspect-ratio:1;border-radius:7px;background:' + opts.colorFor(dateStr) + ';';
             cell.setAttribute('data-hmcell', '1');
             cell.dataset.hmlabel = opts.labelFor(dateStr, d, MONTHS_SHORT[month]);
+            if (opts.onDayClick) {
+                cell.dataset.hmdate = dateStr;
+                cell.style.cursor = 'pointer';
+            }
             if (dateStr === oggi) cell.style.boxShadow = 'inset 0 0 0 2px ' + TODAY_RING;
             grid.appendChild(cell);
         }
@@ -238,6 +267,7 @@ window.TracerHeatmap = (function () {
         }
 
         attachTooltip(container);
+        attachClick(container, opts.onDayClick);
     }
 
     return { build: build, buildMonth: buildMonth, accentRgb: accentRgb, MONTHS_SHORT: MONTHS_SHORT };

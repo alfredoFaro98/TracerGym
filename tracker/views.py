@@ -16,6 +16,7 @@ import calendar
 from decimal import Decimal, InvalidOperation
 from datetime import datetime, date, timedelta, time as dt_time
 from django.template.defaultfilters import filesizeformat
+from django.utils.formats import date_format
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib.auth.models import User
@@ -438,6 +439,91 @@ def weekly_sessions_data(request):
         days.append({'date': day_date.strftime('%Y-%m-%d'), 'sessions': sessions_data})
 
     return JsonResponse({'monday': monday.strftime('%Y-%m-%d'), 'sunday': sunday.strftime('%Y-%m-%d'), 'days': days})
+
+
+def _durata_leggibile(minuti):
+    """84 -> "1h 24m", 45 -> "45m", 120 -> "2h". Niente valore, niente stringa."""
+    if not minuti:
+        return ''
+    ore, resto = divmod(int(minuti), 60)
+    if not ore:
+        return f'{resto}m'
+    return f'{ore}h' if not resto else f'{ore}h {resto}m'
+
+
+def _titolo_sessione(session, lingua):
+    """Il nome dato dall'utente, se c'e'. Se no i primi due esercizi, come le
+    pill in dashboard: "Panca piana + Croci" dice molto piu' di "Sessione"."""
+    if session.nome:
+        return session.nome
+    nomi = []
+    for ws in sorted(session.sets.all(), key=lambda w: (w.order or 0, w.id)):
+        nome = ws.exercise.nome_in(lingua)
+        if nome not in nomi:
+            nomi.append(nome)
+        if len(nomi) == 2:
+            break
+    return ' + '.join(nomi) if nomi else 'Sessione vuota'
+
+
+@login_required
+def giorno_dati(request):
+    """Contenuto del modale che si apre cliccando un giorno della heatmap:
+    riepilogo della giornata e sessioni che ci stanno dentro.
+
+    Le frecce del modale navigano ai giorni adiacenti senza chiuderlo, quindi
+    `prev` e `next` viaggiano insieme ai dati invece di essere ricalcolati in
+    JS: cosi' il formato della data lo decide una parte sola."""
+    try:
+        giorno = date.fromisoformat(request.GET.get('data', ''))
+    except ValueError:
+        giorno = timezone.localdate()
+
+    lingua = _lingua_esercizi(request)
+    sessioni = (
+        WorkoutSession.objects
+        .filter(utente=request.user, data=giorno)
+        .prefetch_related('sets__exercise', 'circuits__sets')
+        .order_by('orario', 'id')
+    )
+
+    dati = []
+    serie_totali = 0
+    minuti_totali = 0
+    for s in sessioni:
+        serie = s.real_sets_count()
+        serie_totali += serie
+        minuti_totali += s.durata_minuti or 0
+
+        # Meta come nello schizzo: "18:05 . 26 serie . 54m", saltando i pezzi
+        # che questa sessione non ha invece di stampare campi vuoti.
+        meta = []
+        if s.orario:
+            meta.append(s.orario.strftime('%H:%M'))
+        meta.append(f'{serie} serie' if serie != 1 else '1 serie')
+        durata = _durata_leggibile(s.durata_minuti)
+        if durata:
+            meta.append(durata)
+        if s.luogo:
+            meta.append(s.luogo)
+
+        dati.append({
+            'id': s.id,
+            'titolo': _titolo_sessione(s, lingua),
+            'meta': ' · '.join(meta),
+            'url': reverse('session_detail', args=[s.id]),
+        })
+
+    return JsonResponse({
+        'data': giorno.strftime('%Y-%m-%d'),
+        'label': date_format(giorno, 'l d F').capitalize(),
+        'prev': (giorno - timedelta(days=1)).strftime('%Y-%m-%d'),
+        'next': (giorno + timedelta(days=1)).strftime('%Y-%m-%d'),
+        'serie': serie_totali,
+        'durata': _durata_leggibile(minuti_totali) or '—',
+        'sessioni': dati,
+        'nuova_url': reverse('create_session') + '?data=' + giorno.strftime('%Y-%m-%d'),
+    })
 
 
 @login_required

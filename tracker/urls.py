@@ -49,6 +49,7 @@ urlpatterns = [
     path('impostazioni/', views.impostazioni, name='impostazioni'),
     path('body-map/', views.body_map, name='body_map'),
     path('sessions/week/', views.weekly_sessions_data, name='weekly_sessions_data'),
+    path('giorno/dati/', views.giorno_dati, name='giorno_dati'),
     path('week-training/data/', views.week_training_data, name='week_training_data'),
     path('session/<int:session_id>/circuit/create/', views.create_circuit, name='create_circuit'),
     path('session/<int:session_id>/circuit/import/', views.import_circuit, name='import_circuit'),

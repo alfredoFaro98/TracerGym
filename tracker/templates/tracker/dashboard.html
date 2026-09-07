@@ -766,6 +766,13 @@
     </div>
 </div>
 
+{% comment %}
+Modale del giorno: incluso prima degli script della pagina perche' definisce
+TracerGiorno, che le due chiamate a TracerHeatmap qui sotto passano come
+onDayClick.
+{% endcomment %}
+{% include 'tracker/partials/modale_giorno.html' %}
+
 <!-- Scripts for Cal-Heatmap v3 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
 <script src="{% static 'tracker/year-heatmap.js' %}?v={{ app_version }}"></script>
@@ -947,7 +954,8 @@
                 var count = dataByDate[dateStr] || 0;
                 return giorno + ' ' + mese + ' ' + YEAR + ' — ' + (count === 0 ? 'nessuna serie' : count + ' serie');
             },
-            legend: [0, 1, 2, 3, 4].map(heatmapColorForLevel)
+            legend: [0, 1, 2, 3, 4].map(heatmapColorForLevel),
+            onDayClick: TracerGiorno.apri
         });
 
         // Mobile heatmap (solo 1 mese, navigabile)
@@ -974,7 +982,8 @@
                     var count = dataByDate[dateStr] || 0;
                     return giorno + ' ' + mese + ' ' + anno + ' — ' + (count === 0 ? 'nessuna serie' : count + ' serie');
                 },
-                legend: [0, 1, 2, 3, 4].map(heatmapColorForLevel)
+                legend: [0, 1, 2, 3, 4].map(heatmapColorForLevel),
+                onDayClick: TracerGiorno.apri
             });
         }
 

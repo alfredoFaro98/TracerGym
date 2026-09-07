@@ -1,0 +1,217 @@
+{% comment %}
+Modale del giorno: si apre cliccando una cella della heatmap in dashboard e
+mostra cosa c'e' in quella giornata, con le frecce per scorrere ai giorni
+vicini senza chiudersi.
+
+Il contenuto arriva da `giorno_dati` (JSON) invece che dal contesto della
+pagina: la heatmap copre un anno intero, precaricare le sessioni di 365 giorni
+per un modale che ne mostra uno solo non avrebbe senso.
+
+Chi lo include deve passare `onDayClick: TracerGiorno.apri` a TracerHeatmap.
+{% endcomment %}
+
+<style>
+    /* Sopra il 10000 del tooltip della heatmap: su telefono il tap che apre il
+       modale fa scattare anche il mouseover, e il tooltip resterebbe appeso
+       sopra al pannello. */
+    #giorno-modal { display: none; position: fixed; inset: 0; z-index: 10001; background: rgba(0,0,0,.6); align-items: center; justify-content: center; padding: 16px; }
+    #giorno-modal.open { display: flex; }
+    #giorno-modal-box {
+        width: 420px; max-width: 100%; max-height: 90vh; overflow-y: auto;
+        background: var(--panel); border: 1px solid var(--border); border-radius: 18px;
+        padding: 22px; display: flex; flex-direction: column; gap: 16px;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+    }
+
+    /* Frecce e chiudi: stesso quadratino, cambia solo lo sfondo a riposo. */
+    .gm-icon-btn {
+        width: 28px; height: 28px; border-radius: 8px; border: none;
+        background: rgba(255,255,255,0.06); color: #8b93a3;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; flex-shrink: 0; transition: background .12s, color .12s;
+    }
+    .gm-icon-btn:hover { background: rgba(255,255,255,0.12); color: #f0f0f3; }
+    .gm-close { background: transparent; }
+
+    .gm-data { font-family: 'Space Grotesk', sans-serif; font-size: 17px; font-weight: 700; color: #f0f0f3; }
+
+    /* Riepilogo: le due card prendono l'accent dell'utente, non un arancio
+       fisso, cosi' il modale segue il tema come il resto dell'app. */
+    .gm-stat {
+        flex: 1; background: rgba(var(--acc-rgb),0.12); border: 1px solid rgba(var(--acc-rgb),0.28);
+        border-radius: 12px; padding: 10px 12px; min-width: 0;
+    }
+    .gm-stat-label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--acc-4); text-transform: uppercase; }
+    .gm-stat-val { font-family: 'Space Grotesk', sans-serif; font-size: 17px; font-weight: 700; color: #f0f0f3; margin-top: 2px; }
+
+    .gm-row {
+        display: flex; align-items: center; gap: 12px; text-decoration: none;
+        background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 12px; padding: 12px; transition: background .12s, border-color .12s;
+    }
+    .gm-row:hover { background: rgba(var(--acc-rgb),0.07); border-color: rgba(var(--acc-rgb),0.25); }
+    .gm-row-icon { width: 36px; height: 36px; border-radius: 10px; background: rgba(var(--acc-rgb),0.18); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .gm-row-tit { color: #f0f0f3; font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .gm-row-meta { color: #8b93a3; font-size: 12px; margin-top: 1px; }
+
+    .gm-vuoto { text-align: center; color: #8b93a3; font-size: 13px; padding: 10px 0 2px; }
+
+    /* Col foglio aperto la pagina dietro non deve scorrere: su telefono lo
+       scroll "passa attraverso" l'overlay e si perde il punto in cui si era. */
+    .main-content.gm-lock { overflow: hidden; }
+
+    .gm-azione {
+        flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+        border: 1.5px dashed rgba(255,255,255,0.15); border-radius: 12px; padding: 11px;
+        background: transparent; color: #a2a9b8; font-size: 13px; font-weight: 700;
+        font-family: inherit; text-decoration: none; cursor: pointer; transition: all .12s;
+    }
+    .gm-azione:hover { border-color: rgba(var(--acc-rgb),0.45); color: var(--acc-4); }
+
+    /* Su telefono diventa un foglio che sale dal basso invece di una card
+       centrata: si raggiunge col pollice, e sotto i 400px una card con 16px
+       di margine per lato lascerebbe le righe sessione troppo strette. */
+    @media (max-width: 560px) {
+        #giorno-modal { align-items: flex-end; padding: 0; }
+        #giorno-modal-box {
+            width: 100%; max-width: none; border-radius: 20px 20px 0 0;
+            border-left: none; border-right: none; border-bottom: none;
+            padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+            gap: 13px; max-height: 88vh;
+        }
+        .gm-data { font-size: 15px; }
+        /* Bersagli da pollice: 28px sono comodi col mouse, non col dito. */
+        .gm-icon-btn { width: 36px; height: 36px; }
+        .gm-row { padding: 13px 12px; }
+        .gm-azione { padding: 13px; }
+    }
+
+    /* Il foglio entra scorrendo, la card centrata no: su telefono il
+       movimento dice da dove arriva il pannello. */
+    @media (max-width: 560px) and (prefers-reduced-motion: no-preference) {
+        #giorno-modal.open #giorno-modal-box { animation: gm-su .18s ease-out; }
+        @keyframes gm-su { from { transform: translateY(100%); } to { transform: none; } }
+    }
+</style>
+
+<div id="giorno-modal" onclick="if(event.target===this) TracerGiorno.chiudi();">
+    <div id="giorno-modal-box" role="dialog" aria-modal="true" aria-labelledby="gm-data">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                <button type="button" class="gm-icon-btn" onclick="TracerGiorno.vaiPrev()" title="Giorno precedente" aria-label="Giorno precedente">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </button>
+                <span class="gm-data" id="gm-data"></span>
+                <button type="button" class="gm-icon-btn" onclick="TracerGiorno.vaiNext()" title="Giorno successivo" aria-label="Giorno successivo">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+            </div>
+            <button type="button" class="gm-icon-btn gm-close" onclick="TracerGiorno.chiudi()" title="Chiudi" aria-label="Chiudi">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <div class="gm-stat">
+                <div class="gm-stat-label">Durata tot.</div>
+                <div class="gm-stat-val" id="gm-durata">—</div>
+            </div>
+            <div class="gm-stat">
+                <div class="gm-stat-label">Serie</div>
+                <div class="gm-stat-val" id="gm-serie">0</div>
+            </div>
+        </div>
+
+        <div id="gm-sessioni" style="display: flex; flex-direction: column; gap: 8px;"></div>
+
+        <div style="display: flex; gap: 8px;">
+            <a id="gm-nuova" class="gm-azione" href="#">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Nuova sessione
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+window.TracerGiorno = (function () {
+    var overlay = document.getElementById('giorno-modal');
+    var dataCorrente = null;
+    var prevData = null;
+    var nextData = null;
+
+    var CHEVRON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5a6272" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+
+    function esc(testo) {
+        var d = document.createElement('div');
+        d.textContent = testo == null ? '' : testo;
+        return d.innerHTML;
+    }
+
+    function disegna(d) {
+        dataCorrente = d.data;
+        prevData = d.prev;
+        nextData = d.next;
+
+        document.getElementById('gm-data').textContent = d.label;
+        document.getElementById('gm-durata').textContent = d.durata;
+        document.getElementById('gm-serie').textContent = d.serie;
+        document.getElementById('gm-nuova').href = d.nuova_url;
+
+        var lista = document.getElementById('gm-sessioni');
+        if (!d.sessioni.length) {
+            lista.innerHTML = '<div class="gm-vuoto">Nessuna sessione in questo giorno.</div>';
+            return;
+        }
+        lista.innerHTML = d.sessioni.map(function (s) {
+            return '<a class="gm-row" href="' + esc(s.url) + '">' +
+                '<div class="gm-row-icon">🏋️</div>' +
+                '<div style="flex: 1; min-width: 0;">' +
+                    '<div class="gm-row-tit">' + esc(s.titolo) + '</div>' +
+                    '<div class="gm-row-meta">' + esc(s.meta) + '</div>' +
+                '</div>' + CHEVRON +
+            '</a>';
+        }).join('');
+    }
+
+    function carica(dateStr) {
+        return fetch('{% url "giorno_dati" %}?data=' + encodeURIComponent(dateStr), {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        }).then(function (r) { return r.json(); }).then(disegna);
+    }
+
+    function scroller() { return document.querySelector('.main-content'); }
+
+    function apri(dateStr) {
+        // Il tooltip della cella e' rimasto acceso dal tap che ci ha portati
+        // qui: senza mouseout non si spegnerebbe da solo.
+        document.querySelectorAll('.hm-tip').forEach(function (t) { t.style.display = 'none'; });
+        overlay.classList.add('open');
+        var sc = scroller();
+        if (sc) sc.classList.add('gm-lock');
+        carica(dateStr);
+    }
+
+    function chiudi() {
+        overlay.classList.remove('open');
+        var sc = scroller();
+        if (sc) sc.classList.remove('gm-lock');
+    }
+
+    function vaiPrev() { if (prevData) carica(prevData); }
+    function vaiNext() { if (nextData) carica(nextData); }
+
+    document.addEventListener('keydown', function (e) {
+        if (!overlay.classList.contains('open')) return;
+        if (e.key === 'Escape') chiudi();
+        // Frecce per scorrere i giorni, ma non mentre si scrive in un campo:
+        // nel pannello import (e in una futura ricerca) servono a muovere il
+        // cursore nel testo.
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.key === 'ArrowLeft') vaiPrev();
+        if (e.key === 'ArrowRight') vaiNext();
+    });
+
+    return { apri: apri, chiudi: chiudi, vaiPrev: vaiPrev, vaiNext: vaiNext };
+})();
+</script>
