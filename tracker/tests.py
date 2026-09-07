@@ -769,3 +769,40 @@ class PassiGiornoTest(TestCase):
 
         self.assertFalse(PassiGiorno.objects.exists())
         self.assertFalse(UserProfile.objects.filter(obiettivo_passi=12000).exists())
+
+
+class GiornoDatiTest(TestCase):
+    """Dati del modale che si apre da una cella della heatmap.
+
+    La casella in alto conta le sessioni del giorno invece di sommarne la
+    durata: la durata di ciascuna sta gia' nella riga che la descrive, il
+    totale non lo leggeva nessuno.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='tester', password='x')
+        self.client.force_login(self.user)
+        self.oggi = timezone.localdate()
+
+    def _dati(self, giorno=None):
+        risposta = self.client.get(reverse('giorno_dati'), {
+            'data': (giorno or self.oggi).isoformat(),
+        })
+        self.assertEqual(risposta.status_code, 200)
+        return risposta.json()
+
+    def test_un_giorno_vuoto_non_ha_sessioni(self):
+        self.assertEqual(self._dati()['sessioni'], [])
+
+    def test_le_sessioni_del_giorno_arrivano_tutte(self):
+        for _ in range(3):
+            WorkoutSession.objects.create(utente=self.user, data=self.oggi)
+        WorkoutSession.objects.create(utente=self.user, data=self.oggi - timedelta(days=1))
+
+        self.assertEqual(len(self._dati()['sessioni']), 3)
+
+    def test_non_si_contano_le_sessioni_di_un_altro(self):
+        altro = User.objects.create_user(username='altro', password='x')
+        WorkoutSession.objects.create(utente=altro, data=self.oggi)
+
+        self.assertEqual(self._dati()['sessioni'], [])

@@ -108,22 +108,41 @@ Chi lo include deve passare `onDayClick: TracerGiorno.apri` a TracerHeatmap.
     .gm-importa:hover { background: rgba(var(--acc-rgb),0.26); }
     .gm-importa[disabled] { opacity: .5; cursor: default; }
 
-    /* Percentuale peso: gli stessi chip della pagina sessione, cosi' importare
-       da qui o da li' non e' un'altra funzione. */
-    .gm-pct { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-    .gm-pct-lab { font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #8b93a3; text-transform: uppercase; }
-    .gm-chip {
-        padding: 4px 9px; border-radius: 6px; font-size: 11.5px; font-weight: 700;
-        background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-        color: #a2a9b8; font-family: inherit; cursor: pointer; transition: all .12s;
+    /* Percentuale peso: una barra invece dei quattro chip. I chip davano solo
+       i valori che qualcuno aveva scelto in anticipo; qui la percentuale si
+       trascina, e il numero a destra dice sempre dove sei finito. */
+    .gm-pct { display: flex; align-items: center; gap: 10px; }
+    .gm-pct-lab { font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #8b93a3; text-transform: uppercase; flex-shrink: 0; }
+    .gm-pct-val {
+        font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 700;
+        color: var(--acc-4); min-width: 46px; text-align: right; flex-shrink: 0;
+        font-variant-numeric: tabular-nums;
     }
-    .gm-chip:hover { border-color: rgba(var(--acc-rgb),0.4); color: #f0f0f3; }
-    .gm-chip.on { background: rgba(var(--acc-rgb),0.16); border-color: rgba(var(--acc-rgb),0.4); color: var(--acc-4); }
-    .gm-pct input {
-        width: 58px; padding: 4px 6px; background: var(--sunken); border: 1px solid var(--border);
-        border-radius: 6px; color: #f0f0f3; font-family: 'JetBrains Mono', monospace;
-        font-size: 12px; font-weight: 600; text-align: center; outline: none;
+    .gm-range {
+        flex: 1; min-width: 0; height: 18px; margin: 0; padding: 0;
+        background: transparent; -webkit-appearance: none; appearance: none;
+        cursor: pointer; outline: none;
     }
+    /* La traccia va disegnata due volte: WebKit e Gecko non condividono
+       nessuno degli pseudo-elementi di input[type=range]. */
+    .gm-range::-webkit-slider-runnable-track {
+        height: 4px; border-radius: 2px;
+        background: linear-gradient(to right, var(--acc) 0%, var(--acc) var(--fill, 0%), rgba(255,255,255,0.09) var(--fill, 0%), rgba(255,255,255,0.09) 100%);
+    }
+    .gm-range::-moz-range-track { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.09); }
+    .gm-range::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--acc); }
+    .gm-range::-webkit-slider-thumb {
+        -webkit-appearance: none; appearance: none; width: 14px; height: 14px; margin-top: -5px;
+        border-radius: 50%; background: #f0f0f3; border: 2px solid var(--acc);
+        box-shadow: 0 1px 4px rgba(0,0,0,.4); transition: transform .12s;
+    }
+    .gm-range::-moz-range-thumb {
+        width: 14px; height: 14px; border-radius: 50%; background: #f0f0f3;
+        border: 2px solid var(--acc); box-shadow: 0 1px 4px rgba(0,0,0,.4);
+        transition: transform .12s;
+    }
+    .gm-range:hover::-webkit-slider-thumb, .gm-range:focus-visible::-webkit-slider-thumb { transform: scale(1.15); }
+    .gm-range:hover::-moz-range-thumb, .gm-range:focus-visible::-moz-range-thumb { transform: scale(1.15); }
 
     .gm-paginazione { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 11.5px; color: #8b93a3; }
     .gm-pag-btn { background: rgba(255,255,255,0.06); border: none; border-radius: 6px; color: #a2a9b8; font-family: inherit; font-size: 12px; padding: 4px 9px; cursor: pointer; }
@@ -205,8 +224,8 @@ Chi lo include deve passare `onDayClick: TracerGiorno.apri` a TracerHeatmap.
 
         <div style="display: flex; gap: 10px;">
             <div class="gm-stat">
-                <div class="gm-stat-label">Durata tot.</div>
-                <div class="gm-stat-val" id="gm-durata">—</div>
+                <div class="gm-stat-label">Sessioni</div>
+                <div class="gm-stat-val" id="gm-sessioni-num">0</div>
             </div>
             <div class="gm-stat">
                 <div class="gm-stat-label">Serie</div>
@@ -263,7 +282,7 @@ window.TracerGiorno = (function () {
         nextData = d.next;
 
         document.getElementById('gm-data').textContent = d.label;
-        document.getElementById('gm-durata').textContent = d.durata;
+        document.getElementById('gm-sessioni-num').textContent = d.sessioni.length;
         document.getElementById('gm-serie').textContent = d.serie;
         document.getElementById('gm-nuova').href = d.nuova_url;
 
@@ -302,7 +321,7 @@ window.TracerGiorno = (function () {
 
     var atletaScelto = null;
     var pesoPct = 100;
-    var PCT = [100, 125, 150, 200];
+    var PCT_MIN = 20, PCT_MAX = 200, PCT_STEP = 5;
     // Un contatore invece di AbortController: basta ignorare la risposta di una
     // ricerca vecchia che arriva dopo una piu' recente.
     var richiesta = 0;
@@ -401,11 +420,9 @@ window.TracerGiorno = (function () {
             '</div>' +
             '<div class="gm-pct" style="margin-top: 8px;">' +
                 '<span class="gm-pct-lab">Peso</span>' +
-                PCT.map(function (p) {
-                    return '<button type="button" class="gm-chip" data-pct="' + p + '">' + p + '%</button>';
-                }).join('') +
-                '<input id="gm-pct-input" type="number" min="20" max="200" step="5" value="' + pesoPct + '">' +
-                '<span class="gm-pct-lab">%</span>' +
+                '<input id="gm-pct-range" class="gm-range" type="range" min="' + PCT_MIN + '" max="' + PCT_MAX + '" step="' + PCT_STEP + '" value="' + pesoPct + '"' +
+                    ' aria-label="Percentuale del peso da importare">' +
+                '<span class="gm-pct-val" id="gm-pct-val">' + pesoPct + '%</span>' +
             '</div>';
 
         document.getElementById('gm-indietro').addEventListener('click', mostraRicerca);
@@ -413,25 +430,23 @@ window.TracerGiorno = (function () {
         var filtro = document.getElementById('gm-q-sess');
         filtro.addEventListener('input', function () { apriAtleta(username, 1, filtro.value); });
 
-        var campoPct = document.getElementById('gm-pct-input');
-        campoPct.addEventListener('input', function () { impostaPct(campoPct.value, false); });
-        aggiornaChip();
+        var barra = document.getElementById('gm-pct-range');
+        barra.addEventListener('input', function () { impostaPct(barra.value); });
+        impostaPct(pesoPct);
     }
 
-    function impostaPct(valore, scriviCampo) {
+    function impostaPct(valore) {
         var n = parseFloat(valore);
-        pesoPct = isNaN(n) ? 100 : Math.max(20, Math.min(200, n));
-        if (scriviCampo) {
-            var campo = document.getElementById('gm-pct-input');
-            if (campo) campo.value = pesoPct;
+        pesoPct = isNaN(n) ? 100 : Math.max(PCT_MIN, Math.min(PCT_MAX, n));
+        var barra = document.getElementById('gm-pct-range');
+        if (barra) {
+            barra.value = pesoPct;
+            // WebKit non ha una traccia "gia' percorsa": gliela dipinge il
+            // gradiente della traccia, e questa variabile dice dove tagliarlo.
+            barra.style.setProperty('--fill', ((pesoPct - PCT_MIN) / (PCT_MAX - PCT_MIN) * 100) + '%');
         }
-        aggiornaChip();
-    }
-
-    function aggiornaChip() {
-        testa.querySelectorAll('.gm-chip').forEach(function (c) {
-            c.classList.toggle('on', parseFloat(c.dataset.pct) === pesoPct);
-        });
+        var etichetta = document.getElementById('gm-pct-val');
+        if (etichetta) etichetta.textContent = pesoPct + '%';
     }
 
     function disegnaSessioniAtleta(d) {
@@ -501,9 +516,6 @@ window.TracerGiorno = (function () {
     pannello.addEventListener('click', function (e) {
         var voce = e.target.closest('[data-atleta]');
         if (voce) { apriAtleta(voce.dataset.atleta, 1, ''); return; }
-
-        var chip = e.target.closest('.gm-chip');
-        if (chip) { impostaPct(chip.dataset.pct, true); return; }
 
         var btn = e.target.closest('[data-importa]');
         if (btn) importa(btn.dataset.importa, btn);

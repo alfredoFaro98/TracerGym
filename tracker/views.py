@@ -489,11 +489,9 @@ def giorno_dati(request):
 
     dati = []
     serie_totali = 0
-    minuti_totali = 0
     for s in sessioni:
         serie = s.real_sets_count()
         serie_totali += serie
-        minuti_totali += s.durata_minuti or 0
 
         # Meta come nello schizzo: "18:05 . 26 serie . 54m", saltando i pezzi
         # che questa sessione non ha invece di stampare campi vuoti.
@@ -520,7 +518,6 @@ def giorno_dati(request):
         'prev': (giorno - timedelta(days=1)).strftime('%Y-%m-%d'),
         'next': (giorno + timedelta(days=1)).strftime('%Y-%m-%d'),
         'serie': serie_totali,
-        'durata': _durata_leggibile(minuti_totali) or '—',
         'sessioni': dati,
         'nuova_url': reverse('create_session') + '?data=' + giorno.strftime('%Y-%m-%d'),
     })
