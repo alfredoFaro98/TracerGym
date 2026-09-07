@@ -416,6 +416,26 @@ class SleepEntry(models.Model):
         return f"{self.utente.username} - {self.data} ({self.qualita})"
 
 
+class PassiGoal(models.Model):
+    """Obiettivo passi di una giornata specifica (override rispetto al default
+    su UserProfile), stessa idea di WaterGoal e MacroGoal.
+
+    Senza questo l'obiettivo era un solo numero globale e retroattivo: alzarlo
+    ricoloriva la heatmap all'indietro su tutto l'anno, e un mese chiuso a
+    8.500 passi con obiettivo 8.000 diventava rosso a posteriori.
+    """
+    utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='passi_goals')
+    data = models.DateField(default=timezone.now)
+    obiettivo_passi = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ['-data']
+        unique_together = ('utente', 'data')
+
+    def __str__(self):
+        return f"{self.utente.username} - {self.data} - {self.obiettivo_passi} passi"
+
+
 class PassiGiorno(models.Model):
     """Passi camminati in una giornata.
 

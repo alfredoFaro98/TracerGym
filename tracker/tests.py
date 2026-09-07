@@ -1282,3 +1282,149 @@ class GraficiResponsiveTest(TestCase):
                     tag, r'height:\s*\d',
                     'il contenitore del canvas in %s non ha un altezza propria '
                     '(%s)' % (percorso, tag[:120]))
+
+
+class ImportDaAtletaTest(TestCase):
+    """Pannello "importa sessione" del modale del giorno.
+
+    Il caso piu' comune e' rifare un proprio allenamento di qualche settimana
+    fa, che prima non si poteva: la ricerca escludeva se stessi e l'import
+    rispondeva "Non puoi importare una tua sessione". Restava solo uscire dal
+    modale e andare a cercarsela.
+    """
+
+    AJAX = {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+
+    def setUp(self):
+        self.io = User.objects.create_user(username='aaa_io', password='x')
+        # Il nome viene dopo il mio in alfabeto: serve a distinguere
+        # "e' in cima perche' sono io" da "e' in cima per il nome".
+        self.pubblico = User.objects.create_user(username='zzz_pubblico', password='x')
+        self.privato = User.objects.create_user(username='zzz_privato', password='x')
+        for u, pubblico in ((self.io, False), (self.pubblico, True), (self.privato, False)):
+            p, _ = UserProfile.objects.get_or_create(user=u)
+            p.is_public = pubblico
+            p.save()
+        self.oggi = timezone.localdate()
+        self.client.force_login(self.io)
+
+    def _sessione(self, utente, peso=100):
+        s = WorkoutSession.objects.create(
+            utente=utente, data=self.oggi - timedelta(days=30), nome='Petto')
+        es, _ = Exercise.objects.get_or_create(nome='Panca piana')
+        WorkoutSet.objects.create(session=s, exercise=es, reps=8, weight=peso, order=1)
+        return s
+
+    def _cerca(self, q=''):
+        r = self.client.get(reverse('atleti_cerca'), {'q': q}, **self.AJAX)
+        self.assertEqual(r.status_code, 200)
+        return r.json()['atleti']
+
+    # --- chi si vede nella ricerca ---
+    def test_mi_vedo_fra_gli_atleti(self):
+        atleti = self._cerca()
+        self.assertIn('aaa_io', [a['username'] for a in atleti])
+
+    def test_sono_il_primo_della_lista(self):
+        """Anche quando l'alfabeto direbbe altro: la propria e' la voce cercata."""
+        mio = User.objects.create_user(username='zzz_ultimo', password='x')
+        p, _ = UserProfile.objects.get_or_create(user=mio)
+        p.is_public = False
+        p.save()
+        self.client.force_login(mio)
+
+        atleti = self._cerca()
+
+        self.assertEqual(atleti[0]['username'], 'zzz_ultimo')
+        self.assertTrue(atleti[0]['io'])
+        self.assertFalse(atleti[1]['io'])
+
+    def test_mi_vedo_anche_col_profilo_privato(self):
+        """is_public dice cosa vedono gli altri di me, non cosa vedo io."""
+        self.assertFalse(UserProfile.objects.get(user=self.io).is_public)
+        self.assertIn('aaa_io', [a['username'] for a in self._cerca()])
+
+    def test_gli_altri_privati_restano_nascosti(self):
+        nomi = [a['username'] for a in self._cerca()]
+        self.assertIn('zzz_pubblico', nomi)
+        self.assertNotIn('zzz_privato', nomi)
+
+    def test_il_superuser_vede_tutti_se_compreso(self):
+        capo = User.objects.create_superuser(username='capo', password='x')
+        self.client.force_login(capo)
+        nomi = [a['username'] for a in self._cerca()]
+        for atteso in ('capo', 'aaa_io', 'zzz_pubblico', 'zzz_privato'):
+            self.assertIn(atteso, nomi)
+
+    def test_la_ricerca_per_nome_trova_anche_me(self):
+        self.assertEqual([a['username'] for a in self._cerca('aaa')], ['aaa_io'])
+
+    def test_il_conteggio_sessioni_e_il_mio(self):
+        self._sessione(self.io)
+        self._sessione(self.io)
+        mio = [a for a in self._cerca() if a['io']][0]
+        self.assertEqual(mio['n_sessioni'], 2)
+
+    # --- sfogliare le proprie sessioni ---
+    def test_posso_sfogliare_le_mie_sessioni(self):
+        sess = self._sessione(self.io)
+        r = self.client.get(reverse('atleta_sessioni', args=['aaa_io']), **self.AJAX)
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(any(s['id'] == sess.id for s in r.json()['sessioni']))
+
+    def test_le_sessioni_di_un_privato_restano_chiuse(self):
+        self._sessione(self.privato)
+        r = self.client.get(reverse('atleta_sessioni', args=['zzz_privato']), **self.AJAX)
+        self.assertEqual(r.status_code, 404)
+
+    # --- importare ---
+    def test_importo_una_mia_sessione_sul_giorno_scelto(self):
+        sess = self._sessione(self.io, peso=100)
+
+        r = self.client.post(
+            reverse('import_session_from_user', args=['aaa_io', sess.id]),
+            {'data': self.oggi.isoformat(), 'weight_pct': '90'}, **self.AJAX)
+
+        self.assertEqual(r.status_code, 200, r.content[:300])
+        dati = r.json()
+        self.assertTrue(dati['ok'])
+        nuova = WorkoutSession.objects.get(id=dati['session_id'])
+        self.assertEqual(nuova.utente, self.io)
+        self.assertEqual(nuova.data, self.oggi)
+        self.assertEqual(float(nuova.sets.get().weight), 90.0)
+        # L'originale resta dov'era.
+        sess.refresh_from_db()
+        self.assertEqual(sess.data, self.oggi - timedelta(days=30))
+
+    def test_importare_da_se_non_tocca_l_originale(self):
+        sess = self._sessione(self.io)
+        self.client.post(reverse('import_session_from_user', args=['aaa_io', sess.id]),
+                         {'data': self.oggi.isoformat()}, **self.AJAX)
+        self.assertEqual(WorkoutSession.objects.filter(utente=self.io).count(), 2)
+
+    def test_non_importo_la_sessione_di_un_privato(self):
+        sess = self._sessione(self.privato)
+        r = self.client.post(
+            reverse('import_session_from_user', args=['zzz_privato', sess.id]),
+            {'data': self.oggi.isoformat()}, **self.AJAX)
+        self.assertEqual(r.status_code, 400)
+        self.assertEqual(WorkoutSession.objects.filter(utente=self.io).count(), 0)
+
+    def test_importo_da_un_atleta_pubblico(self):
+        sess = self._sessione(self.pubblico)
+        r = self.client.post(
+            reverse('import_session_from_user', args=['zzz_pubblico', sess.id]),
+            {'data': self.oggi.isoformat()}, **self.AJAX)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(WorkoutSession.objects.filter(utente=self.io).count(), 1)
+
+    def test_lo_username_e_unico(self):
+        """Le rotte dell'import indirizzano l'atleta per username.
+
+        Regge perche' il campo e' unico a livello di database: due utenti con
+        lo stesso nome non possono esistere, quindi non c'e' modo di importare
+        dalla persona sbagliata.
+        """
+        self.assertTrue(User._meta.get_field('username').unique)
+        with self.assertRaises(Exception):
+            User.objects.create_user(username='aaa_io', password='x')

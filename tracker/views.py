@@ -2076,13 +2076,20 @@ def session_view(request, username, session_id):
 
 
 def _atleti_visibili(request):
-    """Gli atleti da cui si puo' importare: pubblici per tutti, tutti per il
-    superuser, mai se stessi. Stesse regole di `user_list`, che resta la
-    pagina "sfoglia gli altri": qui servono solo per la ricerca del modale."""
-    qs = User.objects.exclude(id=request.user.id)
-    if not request.user.is_superuser:
-        qs = qs.filter(profile__is_public=True)
-    return qs
+    """Gli atleti da cui si puo' importare: se stessi, gli altri se pubblici,
+    chiunque per il superuser.
+
+    Se stessi ci sono perche' il caso piu' comune e' rifare un proprio
+    allenamento di qualche settimana fa, e prima per farlo bisognava uscire
+    dal modale e andare a cercarsi la sessione. Ci sono a prescindere da
+    is_public: quel flag dice cosa vedono gli altri di te, non cosa vedi tu.
+
+    `user_list` resta la pagina "sfoglia gli altri" e ha le sue regole: questa
+    serve solo alla ricerca del modale del giorno."""
+    if request.user.is_superuser:
+        return User.objects.all()
+    return User.objects.filter(
+        models.Q(id=request.user.id) | models.Q(profile__is_public=True))
 
 
 @login_required
@@ -2095,10 +2102,21 @@ def atleti_cerca(request):
 
     # Il conteggio sessioni sta accanto al nome nella lista: annotato, se no
     # sarebbe una query per riga.
-    atleti = atleti.annotate(n_sessioni=models.Count('workout_sessions')).order_by('username')[:20]
+    # L'ordinamento mette se stessi in cima, e va fatto nella query: la lista
+    # e' tagliata a 20, e ordinando dopo il taglio uno con tanti atleti
+    # pubblici davanti in alfabeto non si troverebbe piu'.
+    atleti = atleti.annotate(
+        n_sessioni=models.Count('workout_sessions'),
+        e_mio=models.Case(
+            models.When(id=request.user.id, then=0),
+            default=1,
+            output_field=models.IntegerField(),
+        ),
+    ).order_by('e_mio', 'username')[:20]
 
     return JsonResponse({'atleti': [
-        {'username': a.username, 'n_sessioni': a.n_sessioni} for a in atleti
+        {'username': a.username, 'n_sessioni': a.n_sessioni, 'io': a.e_mio == 0}
+        for a in atleti
     ]})
 
 
@@ -2171,12 +2189,11 @@ def import_session_from_user(request, username, session_id):
 
     target_user = get_object_or_404(User, username=username)
 
-    if request.user == target_user:
-        return rifiuta('Non puoi importare una tua sessione.',
-                       redirect('session_view', username=username, session_id=session_id))
-
+    # Anche da se stessi: rifare un proprio allenamento e' il motivo piu'
+    # comune per aprire questo pannello. La propria sessione si vede sempre,
+    # anche a profilo privato: is_public riguarda gli altri.
     profile, _ = UserProfile.objects.get_or_create(user=target_user)
-    can_view = request.user.is_superuser or profile.is_public
+    can_view = request.user == target_user or request.user.is_superuser or profile.is_public
     if not can_view:
         return rifiuta("Questo profilo non e' pubblico.",
                        redirect('user_profile', username=username))

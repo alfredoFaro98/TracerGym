@@ -98,6 +98,13 @@ Chi lo include deve passare `onDayClick: TracerGiorno.apri` a TracerHeatmap.
     .gm-voce:hover { background: rgba(var(--acc-rgb),0.10); }
     .gm-voce-tit { color: #f0f0f3; font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .gm-voce-meta { color: #8b93a3; font-size: 11.5px; }
+    .gm-io {
+        font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+        color: var(--acc-4); background: rgba(var(--acc-rgb),0.16);
+        border: 1px solid rgba(var(--acc-rgb),0.32);
+        padding: 1px 6px; border-radius: 5px; margin-left: 6px; flex-shrink: 0;
+        vertical-align: middle;
+    }
     .gm-avatar { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
 
     .gm-importa {
@@ -266,6 +273,7 @@ window.TracerGiorno = (function () {
     // invece di incollare a mano '/users/' + nome nel JS: se un giorno la
     // rotta cambia, cambia in un posto solo.
     var URL_SESSIONI = '{% url "atleta_sessioni" username="__u__" %}';
+    var MIO_USERNAME = '{{ request.user.username|escapejs }}';
     var URL_IMPORT = '{% url "import_session_from_user" username="__u__" session_id=0 %}'.replace('/0/', '/__s__/');
 
     var CHEVRON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5a6272" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"></polyline></svg>';
@@ -373,7 +381,8 @@ window.TracerGiorno = (function () {
                 return '<button type="button" class="gm-voce" data-atleta="' + esc(a.username) + '">' +
                     '<span class="gm-avatar">&#129485;</span>' +
                     '<span style="flex: 1; min-width: 0;">' +
-                        '<span class="gm-voce-tit" style="display: block;">' + esc(a.username) + '</span>' +
+                        '<span class="gm-voce-tit" style="display: block;">' + esc(a.username) +
+                            (a.io ? '<span class="gm-io">tu</span>' : '') + '</span>' +
                         '<span class="gm-voce-meta">' + a.n_sessioni + (a.n_sessioni === 1 ? ' sessione' : ' sessioni') + '</span>' +
                     '</span>' + CHEVRON +
                 '</button>';
@@ -413,7 +422,8 @@ window.TracerGiorno = (function () {
                     '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"></polyline></svg>' +
                 '</button>' +
                 '<span class="gm-avatar" style="width: 26px; height: 26px; font-size: 13px;">&#129485;</span>' +
-                '<span class="gm-voce-tit" style="flex: 1;">' + esc(username) + '</span>' +
+                '<span class="gm-voce-tit" style="flex: 1;">' + esc(username) +
+                    (username === MIO_USERNAME ? '<span class="gm-io">tu</span>' : '') + '</span>' +
             '</div>' +
             '<div class="gm-cerca" style="margin-top: 8px;">' + LENTE +
                 '<input id="gm-q-sess" type="search" placeholder="Filtra le sue sessioni..." autocomplete="off">' +
