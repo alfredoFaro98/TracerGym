@@ -4,7 +4,9 @@ Un workout tracker personale, costruito un pezzo alla volta attorno a come si al
 
 Non è pensato per "gamificare" l'allenamento o inondarti di statistiche. È pensato per essere il quaderno digitale che tieni in palestra: veloce da aggiornare tra una serie e l'altra, capace di ricordare tutto quello che scrivi, e onesto sui limiti di quello che non sa ancora fare.
 
-![Login di Tracer](screenreadme/login.png)
+<p align="center">
+  <img src="screenreadme/login.png" alt="Login di Tracer" width="820">
+</p>
 
 ---
 
@@ -46,7 +48,9 @@ Attorno alla sessione, col tempo, si sono aggiunte le cose che l'allenamento da 
 
 ## Funzionalità
 
-![Dashboard di Tracer](screenreadme/home.png)
+<p align="center">
+  <img src="screenreadme/home.png" alt="Dashboard di Tracer" width="880">
+</p>
 
 ### Allenamenti
 
@@ -67,7 +71,9 @@ Ogni esercizio ha un nome, una tipologia, dei tag muscolari e, opzionalmente, im
 
 ### Il modale del giorno
 
-![Modale del giorno con il pannello di import](screenreadme/giorno-modale.png)
+<p align="center">
+  <img src="screenreadme/giorno-modale.png" alt="Modale del giorno con il pannello di import" width="470">
+</p>
 
 Cliccando una giornata nella heatmap si apre un modale che riassume quel giorno — quante sessioni, quante serie — e da lì si può entrare nella sessione, crearne una nuova, oppure **importarne una già fatta**.
 
@@ -79,7 +85,9 @@ Log giornaliero dell'acqua bevuta, con obiettivo personalizzabile (anche per sin
 
 ### Alimentazione
 
-![Widget delle calorie e dei macro](screenreadme/kcal-widget.png)
+<p align="center">
+  <img src="screenreadme/kcal-widget.png" alt="Widget delle calorie e dei macro" width="440">
+</p>
 
 Registro dei pasti giorno per giorno: calorie, proteine, carboidrati, grassi e fibre, con una nota per ricordarsi cos'era. Ogni voce può essere segnata come **spazzatura**, così il conto settimanale degli sgarri è un dato e non una sensazione.
 
@@ -91,7 +99,9 @@ La pagina lavora senza ricaricamenti — aggiunta, modifica, duplicazione, elimi
 
 ### Sonno
 
-![Pagina Sonno](screenreadme/sonno.png)
+<p align="center">
+  <img src="screenreadme/sonno.png" alt="Pagina Sonno" width="300">
+</p>
 
 Una voce per notte: ora in cui sei andato a letto, ora della sveglia e una qualità tra scarsa, media, buona e ottima. La durata la calcola l'app, gestendo da sola le notti a cavallo di mezzanotte.
 
