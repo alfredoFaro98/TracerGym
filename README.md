@@ -15,10 +15,15 @@ Non è pensato per "gamificare" l'allenamento o inondarti di statistiche. È pen
   - [Allenamenti](#allenamenti)
   - [Catalogo esercizi](#catalogo-esercizi)
   - [Dashboard](#dashboard)
+  - [Il modale del giorno](#il-modale-del-giorno)
   - [Acqua](#acqua)
+  - [Alimentazione](#alimentazione)
+  - [Sonno](#sonno)
+  - [Attività e passi](#attività-e-passi)
   - [Integratori](#integratori)
   - [Misurazioni](#misurazioni)
   - [Atleti e profili](#atleti-e-profili)
+  - [Impostazioni](#impostazioni)
   - [Backup](#backup)
 - [Com'è fatto](#comè-fatto)
 - [Avvio in locale](#avvio-in-locale)
@@ -37,6 +42,8 @@ Ogni esercizio che scrivi viene raggruppato automaticamente: espandendolo vedi t
 
 Una sessione, oltre alle serie, può portare con sé il contorno che la rende un ricordo e non solo un log: dove ti sei allenato, a che ora, quanto è durata, il tuo peso corporeo quel giorno, il nome che le dai, e con chi.
 
+Attorno alla sessione, col tempo, si sono aggiunte le cose che l'allenamento da solo non spiega: quanto hai bevuto, quanto hai mangiato, quanto hai dormito, quanto hai camminato. Sono pagine separate, ognuna con la sua logica, ma con lo stesso principio di fondo: una voce al giorno, veloce da scrivere, e nessun obiettivo retroattivo che riscrive il passato quando cambi idea sul presente.
+
 ## Funzionalità
 
 ![Dashboard di Tracer](screenreadme/home.png)
@@ -47,18 +54,56 @@ Aggiunta rapida delle serie con autocomplete sugli esercizi già catalogati, mod
 
 ### Catalogo esercizi
 
-Ogni esercizio ha un nome, una tipologia, dei tag muscolari e, opzionalmente, immagini o animazioni di riferimento. Una **mappa del corpo umano interattiva** permette di navigare gli esercizi per gruppo muscolare invece che per nome, mostrando i primi risultati con un link per vedere il resto nel catalogo completo.
+Ogni esercizio ha un nome, una tipologia, dei tag muscolari e, opzionalmente, immagini o animazioni di riferimento. Una **mappa del corpo umano interattiva** permette di navigare gli esercizi per gruppo muscolare invece che per nome, mostrando i primi risultati con un link per vedere il resto nel catalogo completo. I nomi si possono leggere in italiano o in inglese: il catalogo resta uno solo, cambia soltanto il campo che viene mostrato.
 
 ### Dashboard
 
-- **Settimana**: la striscia dei 7 giorni mostra, per ogni giorno selezionato, i muscoli lavorati davvero (dedotti dalle serie fatte, non da un piano teorico) e permette di creare al volo una nuova sessione per quel giorno o aprire quella già esistente.
-- **Heatmap annuale**: colpo d'occhio sulla costanza degli allenamenti mese per mese, con navigazione tra gli anni.
+- **Heatmap annuale**: colpo d'occhio sulla costanza degli allenamenti mese per mese, con navigazione tra gli anni. Ogni cella è cliccabile e apre il modale di quella giornata.
+- **Acqua di oggi**: quanto hai bevuto rispetto all'obiettivo, con le aggiunte rapide direttamente in dashboard.
+- **Kcal di oggi**: calorie e macro della giornata rispetto agli obiettivi, una barra per ciascuno.
+- **Questa settimana**: la striscia dei 7 giorni mostra, per ogni giorno selezionato, i muscoli lavorati davvero (dedotti dalle serie fatte, non da un piano teorico) e gli esercizi della sessione di quel giorno, con la possibilità di crearne al volo una nuova o aprire quella già esistente.
 - **Andamento peso per esercizio**: grafico nel tempo del peso sollevato su un movimento specifico.
 - **Programmazione settimanale**: riepilogo esteso della settimana corrente giorno per giorno, esportabile in PDF per chi la stampa o la condivide con un trainer.
+
+### Il modale del giorno
+
+![Modale del giorno con il pannello di import](screenreadme/giorno-modale.png)
+
+Cliccando una giornata nella heatmap si apre un modale che riassume quel giorno — quante sessioni, quante serie — e da lì si può entrare nella sessione, crearne una nuova, oppure **importarne una già fatta**.
+
+Il pannello di import cerca tra gli atleti con profilo pubblico e tra le proprie sessioni passate (rifare un proprio allenamento è il caso più frequente, quindi si compare in cima alla lista), filtra le sessioni per nome o per esercizio contenuto, e prima di copiare permette di **riscalare i carichi con uno slider**, dal 20% al 200%. Importare la scheda di qualcun altro senza toccare i pesi ha senso solo se vi allenate uguale; con lo slider la sessione arriva già adattata. Le frecce in alto navigano ai giorni adiacenti senza chiudere il modale.
 
 ### Acqua
 
 Log giornaliero dell'acqua bevuta, con obiettivo personalizzabile (anche per singola giornata), aggiunte rapide o a quantità precisa, storico consultabile e una heatmap annuale colorata in base a quanto ci si è avvicinati all'obiettivo ogni giorno.
+
+### Alimentazione
+
+![Widget delle calorie e dei macro](screenreadme/kcal-widget.png)
+
+Registro dei pasti giorno per giorno: calorie, proteine, carboidrati, grassi e fibre, con una nota per ricordarsi cos'era. Ogni voce può essere segnata come **spazzatura**, così il conto settimanale degli sgarri è un dato e non una sensazione.
+
+Gli obiettivi (kcal e i quattro macro) hanno un default sul profilo e possono essere sovrascritti **per singola giornata**: un giorno di scarico non deve far sembrare fallito un obiettivo tarato sui giorni di allenamento.
+
+Una giornata si può anche marcare come **non tracciata** o **tracciata solo parzialmente**. È la differenza tra "quel giorno non ho mangiato niente" e "quel giorno non ho segnato niente": senza questa distinzione medie e grafici leggerebbero una dimenticanza come uno zero.
+
+La pagina lavora senza ricaricamenti — aggiunta, modifica, duplicazione, eliminazione multipla e cambio pagina dello storico passano tutti via AJAX.
+
+### Sonno
+
+![Pagina Sonno](screenreadme/sonno.png)
+
+Una voce per notte: ora in cui sei andato a letto, ora della sveglia e una qualità tra scarsa, media, buona e ottima. La durata la calcola l'app, gestendo da sola le notti a cavallo di mezzanotte.
+
+In cima ci sono le statistiche degli ultimi 7 giorni — media delle ore, qualità media, notti registrate di fila, orario medio in cui si va a letto — seguite dal grafico delle ore delle ultime due settimane e da un **calendario mensile colorato per qualità**, che rende evidente a colpo d'occhio dove sta il problema. Anche qui cambio mese e cambio pagina dello storico avvengono senza reload.
+
+### Attività e passi
+
+Passi camminati giorno per giorno, un valore per data: il numero lo leggi già totalizzato sul telefono a fine giornata, quindi reinserirlo è una correzione e non un doppione. Si possono compilare più giorni in una volta sola, per recuperare una settimana arretrata.
+
+L'obiettivo passi funziona come quello dell'acqua e delle calorie: c'è un default sul profilo, ma **ogni giornata può avere il suo**. Serviva perché prima era un solo numero globale e retroattivo — alzarlo ricoloriva la heatmap all'indietro su tutto l'anno, e un mese chiuso a 8.500 passi con obiettivo 8.000 diventava rosso a posteriori.
+
+> La pagina Attività è ancora in lavorazione: al momento è visibile solo all'utente amministratore.
 
 ### Integratori
 
@@ -72,6 +117,10 @@ Peso corporeo, altezza, percentuale di massa grassa e circonferenze (vita, torac
 
 Ogni utente ha un profilo che può essere pubblico o privato. Chi rende pubblico il proprio profilo permette ad altri di vedere il proprio storico, gli esercizi preferiti e la heatmap, e di importare una loro sessione come punto di partenza per un proprio allenamento. Il proprietario del profilo vede in più una striscia di allenamento settimanale consecutiva e — visibile solo a lui — l'andamento del proprio peso corporeo nel tempo.
 
+### Impostazioni
+
+Il colore di accento dell'interfaccia si sceglie tra cinque preset (viola, corallo, lime, teal, verde), ognuno con la sua scala tarata a mano, oppure si imposta a piacere con un colore personalizzato da cui l'app deriva l'intera scala. Il colore personalizzato resta salvato anche tornando a un preset, così chi ci ripensa lo ritrova invece di doverlo ripescare a occhio. Da qui si scelgono anche la lingua dei nomi degli esercizi e la visibilità pubblica del profilo.
+
 ### Backup
 
 Le sessioni (e il catalogo esercizi) si esportano e importano in JSON, per chi vuole un backup indipendente dal database o vuole spostare i propri dati altrove.
@@ -79,12 +128,12 @@ Le sessioni (e il catalogo esercizi) si esportano e importano in JSON, per chi v
 ## Com'è fatto
 
 - **Backend**: Django 6, database MySQL sia in locale che in produzione.
-- **Frontend**: nessun framework JavaScript — template Django con JavaScript vanilla dove serve interattività (drag & drop, autocomplete, grafici via [Chart.js](https://www.chartjs.org/), heatmap via [cal-heatmap](https://cal-heatmap.com/)), pensati per restare leggeri e comprensibili riga per riga piuttosto che dipendere da una build chain.
+- **Frontend**: nessun framework JavaScript — template Django con JavaScript vanilla dove serve interattività (drag & drop, autocomplete, grafici via [Chart.js](https://www.chartjs.org/), heatmap via [cal-heatmap](https://cal-heatmap.com/)), pensati per restare leggeri e comprensibili riga per riga piuttosto che dipendere da una build chain. Le pagine più usate (alimentazione, sonno, acqua, misurazioni, modale del giorno) parlano con il server via `fetch` e si aggiornano sul posto, senza ricaricamenti.
 - **Deploy**: PythonAnywhere, con `SECRET_KEY` e `DB_PASSWORD` forniti da variabili d'ambiente in produzione. `STATIC_ROOT` (`staticfiles/`) è separato da `STATICFILES_DIRS` (`static/`): un `git pull` aggiorna solo la seconda, quindi va sempre seguito da `python manage.py collectstatic --noinput` prima del reload, altrimenti CSS/JS serviti in produzione restano quelli vecchi anche se il codice sorgente è aggiornato (successo gia' una volta: dopo aver cambiato `style.css` il sito continuava a servire una versione di mesi prima perché mancava questo passaggio).
 
 **Checklist ad ogni deploy**: `git pull` → `python manage.py migrate` (se ci sono migrazioni nuove) → `python manage.py collectstatic --noinput` (se sono cambiati CSS/JS/immagini in `static/`) → reload della web app dalla dashboard PythonAnywhere.
 
-Il tema è viola scuro, disegnato prima come mockup statici e poi portato dentro l'app pagina per pagina, mantenendo lo stesso linguaggio visivo — stessi colori, stessi badge, stesse card — su dashboard, sessione, profilo e le pagine più recenti come acqua e misurazioni.
+Il tema è scuro, disegnato prima come mockup statici e poi portato dentro l'app pagina per pagina, mantenendo lo stesso linguaggio visivo — stessi colori, stessi badge, stesse card — su dashboard, sessione, profilo e le pagine più recenti come alimentazione, sonno e attività.
 
 ## Avvio in locale
 
@@ -110,10 +159,11 @@ L'app parte su `http://127.0.0.1:8000/`.
 ```
 core/                  Settings, URL root, WSGI
 tracker/
-  models.py             Sessioni, serie, circuiti, esercizi, misurazioni, acqua, integratori, profili
+  models.py             Sessioni, serie, circuiti, esercizi, misurazioni, acqua, macro, sonno, passi, profili
   views.py               Logica di tutte le pagine e degli endpoint AJAX
   urls.py                 Routing
-  management/commands/    Comandi custom
-  templates/tracker/       Template per pagina
-  migrations/               Storico dello schema del database
+  accent.py                Scala di colori derivata dall'accento scelto
+  management/commands/      Comandi custom
+  templates/tracker/         Template per pagina (+ partials/ per i pezzi riusati)
+  migrations/                 Storico dello schema del database
 ```
