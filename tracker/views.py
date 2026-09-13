@@ -2980,9 +2980,13 @@ def _macro_page_context(user, page_number=None):
     )
 
     week_monday = today - timedelta(days=today.weekday())
-    junk_week_count = MacroEntry.objects.filter(
-        utente=user, e_spazzatura=True, data__gte=week_monday, data__lte=today,
-    ).count()
+    # Il conteggio spazzatura da solo non dice quanto pesa: serve anche il
+    # totale delle voci della settimana per leggerlo come frazione.
+    week_entries = MacroEntry.objects.filter(
+        utente=user, data__gte=week_monday, data__lte=today,
+    )
+    entries_week_count = week_entries.count()
+    junk_week_count = week_entries.filter(e_spazzatura=True).count()
 
     entries = MacroEntry.objects.filter(utente=user).order_by('-data', 'creato_il')
     entries_by_day = {day: list(grp) for day, grp in groupby(entries, key=lambda e: e.data)}
@@ -3030,6 +3034,7 @@ def _macro_page_context(user, page_number=None):
         'ultimo_peso': ultimo_peso,
         'chart_data': chart_data,
         'junk_week_count': junk_week_count,
+        'entries_week_count': entries_week_count,
     }
 
 

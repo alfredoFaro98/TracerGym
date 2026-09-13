@@ -38,6 +38,9 @@ sostituisce l'HTML, senza ricaricare la pagina.
                 <span style="flex-shrink: 0; background: rgba(var(--acc-rgb),0.14); color: var(--acc-soft); font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap;"><span id="day-kcal-{{ day_key }}">{{ day.totals.kcal }}</span> <span style="color: #8f96b8; font-weight: 500;">/ {{ day.goals.kcal }} kcal</span></span>
                 <span id="day-macros-{{ day_key }}" class="day-macros" style="flex: 1; min-width: 0; font-size: 11px; color: #9ba0b3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">P {{ day.totals.proteine_g|floatformat:"-1" }}g &middot; C {{ day.totals.carboidrati_g|floatformat:"-1" }}g &middot; G {{ day.totals.grassi_g|floatformat:"-1" }}g &middot; F {{ day.totals.fibre_g|floatformat:"-1" }}g</span>
                 <div class="day-actions">
+                    {% if day.totals.junk_count %}
+                    <span class="day-chip day-chip-junk" title="Voci di cibo spazzatura sul totale delle voci del giorno">&#127828; {{ day.totals.junk_count }}<span class="day-chip-junk-tot">/{{ day.entries|length }}</span></span>
+                    {% endif %}
                     {% if day.reached %}
                     <span class="day-chip day-chip-ok" title="Obiettivo raggiunto">&#10003;</span>
                     {% else %}
@@ -73,14 +76,12 @@ sostituisce l'HTML, senza ricaricare la pagina.
                 </div>
             </div>
 
-            <!-- Riga 3: solo i badge. La tendina e' salita sulla riga dei kcal,
-                 quindi questa riga puo' non avere niente da mostrare: senza l'if
-                 resterebbe una fascia vuota alta 8px sotto ogni giornata. -->
-            {% if day.totals.junk_count or day.status %}
+            <!-- Riga 3: solo i badge di stato. La tendina e' salita sulla riga
+                 dei kcal e il contatore spazzatura sta accanto ai comandi,
+                 quindi questa riga puo' non avere niente da mostrare: senza
+                 l'if resterebbe una fascia vuota alta 8px sotto ogni giornata. -->
+            {% if day.status %}
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
-                {% if day.totals.junk_count %}
-                <span title="Voci di cibo spazzatura" style="font-size: 10.5px; font-weight: 700; color: #f0a875; background: rgba(240,168,117,0.14); padding: 3px 9px; border-radius: 6px; white-space: nowrap;">&#127828; {{ day.totals.junk_count }}</span>
-                {% endif %}
                 {% if day.status == 'non_tracciato' %}
                 <span style="background: rgba(248,113,113,0.14); color: #f87171; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap;">&#128683; NON TRACCIATO</span>
                 {% elif day.status == 'parziale' %}

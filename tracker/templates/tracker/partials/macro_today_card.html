@@ -6,8 +6,8 @@ lo rendono di nuovo lato server e il client sostituisce solo questo pezzo.
     <div class="tracer-card" style="padding: 20px 22px; margin-bottom: 24px;">
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px;">
             <div style="font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #838a9e; text-transform: uppercase;">Oggi</div>
-            <span title="Voci di cibo spazzatura da lunedì ad oggi" style="font-size: 11.5px; font-weight: 600; color: {% if junk_week_count %}#f0a875{% else %}#565b6e{% endif %}; background: {% if junk_week_count %}rgba(240,168,117,0.12){% else %}rgba(255,255,255,0.04){% endif %}; padding: 4px 10px; border-radius: 20px; white-space: nowrap;">
-                🍔 {{ junk_week_count }} questa settimana
+            <span title="Voci di cibo spazzatura sul totale delle voci, da lunedì ad oggi" style="font-size: 11.5px; font-weight: 600; color: {% if junk_week_count %}#f0a875{% else %}#565b6e{% endif %}; background: {% if junk_week_count %}rgba(240,168,117,0.12){% else %}rgba(255,255,255,0.04){% endif %}; padding: 4px 10px; border-radius: 20px; white-space: nowrap;">
+                🍔 {{ junk_week_count }} <span style="opacity: .65; font-weight: 500;">/ {{ entries_week_count }}</span> questa settimana
             </span>
         </div>
         <div style="display: flex; flex-direction: column; gap: 12px;">

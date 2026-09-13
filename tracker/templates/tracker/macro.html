@@ -211,6 +211,19 @@
 .day-chip-goal:hover,
 .day-chip-goal:active { background: rgba(var(--acc-rgb), 0.22); }
 
+/* Il contatore spazzatura stava su una riga sua sotto i totali: ora e' il
+   primo della fila di comandi, con la stessa scatola degli altri chip. Il
+   totale delle voci accanto serve a leggerlo come frazione (2 su 4) e non
+   come numero assoluto. */
+.day-chip-junk {
+  color: #f0a875;
+  background: rgba(240, 168, 117, 0.14);
+  border-color: rgba(240, 168, 117, 0.3);
+  font-size: 11.5px;
+  gap: 1px;
+}
+.day-chip-junk-tot { color: #b58a6b; font-weight: 600; }
+
 /* Senza il riquadro di sistema il riscontro al tocco lo da' il comando: senza
    questo, su telefono premere non darebbe piu' alcun segnale. */
 .day-status-btn:active { filter: brightness(1.35); }
